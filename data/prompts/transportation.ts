@@ -1,0 +1,63 @@
+// Transportation prompts for the AI assistant
+
+export const transportationPrompts = {
+  // AI responses for transportation-related queries
+  aiResponses: [
+    "Based on your company's travel policy, I recommend booking a standard class train ticket for journeys under 3 hours.",
+    "I've found several car rental options that comply with your travel policy. The most economical is a compact car from Avis at €45 per day.",
+    "For your trip to Barcelona, I recommend taking the high-speed AVE train from Madrid. It's faster than flying when you consider airport transit times.",
+    "Your company policy allows for business class train travel for journeys over 4 hours. Would you like me to search for business class options?",
+    "I've analyzed your itinerary and recommend a 7-day train pass instead of individual tickets. This would save approximately €120.",
+    "For your meeting in Paris, I recommend taking the Eurostar from London. There's a train at 8:30 AM that would get you there with plenty of time.",
+    "Based on your travel history, you typically prefer window seats on trains. Would you like me to book a window seat for this journey?",
+    "I notice you're traveling with colleagues. Would you like me to book seats together in the same train car?",
+    "For your trip to Munich, I recommend the ICE train from Berlin. It offers excellent onboard amenities and arrives directly in the city center.",
+    "Your company has a carbon reduction initiative. Taking the train for this journey instead of flying would reduce your carbon footprint by approximately 75%.",
+    "I've found a special promotion for first-class upgrades on Renfe trains this month. Would you like to take advantage of this offer?",
+    "For your journey to Florence, the high-speed Frecciarossa train from Rome offers the best combination of speed, comfort, and value.",
+    "I've checked the weather forecast for your travel date, and there might be disruptions due to expected snowfall. Would you like me to suggest alternative transportation options?",
+    "For your business trip to Lyon, the TGV from Paris offers a business-friendly environment with power outlets and reliable Wi-Fi for working during the journey.",
+    "Based on your preferences, I've found a quiet car option on the Deutsche Bahn train to Hamburg. Would you like me to book this for you?",
+    "For your journey with luggage, I recommend booking a seat near the luggage storage area. Would you like me to find such seats?",
+    "The train you're considering has a dining car with full meal service. Would you like to pre-book a meal for your journey?",
+    "I've analyzed the train schedules and found that booking an earlier train would give you a 30% discount on the fare. Would you like to consider this option?",
+    "For your trip to Seville, the AVE train offers a satisfaction guarantee - if it's more than 15 minutes late, you can get a partial refund.",
+    "Based on historical data, the train route you're considering often experiences delays during rush hour. Would you prefer to travel at a different time?",
+  ],
+
+  // User questions related to transportation
+  userQuestions: [
+    "What's the best way to get from Madrid to Barcelona?",
+    "Can you find me a train from Paris to Lyon for next Tuesday?",
+    "How much does a first-class ticket cost from London to Edinburgh?",
+    "Are there any direct trains from Berlin to Prague?",
+    "What's the fastest route from Rome to Florence?",
+    "Can I book a seat with a power outlet on the train?",
+    "What's our company policy on train travel?",
+    "Is it cheaper to fly or take the train to Milan?",
+    "How do I book a train ticket with my corporate discount?",
+    "Can you find me a train with a dining car?",
+    "What's the cancellation policy for Eurostar tickets?",
+    "How early should I arrive at the train station?",
+    "Can I bring my bicycle on the TGV train?",
+    "What's the luggage allowance on Renfe trains?",
+    "Are there overnight trains from Paris to Madrid?",
+    "How do I book a group ticket for my team?",
+    "Can you recommend a scenic train route in Switzerland?",
+    "What's the difference between first and second class on Deutsche Bahn?",
+    "How do I book assistance for a passenger with reduced mobility?",
+    "Can I get a refund if my train is delayed?",
+    "What's the best train pass for traveling around Europe?",
+    "How do I book a sleeper cabin on an overnight train?",
+    "Are there high-speed trains between Madrid and Seville?",
+    "What amenities are available on Thalys trains?",
+    "Can I book a quiet zone seat for my journey?",
+    "How do I add a meal reservation to my train booking?",
+    "What's the environmental impact of taking the train versus flying?",
+    "Are there any discounts for booking train tickets in advance?",
+    "Can I change my seat assignment after booking?",
+    "How do I book a train ticket with my loyalty points?",
+  ],
+}
+
+export default transportationPrompts

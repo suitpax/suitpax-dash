@@ -19,8 +19,10 @@ import {
   CreditCardIcon,
   UserIcon,
   Cog6ToothIcon,
+  HomeIcon,
 } from "@heroicons/react/24/outline"
 import type { Message } from "@/lib/ai/anthropic-service"
+import Link from "next/link"
 
 export default function AiAssistantPage() {
   const [inputValue, setInputValue] = useState("")
@@ -223,6 +225,13 @@ export default function AiAssistantPage() {
             <div>
               <h3 className="text-[10px] font-medium tracking-tighter uppercase text-white/50 mb-2 px-2">Settings</h3>
               <div className="space-y-1">
+                <Link
+                  href="/dashboard"
+                  className="w-full flex items-center px-3 py-1.5 text-xs rounded-lg text-white/70 hover:bg-white/5 hover:text-white transition-colors"
+                >
+                  <HomeIcon className="h-4 w-4 mr-2 flex-shrink-0" />
+                  <span className="truncate">Dashboard</span>
+                </Link>
                 <button className="w-full flex items-center px-3 py-1.5 text-xs rounded-lg text-white/70 hover:bg-white/5 hover:text-white transition-colors">
                   <UserIcon className="h-4 w-4 mr-2 flex-shrink-0" />
                   <span className="truncate">Profile</span>

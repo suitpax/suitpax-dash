@@ -8,19 +8,19 @@ import Link from "next/link"
 import { AtSign, Lock, ArrowRight } from "lucide-react"
 
 export default function SignIn() {
-  const [email, setEmail] = useState("")
-  const [password, setPassword] = useState("")
   const [isLoading, setIsLoading] = useState(false)
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault()
     setIsLoading(true)
 
-    // Simulación de inicio de sesión
-    setTimeout(() => {
+    try {
+      // Redirigir a la ruta de Auth0 para iniciar sesión
+      window.location.href = "/api/auth/login"
+    } catch (error) {
+      console.error("Error al iniciar sesión:", error)
       setIsLoading(false)
-      // Aquí iría la lógica real de autenticación
-    }, 1500)
+    }
   }
 
   return (
@@ -32,21 +32,21 @@ export default function SignIn() {
             <Image
               src="/images/suitpax-cloud-logo.webp"
               alt="Suitpax Logo"
-              width={140}
-              height={36}
-              className="h-8 sm:h-10 w-auto"
+              width={120}
+              height={30}
+              className="h-7 w-auto"
               priority
             />
           </div>
 
           {/* Título y subtítulo */}
           <div className="text-center">
-            <h1 className="text-2xl font-semibold">Welcome back</h1>
+            <h1 className="text-2xl font-medium text-white">Welcome back</h1>
             <p className="mt-2 text-white/70">Sign in to your Suitpax account</p>
           </div>
 
           {/* Formulario */}
-          <form onSubmit={handleSubmit} className="space-y-4">
+          <form onSubmit={handleSignIn} className="space-y-4">
             {/* Email */}
             <div className="relative">
               <div className="absolute inset-y-0 left-0 flex items-center pl-3">
@@ -55,10 +55,8 @@ export default function SignIn() {
               <input
                 type="email"
                 placeholder="Work email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
                 required
-                className="w-full bg-white/5 border border-white/10 rounded-xl py-2 pl-10 pr-4 text-white placeholder:text-white/30 focus:outline-none focus:ring-1 focus:ring-white/20"
+                className="w-full bg-white/5 border border-white/10 rounded-lg py-2 pl-10 pr-4 text-white placeholder:text-white/30 focus:outline-none focus:ring-1 focus:ring-white/20"
               />
             </div>
 
@@ -70,10 +68,8 @@ export default function SignIn() {
               <input
                 type="password"
                 placeholder="Password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
                 required
-                className="w-full bg-white/5 border border-white/10 rounded-xl py-2 pl-10 pr-4 text-white placeholder:text-white/30 focus:outline-none focus:ring-1 focus:ring-white/20"
+                className="w-full bg-white/5 border border-white/10 rounded-lg py-2 pl-10 pr-4 text-white placeholder:text-white/30 focus:outline-none focus:ring-1 focus:ring-white/20"
               />
             </div>
 
@@ -88,7 +84,7 @@ export default function SignIn() {
             <button
               type="submit"
               disabled={isLoading}
-              className="flex w-full items-center justify-center space-x-2 bg-white/10 hover:bg-white/15 border border-white/10 rounded-xl py-2 px-4 font-medium transition-colors"
+              className="flex w-full items-center justify-center space-x-2 bg-white/5 hover:bg-white/10 border border-white/10 rounded-lg py-2 px-4 font-medium transition-colors"
             >
               {isLoading ? (
                 <div className="h-5 w-5 animate-spin rounded-full border-2 border-white border-t-transparent" />
@@ -114,8 +110,11 @@ export default function SignIn() {
           {/* SSO Buttons */}
           <div className="grid grid-cols-2 gap-4">
             {/* Google */}
-            <button className="flex items-center justify-center space-x-2 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl py-2 px-4 transition-colors">
-              <svg className="h-5 w-5" viewBox="0 0 24 24">
+            <button
+              onClick={() => (window.location.href = "/api/auth/login?connection=google-oauth2")}
+              className="flex items-center justify-center space-x-2 bg-white/5 hover:bg-white/10 border border-white/10 rounded-lg py-2 px-4 transition-colors"
+            >
+              <svg className="h-4 w-4" viewBox="0 0 24 24">
                 <path
                   fill="currentColor"
                   d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
@@ -138,8 +137,11 @@ export default function SignIn() {
             </button>
 
             {/* LinkedIn */}
-            <button className="flex items-center justify-center space-x-2 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl py-2 px-4 transition-colors">
-              <svg className="h-5 w-5" viewBox="0 0 24 24">
+            <button
+              onClick={() => (window.location.href = "/api/auth/login?connection=linkedin")}
+              className="flex items-center justify-center space-x-2 bg-white/5 hover:bg-white/10 border border-white/10 rounded-lg py-2 px-4 transition-colors"
+            >
+              <svg className="h-4 w-4" viewBox="0 0 24 24">
                 <path
                   fill="currentColor"
                   d="M19 3a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h14m-.5 15.5v-5.3a3.26 3.26 0 0 0-3.26-3.26c-.85 0-1.84.52-2.32 1.3v-1.11h-2.79v8.37h2.79v-4.93c0-.77.62-1.4 1.39-1.4a1.4 1.4 0 0 1 1.4 1.4v4.93h2.79M6.88 8.56a1.68 1.68 0 0 0 1.68-1.68c0-.93-.75-1.69-1.68-1.69a1.69 1.69 0 0 0-1.69 1.69c0 .93.76 1.68 1.69 1.68m1.39 9.94v-8.37H5.5v8.37h2.77z"
@@ -152,7 +154,7 @@ export default function SignIn() {
           {/* Sign Up Link */}
           <div className="text-center text-sm">
             <span className="text-white/70">Don't have an account?</span>{" "}
-            <Link href="/signup" className="text-white hover:underline">
+            <Link href="/sign-up" className="text-white hover:underline">
               Sign up
             </Link>
           </div>

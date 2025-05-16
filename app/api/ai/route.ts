@@ -1,33 +1,25 @@
-import { NextResponse } from "next/server"
-import { anthropicService } from "@/lib/ai/anthropic-service"
+import { type NextRequest, NextResponse } from "next/server"
+import { generateChatCompletion } from "@/lib/ai/anthropic-service"
 
-export async function POST(request: Request) {
+export async function POST(req: NextRequest) {
   try {
-    const body = await request.json()
-    const { messages, systemPrompt } = body
+    const { messages, model, temperature, maxTokens, systemPrompt } = await req.json()
 
     if (!messages || !Array.isArray(messages)) {
-      return NextResponse.json({ error: "Invalid request format. 'messages' array is required." }, { status: 400 })
+      return NextResponse.json({ error: "Messages are required and must be an array" }, { status: 400 })
     }
 
-    const response = await anthropicService.generateResponse({ messages, systemPrompt })
+    const response = await generateChatCompletion({
+      messages,
+      model,
+      temperature,
+      maxTokens,
+      systemPrompt,
+    })
 
-    return NextResponse.json({ response })
+    return NextResponse.json(response)
   } catch (error) {
     console.error("Error in AI route:", error)
-
-    // Proporcionar una respuesta de fallback en caso de error
-    return NextResponse.json(
-      {
-        response: {
-          id: `error-${Date.now()}`,
-          content: "I'm sorry, I encountered an issue processing your request. Please try again later.",
-          role: "assistant",
-          createdAt: new Date(),
-        },
-        error: error instanceof Error ? error.message : "Unknown error",
-      },
-      { status: 500 },
-    )
+    return NextResponse.json({ error: "Failed to generate AI response" }, { status: 500 })
   }
 }

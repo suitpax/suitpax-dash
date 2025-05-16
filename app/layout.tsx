@@ -1,6 +1,7 @@
 import type React from "react"
 import { Inter } from "next/font/google"
 import { Analytics } from "@vercel/analytics/react"
+// Eliminamos la importación de UserProvider
 import "./globals.css"
 import "./glow-effects.css"
 import { Suspense } from "react"
@@ -21,6 +22,7 @@ export default function RootLayout({
   return (
     <html lang="es">
       <body className={inter.className}>
+        {/* Eliminamos el UserProvider */}
         <Suspense fallback={"Loading..."}>{children}</Suspense>
         <Analytics />
       </body>

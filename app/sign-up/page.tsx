@@ -1,8 +1,28 @@
+"use client"
+
+import type React from "react"
+
+import { useState } from "react"
 import Image from "next/image"
 import Link from "next/link"
 import { AtSign, Building2, Lock, ArrowRight } from "lucide-react"
 
-export default function SignUpPage() {
+export default function SignUp() {
+  const [isLoading, setIsLoading] = useState(false)
+
+  const handleSignUp = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setIsLoading(true)
+
+    try {
+      // Redirigir a la ruta de Auth0 para registrarse
+      window.location.href = "/api/auth/signup"
+    } catch (error) {
+      console.error("Error al registrarse:", error)
+      setIsLoading(false)
+    }
+  }
+
   return (
     <div className="flex min-h-screen w-full flex-col bg-black text-white">
       <div className="flex min-h-screen items-center justify-center p-4 sm:p-8">
@@ -12,22 +32,22 @@ export default function SignUpPage() {
             <Image
               src="/images/suitpax-cloud-logo.webp"
               alt="Suitpax Logo"
-              width={140}
-              height={36}
-              className="h-8 sm:h-10 w-auto"
+              width={120}
+              height={30}
+              className="h-7 w-auto"
             />
           </div>
 
           <div className="space-y-2 text-center">
-            <h1 className="text-2xl font-medium">Create your account</h1>
+            <h1 className="text-2xl font-medium text-white">Create your account</h1>
             <p className="text-white/70">Start managing your business travel efficiently</p>
           </div>
 
           {/* Sign Up Form */}
-          <form className="space-y-4">
+          <form onSubmit={handleSignUp} className="space-y-4">
             {/* Work Email */}
             <div className="space-y-1.5">
-              <label htmlFor="email" className="text-sm font-medium">
+              <label htmlFor="email" className="text-sm font-medium text-white">
                 Work Email
               </label>
               <div className="relative">
@@ -38,7 +58,7 @@ export default function SignUpPage() {
                   id="email"
                   type="email"
                   placeholder="you@company.com"
-                  className="w-full rounded-xl border border-white/10 bg-white/5 py-2 pl-10 pr-4 text-white placeholder:text-white/30 focus:border-white/20 focus:outline-none focus:ring-1 focus:ring-white/20"
+                  className="w-full rounded-lg border border-white/10 bg-white/5 py-2 pl-10 pr-4 text-white placeholder:text-white/30 focus:border-white/20 focus:outline-none focus:ring-1 focus:ring-white/20"
                   required
                 />
               </div>
@@ -46,7 +66,7 @@ export default function SignUpPage() {
 
             {/* Password */}
             <div className="space-y-1.5">
-              <label htmlFor="password" className="text-sm font-medium">
+              <label htmlFor="password" className="text-sm font-medium text-white">
                 Password
               </label>
               <div className="relative">
@@ -57,7 +77,7 @@ export default function SignUpPage() {
                   id="password"
                   type="password"
                   placeholder="••••••••"
-                  className="w-full rounded-xl border border-white/10 bg-white/5 py-2 pl-10 pr-4 text-white placeholder:text-white/30 focus:border-white/20 focus:outline-none focus:ring-1 focus:ring-white/20"
+                  className="w-full rounded-lg border border-white/10 bg-white/5 py-2 pl-10 pr-4 text-white placeholder:text-white/30 focus:border-white/20 focus:outline-none focus:ring-1 focus:ring-white/20"
                   required
                 />
               </div>
@@ -66,7 +86,7 @@ export default function SignUpPage() {
 
             {/* Company Name */}
             <div className="space-y-1.5">
-              <label htmlFor="company" className="text-sm font-medium">
+              <label htmlFor="company" className="text-sm font-medium text-white">
                 Company Name
               </label>
               <div className="relative">
@@ -77,7 +97,7 @@ export default function SignUpPage() {
                   id="company"
                   type="text"
                   placeholder="Acme Inc."
-                  className="w-full rounded-xl border border-white/10 bg-white/5 py-2 pl-10 pr-4 text-white placeholder:text-white/30 focus:border-white/20 focus:outline-none focus:ring-1 focus:ring-white/20"
+                  className="w-full rounded-lg border border-white/10 bg-white/5 py-2 pl-10 pr-4 text-white placeholder:text-white/30 focus:border-white/20 focus:outline-none focus:ring-1 focus:ring-white/20"
                   required
                 />
               </div>
@@ -86,10 +106,17 @@ export default function SignUpPage() {
             {/* Submit Button */}
             <button
               type="submit"
-              className="flex w-full items-center justify-center gap-2 rounded-xl bg-white py-2 px-4 text-sm font-medium text-black transition-colors hover:bg-white/90"
+              disabled={isLoading}
+              className="flex w-full items-center justify-center gap-2 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 py-2 px-4 text-sm font-medium text-white transition-colors"
             >
-              Create Account
-              <ArrowRight className="h-4 w-4" />
+              {isLoading ? (
+                <div className="h-5 w-5 animate-spin rounded-full border-2 border-white border-t-transparent" />
+              ) : (
+                <>
+                  <span>Create Account</span>
+                  <ArrowRight className="h-4 w-4" />
+                </>
+              )}
             </button>
           </form>
 
@@ -104,9 +131,10 @@ export default function SignUpPage() {
           <div className="grid grid-cols-2 gap-3">
             <button
               type="button"
-              className="flex items-center justify-center gap-2 rounded-xl border border-white/10 bg-white/5 py-2 px-4 text-sm font-medium text-white hover:bg-white/10"
+              onClick={() => (window.location.href = "/api/auth/signup?connection=google-oauth2")}
+              className="flex items-center justify-center gap-2 rounded-lg border border-white/10 bg-white/5 py-2 px-4 text-sm font-medium text-white hover:bg-white/10"
             >
-              <svg className="h-5 w-5" viewBox="0 0 24 24" fill="currentColor">
+              <svg className="h-4 w-4" viewBox="0 0 24 24" fill="currentColor">
                 <path
                   d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
                   fill="#4285F4"
@@ -128,9 +156,10 @@ export default function SignUpPage() {
             </button>
             <button
               type="button"
-              className="flex items-center justify-center gap-2 rounded-xl border border-white/10 bg-white/5 py-2 px-4 text-sm font-medium text-white hover:bg-white/10"
+              onClick={() => (window.location.href = "/api/auth/signup?connection=linkedin")}
+              className="flex items-center justify-center gap-2 rounded-lg border border-white/10 bg-white/5 py-2 px-4 text-sm font-medium text-white hover:bg-white/10"
             >
-              <svg className="h-5 w-5" viewBox="0 0 24 24" fill="#0A66C2">
+              <svg className="h-4 w-4" viewBox="0 0 24 24" fill="currentColor">
                 <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z" />
               </svg>
               LinkedIn
@@ -140,7 +169,7 @@ export default function SignUpPage() {
           {/* Sign In Link */}
           <div className="text-center text-sm text-white/70">
             Already have an account?{" "}
-            <Link href="/login" className="font-medium text-white hover:underline">
+            <Link href="/sign-in" className="font-medium text-white hover:underline">
               Sign in
             </Link>
           </div>

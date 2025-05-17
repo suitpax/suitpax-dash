@@ -265,6 +265,10 @@ export default function AiAssistantPage() {
                 Powered by Anthropic
               </span>
             </div>
+            <Link href="/dashboard" className="ml-auto flex items-center text-xs text-white/70 hover:text-white">
+              <HomeIcon className="h-4 w-4 mr-1" />
+              <span>Dashboard</span>
+            </Link>
           </div>
 
           {/* Chat Area */}

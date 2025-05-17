@@ -467,34 +467,23 @@ export default function TransfersPage() {
     <Layout>
       <div className="space-y-5">
         {/* Header */}
-        <div className="bg-black/30 backdrop-blur-sm rounded-xl border border-white/10 p-6 shadow-sm relative overflow-hidden">
+        <div className="bg-black/30 backdrop-blur-sm rounded-xl border border-white/10 p-4 shadow-sm relative overflow-hidden">
           <div className="absolute top-0 left-0 w-full h-1 bg-white/10"></div>
 
-          <div className="flex flex-col md:flex-row items-center gap-5">
-            <div className="flex items-center justify-center p-3 bg-white/5 rounded-xl">
-              <Car className="h-10 w-10 text-white" />
+          <div className="flex items-center gap-3">
+            <div className="flex items-center justify-center p-2 bg-white/5 rounded-lg">
+              <Car className="h-6 w-6 text-white" />
             </div>
 
             <div className="flex-1">
-              <div className="flex items-center gap-2 mb-2">
-                <div className="inline-flex items-center gap-2 bg-white/5 px-3 py-1 rounded-full">
-                  <Car className="h-4 w-4 text-white" />
-                  <span className="text-sm font-medium text-white">Transfer Search</span>
-                </div>
-                <div className="inline-flex items-center gap-1 bg-white/5 px-2 py-0.5 rounded-full">
-                  <span className="text-xs font-medium text-white/70">Executive</span>
-                  <span className="text-xs text-white/50">•</span>
-                  <span className="text-xs text-white/70">Premium</span>
+              <div className="flex items-center gap-2">
+                <div className="inline-flex items-center gap-2 bg-white/5 px-2 py-0.5 rounded-full">
+                  <Car className="h-3 w-3 text-white" />
+                  <span className="text-xs font-medium text-white">Transfer Search</span>
                 </div>
               </div>
 
-              <h1 className="text-xl md:text-2xl font-medium tracking-tighter text-white mb-1.5">
-                Book your executive airport transfer
-              </h1>
-
-              <p className="text-sm text-white/70 mb-3">
-                Seamless door-to-door transportation with professional drivers and premium vehicles.
-              </p>
+              <h1 className="text-lg font-medium text-white mb-0.5">Book your executive transfers</h1>
             </div>
           </div>
         </div>

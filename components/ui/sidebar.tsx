@@ -22,10 +22,12 @@ import {
   CommandLineIcon,
   CreditCardIcon,
   BanknotesIcon,
+  ChartBarIcon,
+  EnvelopeIcon,
+  CalendarIcon,
 } from "@heroicons/react/24/outline"
 import { ChevronDownIcon } from "@heroicons/react/24/solid"
-// Primero, añadir el import para el icono de Transfers
-import { Plane, TrainIcon, Users, X, Menu, Receipt, Mic, Car, Send } from "lucide-react"
+import { Plane, Train, Users, X, Menu, Receipt, Mic, Car, Send } from "lucide-react"
 import { cn } from "@/lib/utils"
 // Primero, asegúrate de que tenemos el componente Badge importado
 import { Badge } from "@/components/ui/badge"
@@ -45,6 +47,7 @@ export function Sidebar({ isOpen = true, toggleSidebar }: SidebarProps) {
     lists: false,
     finance: false,
     aiTools: false,
+    analytics: false,
   })
   const [chatInput, setChatInput] = useState("")
   const [chatMessages, setChatMessages] = useState<Message[]>([])
@@ -217,17 +220,17 @@ export function Sidebar({ isOpen = true, toggleSidebar }: SidebarProps) {
       >
         <Icon className={`h-4 w-4 ${isCollapsed ? "" : "mr-2"} flex-shrink-0`} />
         {!isCollapsed && (
-          <>
+          <div className="flex items-center justify-between w-full">
             <span className="truncate font-light">{children}</span>
             {badge && (
               <Badge
-                className="ml-auto text-[9px] py-0 px-1.5 h-4 bg-amber-500/20 text-amber-500 border-amber-500/30"
+                className="ml-2 text-[9px] py-0 px-1.5 h-4 bg-amber-500/20 text-amber-500 border-amber-500/30"
                 variant="outline"
               >
                 {badge}
               </Badge>
             )}
-          </>
+          </div>
         )}
         {isCollapsed && badge && <div className="absolute -right-1 -top-1 w-2 h-2 bg-amber-500 rounded-full"></div>}
       </Link>
@@ -261,16 +264,14 @@ export function Sidebar({ isOpen = true, toggleSidebar }: SidebarProps) {
   return (
     <>
       {/* Mobile menu button - only visible when sidebar is closed */}
-      {!isMobileMenuOpen && (
-        <button
-          type="button"
-          className="lg:hidden fixed top-4 left-4 z-[70] p-1.5 rounded-lg bg-black/90 shadow-md text-white border border-white/10"
-          onClick={() => setIsMobileMenuOpen(true)}
-          aria-label="Open menu"
-        >
-          <Menu className="h-4 w-4" />
-        </button>
-      )}
+      <button
+        type="button"
+        className="lg:hidden fixed top-4 left-4 z-[70] p-1.5 rounded-lg bg-black/90 shadow-md text-white border border-white/10"
+        onClick={() => setIsMobileMenuOpen(true)}
+        aria-label="Open menu"
+      >
+        <Menu className="h-4 w-4 flex-shrink-0" />
+      </button>
 
       {/* Sidebar navigation */}
       <nav
@@ -279,7 +280,7 @@ export function Sidebar({ isOpen = true, toggleSidebar }: SidebarProps) {
           "lg:translate-x-0 lg:relative lg:border-r",
           "bg-black border-white/10",
           isMobileMenuOpen ? "translate-x-0 shadow-xl" : "-translate-x-full",
-          isCollapsed ? "lg:w-16" : "lg:w-64",
+          isCollapsed ? "lg:w-16" : "lg:w-64 md:w-64 sm:w-full",
           isCollapsed ? "w-16" : "w-[280px]",
         )}
       >
@@ -533,7 +534,7 @@ export function Sidebar({ isOpen = true, toggleSidebar }: SidebarProps) {
                   <NavItem href="/hotels" icon={BuildingOfficeIcon}>
                     Hotels
                   </NavItem>
-                  <NavItem href="/trains" icon={TrainIcon}>
+                  <NavItem href="/trains" icon={Train}>
                     Trains
                   </NavItem>
                   <NavItem href="/transfers" icon={Car}>
@@ -602,6 +603,42 @@ export function Sidebar({ isOpen = true, toggleSidebar }: SidebarProps) {
                     </NavItem>
                     <NavItem href="#" icon={BriefcaseIcon}>
                       Deals
+                    </NavItem>
+                    {/* Nuevas secciones añadidas */}
+                    <NavItem href="/emails" icon={EnvelopeIcon}>
+                      Emails
+                    </NavItem>
+                    <NavItem href="/meetings" icon={CalendarIcon}>
+                      Meetings
+                    </NavItem>
+                    <NavItem href="/analytics" icon={ChartBarIcon}>
+                      Analytics
+                    </NavItem>
+                  </div>
+                )}
+              </div>
+
+              {/* Analytics Section */}
+              <div className="space-y-0.5">
+                <SectionHeader
+                  title="Analytics"
+                  collapsedTitle="AN"
+                  isExpanded={expandedSections.analytics}
+                  onToggle={() => toggleSection("analytics")}
+                />
+                {expandedSections.analytics && !isCollapsed && (
+                  <div className="ml-3 space-y-0.5 border-l border-white/10 pl-3">
+                    <NavItem href="/analytics" icon={ChartBarIcon}>
+                      Predictive Analytics
+                    </NavItem>
+                    <NavItem href="/analytics/expenses" icon={Receipt}>
+                      Expense Reports
+                    </NavItem>
+                    <NavItem href="/analytics/insights" icon={ChartBarIcon}>
+                      Travel Insights
+                    </NavItem>
+                    <NavItem href="/analytics/budget" icon={BanknotesIcon}>
+                      Budget Forecasting
                     </NavItem>
                   </div>
                 )}

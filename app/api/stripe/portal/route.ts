@@ -1,26 +1,20 @@
-import { NextResponse } from "next/server"
-import { getServerSession } from "next-auth/next"
+import { type NextRequest, NextResponse } from "next/server"
+import { getSession } from "@auth0/nextjs-auth0"
 import { createPortalSession } from "@/lib/services/stripe-service"
-import { authOptions } from "@/lib/auth/auth-config"
 
-export async function POST(req: Request) {
+export async function GET(req: NextRequest) {
   try {
-    const session = await getServerSession(authOptions)
+    const session = await getSession(req, new NextResponse())
 
+    // Verificar si el usuario está autenticado
     if (!session || !session.user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
 
-    const { customerId, returnUrl } = await req.json()
-
-    if (!customerId) {
-      return NextResponse.json({ error: "Customer ID is required" }, { status: 400 })
-    }
-
-    // Create portal session
+    // Crear sesión de portal
     const portalSession = await createPortalSession({
-      customerId,
-      returnUrl: returnUrl || `${process.env.NEXT_PUBLIC_APP_URL}/billing`,
+      customerId: session.user.sub, // Usar el ID de Auth0 como ID de cliente
+      returnUrl: `${process.env.NEXT_PUBLIC_APP_URL}/billing`,
     })
 
     return NextResponse.json({ url: portalSession.url })

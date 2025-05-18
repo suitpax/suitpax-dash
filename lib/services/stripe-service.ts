@@ -1,182 +1,115 @@
 import Stripe from "stripe"
 
-// Initialize Stripe with the provided API key
-const stripe = new Stripe(process.env.STRIPE_API_KEY || "", {
+// Initialize Stripe with the API key
+const stripeApiKey = process.env.STRIPE_API_KEY
+if (!stripeApiKey) {
+  throw new Error("Missing STRIPE_API_KEY environment variable")
+}
+
+const stripe = new Stripe(stripeApiKey, {
   apiVersion: "2023-10-16",
 })
 
-// Billing service URL for external billing service integration
-const BILLING_SERVICE_URL = process.env.BILLING_SERVICE_URL || "http://localhost:5012"
-
-export async function createCheckoutSession(params: {
-  priceId: string
+interface CreateCheckoutSessionArgs {
+  planName: string
+  customerId: string
   successUrl: string
   cancelUrl: string
-  customerId?: string
-  metadata?: Record<string, string>
-}) {
-  const { priceId, successUrl, cancelUrl, customerId, metadata } = params
-
-  const session = await stripe.checkout.sessions.create({
-    mode: "subscription",
-    payment_method_types: ["card"],
-    line_items: [
-      {
-        price: priceId,
-        quantity: 1,
-      },
-    ],
-    success_url: successUrl,
-    cancel_url: cancelUrl,
-    customer: customerId,
-    metadata,
-  })
-
-  return session
 }
 
-export async function createCustomer(params: {
-  email: string
-  name?: string
-  metadata?: Record<string, string>
-}) {
-  const { email, name, metadata } = params
+export async function createCheckoutSession({
+  planName,
+  customerId,
+  successUrl,
+  cancelUrl,
+}: CreateCheckoutSessionArgs): Promise<Stripe.Checkout.Session> {
+  try {
+    // In a real implementation, you would fetch the price ID
+    // based on the planName from your database or Stripe.
+    const priceId = "price_1NVEym2eZvKYlo2C3bkIIjpl" // Example price ID
 
-  const customer = await stripe.customers.create({
-    email,
-    name,
-    metadata,
-  })
-
-  return customer
-}
-
-export async function getSubscription(subscriptionId: string) {
-  const subscription = await stripe.subscriptions.retrieve(subscriptionId)
-  return subscription
-}
-
-export async function cancelSubscription(subscriptionId: string) {
-  const subscription = await stripe.subscriptions.cancel(subscriptionId)
-  return subscription
-}
-
-export async function updateSubscription(
-  subscriptionId: string,
-  params: {
-    priceId?: string
-    metadata?: Record<string, string>
-  },
-) {
-  const { priceId, metadata } = params
-
-  let subscription
-
-  if (priceId) {
-    subscription = await stripe.subscriptions.retrieve(subscriptionId)
-
-    // Update the subscription items with the new price
-    subscription = await stripe.subscriptions.update(subscriptionId, {
-      items: [
+    const session = await stripe.checkout.sessions.create({
+      mode: "subscription",
+      payment_method_types: ["card"],
+      line_items: [
         {
-          id: subscription.items.data[0].id,
           price: priceId,
+          quantity: 1,
         },
       ],
-      metadata,
+      customer: customerId,
+      success_url: successUrl,
+      cancel_url: cancelUrl,
     })
-  } else {
-    subscription = await stripe.subscriptions.update(subscriptionId, {
-      metadata,
-    })
-  }
 
-  return subscription
+    return session
+  } catch (error) {
+    console.error("Error creating checkout session:", error)
+    throw error
+  }
 }
 
-export async function createPortalSession(params: {
+interface CreatePortalSessionArgs {
   customerId: string
   returnUrl: string
-}) {
-  const { customerId, returnUrl } = params
-
-  const session = await stripe.billingPortal.sessions.create({
-    customer: customerId,
-    return_url: returnUrl,
-  })
-
-  return session
 }
 
-export async function handleWebhook(payload: string, signature: string) {
+export async function createPortalSession({
+  customerId,
+  returnUrl,
+}: CreatePortalSessionArgs): Promise<Stripe.BillingPortal.Session> {
+  try {
+    const portalSession = await stripe.billingPortal.sessions.create({
+      customer: customerId,
+      return_url: returnUrl,
+    })
+
+    return portalSession
+  } catch (error) {
+    console.error("Error creating portal session:", error)
+    throw error
+  }
+}
+
+export async function handleWebhook(payload: string, signature: string): Promise<Stripe.Event> {
   const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET
-
   if (!webhookSecret) {
-    throw new Error("Missing Stripe webhook secret")
+    throw new Error("Missing STRIPE_WEBHOOK_SECRET environment variable")
   }
+
+  let event: Stripe.Event
 
   try {
-    const event = stripe.webhooks.constructEvent(payload, signature, webhookSecret)
-
-    return event
-  } catch (err) {
-    console.error("Webhook signature verification failed:", err)
-    throw new Error("Webhook signature verification failed")
+    event = stripe.webhooks.constructEvent(payload, signature, webhookSecret)
+  } catch (err: any) {
+    console.error(`Webhook signature verification failed.`, err.message)
+    throw err
   }
+
+  return event
 }
 
-// Function to communicate with external billing service
-export async function syncSubscriptionWithBillingService(subscriptionData: any) {
+const suitpaxApiKey = process.env.SUITPAX_API_KEY || ""
+const billingServiceUrl = process.env.BILLING_SERVICE_URL || "http://localhost:5012"
+
+export async function syncSubscriptionWithBillingService(payload: any) {
   try {
-    const response = await fetch(`${BILLING_SERVICE_URL}/api/subscriptions/sync`, {
+    const response = await fetch(`${billingServiceUrl}/api/stripe/webhook`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${process.env.SUITPAX_API_KEY}`,
+        "X-API-Key": suitpaxApiKey,
       },
-      body: JSON.stringify(subscriptionData),
+      body: JSON.stringify(payload),
     })
 
     if (!response.ok) {
-      throw new Error(`Billing service responded with status: ${response.status}`)
+      throw new Error(`Failed to sync with billing service: ${response.statusText}`)
     }
 
     return await response.json()
   } catch (error) {
     console.error("Error syncing with billing service:", error)
-    throw error
-  }
-}
-
-// Function to get available plans from Stripe
-export async function getAvailablePlans() {
-  try {
-    // Get all active products
-    const products = await stripe.products.list({
-      active: true,
-      expand: ["data.default_price"],
-    })
-
-    // Map products to plans with pricing information
-    const plans = products.data.map((product) => {
-      const price = product.default_price as Stripe.Price
-
-      return {
-        id: product.id,
-        name: product.name,
-        description: product.description,
-        priceId: price?.id,
-        unitAmount: price?.unit_amount,
-        currency: price?.currency,
-        interval: price?.type === "recurring" ? price.recurring?.interval : "one-time",
-        features: product.features?.map((feature) => feature.name) || [],
-        metadata: product.metadata,
-      }
-    })
-
-    return plans
-  } catch (error) {
-    console.error("Error fetching plans from Stripe:", error)
     throw error
   }
 }

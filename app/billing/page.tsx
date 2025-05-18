@@ -2,13 +2,13 @@ import { SubscriptionPlans } from "@/components/ui/subscription-plans"
 
 export default function BillingPage() {
   return (
-    <div className="container mx-auto px-4 py-8">
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-white">Subscription Plans</h1>
-        <p className="mt-2 text-white/70">Choose the plan that best fits your business needs</p>
-      </div>
+    <div className="min-h-screen bg-black p-6">
+      <div className="max-w-7xl mx-auto">
+        <h1 className="text-3xl font-bold text-white mb-2">Billing & Subscription</h1>
+        <p className="text-white/70 mb-8">Manage your subscription and billing information</p>
 
-      <SubscriptionPlans />
+        <SubscriptionPlans />
+      </div>
     </div>
   )
 }

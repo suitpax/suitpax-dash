@@ -5,7 +5,6 @@ import type React from "react"
 import { useState } from "react"
 import Image from "next/image"
 import Link from "next/link"
-import { signIn } from "next-auth/react"
 import { AtSign, Lock, ArrowRight } from "lucide-react"
 import { SiGoogle, SiLinkedin } from "react-icons/si"
 
@@ -21,19 +20,8 @@ export default function SignIn() {
     setError("")
 
     try {
-      const result = await signIn("credentials", {
-        email,
-        password,
-        redirect: false,
-      })
-
-      if (result?.error) {
-        setError("Invalid email or password")
-        setIsLoading(false)
-      } else {
-        // Redirigir al dashboard después de iniciar sesión
-        window.location.href = "/dashboard"
-      }
+      // Redirigir a la ruta de login de Auth0
+      window.location.href = "/api/auth/login"
     } catch (error) {
       console.error("Error al iniciar sesión:", error)
       setError("An unexpected error occurred")
@@ -43,7 +31,8 @@ export default function SignIn() {
 
   const handleProviderSignIn = (provider: string) => {
     setIsLoading(true)
-    signIn(provider, { callbackUrl: "/dashboard" })
+    // Redirigir a Auth0 con el proveedor específico
+    window.location.href = `/api/auth/login?connection=${provider}`
   }
 
   return (
@@ -143,7 +132,7 @@ export default function SignIn() {
           <div className="grid grid-cols-2 gap-4">
             {/* Google */}
             <button
-              onClick={() => handleProviderSignIn("google")}
+              onClick={() => handleProviderSignIn("google-oauth2")}
               className="flex items-center justify-center space-x-2 bg-white/5 hover:bg-white/10 border border-white/10 rounded-lg py-2 px-4 transition-colors"
             >
               <SiGoogle className="h-4 w-4 text-white" />

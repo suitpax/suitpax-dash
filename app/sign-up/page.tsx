@@ -5,7 +5,6 @@ import type React from "react"
 import { useState } from "react"
 import Image from "next/image"
 import Link from "next/link"
-import { signIn } from "next-auth/react"
 import { AtSign, Building2, Lock, ArrowRight } from "lucide-react"
 import { SiGoogle, SiLinkedin } from "react-icons/si"
 
@@ -22,42 +21,19 @@ export default function SignUp() {
     setError("")
 
     try {
-      // Aquí iría la lógica para registrar al usuario con tu API
-      const response = await fetch("/api/auth/register", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          email,
-          password,
-          company,
-        }),
-      })
-
-      const data = await response.json()
-
-      if (!response.ok) {
-        throw new Error(data.message || "Error al registrarse")
-      }
-
-      // Si el registro es exitoso, inicia sesión automáticamente
-      await signIn("credentials", {
-        email,
-        password,
-        redirect: true,
-        callbackUrl: "/onboarding",
-      })
+      // Redirigir a Auth0 para registro
+      window.location.href = `/api/auth/login?screen_hint=signup`
     } catch (error) {
       console.error("Error al registrarse:", error)
-      setError(error instanceof Error ? error.message : "An unexpected error occurred")
+      setError("An unexpected error occurred")
       setIsLoading(false)
     }
   }
 
   const handleProviderSignUp = (provider: string) => {
     setIsLoading(true)
-    signIn(provider, { callbackUrl: "/onboarding" })
+    // Redirigir a Auth0 con el proveedor específico y pantalla de registro
+    window.location.href = `/api/auth/login?connection=${provider}&screen_hint=signup`
   }
 
   return (
@@ -179,7 +155,7 @@ export default function SignUp() {
           <div className="grid grid-cols-2 gap-3">
             <button
               type="button"
-              onClick={() => handleProviderSignUp("google")}
+              onClick={() => handleProviderSignUp("google-oauth2")}
               className="flex items-center justify-center gap-2 rounded-lg border border-white/10 bg-white/5 py-2 px-4 text-sm font-medium text-white hover:bg-white/10"
             >
               <SiGoogle className="h-4 w-4 text-white" />

@@ -1,42 +1,28 @@
-import { NextResponse } from "next/server"
-import { getServerSession } from "next-auth/next"
-import { createCheckoutSession, createCustomer } from "@/lib/services/stripe-service"
-import { authOptions } from "@/lib/auth/auth-config"
+import { type NextRequest, NextResponse } from "next/server"
+import { getSession } from "@auth0/nextjs-auth0"
+import { createCheckoutSession } from "@/lib/services/stripe-service"
 
-export async function POST(req: Request) {
+export async function POST(req: NextRequest) {
   try {
-    const session = await getServerSession(authOptions)
+    const session = await getSession(req, new NextResponse())
 
+    // Verificar si el usuario está autenticado
     if (!session || !session.user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
 
-    const { priceId, successUrl, cancelUrl, metadata = {} } = await req.json()
+    const { planName } = await req.json()
 
-    if (!priceId) {
-      return NextResponse.json({ error: "Price ID is required" }, { status: 400 })
+    if (!planName) {
+      return NextResponse.json({ error: "Plan name is required" }, { status: 400 })
     }
 
-    // Get user from database or create a new customer in Stripe
-    // This is a simplified example - you would typically check if the user already has a Stripe customer ID
-    const customer = await createCustomer({
-      email: session.user.email || "",
-      name: session.user.name || undefined,
-      metadata: {
-        userId: session.user.id || "",
-      },
-    })
-
-    // Create checkout session
+    // Crear sesión de checkout
     const checkoutSession = await createCheckoutSession({
-      priceId,
-      successUrl: successUrl || `${process.env.NEXT_PUBLIC_APP_URL}/billing/success`,
-      cancelUrl: cancelUrl || `${process.env.NEXT_PUBLIC_APP_URL}/billing/cancel`,
-      customerId: customer.id,
-      metadata: {
-        userId: session.user.id || "",
-        ...metadata,
-      },
+      planName,
+      customerId: session.user.sub, // Usar el ID de Auth0 como ID de cliente
+      successUrl: `${process.env.NEXT_PUBLIC_APP_URL}/billing/success`,
+      cancelUrl: `${process.env.NEXT_PUBLIC_APP_URL}/billing/cancel`,
     })
 
     return NextResponse.json({ url: checkoutSession.url })

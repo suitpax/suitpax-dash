@@ -3,6 +3,17 @@ import { getSession } from "@auth0/nextjs-auth0"
 import { createPortalSession } from "@/lib/services/stripe-service"
 
 export async function GET(req: NextRequest) {
+  // Verificar si la API key de Stripe está configurada
+  if (!process.env.STRIPE_API_KEY) {
+    return NextResponse.json(
+      {
+        error: "Stripe no está configurado",
+        message: "La API key de Stripe no está configurada. Por favor, contacta con el administrador.",
+      },
+      { status: 503 },
+    )
+  }
+
   try {
     const session = await getSession(req, new NextResponse())
 

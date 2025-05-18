@@ -1,30 +1,18 @@
-import { initAuth0 } from "@auth0/nextjs-auth0"
+import { getSession as getAuth0Session, withApiAuthRequired, withPageAuthRequired } from "@auth0/nextjs-auth0"
 
-export const auth0 = initAuth0({
-  secret: process.env.AUTH0_SECRET,
-  issuerBaseURL: process.env.AUTH0_ISSUER_BASE_URL,
-  baseURL: process.env.AUTH0_BASE_URL,
-  clientID: process.env.AUTH0_CLIENT_ID,
-  clientSecret: process.env.AUTH0_CLIENT_SECRET,
-  routes: {
-    callback: "/api/auth/callback",
-    login: "/api/auth/login",
-    logout: "/api/auth/logout",
-  },
-  authorizationParams: {
-    response_type: "code",
-    scope: "openid profile email",
-  },
-  session: {
-    rollingDuration: 60 * 60, // 1 hora (en segundos)
-  },
-})
+// Exportamos las funciones necesarias de Auth0
+export const getSession = getAuth0Session
+export const requireApiAuth = withApiAuthRequired
+export const requirePageAuth = withPageAuthRequired
 
-// Exportamos getSession para usar en componentes del lado del servidor
-export const getSession = auth0.getSession.bind(auth0)
+// Función auxiliar para verificar si el usuario está autenticado
+export const isAuthenticated = async (req: Request, res: Response): Promise<boolean> => {
+  const session = await getSession(req, res)
+  return !!session?.user
+}
 
-// Exportamos withApiAuthRequired para proteger rutas API
-export const withApiAuthRequired = auth0.withApiAuthRequired.bind(auth0)
-
-// Exportamos withPageAuthRequired para proteger páginas
-export const withPageAuthRequired = auth0.withPageAuthRequired.bind(auth0)
+// Función auxiliar para obtener el ID del usuario
+export const getUserId = async (req: Request, res: Response): Promise<string | null> => {
+  const session = await getSession(req, res)
+  return session?.user?.sub || null
+}

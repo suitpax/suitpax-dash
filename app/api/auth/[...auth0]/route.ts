@@ -1,11 +1,11 @@
-import { auth0 } from "@/lib/auth/auth0-config"
+import { handleAuth } from "@auth0/nextjs-auth0"
 import { NextResponse } from "next/server"
 
 // Función para manejar errores y proporcionar respuestas amigables
 const handleAuthWithErrorHandling = () => {
   try {
-    // Intentar usar el manejador de Auth0
-    return auth0.handleAuth()
+    // Usar el manejador de Auth0 correcto
+    return handleAuth()
   } catch (error) {
     // Si hay un error, devolver una respuesta JSON con información útil
     console.error("Error en la autenticación de Auth0:", error)

@@ -6,7 +6,7 @@ import { useState, useEffect } from "react"
 import Image from "next/image"
 import { useRouter } from "next/navigation"
 import Layout from "@/components/ui/layout"
-import { ArrowRight, Calendar, Clock, Check, X, Users, Leaf, Search, MapPin, Building, Car } from "lucide-react"
+import { ArrowRight, Calendar, Clock, Check, X, Users, Leaf, Search, MapPin, Building, Car, Hotel } from "lucide-react"
 
 import {
   SiTesla,
@@ -19,7 +19,6 @@ import {
   SiLyft,
   SiMarriott,
   SiHilton,
-  SiHyatt,
 } from "react-icons/si"
 
 // Transfer service providers and data
@@ -85,7 +84,7 @@ const hotelBrands = {
     color: "text-white",
   },
   Hyatt: {
-    icon: SiHyatt,
+    icon: Hotel,
     color: "text-white",
   },
 }

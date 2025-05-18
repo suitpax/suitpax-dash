@@ -1,5 +1,5 @@
 import { type NextRequest, NextResponse } from "next/server"
-import { getSession } from "@auth0/nextjs-auth0"
+import { getSession as getAuth0Session } from "@auth0/nextjs-auth0/edge"
 import { createCheckoutSession } from "@/lib/services/stripe-service"
 
 export async function POST(req: NextRequest) {
@@ -15,7 +15,7 @@ export async function POST(req: NextRequest) {
   }
 
   try {
-    const session = await getSession(req, new NextResponse())
+    const session = await getAuth0Session(req, new NextResponse())
 
     // Verificar si el usuario está autenticado
     if (!session || !session.user) {
@@ -32,8 +32,8 @@ export async function POST(req: NextRequest) {
     const checkoutSession = await createCheckoutSession({
       planName,
       customerId: session.user.sub, // Usar el ID de Auth0 como ID de cliente
-      successUrl: `${process.env.NEXT_PUBLIC_APP_URL}/billing/success`,
-      cancelUrl: `${process.env.NEXT_PUBLIC_APP_URL}/billing/cancel`,
+      successUrl: `${process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"}/billing/success`,
+      cancelUrl: `${process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"}/billing/cancel`,
     })
 
     return NextResponse.json({ url: checkoutSession.url })

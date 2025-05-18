@@ -1,63 +1,57 @@
-import { handleAuth } from "@auth0/nextjs-auth0"
+import { handleLogin, handleLogout, handleCallback, handleProfile } from "@auth0/nextjs-auth0"
 import { NextResponse } from "next/server"
 
 // Función para manejar errores y proporcionar respuestas amigables
-const handleAuthWithErrorHandling = () => {
-  try {
-    // Usar el manejador de Auth0 correcto
-    return handleAuth()
-  } catch (error) {
-    // Si hay un error, devolver una respuesta JSON con información útil
-    console.error("Error en la autenticación de Auth0:", error)
-    return (req: Request) => {
-      const url = new URL(req.url)
-      const path = url.pathname.split("/").pop()
-
-      // Proporcionar respuestas específicas según la ruta
-      if (path === "login") {
-        return NextResponse.json(
-          {
-            error: "Error al iniciar sesión",
-            message:
-              "No se pudo iniciar el proceso de login con Auth0. Por favor, intenta más tarde o contacta con soporte.",
-            status: 500,
-          },
-          { status: 500 },
-        )
-      } else if (path === "callback") {
-        return NextResponse.json(
-          {
-            error: "Error en el callback",
-            message:
-              "No se pudo completar la autenticación con Auth0. Por favor, intenta más tarde o contacta con soporte.",
-            status: 500,
-          },
-          { status: 500 },
-        )
-      } else if (path === "logout") {
-        return NextResponse.json(
-          {
-            error: "Error al cerrar sesión",
-            message: "No se pudo cerrar la sesión correctamente. Por favor, intenta más tarde o contacta con soporte.",
-            status: 500,
-          },
-          { status: 500 },
-        )
-      } else {
-        return NextResponse.json(
-          {
-            error: "Error en la autenticación",
-            message:
-              "Ocurrió un error durante el proceso de autenticación. Por favor, intenta más tarde o contacta con soporte.",
-            status: 500,
-          },
-          { status: 500 },
-        )
-      }
-    }
+const createErrorHandler = (action: string) => {
+  return (error: any) => {
+    console.error(`Error en ${action}:`, error)
+    return NextResponse.json(
+      {
+        error: `Error en ${action}`,
+        message: `No se pudo completar la acción. Por favor, intenta más tarde o contacta con soporte.`,
+        status: 500,
+      },
+      { status: 500 },
+    )
   }
 }
 
-// Exportar los manejadores con manejo de errores
-export const GET = handleAuthWithErrorHandling()
-export const POST = handleAuthWithErrorHandling()
+export async function GET(req: Request) {
+  const { pathname } = new URL(req.url)
+
+  try {
+    if (pathname.endsWith("/login")) {
+      return handleLogin(req, {
+        returnTo: "/dashboard",
+        authorizationParams: {
+          prompt: "login",
+        },
+      })
+    }
+
+    if (pathname.endsWith("/callback")) {
+      return handleCallback(req)
+    }
+
+    if (pathname.endsWith("/logout")) {
+      return handleLogout(req, {
+        returnTo: "/",
+      })
+    }
+
+    if (pathname.endsWith("/me")) {
+      return handleProfile(req)
+    }
+
+    // Si no coincide con ninguna ruta conocida
+    return NextResponse.json({ error: "Ruta no encontrada" }, { status: 404 })
+  } catch (error) {
+    const action = pathname.split("/").pop() || "autenticación"
+    return createErrorHandler(action)(error)
+  }
+}
+
+export async function POST(req: Request) {
+  // Para manejar solicitudes POST si es necesario
+  return GET(req)
+}

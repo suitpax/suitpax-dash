@@ -1,7 +1,6 @@
-"use client"
-
 import type React from "react"
 import Link from "next/link"
+import AiAssistantCard from "./ai-assistant-card"
 import {
   ArrowRightIcon,
   PaperAirplaneIcon,
@@ -15,18 +14,8 @@ import {
   BriefcaseIcon,
 } from "@heroicons/react/24/outline"
 import { SiAnthropic } from "react-icons/si"
-import { Mic, Send } from "lucide-react"
-import Image from "next/image"
-import { useState, useRef } from "react"
-import type { Message } from "@/lib/ai/anthropic-service"
 
 export default function DashboardContent() {
-  const [inputValue, setInputValue] = useState("")
-  const [showMiniChat, setShowMiniChat] = useState(false)
-  const [messages, setMessages] = useState<Message[]>([])
-  const [isTyping, setIsTyping] = useState(false)
-  const messagesEndRef = useRef<HTMLDivElement>(null)
-
   // Sample data for examples
   const upcomingTrips = [
     {
@@ -122,78 +111,6 @@ export default function DashboardContent() {
     },
   ]
 
-  const handleInputClick = () => {
-    setShowMiniChat(true)
-  }
-
-  const handleCloseMiniChat = () => {
-    setShowMiniChat(false)
-  }
-
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setInputValue(e.target.value)
-  }
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    if (!inputValue.trim() || isTyping) return
-
-    // Add user message
-    const userMessage: Message = {
-      id: Date.now().toString(),
-      role: "user",
-      content: inputValue,
-      createdAt: new Date(),
-    }
-    setMessages((prev) => [...prev, userMessage])
-    setInputValue("")
-    setIsTyping(true)
-
-    try {
-      // Llamar a la API real de Anthropic
-      const response = await fetch("/api/ai", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          messages: [...messages, userMessage],
-          systemPrompt:
-            "You are Suitpax AI, a helpful assistant for business travel management. Help users plan trips, find flights and hotels, manage expenses, and navigate travel policies. Be concise but informative. Provide specific details when possible.",
-        }),
-      })
-
-      if (!response.ok) {
-        throw new Error(`API error: ${response.status}`)
-      }
-
-      const data = await response.json()
-
-      // Añadir respuesta de la IA
-      setMessages((prev) => [
-        ...prev,
-        {
-          ...data.response,
-          createdAt: new Date(data.response.createdAt),
-        },
-      ])
-    } catch (error) {
-      console.error("Error al obtener respuesta de la IA:", error)
-      // Añadir mensaje de error
-      setMessages((prev) => [
-        ...prev,
-        {
-          role: "assistant",
-          content: "Lo siento, ha ocurrido un error al procesar tu solicitud. Por favor, inténtalo de nuevo.",
-          id: Date.now().toString(),
-          createdAt: new Date(),
-        },
-      ])
-    } finally {
-      setIsTyping(false)
-    }
-  }
-
   return (
     <div className="space-y-5">
       {/* Enhanced Chicago trip notification banner */}
@@ -254,165 +171,8 @@ export default function DashboardContent() {
         </div>
       </div>
 
-      {/* AI Assistant Input */}
-      <div className="bg-black/30 backdrop-blur-sm rounded-xl border border-white/10 p-4 shadow-sm">
-        {!showMiniChat ? (
-          <div className="flex items-center gap-3">
-            <div className="relative h-8 w-8 rounded-full overflow-hidden">
-              <Image
-                src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/IMG-20250405-WA0006.jpg-ssy02udC7rU3LK1do6bZYdDCxA1Z2R.jpeg"
-                alt="AI Assistant"
-                width={32}
-                height={32}
-                className="object-cover"
-              />
-            </div>
-            <div className="flex-1 relative">
-              <input
-                type="text"
-                placeholder="Ask me anything about your business travel..."
-                className="w-full pl-4 pr-10 py-2.5 text-sm bg-white/5 border border-white/10 rounded-lg focus:outline-none focus:ring-1 focus:ring-white/20 text-white placeholder:text-white/30"
-                onClick={handleInputClick}
-              />
-              <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
-                <Mic className="h-4 w-4 text-white/50 hover:text-white cursor-pointer" />
-              </div>
-            </div>
-            <Link
-              href="/ai-assistant"
-              className="px-3 py-1.5 bg-white/10 text-white rounded-xl text-xs font-medium hover:bg-white/20 transition-colors"
-            >
-              Open Chat
-            </Link>
-          </div>
-        ) : (
-          <div className="bg-black/30 backdrop-blur-sm rounded-xl border border-white/10 shadow-sm overflow-hidden">
-            {/* Chat Header */}
-            <div className="flex items-center justify-between p-3 border-b border-white/10">
-              <div className="flex items-center">
-                <div className="relative h-8 w-8 rounded-full overflow-hidden mr-2">
-                  <Image
-                    src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/IMG-20250405-WA0006.jpg-ssy02udC7rU3LK1do6bZYdDCxA1Z2R.jpeg"
-                    alt="AI Assistant"
-                    width={32}
-                    height={32}
-                    className="object-cover"
-                  />
-                </div>
-                <div>
-                  <h3 className="font-medium text-white text-sm">Suitpax AI</h3>
-                  <p className="text-xs text-white/70">Business Travel Assistant</p>
-                </div>
-              </div>
-              <div className="flex items-center gap-2">
-                <button onClick={handleCloseMiniChat} className="p-1.5 rounded-lg hover:bg-white/5 text-white/70">
-                  <ArrowRightIcon className="h-4 w-4" />
-                </button>
-              </div>
-            </div>
-
-            {/* Chat Messages */}
-            <div className="max-h-[300px] overflow-y-auto p-3 space-y-3">
-              {messages.length === 0 ? (
-                <div className="text-center py-6">
-                  <div className="bg-white/5 p-2 rounded-full inline-flex mb-3">
-                    <SiAnthropic className="h-6 w-6 text-white/70" />
-                  </div>
-                  <h4 className="text-sm font-medium text-white mb-1">How can I help with your travel plans?</h4>
-                  <p className="text-xs text-white/70 max-w-md mx-auto">
-                    Ask me about booking flights, finding hotels, or managing your travel expenses.
-                  </p>
-                </div>
-              ) : (
-                messages.map((message, index) => (
-                  <div key={index} className={`flex ${message.role === "user" ? "justify-end" : "justify-start"}`}>
-                    {message.role === "assistant" && (
-                      <div className="relative h-6 w-6 rounded-full overflow-hidden mr-2 flex-shrink-0">
-                        <Image
-                          src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/IMG-20250405-WA0006.jpg-ssy02udC7rU3LK1do6bZYdDCxA1Z2R.jpeg"
-                          alt="AI"
-                          fill
-                          className="object-cover"
-                        />
-                      </div>
-                    )}
-                    <div
-                      className={`max-w-[80%] rounded-xl p-3 ${
-                        message.role === "user"
-                          ? "bg-white/10 text-white rounded-tr-none"
-                          : "bg-white/5 text-white/70 rounded-tl-none"
-                      }`}
-                    >
-                      <p className="text-sm whitespace-pre-wrap">{message.content}</p>
-                    </div>
-                  </div>
-                ))
-              )}
-              {isTyping && (
-                <div className="flex justify-start">
-                  <div className="relative h-6 w-6 rounded-full overflow-hidden mr-2 flex-shrink-0">
-                    <Image
-                      src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/IMG-20250405-WA0006.jpg-ssy02udC7rU3LK1do6bZYdDCxA1Z2R.jpeg"
-                      alt="AI"
-                      fill
-                      className="object-cover"
-                    />
-                  </div>
-                  <div className="bg-white/5 text-white/70 rounded-xl rounded-tl-none max-w-[80%] p-3">
-                    <div className="flex space-x-1">
-                      <div className="w-2 h-2 bg-white/30 rounded-full animate-bounce"></div>
-                      <div
-                        className="w-2 h-2 bg-white/30 rounded-full animate-bounce"
-                        style={{ animationDelay: "0.2s" }}
-                      ></div>
-                      <div
-                        className="w-2 h-2 bg-white/30 rounded-full animate-bounce"
-                        style={{ animationDelay: "0.4s" }}
-                      ></div>
-                    </div>
-                  </div>
-                </div>
-              )}
-              <div ref={messagesEndRef} />
-            </div>
-
-            {/* Chat Input */}
-            <form onSubmit={handleSubmit} className="p-3 border-t border-white/10">
-              <div className="relative flex items-center">
-                <input
-                  type="text"
-                  value={inputValue}
-                  onChange={handleInputChange}
-                  placeholder="Type your message..."
-                  className="w-full pl-3 pr-10 py-2.5 text-sm bg-white/5 border border-white/10 rounded-lg focus:outline-none focus:ring-1 focus:ring-white/20 text-white placeholder:text-white/30"
-                />
-                <div className="absolute right-3 flex items-center gap-2">
-                  <Mic className="h-4 w-4 text-white/50 hover:text-white cursor-pointer" />
-                  <button
-                    type="submit"
-                    disabled={!inputValue.trim() || isTyping}
-                    className={`p-1.5 rounded-full ${
-                      inputValue.trim() && !isTyping
-                        ? "bg-white/10 text-white hover:bg-white/20"
-                        : "bg-transparent text-white/30 cursor-not-allowed"
-                    }`}
-                  >
-                    <Send className="h-4 w-4" />
-                  </button>
-                </div>
-              </div>
-            </form>
-
-            {/* Footer */}
-            <div className="p-2 border-t border-white/10 flex justify-between items-center">
-              <span className="text-xs text-white/50">Powered by Anthropic</span>
-              <Link href="/ai-assistant" className="text-xs text-white/70 hover:text-white flex items-center">
-                Open full chat <ArrowRightIcon className="h-3 w-3 ml-1" />
-              </Link>
-            </div>
-          </div>
-        )}
-      </div>
+      {/* AI Assistant Card */}
+      <AiAssistantCard />
 
       {/* Anthropic User Dashboard Example */}
       <div className="bg-black/30 backdrop-blur-sm rounded-xl border border-white/10 p-6 shadow-sm">

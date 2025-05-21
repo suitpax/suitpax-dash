@@ -1,55 +1,59 @@
 "use client"
 
-import { X } from "lucide-react"
-import type { AISection } from "./suitpax-chat"
+import { useState, useEffect } from "react"
+import Link from "next/link"
+import { HomeIcon } from "@heroicons/react/24/outline"
+import { Airplane, Train, Car, Building } from "@phosphor-icons/react"
 import { cn } from "@/lib/utils"
 
-interface MobileNavigationProps {
-  isOpen: boolean
-  onClose: () => void
-  activeSection: AISection
-  onSectionChange: (section: AISection) => void
-}
+export function MobileNavigation() {
+  const [isVisible, setIsVisible] = useState(true)
+  const [lastScrollY, setLastScrollY] = useState(0)
 
-export default function MobileNavigation({ isOpen, onClose, activeSection, onSectionChange }: MobileNavigationProps) {
-  const sections: { id: AISection; label: string }[] = [
-    { id: "business", label: "Business Travel" },
-    { id: "expenses", label: "Expense Management" },
-    { id: "tasks", label: "Task Management" },
-    { id: "reporting", label: "Reporting & Analytics" },
-    { id: "support", label: "Support" },
+  useEffect(() => {
+    const handleScroll = () => {
+      const currentScrollY = window.scrollY
+
+      // Hide on scroll down, show on scroll up
+      if (currentScrollY > lastScrollY && currentScrollY > 100) {
+        setIsVisible(false)
+      } else {
+        setIsVisible(true)
+      }
+
+      setLastScrollY(currentScrollY)
+    }
+
+    window.addEventListener("scroll", handleScroll, { passive: true })
+    return () => window.removeEventListener("scroll", handleScroll)
+  }, [lastScrollY])
+
+  const navItems = [
+    { href: "/dashboard", icon: HomeIcon, label: "Home" },
+    { href: "/flights", icon: Airplane, label: "Flights" },
+    { href: "/hotels", icon: Building, label: "Hotels" },
+    { href: "/trains", icon: Train, label: "Trains" },
+    { href: "/transfers", icon: Car, label: "Transfers" },
   ]
 
-  if (!isOpen) return null
-
   return (
-    <div className="fixed inset-0 z-50 bg-black/90 backdrop-blur-sm">
-      <div className="h-full flex flex-col">
-        <div className="flex items-center justify-between p-4 border-b border-white/10">
-          <h2 className="text-sm font-medium text-white">Suitpax AI Sections</h2>
-          <button onClick={onClose} className="text-white p-1 rounded-md hover:bg-white/10">
-            <X className="h-4 w-4" />
-          </button>
-        </div>
-
-        <div className="flex-1 overflow-y-auto p-2">
-          <div className="space-y-1">
-            {sections.map((section) => (
-              <button
-                key={section.id}
-                onClick={() => onSectionChange(section.id)}
-                className={cn(
-                  "w-full text-left px-3 py-2 rounded-lg text-xs",
-                  activeSection === section.id
-                    ? "bg-white/10 text-white"
-                    : "text-white/70 hover:bg-white/5 hover:text-white",
-                )}
-              >
-                {section.label}
-              </button>
-            ))}
-          </div>
-        </div>
+    <div
+      className={cn(
+        "fixed bottom-4 left-1/2 transform -translate-x-1/2 z-50 transition-all duration-300 lg:hidden",
+        isVisible ? "translate-y-0 opacity-100" : "translate-y-16 opacity-0",
+      )}
+    >
+      <div className="bg-black/90 backdrop-blur-md rounded-full border border-white/10 shadow-lg px-2 py-1.5 flex items-center justify-between space-x-1">
+        {navItems.map((item) => (
+          <Link
+            key={item.label}
+            href={item.href}
+            className="flex flex-col items-center justify-center px-3 py-1 rounded-full hover:bg-white/5 transition-colors"
+          >
+            <item.icon className="h-5 w-5 text-white" />
+            <span className="text-[10px] text-white/70 mt-0.5">{item.label}</span>
+          </Link>
+        ))}
       </div>
     </div>
   )

@@ -30,6 +30,7 @@ import { cn } from "@/lib/utils"
 // Primero, asegúrate de que tenemos el componente Badge importado
 import { Badge } from "@/components/ui/badge"
 import { Airplane, Train as TrainIcon } from "@phosphor-icons/react"
+import { MobileNavigation } from "@/components/ui/mobile-navigation"
 
 interface SidebarProps {
   isOpen?: boolean
@@ -61,6 +62,43 @@ export function Sidebar({ isOpen = true, toggleSidebar }: SidebarProps) {
   const [isChatMinimized, setIsChatMinimized] = useState(false)
   const [showMiniChat, setShowMiniChat] = useState(false)
   const messagesEndRef = useRef<HTMLDivElement>(null)
+  const sidebarRef = useRef<HTMLDivElement>(null)
+
+  // Handle touch gestures for mobile
+  useEffect(() => {
+    let touchStartX = 0
+    let touchEndX = 0
+
+    const handleTouchStart = (e: TouchEvent) => {
+      touchStartX = e.touches[0].clientX
+    }
+
+    const handleTouchMove = (e: TouchEvent) => {
+      touchEndX = e.touches[0].clientX
+    }
+
+    const handleTouchEnd = () => {
+      // Swipe right to open
+      if (!isMobileMenuOpen && touchEndX - touchStartX > 100) {
+        setIsMobileMenuOpen(true)
+      }
+
+      // Swipe left to close
+      if (isMobileMenuOpen && touchStartX - touchEndX > 100) {
+        setIsMobileMenuOpen(false)
+      }
+    }
+
+    document.addEventListener("touchstart", handleTouchStart)
+    document.addEventListener("touchmove", handleTouchMove)
+    document.addEventListener("touchend", handleTouchEnd)
+
+    return () => {
+      document.removeEventListener("touchstart", handleTouchStart)
+      document.removeEventListener("touchmove", handleTouchMove)
+      document.removeEventListener("touchend", handleTouchEnd)
+    }
+  }, [isMobileMenuOpen])
 
   // Close mobile menu when screen size changes to desktop
   useEffect(() => {
@@ -93,8 +131,20 @@ export function Sidebar({ isOpen = true, toggleSidebar }: SidebarProps) {
     }
 
     window.addEventListener("keydown", handleEscape)
-    return () => window.removeEventListener("resize", handleEscape)
+    return () => window.removeEventListener("keydown", handleEscape)
   }, [])
+
+  // Handle clicks outside sidebar to close it on mobile
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (sidebarRef.current && !sidebarRef.current.contains(event.target as Node) && isMobileMenuOpen) {
+        setIsMobileMenuOpen(false)
+      }
+    }
+
+    document.addEventListener("mousedown", handleClickOutside)
+    return () => document.removeEventListener("mousedown", handleClickOutside)
+  }, [isMobileMenuOpen])
 
   // Scroll to bottom of chat messages
   useEffect(() => {
@@ -269,8 +319,22 @@ export function Sidebar({ isOpen = true, toggleSidebar }: SidebarProps) {
 
   return (
     <>
+      {/* Sidebar pull indicator - visible only on mobile when sidebar is closed */}
+      <div
+        className={cn(
+          "fixed top-1/2 left-0 transform -translate-y-1/2 z-50 lg:hidden transition-opacity duration-300",
+          isMobileMenuOpen ? "opacity-0" : "opacity-100",
+        )}
+        onClick={() => setIsMobileMenuOpen(true)}
+      >
+        <div className="bg-white/10 backdrop-blur-sm h-16 w-1.5 rounded-r-full flex items-center justify-center">
+          <div className="h-8 w-1 bg-white/20 rounded-full"></div>
+        </div>
+      </div>
+
       {/* Sidebar navigation */}
-      <nav
+      <div
+        ref={sidebarRef}
         className={cn(
           "fixed inset-y-0 left-0 z-[60] transform transition-all duration-300 ease-in-out",
           "lg:translate-x-0 lg:relative lg:border-r",
@@ -280,22 +344,10 @@ export function Sidebar({ isOpen = true, toggleSidebar }: SidebarProps) {
           isCollapsed ? "w-16" : "w-[280px]",
         )}
       >
-        {/* Botón extensible para móvil */}
-        <button
-          onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-          className="lg:hidden absolute -right-10 top-4 p-2 rounded-r-lg bg-black/90 text-white border border-l-0 border-white/10"
-          aria-label={isMobileMenuOpen ? "Close sidebar" : "Open sidebar"}
-        >
-          {isMobileMenuOpen ? (
-            <X className="h-4 w-4 text-white" />
-          ) : (
-            <ChevronRightIcon className="h-4 w-4 text-white" />
-          )}
-        </button>
         <div className="h-full flex flex-col">
           {/* Header */}
-          <div className="h-14 px-3 border-b border-white/10">
-            <div className="flex items-center justify-between h-full relative">
+          <div className="h-14 px-3 flex items-center justify-between border-b border-white/10">
+            <div className="flex items-center">
               {!isCollapsed ? (
                 <div className="flex items-center">
                   <Image
@@ -305,13 +357,6 @@ export function Sidebar({ isOpen = true, toggleSidebar }: SidebarProps) {
                     height={28}
                     className="object-contain"
                   />
-                  <button
-                    onClick={() => setIsCollapsed(!isCollapsed)}
-                    className="ml-2 p-1.5 rounded-xl hover:bg-white/5 transition-colors bg-transparent text-white border border-white/10"
-                    aria-label="Collapse sidebar"
-                  >
-                    <ChevronLeftIcon className="h-3.5 w-3.5" />
-                  </button>
                 </div>
               ) : (
                 <div className="w-full flex justify-center">
@@ -324,15 +369,31 @@ export function Sidebar({ isOpen = true, toggleSidebar }: SidebarProps) {
                       className="object-cover"
                     />
                   </div>
-                  <button
-                    onClick={() => setIsCollapsed(!isCollapsed)}
-                    className="absolute right-0 p-1.5 rounded-xl hover:bg-white/5 transition-colors bg-transparent text-white border border-white/10"
-                    aria-label="Expand sidebar"
-                  >
-                    <ChevronRightIcon className="h-3.5 w-3.5" />
-                  </button>
                 </div>
               )}
+            </div>
+            <div className="flex items-center space-x-2">
+              {/* Close button - only visible on mobile */}
+              <button
+                onClick={() => setIsMobileMenuOpen(false)}
+                className="lg:hidden p-1.5 rounded-lg hover:bg-white/5 transition-colors bg-white/5 text-white border border-white/10"
+                aria-label="Close sidebar"
+              >
+                <X className="h-3.5 w-3.5" />
+              </button>
+
+              {/* Collapse button */}
+              <button
+                onClick={() => setIsCollapsed(!isCollapsed)}
+                className="hidden lg:block p-1.5 rounded-lg hover:bg-white/5 transition-colors bg-transparent text-white/70 border border-white/10"
+                aria-label={isCollapsed ? "Expand sidebar" : "Collapse sidebar"}
+              >
+                {isCollapsed ? (
+                  <ChevronRightIcon className="h-3.5 w-3.5" />
+                ) : (
+                  <ChevronLeftIcon className="h-3.5 w-3.5" />
+                )}
+              </button>
             </div>
           </div>
 
@@ -695,7 +756,7 @@ export function Sidebar({ isOpen = true, toggleSidebar }: SidebarProps) {
             </div>
           )}
         </div>
-      </nav>
+      </div>
 
       {/* Overlay for mobile */}
       {isMobileMenuOpen && (
@@ -704,6 +765,9 @@ export function Sidebar({ isOpen = true, toggleSidebar }: SidebarProps) {
           onClick={() => setIsMobileMenuOpen(false)}
         />
       )}
+
+      {/* Mobile Navigation Bar */}
+      <MobileNavigation />
     </>
   )
 }

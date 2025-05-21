@@ -1,150 +1,126 @@
-/**
- * Servicio de IA simplificado
- */
+import type { Message, AIServiceResponse } from "./message-types"
 
-// Interfaz para mensajes
-export interface Message {
-  id: string
-  role: "user" | "assistant" | "system"
-  content: string
-  createdAt: Date
+// Sistema interno de prompts
+const internalPrompts = {
+  flights: {
+    search: "I can help you search for flights. What's your departure city, destination, and travel dates?",
+    booking: "I've found several flight options for you. Would you like to proceed with booking?",
+    confirmation: "Your flight has been booked successfully! Here are your booking details:",
+  },
+  hotels: {
+    search: "I can help you find hotels. Where are you planning to stay and for what dates?",
+    booking: "Here are some hotel options based on your preferences. Would you like to book any of these?",
+    confirmation: "Your hotel reservation has been confirmed! Here are your booking details:",
+  },
+  cars: {
+    search: "I can help you find rental cars. Where and when do you need a car?",
+    booking: "Here are some car rental options. Would you like to proceed with booking?",
+    confirmation: "Your car rental has been confirmed! Here are your booking details:",
+  },
+  trains: {
+    search: "I can help you search for train tickets. What's your departure station, destination, and travel date?",
+    booking: "Here are the available train options. Would you like to book any of these?",
+    confirmation: "Your train ticket has been booked! Here are your booking details:",
+  },
+  general: {
+    greeting: "Hello! I'm your Suitpax AI assistant. How can I help with your business travel today?",
+    help: "I can help with booking flights, hotels, cars, and trains, as well as managing your travel expenses and itineraries.",
+    fallback: "I'm not sure I understand. Could you please rephrase your question?",
+  },
 }
 
-// Interfaz para las opciones de generación de respuestas
-export interface AIResponseOptions {
-  messages: Message[]
-  systemPrompt?: string
-  includeTableData?: boolean
-  tableName?: string
-  searchParams?: {
-    column: string
-    term: string
+// Función para determinar la intención del usuario
+function determineIntent(message: string): { category: string; intent: string } {
+  const lowerMessage = message.toLowerCase()
+
+  // Detectar categoría
+  let category = "general"
+  if (lowerMessage.includes("flight") || lowerMessage.includes("fly") || lowerMessage.includes("plane")) {
+    category = "flights"
+  } else if (lowerMessage.includes("hotel") || lowerMessage.includes("stay") || lowerMessage.includes("room")) {
+    category = "hotels"
+  } else if (lowerMessage.includes("car") || lowerMessage.includes("rental") || lowerMessage.includes("drive")) {
+    category = "cars"
+  } else if (lowerMessage.includes("train") || lowerMessage.includes("rail")) {
+    category = "trains"
+  }
+
+  // Detectar intención
+  let intent = "search"
+  if (lowerMessage.includes("book") || lowerMessage.includes("reserve")) {
+    intent = "booking"
+  } else if (lowerMessage.includes("confirm") || lowerMessage.includes("complete")) {
+    intent = "confirmation"
+  } else if (category === "general") {
+    if (lowerMessage.includes("hello") || lowerMessage.includes("hi")) {
+      intent = "greeting"
+    } else if (lowerMessage.includes("help") || lowerMessage.includes("can you")) {
+      intent = "help"
+    } else {
+      intent = "fallback"
+    }
+  }
+
+  return { category, intent }
+}
+
+// Función para generar una respuesta basada en la intención
+function generateResponse(userMessage: string, conversationHistory: Message[]): Message {
+  const { category, intent } = determineIntent(userMessage)
+
+  // Obtener la respuesta del sistema de prompts
+  let responseContent = internalPrompts[category][intent] || internalPrompts.general.fallback
+
+  // Personalizar la respuesta si es necesario
+  if (category === "flights" && intent === "search") {
+    // Extraer posibles ciudades de origen y destino
+    const fromMatch = userMessage.match(/from\s+([a-zA-Z\s]+?)(?:\s+to|\s+with|\s+on|\s+for|\s+$)/i)
+    const toMatch = userMessage.match(/to\s+([a-zA-Z\s]+?)(?:\s+with|\s+on|\s+for|\s+$)/i)
+
+    if (fromMatch && toMatch) {
+      const origin = fromMatch[1].trim()
+      const destination = toMatch[1].trim()
+      responseContent = `I can help you find flights from ${origin} to ${destination}. When are you planning to travel?`
+    }
+  }
+
+  return {
+    id: Date.now().toString(),
+    role: "assistant",
+    content: responseContent,
+    createdAt: new Date(),
   }
 }
 
-// Clase principal para el servicio de IA
-export class AIService {
-  // Generar una respuesta de IA
-  async generateResponse(options: AIResponseOptions) {
-    try {
-      // Usar el sistema interno para todas las consultas
-      const lastMessage = options.messages[options.messages.length - 1]
+// Servicio de IA principal
+export async function processMessage(messages: Message[], systemPrompt?: string): Promise<AIServiceResponse> {
+  // Obtener el último mensaje del usuario
+  const userMessage = messages.filter((m) => m.role === "user").pop()
 
-      if (lastMessage && lastMessage.role === "user") {
-        // Procesar el mensaje del usuario
-        const processedResponse = await this.processUserMessage(lastMessage.content, options.systemPrompt || "")
-
-        // Crear una respuesta en el formato esperado
-        const aiResponse: Message = {
-          id: `internal-${Date.now()}`,
-          content: processedResponse,
-          role: "assistant",
-          createdAt: new Date(),
-        }
-
-        return aiResponse
-      }
-
-      // Si no hay mensaje de usuario, devolver respuesta vacía
-      return {
-        id: `internal-${Date.now()}`,
-        content: "No se pudo procesar la solicitud.",
-        role: "assistant" as const,
+  if (!userMessage) {
+    return {
+      response: {
+        id: Date.now().toString(),
+        role: "assistant",
+        content: internalPrompts.general.greeting,
         createdAt: new Date(),
-      }
-    } catch (error) {
-      console.error("Error generating AI response:", error)
-      throw error
+      },
     }
   }
 
-  // Procesar un mensaje de usuario
-  private async processUserMessage(userMessage: string, systemPrompt: string): Promise<string> {
-    // Implementación simple para responder a consultas básicas
-    const lowerCaseMessage = userMessage.toLowerCase()
+  // Generar respuesta usando el sistema interno
+  const response = generateResponse(userMessage.content, messages)
 
-    if (lowerCaseMessage.includes("flight") || lowerCaseMessage.includes("vuelo")) {
-      return "I can help you book a flight. Where would you like to travel to and from?"
-    } else if (lowerCaseMessage.includes("hotel") || lowerCaseMessage.includes("accommodation")) {
-      return "I can help you find a hotel. What city will you be staying in?"
-    } else if (lowerCaseMessage.includes("policy") || lowerCaseMessage.includes("política")) {
-      return "Our travel policy allows business class for flights over 6 hours. Would you like to know more details?"
-    } else if (lowerCaseMessage.includes("expense") || lowerCaseMessage.includes("gasto")) {
-      return "You can submit your expenses through the Expenses section. Would you like me to guide you through the process?"
-    } else if (lowerCaseMessage.includes("train") || lowerCaseMessage.includes("tren")) {
-      return "I can help you book a train ticket. What is your departure and arrival station?"
-    } else if (lowerCaseMessage.includes("transfer") || lowerCaseMessage.includes("taxi")) {
-      return "I can arrange a transfer for you. When and where do you need it?"
-    } else if (lowerCaseMessage.includes("event") || lowerCaseMessage.includes("evento")) {
-      return "I can help you organize or find business events. What type of event are you interested in?"
-    }
-
-    return "I'm here to help with your business travel needs. How can I assist you today?"
+  // Simular uso de tokens
+  const usage = {
+    promptTokens: Math.floor(messages.reduce((acc, m) => acc + m.content.length / 4, 0)),
+    completionTokens: Math.floor(response.content.length / 4),
+    totalTokens: 0,
   }
+  usage.totalTokens = usage.promptTokens + usage.completionTokens
 
-  // Obtener datos de ejemplo
-  async getTableData(tableName: string, searchParams?: { column: string; term: string }) {
-    // Datos de ejemplo para diferentes tablas
-    const sampleData: Record<string, any[]> = {
-      flights: [
-        { id: 1, from: "Madrid", to: "London", date: "2023-06-15", airline: "British Airways", price: 250 },
-        { id: 2, from: "Barcelona", to: "Paris", date: "2023-06-20", airline: "Air France", price: 180 },
-        { id: 3, from: "Madrid", to: "New York", date: "2023-07-01", airline: "Iberia", price: 650 },
-      ],
-      hotels: [
-        { id: 1, name: "Grand Hyatt", city: "New York", checkIn: "2023-07-01", checkOut: "2023-07-05", price: 320 },
-        { id: 2, name: "Ritz Carlton", city: "Paris", checkIn: "2023-06-20", checkOut: "2023-06-25", price: 450 },
-        { id: 3, name: "Mandarin Oriental", city: "London", checkIn: "2023-06-15", checkOut: "2023-06-18", price: 380 },
-      ],
-      expenses: [
-        { id: 1, type: "Flight", amount: 250, date: "2023-06-15", status: "Approved" },
-        { id: 2, type: "Hotel", amount: 450, date: "2023-06-20", status: "Pending" },
-        { id: 3, type: "Meals", amount: 120, date: "2023-06-22", status: "Approved" },
-      ],
-    }
-
-    // Devolver datos de ejemplo para la tabla solicitada
-    return sampleData[tableName] || []
-  }
-
-  // Obtener información sobre las tablas disponibles
-  async getTableInfo() {
-    return [
-      {
-        name: "flights",
-        columns: [
-          { name: "id", type: "number" },
-          { name: "from", type: "string" },
-          { name: "to", type: "string" },
-          { name: "date", type: "date" },
-          { name: "airline", type: "string" },
-          { name: "price", type: "number" },
-        ],
-      },
-      {
-        name: "hotels",
-        columns: [
-          { name: "id", type: "number" },
-          { name: "name", type: "string" },
-          { name: "city", type: "string" },
-          { name: "checkIn", type: "date" },
-          { name: "checkOut", type: "date" },
-          { name: "price", type: "number" },
-        ],
-      },
-      {
-        name: "expenses",
-        columns: [
-          { name: "id", type: "number" },
-          { name: "type", type: "string" },
-          { name: "amount", type: "number" },
-          { name: "date", type: "date" },
-          { name: "status", type: "string" },
-        ],
-      },
-    ]
+  return {
+    response,
+    usage,
   }
 }
-
-// Exportar una instancia del servicio
-export const aiService = new AIService()

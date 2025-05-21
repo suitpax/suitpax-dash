@@ -16,23 +16,21 @@ import {
   Cog6ToothIcon,
   ChevronLeftIcon,
   ChevronRightIcon,
+  XMarkIcon,
   BellIcon,
   ClipboardDocumentListIcon,
   RocketLaunchIcon,
   CommandLineIcon,
   CreditCardIcon,
   BanknotesIcon,
-  ChartBarIcon,
-  EnvelopeIcon,
-  CalendarIcon,
+  ArrowRightIcon,
+  MinusIcon,
 } from "@heroicons/react/24/outline"
 import { ChevronDownIcon } from "@heroicons/react/24/solid"
-import { Users, X, Menu, Receipt, Mic, Car, Send } from "lucide-react"
+import { Plane, TrainIcon, Users, X, Menu, Receipt, Mic } from "lucide-react"
 import { cn } from "@/lib/utils"
 // Primero, asegúrate de que tenemos el componente Badge importado
 import { Badge } from "@/components/ui/badge"
-import type { Message } from "@/lib/ai/anthropic-service"
-import { Airplane, Train as TrainIcon } from "@phosphor-icons/react"
 
 interface SidebarProps {
   isOpen?: boolean
@@ -44,17 +42,15 @@ export function Sidebar({ isOpen = true, toggleSidebar }: SidebarProps) {
   const [isCollapsed, setIsCollapsed] = useState(false)
   const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>({
     automations: false,
-    records: false,
+    records: true,
     lists: false,
-    finance: false,
-    aiTools: false,
-    analytics: false,
   })
   const [chatInput, setChatInput] = useState("")
-  const [chatMessages, setChatMessages] = useState<Message[]>([])
+  const [chatMessages, setChatMessages] = useState<{ text: string; isUser: boolean }[]>([
+    { text: "Hi there! How can I help you with your business travel today?", isUser: false },
+  ])
   const [isTyping, setIsTyping] = useState(false)
   const [isChatMinimized, setIsChatMinimized] = useState(false)
-  const [showMiniChat, setShowMiniChat] = useState(false)
   const messagesEndRef = useRef<HTMLDivElement>(null)
 
   // Close mobile menu when screen size changes to desktop
@@ -126,53 +122,104 @@ export function Sidebar({ isOpen = true, toggleSidebar }: SidebarProps) {
     })
   }
 
-  async function handleChatSubmit(e: React.FormEvent) {
+  function handleChatSubmit(e: React.FormEvent) {
     e.preventDefault()
-    if (!chatInput.trim() || isTyping) return
+    if (!chatInput.trim()) return
 
     // Add user message
-    const userMessage: Message = {
-      id: Date.now().toString(),
-      role: "user",
-      content: chatInput,
-      createdAt: new Date(),
-    }
-    setChatMessages((prev) => [...prev, userMessage])
+    setChatMessages((prev) => [...prev, { text: chatInput, isUser: true }])
+    const userQuestion = chatInput
     setChatInput("")
     setIsTyping(true)
 
-    try {
-      // Simular respuesta de la IA para evitar errores de API
-      setTimeout(() => {
-        setChatMessages((prev) => [
-          ...prev,
-          {
-            role: "assistant",
-            content: "Estoy aquí para ayudarte con la gestión de viajes de negocios. ¿En qué puedo asistirte hoy?",
-            id: Date.now().toString(),
-            createdAt: new Date(),
-          },
-        ])
-        setIsTyping(false)
-      }, 1000)
-    } catch (error) {
-      console.error("Error al obtener respuesta de la IA:", error)
-      // Añadir mensaje de error
-      setChatMessages((prev) => [
-        ...prev,
-        {
-          role: "assistant",
-          content: "Lo siento, ha ocurrido un error al procesar tu solicitud. Por favor, inténtalo de nuevo.",
-          id: Date.now().toString(),
-          createdAt: new Date(),
-        },
-      ])
-      setIsTyping(false)
-    }
-  }
+    // Check for flight booking commands
+    const input = userQuestion.toLowerCase()
+    const isFlightBooking =
+      (input.includes("book") || input.includes("reserve")) &&
+      input.includes("flight") &&
+      (input.includes("to") || input.includes("from"))
 
-  function handleQuickActionsClick() {
-    setShowMiniChat(true)
+    // Simulate AI response
+    setTimeout(
+      () => {
+        let response = ""
+
+        if (isFlightBooking) {
+          // Extract origin and destination from input
+          let origin = "Madrid"
+          let destination = "London"
+          let airline = "British Airways"
+
+          // Try to extract origin
+          const fromMatch = input.match(/from\s+([a-zA-Z\s]+?)(?:\s+to|\s+with|\s+on|\s+for|\s+$)/i)
+          if (fromMatch && fromMatch[1]) {
+            origin = fromMatch[1].trim()
+            // Capitalize first letter of each word
+            origin = origin
+              .split(" ")
+              .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+              .join(" ")
+          }
+
+          // Try to extract destination
+          const toMatch = input.match(/to\s+([a-zA-Z\s]+?)(?:\s+with|\s+on|\s+for|\s+$)/i)
+          if (toMatch && toMatch[1]) {
+            destination = toMatch[1].trim()
+            // Capitalize first letter of each word
+            destination = destination
+              .split(" ")
+              .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+              .join(" ")
+          }
+
+          // Try to extract airline
+          const airlineMatch = input.match(/(?:with|on)\s+([a-zA-Z\s]+?)(?:\s+from|\s+to|\s+for|\s+$)/i)
+          if (airlineMatch && airlineMatch[1]) {
+            airline = airlineMatch[1].trim()
+            // Capitalize first letter of each word
+            airline = airline
+              .split(" ")
+              .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+              .join(" ")
+          }
+
+          const date = new Date()
+          date.setDate(date.getDate() + 7) // Default to 1 week from now
+          const formattedDate = date.toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" })
+
+          response = `I've found several flight options from ${origin} to ${destination} with ${airline} for ${formattedDate}. Would you like me to book one for you? Click here to see all options.`
+        } else if (input.includes("flight") || input.includes("fly")) {
+          response =
+            "I can help you find flights! What's your departure city, destination, and travel dates? Try saying 'Book a flight from Madrid to London with British Airways'."
+        } else if (input.includes("hotel") || input.includes("stay") || input.includes("accommodation")) {
+          response =
+            "I'd be happy to help you find a hotel! Which city are you visiting and when? Try saying 'Find hotels in Barcelona for next weekend'."
+        } else if (input.includes("expense") || input.includes("receipt") || input.includes("reimbursement")) {
+          response =
+            "I can help you manage your travel expenses. Would you like to submit a new expense or review your existing ones?"
+        } else if (input.includes("policy") || input.includes("compliance") || input.includes("rules")) {
+          response =
+            "Here's a summary of your company's travel policy: Economy class for flights under 6 hours, maximum hotel rates vary by city, and receipts required for expenses over $25."
+        } else if (input.includes("car") || input.includes("rental") || input.includes("transportation")) {
+          response =
+            "I can help you book a rental car. What dates do you need it for, and where will you be picking it up?"
+        } else if (input.includes("hello") || input.includes("hi") || input.includes("hey")) {
+          response =
+            "Hello! I'm your Suitpax AI Agent. How can I help with your business travel needs today? Try asking me to book a flight or find a hotel."
+        } else if (input.includes("meeting") || input.includes("conference") || input.includes("video")) {
+          response = "Would you like me to schedule a meeting or set up a video conference for your business trip?"
+        } else if (input.includes("budget") || input.includes("cost") || input.includes("price")) {
+          response = "I can help you track your travel budget and find options within your company's spending limits."
+        } else {
+          response =
+            "I'm here to help with all your business travel needs! I can assist with flights, hotels, car rentals, expense management, and travel policy questions. Try saying 'Book a flight from Madrid to London'."
+        }
+
+        setChatMessages((prev) => [...prev, { text: response, isUser: false }])
+        setIsTyping(false)
+      },
+      1000 + Math.random() * 1000,
+    )
   }
 
   // Modifica el componente NavItem para aceptar un badge
@@ -206,17 +253,17 @@ export function Sidebar({ isOpen = true, toggleSidebar }: SidebarProps) {
       >
         <Icon className={`h-4 w-4 ${isCollapsed ? "" : "mr-2"} flex-shrink-0`} />
         {!isCollapsed && (
-          <div className="flex items-center justify-between w-full">
+          <>
             <span className="truncate font-light">{children}</span>
             {badge && (
               <Badge
-                className="ml-2 text-[9px] py-0 px-1.5 h-4 bg-amber-500/20 text-amber-500 border-amber-500/30"
+                className="ml-auto text-[9px] py-0 px-1.5 h-4 bg-amber-500/20 text-amber-500 border-amber-500/30"
                 variant="outline"
               >
                 {badge}
               </Badge>
             )}
-          </div>
+          </>
         )}
         {isCollapsed && badge && <div className="absolute -right-1 -top-1 w-2 h-2 bg-amber-500 rounded-full"></div>}
       </Link>
@@ -250,14 +297,16 @@ export function Sidebar({ isOpen = true, toggleSidebar }: SidebarProps) {
   return (
     <>
       {/* Mobile menu button - only visible when sidebar is closed */}
-      <button
-        type="button"
-        className="lg:hidden fixed top-4 left-4 z-[70] p-1.5 rounded-lg bg-black/90 shadow-md text-white border border-white/10"
-        onClick={() => setIsMobileMenuOpen(true)}
-        aria-label="Open menu"
-      >
-        <Menu className="h-4 w-4 flex-shrink-0" />
-      </button>
+      {!isMobileMenuOpen && (
+        <button
+          type="button"
+          className="lg:hidden fixed top-4 left-4 z-[70] p-1.5 rounded-lg bg-black/90 shadow-md text-white border border-white/10"
+          onClick={() => setIsMobileMenuOpen(true)}
+          aria-label="Open menu"
+        >
+          <Menu className="h-4 w-4" />
+        </button>
+      )}
 
       {/* Sidebar navigation */}
       <nav
@@ -266,7 +315,7 @@ export function Sidebar({ isOpen = true, toggleSidebar }: SidebarProps) {
           "lg:translate-x-0 lg:relative lg:border-r",
           "bg-black border-white/10",
           isMobileMenuOpen ? "translate-x-0 shadow-xl" : "-translate-x-full",
-          isCollapsed ? "lg:w-16" : "lg:w-64 md:w-64 sm:w-full",
+          isCollapsed ? "lg:w-16" : "lg:w-64",
           isCollapsed ? "w-16" : "w-[280px]",
         )}
       >
@@ -279,8 +328,8 @@ export function Sidebar({ isOpen = true, toggleSidebar }: SidebarProps) {
                   <div className="flex items-center">
                     <div className="relative h-7 w-7 mr-2 bg-white/10 rounded-full overflow-hidden flex items-center justify-center">
                       <Image
-                        src="/images/suitpax-cloud-logo.webp"
-                        alt="Suitpax Logo"
+                        src="/placeholder.svg?key=t120v"
+                        alt="Anthropic Logo"
                         width={28}
                         height={28}
                         className="object-cover"
@@ -328,8 +377,8 @@ export function Sidebar({ isOpen = true, toggleSidebar }: SidebarProps) {
               {isCollapsed && (
                 <div className="relative h-7 w-7 mx-auto rounded-full overflow-hidden flex items-center justify-center">
                   <Image
-                    src="/images/suitpax-cloud-logo.webp"
-                    alt="Suitpax Logo"
+                    src="/placeholder.svg?key=ljbxi"
+                    alt="Anthropic Logo"
                     width={28}
                     height={28}
                     className="object-cover"
@@ -366,136 +415,10 @@ export function Sidebar({ isOpen = true, toggleSidebar }: SidebarProps) {
                     type="text"
                     placeholder="Quick actions"
                     className="w-full pl-10 pr-16 py-2 text-xs bg-white/5 border border-white/10 rounded-lg focus:outline-none focus:ring-1 focus:ring-white/20 text-white placeholder:text-white/30"
-                    onClick={handleQuickActionsClick}
                   />
                   <div className="absolute right-3 top-1/2 transform -translate-y-1/2 text-[10px] text-white/30 bg-white/10 px-1.5 py-0.5 rounded">
                     CTRL K
                   </div>
-                </div>
-              </div>
-
-              {/* Mini Chat */}
-              {showMiniChat && (
-                <div className="px-2 mb-3">
-                  <div className="bg-black/30 backdrop-blur-sm rounded-xl border border-white/10 shadow-sm overflow-hidden">
-                    {/* Chat Header */}
-                    <div className="flex items-center justify-between p-2 border-b border-white/10">
-                      <div className="flex items-center">
-                        <div className="relative h-6 w-6 rounded-full overflow-hidden mr-2">
-                          <Image src="/images/ai-agent-avatar.png" alt="AI Assistant" fill className="object-cover" />
-                        </div>
-                        <div>
-                          <h3 className="font-medium text-white text-xs">Suitpax AI</h3>
-                        </div>
-                      </div>
-                      <button
-                        onClick={() => setShowMiniChat(false)}
-                        className="p-1 rounded-lg hover:bg-white/5 text-white/70"
-                      >
-                        <X className="h-3 w-3" />
-                      </button>
-                    </div>
-
-                    {/* Chat Messages */}
-                    <div className="max-h-[200px] overflow-y-auto p-2 space-y-2">
-                      {chatMessages.length === 0 ? (
-                        <div className="text-xs text-white/70 text-center py-2">
-                          Ask me anything about business travel...
-                        </div>
-                      ) : (
-                        chatMessages.map((message, index) => (
-                          <div
-                            key={index}
-                            className={`flex ${message.role === "user" ? "justify-end" : "justify-start"}`}
-                          >
-                            <div
-                              className={`max-w-[80%] rounded-lg p-2 ${
-                                message.role === "user"
-                                  ? "bg-white/10 text-white rounded-tr-none"
-                                  : "bg-white/5 text-white/70 rounded-tl-none"
-                              }`}
-                            >
-                              <p className="text-xs whitespace-pre-wrap">{message.content}</p>
-                            </div>
-                          </div>
-                        ))
-                      )}
-                      {isTyping && (
-                        <div className="flex justify-start">
-                          <div className="bg-white/5 text-white/70 rounded-lg rounded-tl-none max-w-[80%] p-2">
-                            <div className="flex space-x-1">
-                              <div className="w-1.5 h-1.5 bg-white/50 rounded-full animate-bounce"></div>
-                              <div
-                                className="w-1.5 h-1.5 bg-white/50 rounded-full animate-bounce"
-                                style={{ animationDelay: "0.2s" }}
-                              ></div>
-                              <div
-                                className="w-1.5 h-1.5 bg-white/50 rounded-full animate-bounce"
-                                style={{ animationDelay: "0.4s" }}
-                              ></div>
-                            </div>
-                          </div>
-                        </div>
-                      )}
-                      <div ref={messagesEndRef} />
-                    </div>
-
-                    {/* Chat Input */}
-                    <form onSubmit={handleChatSubmit} className="p-2 border-t border-white/10">
-                      <div className="relative flex items-center">
-                        <input
-                          type="text"
-                          value={chatInput}
-                          onChange={(e) => setChatInput(e.target.value)}
-                          placeholder="Type your message..."
-                          className="w-full pl-3 pr-8 py-1.5 text-xs bg-white/5 border border-white/10 rounded-lg focus:outline-none focus:ring-1 focus:ring-white/20 text-white placeholder:text-white/30"
-                        />
-                        <button
-                          type="submit"
-                          disabled={!chatInput.trim() || isTyping}
-                          className={`absolute right-2 p-1 rounded-full ${
-                            chatInput.trim() && !isTyping
-                              ? "text-white hover:bg-white/10"
-                              : "text-white/30 cursor-not-allowed"
-                          }`}
-                        >
-                          <Send className="h-3 w-3" />
-                        </button>
-                      </div>
-                    </form>
-
-                    {/* Footer */}
-                    <div className="p-2 border-t border-white/10 flex justify-between items-center">
-                      <span className="text-[10px] text-white/50">Powered by Suitpax</span>
-                      <Link
-                        href="/ai-assistant"
-                        className="text-[10px] text-white/70 hover:text-white flex items-center"
-                      >
-                        Open full chat <ChevronRightIcon className="h-2 w-2 ml-1" />
-                      </Link>
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              {/* AI Chat Input */}
-              <div className="px-2 mb-3">
-                <div className="relative">
-                  <div className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 rounded-full overflow-hidden">
-                    <Image
-                      src="/images/ai-agent-avatar.png"
-                      alt="AI Assistant"
-                      width={20}
-                      height={20}
-                      className="object-cover"
-                    />
-                  </div>
-                  <input
-                    type="text"
-                    placeholder="Ask me anything..."
-                    className="w-full pl-10 pr-3 py-2 text-xs bg-white/5 border border-white/10 rounded-lg focus:outline-none focus:ring-1 focus:ring-white/20 text-white placeholder:text-white/30"
-                    onClick={handleQuickActionsClick}
-                  />
                 </div>
               </div>
 
@@ -507,27 +430,23 @@ export function Sidebar({ isOpen = true, toggleSidebar }: SidebarProps) {
                   {!isCollapsed && "Suitpax AI Platform"}
                   {isCollapsed && "AI"}
                 </div>
-                {/* Añadir la sección de Transfers después de Trains en la sección Business Travel */}
                 <div className="space-y-0.5">
-                  <NavItem href="/flights" icon={Airplane}>
+                  <NavItem href="/flights" icon={Plane}>
                     Flights
                   </NavItem>
                   <NavItem href="/hotels" icon={BuildingOfficeIcon}>
                     Hotels
                   </NavItem>
-                  <NavItem href="/trains" icon={TrainIcon}>
+                  <NavItem href="/trains" icon={TrainIcon} badge="Development">
                     Trains
                   </NavItem>
-                  <NavItem href="/transfers" icon={Car}>
-                    Transfers
-                  </NavItem>
-                  <NavItem href="/airport-vip-lounge" icon={CreditCardIcon}>
+                  <NavItem href="/airport-vip-lounge" icon={CreditCardIcon} badge="Development">
                     Airport VIP Lounge
                   </NavItem>
                   <NavItem href="/travel-policy" icon={DocumentTextIcon}>
                     Travel Policy
                   </NavItem>
-                  <NavItem href="/ai-assistant" icon={ChatBubbleLeftRightIcon}>
+                  <NavItem href="/ai-assistant" icon={ChatBubbleLeftRightIcon} badge="Development">
                     AI Agent
                   </NavItem>
                 </div>
@@ -538,7 +457,7 @@ export function Sidebar({ isOpen = true, toggleSidebar }: SidebarProps) {
                 <NavItem href="/dashboard" icon={HomeIcon} isActive={true}>
                   Dashboard
                 </NavItem>
-                <NavItem href="#" icon={BellIcon}>
+                <NavItem href="#" icon={BellIcon} badge="Development">
                   Notifications
                 </NavItem>
                 <NavItem href="/tasks" icon={ClipboardDocumentListIcon}>
@@ -556,10 +475,10 @@ export function Sidebar({ isOpen = true, toggleSidebar }: SidebarProps) {
                 />
                 {expandedSections.automations && !isCollapsed && (
                   <div className="ml-3 space-y-0.5 border-l border-white/10 pl-3">
-                    <NavItem href="#" icon={RocketLaunchIcon}>
+                    <NavItem href="#" icon={RocketLaunchIcon} badge="Development">
                       Sequences
                     </NavItem>
-                    <NavItem href="#" icon={SparklesIcon}>
+                    <NavItem href="#" icon={SparklesIcon} badge="Development">
                       Workflows
                     </NavItem>
                   </div>
@@ -585,42 +504,6 @@ export function Sidebar({ isOpen = true, toggleSidebar }: SidebarProps) {
                     <NavItem href="#" icon={BriefcaseIcon}>
                       Deals
                     </NavItem>
-                    {/* Nuevas secciones añadidas */}
-                    <NavItem href="/emails" icon={EnvelopeIcon}>
-                      Emails
-                    </NavItem>
-                    <NavItem href="/meetings" icon={CalendarIcon}>
-                      Meetings
-                    </NavItem>
-                    <NavItem href="/analytics" icon={ChartBarIcon}>
-                      Analytics
-                    </NavItem>
-                  </div>
-                )}
-              </div>
-
-              {/* Analytics Section */}
-              <div className="space-y-0.5">
-                <SectionHeader
-                  title="Analytics"
-                  collapsedTitle="AN"
-                  isExpanded={expandedSections.analytics}
-                  onToggle={() => toggleSection("analytics")}
-                />
-                {expandedSections.analytics && !isCollapsed && (
-                  <div className="ml-3 space-y-0.5 border-l border-white/10 pl-3">
-                    <NavItem href="/analytics" icon={ChartBarIcon}>
-                      Predictive Analytics
-                    </NavItem>
-                    <NavItem href="/analytics/expenses" icon={Receipt}>
-                      Expense Reports
-                    </NavItem>
-                    <NavItem href="/analytics/insights" icon={ChartBarIcon}>
-                      Travel Insights
-                    </NavItem>
-                    <NavItem href="/analytics/budget" icon={BanknotesIcon}>
-                      Budget Forecasting
-                    </NavItem>
                   </div>
                 )}
               </div>
@@ -644,49 +527,45 @@ export function Sidebar({ isOpen = true, toggleSidebar }: SidebarProps) {
               </div>
 
               {/* Finance Section */}
-              <div className="space-y-0.5">
-                <SectionHeader
-                  title="Finance"
-                  collapsedTitle="FIN"
-                  isExpanded={expandedSections.finance}
-                  onToggle={() => toggleSection("finance")}
-                />
-                {expandedSections.finance && !isCollapsed && (
-                  <div className="ml-3 space-y-0.5 border-l border-white/10 pl-3">
-                    <NavItem href="#" icon={BriefcaseIcon}>
-                      Budgets
-                    </NavItem>
-                    <NavItem href="/expenses" icon={Receipt}>
-                      Expense Management
-                    </NavItem>
-                    <NavItem href="/smart-bank" icon={BanknotesIcon}>
-                      Smart Bank
-                    </NavItem>
-                    <NavItem href="/team-management" icon={Users}>
-                      Team Management
-                    </NavItem>
-                  </div>
-                )}
+              <div className="mb-2">
+                <div
+                  className={`px-3 mb-1 text-[10px] font-medium tracking-tighter uppercase text-white/50 ${isCollapsed ? "text-center" : ""}`}
+                >
+                  {!isCollapsed && "Finance"}
+                  {isCollapsed && "FIN"}
+                </div>
+                <div className="space-y-0.5">
+                  <NavItem href="#" icon={BriefcaseIcon}>
+                    Budgets
+                  </NavItem>
+                  <NavItem href="/expenses" icon={Receipt}>
+                    Expense Management
+                  </NavItem>
+                  <NavItem href="#" icon={BanknotesIcon}>
+                    Smart Bank
+                  </NavItem>
+                  <NavItem href="/team-management" icon={Users}>
+                    Team Management
+                  </NavItem>
+                </div>
               </div>
 
               {/* AI Tools Section */}
-              <div className="space-y-0.5">
-                <SectionHeader
-                  title="AI Tools"
-                  collapsedTitle="AI"
-                  isExpanded={expandedSections.aiTools}
-                  onToggle={() => toggleSection("aiTools")}
-                />
-                {expandedSections.aiTools && !isCollapsed && (
-                  <div className="ml-3 space-y-0.5 border-l border-white/10 pl-3">
-                    <NavItem href="/ai-agents" icon={PlusCircleIcon}>
-                      AI Agents
-                    </NavItem>
-                    <NavItem href="/voice-ai" icon={Mic}>
-                      Voice AI
-                    </NavItem>
-                  </div>
-                )}
+              <div className="mb-2">
+                <div
+                  className={`px-3 mb-1 text-[10px] font-medium tracking-tighter uppercase text-white/50 ${isCollapsed ? "text-center" : ""}`}
+                >
+                  {!isCollapsed && "AI Tools"}
+                  {isCollapsed && "AI"}
+                </div>
+                <div className="space-y-0.5">
+                  <NavItem href="/ai-agents" icon={PlusCircleIcon}>
+                    AI Agents
+                  </NavItem>
+                  <NavItem href="/voice-ai" icon={Mic} badge="Development">
+                    Voice AI
+                  </NavItem>
+                </div>
               </div>
 
               {/* Account Section */}
@@ -707,6 +586,96 @@ export function Sidebar({ isOpen = true, toggleSidebar }: SidebarProps) {
                 </div>
               </div>
             </div>
+          </div>
+
+          {/* Mini Chat Card with minimize/maximize functionality */}
+          <div className="px-3 py-4 border-t border-white/10">
+            {!isCollapsed ? (
+              <div className="overflow-hidden bg-white/5 rounded-lg shadow-sm">
+                <div className="p-2 bg-white/5 border-b border-white/10 flex items-center justify-between">
+                  <div className="flex items-center">
+                    <div className="relative h-7 w-7 rounded-full overflow-hidden mr-2">
+                      <Image src="/images/ai-agent-avatar.jpeg" alt="AI Assistant" fill className="object-cover" />
+                    </div>
+                    <span className="text-xs font-medium text-white">Suitpax AI Agent</span>
+                  </div>
+                  <div className="flex items-center">
+                    <button
+                      className="p-1 rounded-full hover:bg-white/10 text-white/50 hover:text-white"
+                      onClick={() => setIsChatMinimized(!isChatMinimized)}
+                    >
+                      {isChatMinimized ? <PlusCircleIcon className="h-3 w-3" /> : <MinusIcon className="h-3 w-3" />}
+                    </button>
+                    <button className="p-1 rounded-full hover:bg-white/10 text-white/50 hover:text-white ml-1">
+                      <XMarkIcon className="h-3 w-3" />
+                    </button>
+                  </div>
+                </div>
+
+                {!isChatMinimized && (
+                  <>
+                    <div className="p-2 h-40 overflow-y-auto bg-black/30 overscroll-contain">
+                      {chatMessages.map((msg, index) => (
+                        <div key={index} className={`mb-2 flex ${msg.isUser ? "justify-end" : "justify-start"}`}>
+                          <div
+                            className={`max-w-[85%] p-2 rounded-lg text-[10px] ${
+                              msg.isUser
+                                ? "bg-white/10 text-white rounded-tr-none"
+                                : "bg-white/5 text-white/90 rounded-tl-none"
+                            }`}
+                          >
+                            {msg.text}
+                          </div>
+                        </div>
+                      ))}
+                      {isTyping && (
+                        <div className="flex justify-start mb-2">
+                          <div className="bg-white/5 p-2 rounded-lg rounded-tl-none">
+                            <div className="flex space-x-1">
+                              <div className="w-1.5 h-1.5 bg-white/50 rounded-full animate-bounce"></div>
+                              <div
+                                className="w-1.5 h-1.5 bg-white/50 rounded-full animate-bounce"
+                                style={{ animationDelay: "0.2s" }}
+                              ></div>
+                              <div
+                                className="w-1.5 h-1.5 bg-white/50 rounded-full animate-bounce"
+                                style={{ animationDelay: "0.4s" }}
+                              ></div>
+                            </div>
+                          </div>
+                        </div>
+                      )}
+                      <div ref={messagesEndRef} />
+                    </div>
+
+                    <form onSubmit={handleChatSubmit} className="p-2 border-t border-white/10">
+                      <div className="relative">
+                        <input
+                          type="text"
+                          value={chatInput}
+                          onChange={(e) => setChatInput(e.target.value)}
+                          placeholder="Ask me anything..."
+                          className="w-full pl-3 pr-9 py-2 text-xs bg-white/5 border border-white/10 rounded-lg focus:outline-none focus:ring-1 focus:ring-white/20 text-white placeholder:text-white/30"
+                        />
+                        <button
+                          type="submit"
+                          className="absolute right-2 top-1/2 transform -translate-y-1/2 p-1 text-white/50 hover:text-white"
+                          disabled={!chatInput.trim() || isTyping}
+                        >
+                          <ArrowRightIcon className="h-3 w-3" />
+                        </button>
+                      </div>
+                    </form>
+                  </>
+                )}
+              </div>
+            ) : (
+              <div className="flex justify-center">
+                <div className="relative h-8 w-8 rounded-full overflow-hidden">
+                  <Image src="/images/ai-agent-avatar.jpeg" alt="AI Assistant" fill className="object-cover" />
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Footer - Only visible when not collapsed */}

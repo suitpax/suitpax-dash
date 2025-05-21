@@ -1,3 +1,4 @@
+import { neon } from "@neondatabase/serverless"
 import { generateId } from "../utils"
 
 // Tipos para los prompts
@@ -13,96 +14,143 @@ export interface Prompt {
 
 // Clase para gestionar los prompts
 export class PromptService {
-  // Datos mock para prompts
-  private mockPrompts: Prompt[] = [
-    {
-      id: "mock-1",
-      title: "Business Flight to New York",
-      content: "I need to book a business class flight to New York next week",
-      category: "flights",
-      tags: ["business", "urgent", "international"],
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    },
-    {
-      id: "mock-2",
-      title: "Luxury Hotel in Paris",
-      content: "Find me a 5-star hotel in central Paris for next month",
-      category: "hotels",
-      tags: ["luxury", "europe", "vacation"],
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    },
-    {
-      id: "mock-3",
-      title: "Car Rental in Los Angeles",
-      content: "I need an SUV rental at LAX airport for 5 days",
-      category: "cars",
-      tags: ["rental", "usa", "business"],
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    },
-    {
-      id: "mock-4",
-      title: "Train from London to Paris",
-      content: "I need to book a train from London to Paris next Friday",
-      category: "trains",
-      tags: ["europe", "business", "international"],
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    },
-  ]
+  private sql
+
+  constructor() {
+    this.sql = neon(process.env.DATABASE_URL || "")
+  }
 
   // Obtener todos los prompts
   async getAllPrompts(): Promise<Prompt[]> {
-    return [...this.mockPrompts]
+    try {
+      const prompts = await this.sql`
+        SELECT * FROM prompts
+        ORDER BY "updatedAt" DESC
+      `
+      return prompts
+    } catch (error) {
+      console.error("Error fetching prompts:", error)
+      throw error
+    }
   }
 
   // Obtener prompts por categoría
   async getPromptsByCategory(category: string): Promise<Prompt[]> {
-    return this.mockPrompts.filter((p) => p.category === category)
+    try {
+      const prompts = await this.sql`
+        SELECT * FROM prompts
+        WHERE category = ${category}
+        ORDER BY "updatedAt" DESC
+      `
+      return prompts
+    } catch (error) {
+      console.error(`Error fetching prompts for category ${category}:`, error)
+      throw error
+    }
   }
 
   // Obtener un prompt por ID
   async getPromptById(id: string): Promise<Prompt | null> {
-    return this.mockPrompts.find((p) => p.id === id) || null
+    try {
+      const [prompt] = await this.sql`
+        SELECT * FROM prompts
+        WHERE id = ${id}
+      `
+      return prompt || null
+    } catch (error) {
+      console.error(`Error fetching prompt ${id}:`, error)
+      throw error
+    }
   }
 
   // Crear un nuevo prompt
   async createPrompt(promptData: Omit<Prompt, "id" | "createdAt" | "updatedAt">): Promise<Prompt> {
-    const newPrompt: Prompt = {
-      id: generateId(),
-      ...promptData,
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    }
+    try {
+      const id = generateId()
+      const now = new Date()
 
-    this.mockPrompts.push(newPrompt)
-    return newPrompt
+      const [newPrompt] = await this.sql`
+        INSERT INTO prompts (
+          id, title, content, category, tags, "createdAt", "updatedAt"
+        ) VALUES (
+          ${id}, ${promptData.title}, ${promptData.content}, 
+          ${promptData.category}, ${JSON.stringify(promptData.tags)}, 
+          ${now}, ${now}
+        )
+        RETURNING *
+      `
+
+      return newPrompt
+    } catch (error) {
+      console.error("Error creating prompt:", error)
+      throw error
+    }
   }
 
   // Actualizar un prompt existente
   async updatePrompt(id: string, promptData: Partial<Omit<Prompt, "id" | "createdAt" | "updatedAt">>): Promise<Prompt> {
-    const index = this.mockPrompts.findIndex((p) => p.id === id)
-    if (index === -1) {
-      throw new Error(`Prompt with id ${id} not found`)
-    }
+    try {
+      const now = new Date()
 
-    const updatedPrompt = {
-      ...this.mockPrompts[index],
-      ...promptData,
-      updatedAt: new Date(),
-    }
+      // Construir dinámicamente la consulta SQL
+      const updateFields = []
+      const values: any[] = []
 
-    this.mockPrompts[index] = updatedPrompt
-    return updatedPrompt
+      if (promptData.title !== undefined) {
+        updateFields.push('"title" = $1')
+        values.push(promptData.title)
+      }
+
+      if (promptData.content !== undefined) {
+        updateFields.push('"content" = $' + (values.length + 1))
+        values.push(promptData.content)
+      }
+
+      if (promptData.category !== undefined) {
+        updateFields.push('"category" = $' + (values.length + 1))
+        values.push(promptData.category)
+      }
+
+      if (promptData.tags !== undefined) {
+        updateFields.push('"tags" = $' + (values.length + 1))
+        values.push(JSON.stringify(promptData.tags))
+      }
+
+      // Añadir siempre la fecha de actualización
+      updateFields.push('"updatedAt" = $' + (values.length + 1))
+      values.push(now)
+
+      // Añadir el ID al final
+      values.push(id)
+
+      const query = `
+        UPDATE prompts
+        SET ${updateFields.join(", ")}
+        WHERE id = $${values.length}
+        RETURNING *
+      `
+
+      const [updatedPrompt] = await this.sql.query(query, values)
+      return updatedPrompt
+    } catch (error) {
+      console.error(`Error updating prompt ${id}:`, error)
+      throw error
+    }
   }
 
   // Eliminar un prompt
   async deletePrompt(id: string): Promise<boolean> {
-    const initialLength = this.mockPrompts.length
-    this.mockPrompts = this.mockPrompts.filter((p) => p.id !== id)
-    return initialLength > this.mockPrompts.length
+    try {
+      const result = await this.sql`
+        DELETE FROM prompts
+        WHERE id = ${id}
+      `
+
+      return result.count > 0
+    } catch (error) {
+      console.error(`Error deleting prompt ${id}:`, error)
+      throw error
+    }
   }
 }
 

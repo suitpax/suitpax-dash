@@ -20,7 +20,6 @@ import {
   Search,
 } from "lucide-react"
 
-// Actualizar los iconos de aerolíneas para que sean blancos
 import {
   SiBritishairways,
   SiLufthansa,
@@ -398,23 +397,34 @@ export default function FlightsPage() {
     <Layout>
       <div className="space-y-5">
         {/* Header with Anthropic branding */}
-        <div className="bg-black/30 backdrop-blur-sm rounded-xl border border-white/10 p-4 shadow-sm relative overflow-hidden">
+        <div className="bg-black/30 backdrop-blur-sm rounded-xl border border-white/10 p-6 shadow-sm relative overflow-hidden">
           <div className="absolute top-0 left-0 w-full h-1 bg-white/10"></div>
 
-          <div className="flex items-center gap-3">
-            <div className="flex items-center justify-center p-2 bg-white/5 rounded-lg">
-              <SiAnthropic className="h-6 w-6 text-white" />
+          <div className="flex flex-col md:flex-row items-center gap-5">
+            <div className="flex items-center justify-center p-3 bg-white/5 rounded-xl">
+              <SiAnthropic className="h-10 w-10 text-white" />
             </div>
 
             <div className="flex-1">
-              <div className="flex items-center gap-2">
-                <div className="inline-flex items-center gap-2 bg-white/5 px-2 py-0.5 rounded-full">
-                  <PlaneTakeoff className="h-3 w-3 text-white" />
-                  <span className="text-xs font-medium text-white">Flight Search</span>
+              <div className="flex items-center gap-2 mb-2">
+                <div className="inline-flex items-center gap-2 bg-white/5 px-3 py-1 rounded-full">
+                  <PlaneTakeoff className="h-4 w-4 text-white" />
+                  <span className="text-sm font-medium text-white">Flight Search</span>
+                </div>
+                <div className="inline-flex items-center gap-1 bg-white/5 px-2 py-0.5 rounded-full">
+                  <span className="text-xs font-medium text-white/70">Anthropic</span>
+                  <span className="text-xs text-white/50">•</span>
+                  <span className="text-xs text-white/70">AI Engineer</span>
                 </div>
               </div>
 
-              <h1 className="text-lg font-medium text-white mb-0.5">Find your business flights</h1>
+              <h1 className="text-xl md:text-2xl font-medium tracking-tighter text-white mb-1.5">
+                Find the best flights for your business trip
+              </h1>
+
+              <p className="text-sm text-white/70 mb-3">
+                Search and compare flights from top airlines with our AI-powered flight search engine.
+              </p>
             </div>
           </div>
         </div>
@@ -696,11 +706,10 @@ export default function FlightsPage() {
                           <div
                             className={`w-12 h-12 ${airlines[flight.airline]?.color || "bg-white/5"} rounded-lg flex items-center justify-center mr-4 ${airlines[flight.airline]?.textColor || "text-white"}`}
                           >
-                            {/* Modificar la renderización de los iconos para que sean blancos */}
                             {(() => {
                               const AirlineIcon = airlines[flight.airline]?.icon
                               return AirlineIcon ? (
-                                <AirlineIcon className="w-6 h-6 text-white" />
+                                <AirlineIcon className="w-6 h-6" />
                               ) : (
                                 <span className="font-medium">
                                   {airlines[flight.airline]?.code || flight.airline.substring(0, 2)}

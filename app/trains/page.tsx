@@ -21,57 +21,57 @@ import {
 // Importar datos de trenes
 import trainsData from "@/data/trains.json"
 
-// Actualizar los iconos de compañías ferroviarias para que sean blancos
+// Iconos de compañías ferroviarias
 const trainCompanies = {
   Renfe: {
     code: "RN",
-    color: "bg-red-900/30",
-    textColor: "text-white",
+    color: "bg-red-100",
+    textColor: "text-red-700",
   },
   SNCF: {
     code: "SF",
-    color: "bg-blue-900/30",
-    textColor: "text-white",
+    color: "bg-blue-100",
+    textColor: "text-blue-700",
   },
   "Deutsche Bahn": {
     code: "DB",
-    color: "bg-red-900/30",
-    textColor: "text-white",
+    color: "bg-red-100",
+    textColor: "text-red-700",
   },
   Eurostar: {
     code: "ES",
-    color: "bg-yellow-900/30",
-    textColor: "text-white",
+    color: "bg-yellow-100",
+    textColor: "text-yellow-700",
   },
   Trenitalia: {
     code: "TI",
-    color: "bg-green-900/30",
-    textColor: "text-white",
+    color: "bg-green-100",
+    textColor: "text-green-700",
   },
   Italo: {
     code: "IT",
-    color: "bg-purple-900/30",
-    textColor: "text-white",
+    color: "bg-purple-100",
+    textColor: "text-purple-700",
   },
   Thalys: {
     code: "TH",
-    color: "bg-red-900/30",
-    textColor: "text-white",
+    color: "bg-red-100",
+    textColor: "text-red-700",
   },
   ÖBB: {
     code: "OB",
-    color: "bg-red-900/30",
-    textColor: "text-white",
+    color: "bg-red-100",
+    textColor: "text-red-700",
   },
   SBB: {
     code: "SB",
-    color: "bg-red-900/30",
-    textColor: "text-white",
+    color: "bg-red-100",
+    textColor: "text-red-700",
   },
   "Renfe-SNCF": {
     code: "RS",
-    color: "bg-blue-900/30",
-    textColor: "text-white",
+    color: "bg-blue-100",
+    textColor: "text-blue-700",
   },
 }
 

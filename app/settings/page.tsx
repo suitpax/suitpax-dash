@@ -74,14 +74,14 @@ export default function SettingsPage() {
       <div className="max-w-5xl mx-auto">
         <h1 className="text-2xl font-medium tracking-tighter text-black mb-6">Settings</h1>
 
-        <div className="bg-black/30 rounded-lg border border-white/10 p-6 shadow-sm">
+        <div className="bg-white rounded-xl border border-black p-6 shadow-sm">
           <div className="flex flex-col md:flex-row gap-8">
             <div className="md:w-1/4">
               <nav className="space-y-1">
                 <button
                   onClick={() => setActiveTab("general")}
-                  className={`w-full flex items-center px-3 py-2 text-sm rounded-lg transition-colors ${
-                    activeTab === "general" ? "bg-white/10 text-white font-medium" : "text-white/70 hover:bg-white/5"
+                  className={`w-full flex items-center px-3 py-2 text-sm rounded-md transition-colors ${
+                    activeTab === "general" ? "bg-gray-100 text-black font-medium" : "text-gray-600 hover:bg-gray-50"
                   }`}
                 >
                   <Globe className="h-4 w-4 mr-3" />
@@ -89,10 +89,10 @@ export default function SettingsPage() {
                 </button>
                 <button
                   onClick={() => setActiveTab("notifications")}
-                  className={`w-full flex items-center px-3 py-2 text-sm rounded-lg transition-colors ${
+                  className={`w-full flex items-center px-3 py-2 text-sm rounded-md transition-colors ${
                     activeTab === "notifications"
-                      ? "bg-white/10 text-white font-medium"
-                      : "text-white/70 hover:bg-white/5"
+                      ? "bg-gray-100 text-black font-medium"
+                      : "text-gray-600 hover:bg-gray-50"
                   }`}
                 >
                   <Bell className="h-4 w-4 mr-3" />
@@ -100,8 +100,8 @@ export default function SettingsPage() {
                 </button>
                 <button
                   onClick={() => setActiveTab("security")}
-                  className={`w-full flex items-center px-3 py-2 text-sm rounded-lg transition-colors ${
-                    activeTab === "security" ? "bg-white/10 text-white font-medium" : "text-white/70 hover:bg-white/5"
+                  className={`w-full flex items-center px-3 py-2 text-sm rounded-md transition-colors ${
+                    activeTab === "security" ? "bg-gray-100 text-black font-medium" : "text-gray-600 hover:bg-gray-50"
                   }`}
                 >
                   <Lock className="h-4 w-4 mr-3" />
@@ -109,8 +109,8 @@ export default function SettingsPage() {
                 </button>
                 <button
                   onClick={() => setActiveTab("payment")}
-                  className={`w-full flex items-center px-3 py-2 text-sm rounded-lg transition-colors ${
-                    activeTab === "payment" ? "bg-white/10 text-white font-medium" : "text-white/70 hover:bg-white/5"
+                  className={`w-full flex items-center px-3 py-2 text-sm rounded-md transition-colors ${
+                    activeTab === "payment" ? "bg-gray-100 text-black font-medium" : "text-gray-600 hover:bg-gray-50"
                   }`}
                 >
                   <CreditCard className="h-4 w-4 mr-3" />
@@ -123,7 +123,7 @@ export default function SettingsPage() {
               <form onSubmit={handleSubmit} className="space-y-6">
                 {activeTab === "general" && (
                   <>
-                    <h2 className="text-lg font-medium text-white mb-4">General Settings</h2>
+                    <h2 className="text-lg font-medium text-black mb-4">General Settings</h2>
 
                     <div>
                       <label htmlFor="language" className="block text-sm font-medium text-gray-700 mb-1">
@@ -134,7 +134,7 @@ export default function SettingsPage() {
                         name="language"
                         value={settingsData.language}
                         onChange={handleInputChange}
-                        className="w-full px-3 py-2 border border-white/10 rounded-lg focus:outline-none focus:ring-2 focus:ring-white/20 bg-white/5 text-white"
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-200"
                       >
                         {languages.map((lang) => (
                           <option key={lang.code} value={lang.code}>
@@ -152,7 +152,7 @@ export default function SettingsPage() {
                       <div className="flex gap-4">
                         <label
                           className={`flex items-center gap-2 p-3 border rounded-lg cursor-pointer ${
-                            settingsData.theme === "light" ? "border-white bg-white/10" : "border-white/10"
+                            settingsData.theme === "light" ? "border-black bg-gray-50" : "border-gray-300"
                           }`}
                         >
                           <input
@@ -169,7 +169,7 @@ export default function SettingsPage() {
 
                         <label
                           className={`flex items-center gap-2 p-3 border rounded-lg cursor-pointer ${
-                            settingsData.theme === "dark" ? "border-white bg-white/10" : "border-white/10"
+                            settingsData.theme === "dark" ? "border-black bg-gray-50" : "border-gray-300"
                           }`}
                         >
                           <input
@@ -186,7 +186,7 @@ export default function SettingsPage() {
 
                         <label
                           className={`flex items-center gap-2 p-3 border rounded-lg cursor-pointer ${
-                            settingsData.theme === "system" ? "border-white bg-white/10" : "border-white/10"
+                            settingsData.theme === "system" ? "border-black bg-gray-50" : "border-gray-300"
                           }`}
                         >
                           <input
@@ -220,7 +220,7 @@ export default function SettingsPage() {
 
                 {activeTab === "notifications" && (
                   <>
-                    <h2 className="text-lg font-medium text-white mb-4">Notification Settings</h2>
+                    <h2 className="text-lg font-medium text-black mb-4">Notification Settings</h2>
 
                     <div className="space-y-4">
                       <div className="flex items-center justify-between">
@@ -282,7 +282,7 @@ export default function SettingsPage() {
 
                 {activeTab === "security" && (
                   <>
-                    <h2 className="text-lg font-medium text-white mb-4">Security Settings</h2>
+                    <h2 className="text-lg font-medium text-black mb-4">Security Settings</h2>
 
                     <div className="space-y-4">
                       <div className="flex items-center justify-between">
@@ -327,7 +327,7 @@ export default function SettingsPage() {
 
                 {activeTab === "payment" && (
                   <>
-                    <h2 className="text-lg font-medium text-white mb-4">Payment Settings</h2>
+                    <h2 className="text-lg font-medium text-black mb-4">Payment Settings</h2>
 
                     <div className="space-y-4">
                       <div>
@@ -339,7 +339,7 @@ export default function SettingsPage() {
                           name="defaultCurrency"
                           value={settingsData.defaultCurrency}
                           onChange={handleInputChange}
-                          className="w-full px-3 py-2 border border-white/10 rounded-lg focus:outline-none focus:ring-2 focus:ring-white/20 bg-white/5 text-white"
+                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-200"
                         >
                           {currencies.map((currency) => (
                             <option key={currency.code} value={currency.code}>
@@ -369,7 +369,7 @@ export default function SettingsPage() {
                 <div className="flex justify-end pt-4">
                   <button
                     type="submit"
-                    className="px-3 py-1.5 rounded-lg bg-white/10 text-white hover:bg-white/20 flex items-center gap-2"
+                    className="px-3 py-1.5 rounded-xl bg-black text-white hover:bg-gray-800 flex items-center gap-2"
                     disabled={isSaving}
                   >
                     <span className="text-xs">{isSaving ? "Saving..." : "Save Settings"}</span>

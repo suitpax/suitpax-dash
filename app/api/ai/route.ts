@@ -1,25 +1,46 @@
 import { type NextRequest, NextResponse } from "next/server"
-import { generateChatCompletion } from "@/lib/ai/anthropic-service"
+import { enhancedAiService } from "@/lib/ai/ai-service-enhanced"
 
 export async function POST(req: NextRequest) {
   try {
-    const { messages, model, temperature, maxTokens, systemPrompt } = await req.json()
+    const body = await req.json()
+    const {
+      messages,
+      systemPrompt,
+      includeTableData,
+      tableName,
+      searchParams,
+      promptId,
+      stream,
+      useInternalSystem = true, // Por defecto, usar el sistema interno
+    } = body
 
+    // Validar los datos de entrada
     if (!messages || !Array.isArray(messages)) {
-      return NextResponse.json({ error: "Messages are required and must be an array" }, { status: 400 })
+      return NextResponse.json({ error: "Se requiere un array de mensajes válido" }, { status: 400 })
     }
 
-    const response = await generateChatCompletion({
+    // Generar la respuesta con el servicio mejorado
+    const response = await enhancedAiService.generateResponse({
       messages,
-      model,
-      temperature,
-      maxTokens,
       systemPrompt,
+      includeTableData,
+      tableName,
+      searchParams,
+      promptId,
+      stream,
+      useInternalSystem,
     })
 
-    return NextResponse.json(response)
+    // Si es una respuesta en streaming, devolverla directamente
+    if (stream) {
+      return response
+    }
+
+    // Si no, devolver la respuesta como JSON
+    return NextResponse.json({ response })
   } catch (error) {
-    console.error("Error in AI route:", error)
-    return NextResponse.json({ error: "Failed to generate AI response" }, { status: 500 })
+    console.error("Error in AI API route:", error)
+    return NextResponse.json({ error: "Error al procesar la solicitud de IA" }, { status: 500 })
   }
 }

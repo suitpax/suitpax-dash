@@ -102,43 +102,6 @@ export default function ProfilePage() {
                     <span className="text-sm">{profileData.location}</span>
                   </div>
                 </div>
-
-                <div className="w-full border-t border-white/10 my-4 pt-4"></div>
-                <div className="relative mb-4 group">
-                  <div className="w-24 h-24 md:w-32 md:h-32 rounded-xl overflow-hidden border-2 border-white/10">
-                    <Image
-                      src="/images/team/lyle-kauffman.jpeg"
-                      alt="Alberto Zurano"
-                      width={128}
-                      height={128}
-                      className="object-cover w-full h-full"
-                    />
-                  </div>
-                  <div className="absolute inset-0 flex items-center justify-center bg-black/50 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer">
-                    <Camera className="h-6 w-6 text-white" />
-                  </div>
-                </div>
-                <h2 className="text-xl font-medium text-white mb-1">Alberto Zurano</h2>
-                <p className="text-white/70 text-sm mb-4">Travel Operations Manager</p>
-
-                <div className="w-full space-y-3 mt-2">
-                  <div className="flex items-center text-white/70">
-                    <Mail className="h-4 w-4 mr-2" />
-                    <span className="text-sm">alberto.zurano@empresa.com</span>
-                  </div>
-                  <div className="flex items-center text-white/70">
-                    <Building className="h-4 w-4 mr-2" />
-                    <span className="text-sm">Empresa Internacional S.A.</span>
-                  </div>
-                  <div className="flex items-center text-white/70">
-                    <Phone className="h-4 w-4 mr-2" />
-                    <span className="text-sm">+34 623 456 789</span>
-                  </div>
-                  <div className="flex items-center text-white/70">
-                    <MapPin className="h-4 w-4 mr-2" />
-                    <span className="text-sm">Barcelona, Spain</span>
-                  </div>
-                </div>
               </div>
             </div>
 

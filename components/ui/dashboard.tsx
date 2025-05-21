@@ -11,6 +11,7 @@ export default function Dashboard() {
     // Asegurar que la página se cargue desde arriba
     window.scrollTo(0, 0)
   }, [])
+
   return (
     <Layout>
       <DashboardContent />

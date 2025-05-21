@@ -402,12 +402,7 @@ export function Sidebar({ isOpen = true, toggleSidebar }: SidebarProps) {
                     <div className="flex items-center justify-between p-2 border-b border-white/10">
                       <div className="flex items-center">
                         <div className="relative h-6 w-6 rounded-full overflow-hidden mr-2">
-                          <Image
-                            src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/IMG-20250405-WA0006.jpg-ssy02udC7rU3LK1do6bZYdDCxA1Z2R.jpeg"
-                            alt="AI Assistant"
-                            fill
-                            className="object-cover"
-                          />
+                          <Image src="/images/ai-agent-avatar.jpeg" alt="AI Assistant" fill className="object-cover" />
                         </div>
                         <div>
                           <h3 className="font-medium text-white text-xs">Suitpax AI</h3>
@@ -508,7 +503,7 @@ export function Sidebar({ isOpen = true, toggleSidebar }: SidebarProps) {
                 <div className="relative">
                   <div className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 rounded-full overflow-hidden">
                     <Image
-                      src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/IMG-20250405-WA0006.jpg-ssy02udC7rU3LK1do6bZYdDCxA1Z2R.jpeg"
+                      src="/images/ai-agent-avatar.jpeg"
                       alt="AI Assistant"
                       width={20}
                       height={20}

@@ -1,161 +1,259 @@
 "use client"
 
-import { useState } from "react"
-import { Search } from "lucide-react"
+import { useState, useEffect } from "react"
+import { Search, ChevronLeft, ChevronRight, Download, RefreshCw } from "lucide-react"
 
-export function DataExplorer() {
-  const [selectedTable, setSelectedTable] = useState<string | null>(null)
+interface Column {
+  name: string
+  type: string
+}
+
+interface DataExplorerProps {
+  tableName: string
+  columns: Column[]
+  data: any[]
+  totalCount: number
+  onFetchData: (
+    tableName: string,
+    page: number,
+    pageSize: number,
+    searchParams?: { column: string; term: string },
+  ) => Promise<void>
+  onExportData?: () => Promise<void>
+}
+
+export default function DataExplorer({
+  tableName,
+  columns,
+  data,
+  totalCount,
+  onFetchData,
+  onExportData,
+}: DataExplorerProps) {
+  const [page, setPage] = useState(1)
+  const [pageSize, setPageSize] = useState(10)
+  const [searchColumn, setSearchColumn] = useState("")
   const [searchTerm, setSearchTerm] = useState("")
-  const [data, setData] = useState<any[]>([])
+  const [isSearching, setIsSearching] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
-  const [error, setError] = useState<string | null>(null)
 
-  // Lista de tablas simuladas
-  const tables = [
-    { name: "users", description: "Usuarios del sistema" },
-    { name: "trips", description: "Viajes registrados" },
-    { name: "bookings", description: "Reservas realizadas" },
-    { name: "expenses", description: "Gastos registrados" },
-  ]
+  // Calcular el número total de páginas
+  const totalPages = Math.ceil(totalCount / pageSize)
 
-  const handleTableSelect = async (tableName: string) => {
-    setSelectedTable(tableName)
+  // Cargar datos cuando cambia la página o el tamaño de página
+  useEffect(() => {
+    fetchData()
+  }, [page, pageSize])
+
+  // Función para cargar datos
+  const fetchData = async () => {
     setIsLoading(true)
-    setError(null)
-
     try {
-      // Simulación de carga de datos
-      await new Promise((resolve) => setTimeout(resolve, 500))
+      const searchParams =
+        isSearching && searchColumn && searchTerm ? { column: searchColumn, term: searchTerm } : undefined
 
-      // Datos simulados
-      setData([
-        { id: 1, name: "Ejemplo 1", created_at: new Date().toISOString() },
-        { id: 2, name: "Ejemplo 2", created_at: new Date().toISOString() },
-        { id: 3, name: "Ejemplo 3", created_at: new Date().toISOString() },
-      ])
-    } catch (err) {
-      setError("Error al cargar los datos")
-      console.error(err)
+      await onFetchData(tableName, page, pageSize, searchParams)
+    } catch (error) {
+      console.error("Error fetching data:", error)
     } finally {
       setIsLoading(false)
     }
   }
 
-  const handleSearch = async () => {
-    if (!selectedTable || !searchTerm.trim()) return
+  // Manejar la búsqueda
+  const handleSearch = () => {
+    if (searchColumn && searchTerm) {
+      setIsSearching(true)
+      setPage(1) // Volver a la primera página al buscar
+      fetchData()
+    }
+  }
 
-    setIsLoading(true)
-    setError(null)
+  // Limpiar la búsqueda
+  const clearSearch = () => {
+    setSearchColumn("")
+    setSearchTerm("")
+    setIsSearching(false)
+    setPage(1)
+    fetchData()
+  }
 
-    try {
-      // Simulación de búsqueda
-      await new Promise((resolve) => setTimeout(resolve, 500))
+  // Ir a la página anterior
+  const goToPreviousPage = () => {
+    if (page > 1) {
+      setPage(page - 1)
+    }
+  }
 
-      // Datos simulados filtrados
-      setData([{ id: 1, name: "Resultado 1", created_at: new Date().toISOString() }])
-    } catch (err) {
-      setError("Error al buscar datos")
-      console.error(err)
-    } finally {
-      setIsLoading(false)
+  // Ir a la página siguiente
+  const goToNextPage = () => {
+    if (page < totalPages) {
+      setPage(page + 1)
     }
   }
 
   return (
-    <div className="bg-black border border-white/10 rounded-lg overflow-hidden">
-      <div className="p-4 border-b border-white/10">
-        <h2 className="text-lg font-medium text-white">Explorador de Datos</h2>
-        <p className="text-sm text-white/70">Visualiza y consulta datos del sistema (simulado)</p>
+    <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+      {/* Header */}
+      <div className="flex items-center justify-between px-4 py-3 border-b border-gray-200">
+        <h2 className="font-medium">{tableName}</h2>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={fetchData}
+            className="p-1.5 rounded-lg hover:bg-gray-100"
+            aria-label="Refrescar datos"
+            disabled={isLoading}
+          >
+            <RefreshCw className={`h-4 w-4 text-gray-500 ${isLoading ? "animate-spin" : ""}`} />
+          </button>
+          {onExportData && (
+            <button
+              onClick={onExportData}
+              className="p-1.5 rounded-lg hover:bg-gray-100"
+              aria-label="Exportar datos"
+              disabled={isLoading}
+            >
+              <Download className="h-4 w-4 text-gray-500" />
+            </button>
+          )}
+        </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-4">
-        {/* Sidebar con tablas */}
-        <div className="p-4 border-r border-white/10 md:col-span-1">
-          <h3 className="text-sm font-medium text-white mb-3">Tablas</h3>
-          <div className="space-y-1">
-            {tables.map((table) => (
-              <button
-                key={table.name}
-                onClick={() => handleTableSelect(table.name)}
-                className={`w-full text-left px-3 py-2 text-sm rounded-lg ${
-                  selectedTable === table.name
-                    ? "bg-white/10 text-white"
-                    : "text-white/70 hover:bg-white/5 hover:text-white"
-                }`}
-              >
-                {table.name}
-              </button>
+      {/* Search */}
+      <div className="border-b border-gray-200 p-3">
+        <div className="flex items-center gap-2">
+          <select
+            value={searchColumn}
+            onChange={(e) => setSearchColumn(e.target.value)}
+            className="px-2 py-1 text-xs border border-gray-300 rounded-md"
+            disabled={isLoading}
+          >
+            <option value="">Seleccionar columna...</option>
+            {columns.map((column) => (
+              <option key={column.name} value={column.name}>
+                {column.name}
+              </option>
             ))}
-          </div>
-        </div>
-
-        {/* Área principal */}
-        <div className="p-4 md:col-span-3">
-          {selectedTable ? (
-            <>
-              {/* Barra de búsqueda */}
-              <div className="mb-4 flex">
-                <div className="relative flex-1">
-                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-white/50" />
-                  <input
-                    type="text"
-                    placeholder="Buscar..."
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                    className="w-full pl-10 pr-4 py-2 bg-white/5 border border-white/10 rounded-lg text-white placeholder:text-white/30 focus:outline-none focus:ring-1 focus:ring-white/20"
-                  />
-                </div>
-                <button
-                  onClick={handleSearch}
-                  className="ml-2 px-4 py-2 bg-white/5 hover:bg-white/10 border border-white/10 rounded-lg text-white"
-                >
-                  Buscar
-                </button>
-              </div>
-
-              {/* Tabla de resultados */}
-              {isLoading ? (
-                <div className="flex justify-center items-center h-40">
-                  <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-white"></div>
-                </div>
-              ) : error ? (
-                <div className="bg-white/5 border border-white/10 rounded-lg p-4 text-white/70">{error}</div>
-              ) : data.length > 0 ? (
-                <div className="overflow-x-auto">
-                  <table className="w-full border-collapse">
-                    <thead>
-                      <tr className="border-b border-white/10">
-                        {Object.keys(data[0]).map((key) => (
-                          <th key={key} className="px-4 py-2 text-left text-sm font-medium text-white/70">
-                            {key}
-                          </th>
-                        ))}
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {data.map((row, i) => (
-                        <tr key={i} className="border-b border-white/5 hover:bg-white/5">
-                          {Object.values(row).map((value: any, j) => (
-                            <td key={j} className="px-4 py-2 text-sm text-white/70">
-                              {typeof value === "object" ? JSON.stringify(value) : String(value)}
-                            </td>
-                          ))}
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              ) : (
-                <div className="bg-white/5 border border-white/10 rounded-lg p-4 text-white/70">
-                  No hay datos disponibles
-                </div>
-              )}
-            </>
-          ) : (
-            <div className="flex flex-col items-center justify-center h-40 text-white/50">
-              <p>Selecciona una tabla para ver sus datos</p>
-            </div>
+          </select>
+          <input
+            type="text"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            placeholder="Buscar..."
+            className="flex-1 px-2 py-1 text-xs border border-gray-300 rounded-md"
+            disabled={!searchColumn || isLoading}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                handleSearch()
+              }
+            }}
+          />
+          <button
+            onClick={handleSearch}
+            className="p-1.5 rounded-lg bg-black text-white hover:bg-gray-800 disabled:opacity-50 disabled:hover:bg-black"
+            aria-label="Buscar"
+            disabled={!searchColumn || !searchTerm || isLoading}
+          >
+            <Search className="h-4 w-4" />
+          </button>
+          {isSearching && (
+            <button
+              onClick={clearSearch}
+              className="px-2 py-1 text-xs rounded-lg bg-gray-100 hover:bg-gray-200"
+              disabled={isLoading}
+            >
+              Limpiar
+            </button>
           )}
+        </div>
+      </div>
+
+      {/* Data table */}
+      <div className="overflow-x-auto">
+        <table className="w-full text-xs">
+          <thead className="bg-gray-50">
+            <tr>
+              {columns.map((column) => (
+                <th
+                  key={column.name}
+                  className="px-3 py-2 text-left font-medium text-gray-600 border-b border-gray-200"
+                >
+                  {column.name}
+                  <span className="text-gray-400 ml-1">({column.type})</span>
+                </th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {data.length === 0 ? (
+              <tr>
+                <td colSpan={columns.length} className="px-3 py-4 text-center text-gray-500 border-b border-gray-200">
+                  {isLoading ? "Cargando datos..." : "No hay datos disponibles"}
+                </td>
+              </tr>
+            ) : (
+              data.map((row, rowIndex) => (
+                <tr key={rowIndex} className="hover:bg-gray-50">
+                  {columns.map((column) => (
+                    <td
+                      key={column.name}
+                      className="px-3 py-2 border-b border-gray-200 truncate max-w-xs"
+                      title={String(row[column.name] || "")}
+                    >
+                      {typeof row[column.name] === "object"
+                        ? JSON.stringify(row[column.name])
+                        : String(row[column.name] || "")}
+                    </td>
+                  ))}
+                </tr>
+              ))
+            )}
+          </tbody>
+        </table>
+      </div>
+
+      {/* Pagination */}
+      <div className="flex items-center justify-between px-4 py-3 border-t border-gray-200">
+        <div className="text-xs text-gray-500">
+          Mostrando {data.length > 0 ? (page - 1) * pageSize + 1 : 0} a {Math.min(page * pageSize, totalCount)} de{" "}
+          {totalCount} registros
+        </div>
+        <div className="flex items-center gap-2">
+          <select
+            value={pageSize}
+            onChange={(e) => {
+              setPageSize(Number(e.target.value))
+              setPage(1) // Volver a la primera página al cambiar el tamaño
+            }}
+            className="px-2 py-1 text-xs border border-gray-300 rounded-md"
+            disabled={isLoading}
+          >
+            <option value="10">10 por página</option>
+            <option value="25">25 por página</option>
+            <option value="50">50 por página</option>
+            <option value="100">100 por página</option>
+          </select>
+          <div className="flex items-center">
+            <button
+              onClick={goToPreviousPage}
+              className="p-1 rounded-lg hover:bg-gray-100 disabled:opacity-50"
+              aria-label="Página anterior"
+              disabled={page === 1 || isLoading}
+            >
+              <ChevronLeft className="h-4 w-4 text-gray-500" />
+            </button>
+            <span className="px-2 text-xs">
+              Página {page} de {totalPages || 1}
+            </span>
+            <button
+              onClick={goToNextPage}
+              className="p-1 rounded-lg hover:bg-gray-100 disabled:opacity-50"
+              aria-label="Página siguiente"
+              disabled={page >= totalPages || isLoading}
+            >
+              <ChevronRight className="h-4 w-4 text-gray-500" />
+            </button>
+          </div>
         </div>
       </div>
     </div>

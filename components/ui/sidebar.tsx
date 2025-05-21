@@ -23,11 +23,9 @@ import {
   CreditCardIcon,
   BanknotesIcon,
   ChartBarIcon,
-  EnvelopeIcon,
-  CalendarIcon,
 } from "@heroicons/react/24/outline"
 import { ChevronDownIcon } from "@heroicons/react/24/solid"
-import { Users, X, Menu, Receipt, Mic, Car, Send } from "lucide-react"
+import { Users, X, Menu, Receipt, Mic, Car, Send, CalendarDays } from "lucide-react"
 import { cn } from "@/lib/utils"
 // Primero, asegúrate de que tenemos el componente Badge importado
 import { Badge } from "@/components/ui/badge"
@@ -548,6 +546,9 @@ export function Sidebar({ isOpen = true, toggleSidebar }: SidebarProps) {
                   <NavItem href="/transfers" icon={Car}>
                     Transfers
                   </NavItem>
+                  <NavItem href="/events" icon={CalendarDays}>
+                    Events
+                  </NavItem>
                   <NavItem href="/airport-vip-lounge" icon={CreditCardIcon}>
                     Airport VIP Lounge
                   </NavItem>
@@ -611,16 +612,6 @@ export function Sidebar({ isOpen = true, toggleSidebar }: SidebarProps) {
                     </NavItem>
                     <NavItem href="#" icon={BriefcaseIcon}>
                       Deals
-                    </NavItem>
-                    {/* Nuevas secciones añadidas */}
-                    <NavItem href="/emails" icon={EnvelopeIcon}>
-                      Emails
-                    </NavItem>
-                    <NavItem href="/meetings" icon={CalendarIcon}>
-                      Meetings
-                    </NavItem>
-                    <NavItem href="/analytics" icon={ChartBarIcon}>
-                      Analytics
                     </NavItem>
                   </div>
                 )}

@@ -5,8 +5,9 @@ import Layout from "@/components/ui/layout"
 import AIChat from "@/components/ui/ai-chat"
 import PromptManager from "@/components/ui/prompt-manager"
 import DataExplorer from "@/components/ui/data-explorer"
-import type { Message } from "@/lib/ai/message-types"
-import { type Prompt, aiStudioService } from "@/lib/ai/ai-studio"
+import type { Message } from "@/lib/ai/anthropic-service"
+import { type Prompt, promptService } from "@/lib/ai/prompt-service"
+import { dataService } from "@/lib/ai/data-service"
 import { aiService } from "@/lib/ai/ai-service"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 
@@ -55,7 +56,7 @@ export default function AIStudioPage() {
   const loadInitialData = async () => {
     try {
       // Cargar información sobre las capacidades de la IA
-      const capabilities = await aiStudioService.getAICapabilities()
+      const capabilities = await aiService.getAICapabilities()
 
       // Establecer las tablas disponibles
       setTables(capabilities.availableTables)
@@ -64,7 +65,7 @@ export default function AIStudioPage() {
       setPromptCategories(capabilities.promptCategories)
 
       // Cargar todos los prompts
-      const allPrompts = await aiStudioService.getAllPrompts()
+      const allPrompts = await promptService.getAllPrompts()
       setPrompts(allPrompts)
     } catch (error) {
       console.error("Error loading initial data:", error)
@@ -131,7 +132,7 @@ export default function AIStudioPage() {
   // Crear un nuevo prompt
   const createPrompt = async (promptData: Omit<Prompt, "id" | "createdAt" | "updatedAt">) => {
     try {
-      const newPrompt = await aiStudioService.createPrompt(promptData)
+      const newPrompt = await promptService.createPrompt(promptData)
       setPrompts([newPrompt, ...prompts])
       return newPrompt
     } catch (error) {
@@ -143,10 +144,8 @@ export default function AIStudioPage() {
   // Actualizar un prompt existente
   const updatePrompt = async (id: string, promptData: Partial<Omit<Prompt, "id" | "createdAt" | "updatedAt">>) => {
     try {
-      const updatedPrompt = await aiStudioService.updatePrompt(id, promptData)
-      if (updatedPrompt) {
-        setPrompts(prompts.map((p) => (p.id === id ? updatedPrompt : p)))
-      }
+      const updatedPrompt = await promptService.updatePrompt(id, promptData)
+      setPrompts(prompts.map((p) => (p.id === id ? updatedPrompt : p)))
       return updatedPrompt
     } catch (error) {
       console.error(`Error updating prompt ${id}:`, error)
@@ -157,7 +156,7 @@ export default function AIStudioPage() {
   // Eliminar un prompt
   const deletePrompt = async (id: string) => {
     try {
-      const success = await aiStudioService.deletePrompt(id)
+      const success = await promptService.deletePrompt(id)
       if (success) {
         setPrompts(prompts.filter((p) => p.id !== id))
       }
@@ -197,37 +196,18 @@ export default function AIStudioPage() {
         setTableColumns(tableInfo.columns)
       }
 
-      // Simular datos de tabla
-      const mockData = []
-      for (let i = 0; i < pageSize; i++) {
-        if (tableName === "flights") {
-          mockData.push({
-            id: `flight-${i + 1}`,
-            airline: ["British Airways", "Lufthansa", "Air France", "Iberia"][i % 4],
-            departure: ["London", "Berlin", "Paris", "Madrid"][i % 4],
-            arrival: ["New York", "Tokyo", "Dubai", "Sydney"][i % 4],
-            price: Math.floor(Math.random() * 1000) + 300,
-          })
-        } else if (tableName === "hotels") {
-          mockData.push({
-            id: `hotel-${i + 1}`,
-            name: ["Grand Hyatt", "Marriott", "Hilton", "Ritz-Carlton"][i % 4],
-            location: ["New York", "Tokyo", "Dubai", "Sydney"][i % 4],
-            price: Math.floor(Math.random() * 300) + 100,
-            rating: Math.floor(Math.random() * 2) + 3,
-          })
-        } else if (tableName === "cars") {
-          mockData.push({
-            id: `car-${i + 1}`,
-            type: ["Economy", "Compact", "SUV", "Luxury"][i % 4],
-            company: ["Hertz", "Avis", "Enterprise", "Budget"][i % 4],
-            price: Math.floor(Math.random() * 100) + 30,
-          })
-        }
+      // Obtener los datos de la tabla
+      let data
+      if (searchParams && searchParams.column && searchParams.term) {
+        data = await dataService.searchTableData(tableName, searchParams.column, searchParams.term, pageSize)
+      } else {
+        data = await dataService.getTableData(tableName, pageSize, (page - 1) * pageSize)
       }
 
-      setTableData(mockData)
-      setTotalRecords(100) // Simular 100 registros en total
+      setTableData(data)
+
+      // Obtener el total de registros (en una implementación real, esto vendría de la API)
+      setTotalRecords(data.length)
 
       // Añadir un mensaje del sistema indicando que se han cargado datos
       const systemMessage: Message = {

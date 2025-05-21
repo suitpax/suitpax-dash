@@ -25,7 +25,7 @@ import {
   ChartBarIcon,
 } from "@heroicons/react/24/outline"
 import { ChevronDownIcon } from "@heroicons/react/24/solid"
-import { Users, X, Menu, Receipt, Mic, Car, Send, CalendarDays } from "lucide-react"
+import { Users, X, Receipt, Mic, Car, Send, CalendarDays } from "lucide-react"
 import { cn } from "@/lib/utils"
 // Primero, asegúrate de que tenemos el componente Badge importado
 import { Badge } from "@/components/ui/badge"
@@ -272,11 +272,20 @@ export function Sidebar({ isOpen = true, toggleSidebar }: SidebarProps) {
       {/* Mobile menu button - only visible when sidebar is closed */}
       <button
         type="button"
-        className="lg:hidden fixed top-4 left-4 z-[70] p-1.5 rounded-lg bg-black/90 shadow-md text-white border border-white/10"
+        className="lg:hidden fixed top-4 left-4 z-[70] p-2 rounded-lg bg-black/90 shadow-md text-white border border-white/10 flex items-center space-x-2"
         onClick={() => setIsMobileMenuOpen(true)}
         aria-label="Open menu"
       >
-        <Menu className="h-4 w-4 flex-shrink-0" />
+        <div className="relative h-5 w-5 rounded-full overflow-hidden flex items-center justify-center bg-white/5">
+          <Image
+            src="/images/suitpax-bl-logo.webp"
+            alt="Suitpax Logo"
+            width={16}
+            height={16}
+            className="object-cover"
+          />
+        </div>
+        <span className="text-xs font-medium">Suitpax</span>
       </button>
 
       {/* Sidebar navigation */}
@@ -294,83 +303,41 @@ export function Sidebar({ isOpen = true, toggleSidebar }: SidebarProps) {
           {/* Header */}
           <div className="h-14 px-3 flex items-center justify-between border-b border-white/10">
             <div className="flex items-center">
-              {!isCollapsed && (
-                <div className="relative group cursor-pointer">
-                  <div className="flex items-center">
-                    <div className="relative h-7 w-7 mr-2 bg-white/10 rounded-full overflow-hidden flex items-center justify-center">
-                      <Image
-                        src="/placeholder.svg?key=t120v"
-                        alt="Suitpax Logo"
-                        width={28}
-                        height={28}
-                        className="object-cover"
-                      />
-                    </div>
-                    <div>
-                      <h2 className="text-sm text-white font-medium">Suitpax</h2>
-                      <p className="text-[10px] text-white/70 font-light">Business Travel AI</p>
-                    </div>
-                  </div>
-
-                  {/* Profile dropdown that appears on hover/click */}
-                  <div className="absolute left-0 top-full mt-1 w-48 bg-black/95 rounded-lg shadow-lg border border-white/10 hidden group-hover:block z-50">
-                    <div className="p-3 border-b border-white/10">
-                      <div className="flex items-center">
-                        <div className="relative h-8 w-8 mr-2 rounded-full overflow-hidden">
-                          <Image
-                            src="/images/team/orlando-diggs.jpeg"
-                            alt="Community Member"
-                            width={32}
-                            height={32}
-                            className="object-cover"
-                          />
-                        </div>
-                        <div>
-                          <p className="text-sm font-medium text-white">Orlando Diggs</p>
-                          <p className="text-xs text-white/50">Product Lead @ Suitpax</p>
-                        </div>
-                      </div>
-                    </div>
-                    <div className="p-1">
-                      <button className="w-full text-left px-3 py-1.5 text-xs text-white/70 hover:bg-white/5 hover:text-white rounded-md">
-                        Profile Settings
-                      </button>
-                      <button className="w-full text-left px-3 py-1.5 text-xs text-white/70 hover:bg-white/5 hover:text-white rounded-md">
-                        Company Settings
-                      </button>
-                      <button className="w-full text-left px-3 py-1.5 text-xs text-white/70 hover:bg-white/5 hover:text-white rounded-md">
-                        Sign Out
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              )}
-              {isCollapsed && (
-                <div className="relative h-7 w-7 mx-auto rounded-full overflow-hidden flex items-center justify-center">
+              {!isCollapsed ? (
+                <div className="flex items-center">
                   <Image
-                    src="/placeholder.svg?key=ljbxi"
+                    src="/images/suitpax-cloud-logo.webp"
                     alt="Suitpax Logo"
-                    width={28}
+                    width={120}
                     height={28}
-                    className="object-cover"
+                    className="object-contain"
                   />
+                </div>
+              ) : (
+                <div className="w-full flex justify-center">
+                  <div className="relative h-8 w-8 rounded-full overflow-hidden flex items-center justify-center bg-white/5">
+                    <Image
+                      src="/images/suitpax-bl-logo.webp"
+                      alt="Suitpax Logo"
+                      width={24}
+                      height={24}
+                      className="object-cover"
+                    />
+                  </div>
                 </div>
               )}
             </div>
             <div className="flex items-center">
               <button
                 onClick={() => setIsCollapsed(!isCollapsed)}
-                className="hidden lg:block p-1 rounded-lg hover:bg-white/5 transition-colors bg-transparent text-white/70 border border-white/10"
+                className="p-1.5 rounded-lg hover:bg-white/5 transition-colors bg-transparent text-white/70 border border-white/10"
                 aria-label={isCollapsed ? "Expand sidebar" : "Collapse sidebar"}
               >
-                {isCollapsed ? <ChevronRightIcon className="h-3 w-3" /> : <ChevronLeftIcon className="h-3 w-3" />}
-              </button>
-              <button
-                onClick={() => setIsMobileMenuOpen(false)}
-                className="lg:hidden p-1 rounded-lg hover:bg-white/5 transition-colors bg-white/5 text-white/70 border border-white/10"
-                aria-label="Close sidebar"
-              >
-                <X className="h-3 w-3" />
+                {isCollapsed ? (
+                  <ChevronRightIcon className="h-3.5 w-3.5" />
+                ) : (
+                  <ChevronLeftIcon className="h-3.5 w-3.5" />
+                )}
               </button>
             </div>
           </div>

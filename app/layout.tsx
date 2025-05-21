@@ -1,30 +1,23 @@
 import type React from "react"
-import { Inter } from "next/font/google"
-import { Analytics } from "@vercel/analytics/react"
+import type { Metadata } from "next"
 import "./globals.css"
-import "./glow-effects.css"
-import { Suspense } from "react"
+import { DashboardLayout } from "@/components/ui/dashboard-layout"
 
-const inter = Inter({ subsets: ["latin"] })
-
-export const metadata = {
-  title: "Suitpax - Plataforma de Viajes de Negocios",
-  description: "Gestiona tus viajes de negocios de forma eficiente",
+export const metadata: Metadata = {
+  title: "Suitpax",
+  description: "Plataforma de Viajes de Negocios",
     generator: 'v0.dev'
 }
 
 export default function RootLayout({
   children,
-}: {
+}: Readonly<{
   children: React.ReactNode
-}) {
+}>) {
   return (
-    <html lang="es">
-      <body className={inter.className}>
-        <Suspense fallback={"Loading..."}>
-          <div className="pt-14 pb-16 lg:pb-0">{children}</div>
-        </Suspense>
-        <Analytics />
+    <html lang="en">
+      <body>
+        <DashboardLayout>{children}</DashboardLayout>
       </body>
     </html>
   )

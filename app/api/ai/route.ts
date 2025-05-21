@@ -1,46 +1,28 @@
-import { type NextRequest, NextResponse } from "next/server"
-import { enhancedAiService } from "@/lib/ai/ai-service-enhanced"
+import { NextResponse } from "next/server"
+import { processMessage } from "@/lib/ai/ai-service"
+import type { Message } from "@/lib/ai/message-types"
 
-export async function POST(req: NextRequest) {
+export async function POST(request: Request) {
   try {
-    const body = await req.json()
-    const {
-      messages,
-      systemPrompt,
-      includeTableData,
-      tableName,
-      searchParams,
-      promptId,
-      stream,
-      useInternalSystem = true, // Por defecto, usar el sistema interno
-    } = body
+    const { messages, systemPrompt } = await request.json()
 
-    // Validar los datos de entrada
-    if (!messages || !Array.isArray(messages)) {
-      return NextResponse.json({ error: "Se requiere un array de mensajes válido" }, { status: 400 })
+    // Validar la entrada
+    if (!Array.isArray(messages)) {
+      return NextResponse.json({ error: "Invalid request: messages must be an array" }, { status: 400 })
     }
 
-    // Generar la respuesta con el servicio mejorado
-    const response = await enhancedAiService.generateResponse({
-      messages,
-      systemPrompt,
-      includeTableData,
-      tableName,
-      searchParams,
-      promptId,
-      stream,
-      useInternalSystem,
-    })
+    // Convertir las fechas de string a Date
+    const formattedMessages: Message[] = messages.map((message: any) => ({
+      ...message,
+      createdAt: message.createdAt ? new Date(message.createdAt) : new Date(),
+    }))
 
-    // Si es una respuesta en streaming, devolverla directamente
-    if (stream) {
-      return response
-    }
+    // Procesar el mensaje con el servicio interno
+    const result = await processMessage(formattedMessages, systemPrompt)
 
-    // Si no, devolver la respuesta como JSON
-    return NextResponse.json({ response })
+    return NextResponse.json(result)
   } catch (error) {
-    console.error("Error in AI API route:", error)
-    return NextResponse.json({ error: "Error al procesar la solicitud de IA" }, { status: 500 })
+    console.error("Error processing AI request:", error)
+    return NextResponse.json({ error: "An error occurred while processing your request" }, { status: 500 })
   }
 }

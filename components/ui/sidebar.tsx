@@ -294,8 +294,8 @@ export function Sidebar({ isOpen = true, toggleSidebar }: SidebarProps) {
         </button>
         <div className="h-full flex flex-col">
           {/* Header */}
-          <div className="h-14 px-3 flex items-center justify-between border-b border-white/10">
-            <div className="flex items-center">
+          <div className="h-14 px-3 border-b border-white/10">
+            <div className="flex items-center justify-between h-full relative">
               {!isCollapsed ? (
                 <div className="flex items-center">
                   <Image
@@ -305,6 +305,13 @@ export function Sidebar({ isOpen = true, toggleSidebar }: SidebarProps) {
                     height={28}
                     className="object-contain"
                   />
+                  <button
+                    onClick={() => setIsCollapsed(!isCollapsed)}
+                    className="ml-2 p-1.5 rounded-xl hover:bg-white/5 transition-colors bg-transparent text-white border border-white/10"
+                    aria-label="Collapse sidebar"
+                  >
+                    <ChevronLeftIcon className="h-3.5 w-3.5" />
+                  </button>
                 </div>
               ) : (
                 <div className="w-full flex justify-center">
@@ -317,21 +324,15 @@ export function Sidebar({ isOpen = true, toggleSidebar }: SidebarProps) {
                       className="object-cover"
                     />
                   </div>
+                  <button
+                    onClick={() => setIsCollapsed(!isCollapsed)}
+                    className="absolute right-0 p-1.5 rounded-xl hover:bg-white/5 transition-colors bg-transparent text-white border border-white/10"
+                    aria-label="Expand sidebar"
+                  >
+                    <ChevronRightIcon className="h-3.5 w-3.5" />
+                  </button>
                 </div>
               )}
-            </div>
-            <div className="flex items-center">
-              <button
-                onClick={() => setIsCollapsed(!isCollapsed)}
-                className="p-1.5 rounded-lg hover:bg-white/5 transition-colors bg-transparent text-white/70 border border-white/10"
-                aria-label={isCollapsed ? "Expand sidebar" : "Collapse sidebar"}
-              >
-                {isCollapsed ? (
-                  <ChevronRightIcon className="h-3.5 w-3.5" />
-                ) : (
-                  <ChevronLeftIcon className="h-3.5 w-3.5" />
-                )}
-              </button>
             </div>
           </div>
 

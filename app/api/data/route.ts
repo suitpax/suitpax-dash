@@ -1,5 +1,4 @@
 import { type NextRequest, NextResponse } from "next/server"
-import { dataService } from "@/lib/ai/data-service"
 
 export async function GET(req: NextRequest) {
   try {
@@ -15,24 +14,17 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ error: "Se requiere un nombre de tabla" }, { status: 400 })
     }
 
-    // Obtener los datos de la tabla
-    let data
-    if (column && term) {
-      data = await dataService.searchTableData(table, column, term, pageSize)
-    } else {
-      data = await dataService.getTableData(table, pageSize, (page - 1) * pageSize)
-    }
+    // Simular obtención de datos (sin Neon)
+    const data: any[] = []
 
-    // Obtener el total de registros (en una implementación real, esto vendría de una consulta COUNT)
-    const totalCount = data.length // Esto es una simplificación
-
+    // Devolver datos simulados
     return NextResponse.json({
       data,
       pagination: {
         page,
         pageSize,
-        totalCount,
-        totalPages: Math.ceil(totalCount / pageSize),
+        totalCount: 0,
+        totalPages: 0,
       },
     })
   } catch (error) {
@@ -51,8 +43,8 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Se requiere una consulta SQL" }, { status: 400 })
     }
 
-    // Ejecutar la consulta SQL
-    const result = await dataService.executeQuery(query, params || [])
+    // Simular ejecución de consulta (sin Neon)
+    const result: any[] = []
 
     return NextResponse.json({ result })
   } catch (error) {

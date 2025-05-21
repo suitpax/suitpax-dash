@@ -269,25 +269,6 @@ export function Sidebar({ isOpen = true, toggleSidebar }: SidebarProps) {
 
   return (
     <>
-      {/* Mobile menu button - only visible when sidebar is closed */}
-      <button
-        type="button"
-        className="lg:hidden fixed top-4 left-4 z-[70] p-2 rounded-lg bg-black/90 shadow-md text-white border border-white/10 flex items-center space-x-2"
-        onClick={() => setIsMobileMenuOpen(true)}
-        aria-label="Open menu"
-      >
-        <div className="relative h-5 w-5 rounded-full overflow-hidden flex items-center justify-center bg-white/5">
-          <Image
-            src="/images/suitpax-bl-logo.webp"
-            alt="Suitpax Logo"
-            width={16}
-            height={16}
-            className="object-cover"
-          />
-        </div>
-        <span className="text-xs font-medium">Suitpax</span>
-      </button>
-
       {/* Sidebar navigation */}
       <nav
         className={cn(
@@ -299,6 +280,18 @@ export function Sidebar({ isOpen = true, toggleSidebar }: SidebarProps) {
           isCollapsed ? "w-16" : "w-[280px]",
         )}
       >
+        {/* Botón extensible para móvil */}
+        <button
+          onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+          className="lg:hidden absolute -right-10 top-4 p-2 rounded-r-lg bg-black/90 text-white border border-l-0 border-white/10"
+          aria-label={isMobileMenuOpen ? "Close sidebar" : "Open sidebar"}
+        >
+          {isMobileMenuOpen ? (
+            <X className="h-4 w-4 text-white" />
+          ) : (
+            <ChevronRightIcon className="h-4 w-4 text-white" />
+          )}
+        </button>
         <div className="h-full flex flex-col">
           {/* Header */}
           <div className="h-14 px-3 flex items-center justify-between border-b border-white/10">

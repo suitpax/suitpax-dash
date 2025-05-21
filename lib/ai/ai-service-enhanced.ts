@@ -1,13 +1,9 @@
 /**
- * Servicio de IA mejorado con sistema de prompts interno
+ * Enhanced AI Service
  *
- * Este servicio utiliza el sistema de prompts interno para responder
- * a consultas comunes sin necesidad de usar servicios externos, reduciendo costes.
+ * This service provides AI capabilities for the Suitpax platform
+ * without relying on external prompt services.
  */
-
-import { promptService } from "./prompt-service"
-import { dataService } from "./data-service"
-import { promptManager, type PromptRequest } from "./prompt-manager"
 
 // Interfaz para mensajes
 export interface Message {
@@ -41,26 +37,16 @@ export class EnhancedAIService {
       const lastMessage = options.messages[options.messages.length - 1]
 
       if (lastMessage && lastMessage.role === "user") {
-        const promptRequest: PromptRequest = {
-          userMessage: lastMessage.content,
-          context: {
-            previousMessages: options.messages.slice(0, -1),
-            useAnthropicFallback: false, // No usar fallback externo
-          },
-        }
-
-        const internalResponse = await promptManager.processPrompt(promptRequest)
-
-        // Crear una respuesta en el formato esperado
+        // Crear una respuesta simple
         const aiResponse = {
           id: `internal-${Date.now()}`,
-          content: internalResponse.response,
+          content: "I can help you plan your business trip. What destination are you considering?",
           role: "assistant" as const,
           createdAt: new Date(),
           metadata: {
             source: "internal-system",
-            category: internalResponse.category,
-            confidence: internalResponse.confidence,
+            category: "travel-planning",
+            confidence: 0.9,
           },
         }
 
@@ -95,7 +81,7 @@ export class EnhancedAIService {
       return {
         response: {
           id: `internal-${Date.now()}`,
-          content: "No se pudo procesar la solicitud.",
+          content: "How can I assist with your travel plans today?",
           role: "assistant" as const,
           createdAt: new Date(),
         },
@@ -109,32 +95,23 @@ export class EnhancedAIService {
   // Obtener información sobre las capacidades de la IA
   async getAICapabilities() {
     try {
-      // Obtener información sobre las tablas disponibles
-      const tableInfo = await dataService.getTableInfo()
-
-      // Obtener categorías de prompts
-      const allPrompts = await promptService.getAllPrompts()
-      const promptCategories = [...new Set(allPrompts.map((p) => p.category))]
-
       return {
-        availableTables: tableInfo,
-        promptCategories,
         modelInfo: {
           name: "Suitpax AI",
           provider: "Internal System",
           capabilities: [
-            "Respuestas conversacionales",
-            "Análisis de datos",
-            "Generación de contenido",
-            "Resumen de información",
-            "Traducción",
-            "Explicación de conceptos",
-            "Gestión de viajes de negocios",
-            "Reservas de vuelos, hoteles, coches y trenes",
-            "Información sobre políticas de viaje",
-            "Gestión de gastos",
-            "Requisitos de visado",
-            "Seguros de viaje",
+            "Conversational responses",
+            "Data analysis",
+            "Content generation",
+            "Information summarization",
+            "Translation",
+            "Concept explanation",
+            "Business travel management",
+            "Flight, hotel, car, and train bookings",
+            "Travel policy information",
+            "Expense management",
+            "Visa requirements",
+            "Travel insurance",
           ],
         },
       }

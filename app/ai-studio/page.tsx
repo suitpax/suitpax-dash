@@ -4,8 +4,7 @@ import { useState, useEffect } from "react"
 import Layout from "@/components/ui/layout"
 import AIChat from "@/components/ui/ai-chat"
 import DataExplorer from "@/components/ui/data-explorer"
-import type { Message } from "@/lib/ai/message-types"
-import { enhancedAiService } from "@/lib/ai/ai-service-enhanced"
+import { type Message, aiService } from "@/lib/ai/ai-service"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 
 export default function AIStudioPage() {
@@ -47,11 +46,9 @@ export default function AIStudioPage() {
   // Cargar datos iniciales
   const loadInitialData = async () => {
     try {
-      // Cargar información sobre las capacidades de la IA
-      const capabilities = await enhancedAiService.getAICapabilities()
-
-      // Establecer las tablas disponibles
-      setTables(capabilities.availableTables)
+      // Cargar información sobre las tablas disponibles
+      const tableInfo = await aiService.getTableInfo()
+      setTables(tableInfo)
     } catch (error) {
       console.error("Error loading initial data:", error)
     }
@@ -74,22 +71,16 @@ export default function AIStudioPage() {
       const updatedMessages = [...messages, userMessage]
       setMessages(updatedMessages)
 
-      // Preparar las opciones para la generación de respuesta
-      const options = {
+      // Generar la respuesta
+      const response = await aiService.generateResponse({
         messages: updatedMessages,
         systemPrompt,
         includeTableData: !!selectedTable,
         tableName: selectedTable || undefined,
-      }
+      })
 
-      // Generar la respuesta
-      const response = await enhancedAiService.generateResponse(options)
-
-      // Crear el mensaje del asistente
-      if (response.response) {
-        // Actualizar los mensajes con la respuesta del asistente
-        setMessages([...updatedMessages, response.response])
-      }
+      // Actualizar los mensajes con la respuesta del asistente
+      setMessages([...updatedMessages, response])
     } catch (error) {
       console.error("Error sending message:", error)
 
@@ -122,8 +113,7 @@ export default function AIStudioPage() {
       }
 
       // Obtener los datos de la tabla
-      const data = await enhancedAiService.getTableData(tableName, searchParams)
-
+      const data = await aiService.getTableData(tableName, searchParams)
       setTableData(data)
 
       // Obtener el total de registros

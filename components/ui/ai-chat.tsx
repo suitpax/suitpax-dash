@@ -10,8 +10,8 @@ import { GlowBorder } from "./glow-border"
 
 interface AIChatProps {
   initialMessages?: Message[]
-  onSendMessage: (message: string) => Promise<void>
-  isProcessing: boolean
+  onSendMessage?: (message: string) => Promise<void>
+  isProcessing?: boolean
   systemPrompt?: string
   onSystemPromptChange?: (prompt: string) => void
   availableTables?: Array<{ name: string; columns: Array<{ name: string; type: string }> }>
@@ -21,8 +21,8 @@ interface AIChatProps {
 export default function AIChat({
   initialMessages = [],
   onSendMessage,
-  isProcessing,
-  systemPrompt = "",
+  isProcessing: externalIsProcessing,
+  systemPrompt = "You are Suitpax AI, a helpful assistant for business travel management. Help users plan trips, find flights and hotels, manage expenses, and navigate travel policies.",
   onSystemPromptChange,
   availableTables = [],
   onSelectTable,
@@ -32,6 +32,7 @@ export default function AIChat({
   const [showSettings, setShowSettings] = useState(false)
   const [localSystemPrompt, setLocalSystemPrompt] = useState(systemPrompt)
   const [showTables, setShowTables] = useState(false)
+  const [isProcessing, setIsProcessing] = useState(false)
 
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
@@ -66,7 +67,7 @@ export default function AIChat({
   // Manejar el envío de mensajes
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (!input.trim() || isProcessing) return
+    if (!input.trim() || (externalIsProcessing !== undefined ? externalIsProcessing : isProcessing)) return
 
     // Añadir mensaje del usuario a la interfaz
     const userMessage: Message = {
@@ -79,8 +80,56 @@ export default function AIChat({
     setMessages((prev) => [...prev, userMessage])
     setInput("")
 
-    // Enviar mensaje al servicio de IA
-    await onSendMessage(input)
+    if (onSendMessage) {
+      // Si se proporciona onSendMessage, usarlo
+      await onSendMessage(input)
+    } else {
+      // Si no, manejar la llamada a la API internamente
+      setIsProcessing(true)
+
+      try {
+        // Llamar a la API de Anthropic
+        const response = await fetch("/api/ai", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            messages: [...messages, userMessage],
+            systemPrompt: localSystemPrompt,
+          }),
+        })
+
+        if (!response.ok) {
+          throw new Error(`API error: ${response.status}`)
+        }
+
+        const data = await response.json()
+
+        // Añadir respuesta de la IA
+        setMessages((prev) => [
+          ...prev,
+          {
+            ...data.response,
+            createdAt: new Date(data.response.createdAt),
+          },
+        ])
+      } catch (error) {
+        console.error("Error al obtener respuesta de la IA:", error)
+        // Añadir mensaje de error
+        setMessages((prev) => [
+          ...prev,
+          {
+            role: "assistant",
+            content: "I'm sorry, I encountered an error while processing your request. Please try again.",
+            id: Date.now().toString(),
+            createdAt: new Date(),
+          },
+        ])
+      } finally {
+        setIsProcessing(false)
+      }
+    }
   }
 
   // Manejar cambios en el prompt del sistema
@@ -139,36 +188,43 @@ export default function AIChat({
     setShowTables(false)
   }
 
+  const currentIsProcessing = externalIsProcessing !== undefined ? externalIsProcessing : isProcessing
+
   return (
-    <div className="flex flex-col h-full bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+    <div className="flex flex-col h-full bg-black rounded-xl border border-white/10 shadow-sm overflow-hidden">
       {/* Header */}
-      <div className="flex items-center justify-between px-4 py-3 border-b border-gray-200">
+      <div className="flex items-center justify-between px-4 py-3 border-b border-white/10">
         <div className="flex items-center">
           <div className="relative h-8 w-8 rounded-full overflow-hidden mr-3">
-            <Image src="/images/ai-agent-avatar.jpeg" alt="AI Assistant" fill className="object-cover" />
+            <Image
+              src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/IMG-20250405-WA0006.jpg-ssy02udC7rU3LK1do6bZYdDCxA1Z2R.jpeg"
+              alt="AI Assistant"
+              fill
+              className="object-cover"
+            />
           </div>
           <div>
-            <h2 className="font-medium text-sm">Suitpax AI</h2>
-            <p className="text-xs text-gray-500">Asistente de viajes de negocios</p>
+            <h2 className="font-medium text-sm text-white">Suitpax AI</h2>
+            <p className="text-xs text-white/70">Asistente de viajes de negocios</p>
           </div>
         </div>
         <div className="flex items-center gap-2">
           <button
             onClick={() => setShowSettings(!showSettings)}
-            className="p-1.5 rounded-lg hover:bg-gray-100"
+            className="p-1.5 rounded-lg hover:bg-white/5"
             aria-label="Settings"
           >
-            <Settings className="h-4 w-4 text-gray-500" />
+            <Settings className="h-4 w-4 text-white/50" />
           </button>
           <button
             onClick={() => setShowTables(!showTables)}
-            className="p-1.5 rounded-lg hover:bg-gray-100"
+            className="p-1.5 rounded-lg hover:bg-white/5"
             aria-label="Tables"
           >
             {showTables ? (
-              <ChevronUp className="h-4 w-4 text-gray-500" />
+              <ChevronUp className="h-4 w-4 text-white/50" />
             ) : (
-              <ChevronDown className="h-4 w-4 text-gray-500" />
+              <ChevronDown className="h-4 w-4 text-white/50" />
             )}
           </button>
         </div>
@@ -176,11 +232,11 @@ export default function AIChat({
 
       {/* Settings Panel */}
       {showSettings && (
-        <div className="border-b border-gray-200 p-3">
-          <h3 className="text-xs font-medium mb-2">Configuración del asistente</h3>
+        <div className="border-b border-white/10 p-3 bg-black/30">
+          <h3 className="text-xs font-medium mb-2 text-white">Configuración del asistente</h3>
           <div className="space-y-2">
             <div>
-              <label htmlFor="systemPrompt" className="block text-xs text-gray-500 mb-1">
+              <label htmlFor="systemPrompt" className="block text-xs text-white/50 mb-1">
                 Prompt del sistema
               </label>
               <textarea
@@ -189,7 +245,7 @@ export default function AIChat({
                 onChange={(e) => setLocalSystemPrompt(e.target.value)}
                 onBlur={handleSystemPromptChange}
                 rows={3}
-                className="w-full px-2 py-1 text-xs border border-gray-300 rounded-md"
+                className="w-full px-2 py-1 text-xs border border-white/10 rounded-md bg-white/5 text-white"
                 placeholder="Instrucciones para el asistente..."
               />
             </div>
@@ -199,17 +255,17 @@ export default function AIChat({
 
       {/* Tables Dropdown */}
       {showTables && (
-        <div className="border-b border-gray-200 max-h-60 overflow-y-auto">
+        <div className="border-b border-white/10 max-h-60 overflow-y-auto bg-black/30">
           <div className="p-2">
-            <h3 className="text-xs font-medium px-3 py-2">Tablas disponibles</h3>
+            <h3 className="text-xs font-medium px-3 py-2 text-white">Tablas disponibles</h3>
             {availableTables.map((table) => (
               <div
                 key={table.name}
                 onClick={() => handleSelectTable(table.name)}
-                className="flex items-center px-3 py-2 text-xs rounded-lg cursor-pointer hover:bg-gray-100"
+                className="flex items-center px-3 py-2 text-xs rounded-lg cursor-pointer hover:bg-white/5 text-white"
               >
                 <span className="truncate">{table.name}</span>
-                <span className="text-gray-500 ml-2 text-[10px]">({table.columns.length} columnas)</span>
+                <span className="text-white/50 ml-2 text-[10px]">({table.columns.length} columnas)</span>
               </div>
             ))}
           </div>
@@ -217,12 +273,12 @@ export default function AIChat({
       )}
 
       {/* Messages */}
-      <div className="flex-1 overflow-y-auto p-4 space-y-4">
+      <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-black/30">
         {messages.map((message) => (
           <div key={message.id} className={`flex ${message.role === "user" ? "justify-end" : "justify-start"}`}>
             <div
               className={`max-w-[80%] rounded-xl p-3 ${
-                message.role === "user" ? "bg-black text-white" : "bg-gray-100 text-black"
+                message.role === "user" ? "bg-white/10 text-white" : "bg-white/5 text-white/70"
               }`}
             >
               <div className="text-xs">{formatMessageContent(message.content)}</div>
@@ -232,20 +288,20 @@ export default function AIChat({
             </div>
           </div>
         ))}
-        {isProcessing && (
+        {currentIsProcessing && (
           <div className="flex justify-start">
-            <div className="max-w-[80%] rounded-xl p-3 bg-gray-100 text-black">
+            <div className="max-w-[80%] rounded-xl p-3 bg-white/5 text-white/70">
               <div className="flex space-x-1">
                 <div
-                  className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"
+                  className="w-2 h-2 bg-white/30 rounded-full animate-bounce"
                   style={{ animationDelay: "0ms" }}
                 ></div>
                 <div
-                  className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"
+                  className="w-2 h-2 bg-white/30 rounded-full animate-bounce"
                   style={{ animationDelay: "150ms" }}
                 ></div>
                 <div
-                  className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"
+                  className="w-2 h-2 bg-white/30 rounded-full animate-bounce"
                   style={{ animationDelay: "300ms" }}
                 ></div>
               </div>
@@ -256,7 +312,7 @@ export default function AIChat({
       </div>
 
       {/* Input */}
-      <div className="border-t border-gray-200 p-3">
+      <div className="border-t border-white/10 p-3">
         <form onSubmit={handleSubmit} className="relative">
           <div className="relative">
             <GlowBorder>
@@ -265,8 +321,8 @@ export default function AIChat({
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
                 placeholder="Pregunta a tu asistente de viajes..."
-                className="w-full pl-3 pr-20 py-3 bg-white border-0 rounded-xl focus:outline-none focus:ring-0"
-                disabled={isProcessing}
+                className="w-full pl-3 pr-20 py-3 bg-black border-0 rounded-xl focus:outline-none focus:ring-0 text-white"
+                disabled={currentIsProcessing}
               />
             </GlowBorder>
           </div>
@@ -274,24 +330,24 @@ export default function AIChat({
             <button
               type="button"
               onClick={handleFileUpload}
-              className="p-1.5 rounded-full hover:bg-gray-100"
+              className="p-1.5 rounded-full hover:bg-white/5"
               aria-label="Adjuntar archivo"
-              disabled={isProcessing}
+              disabled={currentIsProcessing}
             >
-              <Paperclip className="h-4 w-4 text-gray-500" />
+              <Paperclip className="h-4 w-4 text-white/50" />
             </button>
             <button
               type="button"
-              className="p-1.5 rounded-full hover:bg-gray-100"
+              className="p-1.5 rounded-full hover:bg-white/5"
               aria-label="Entrada de voz"
-              disabled={isProcessing}
+              disabled={currentIsProcessing}
             >
-              <Mic className="h-4 w-4 text-gray-500" />
+              <Mic className="h-4 w-4 text-white/50" />
             </button>
             <button
               type="submit"
-              disabled={!input.trim() || isProcessing}
-              className="p-1.5 rounded-full bg-black text-white hover:bg-gray-800 disabled:opacity-50 disabled:hover:bg-black"
+              disabled={!input.trim() || currentIsProcessing}
+              className="p-1.5 rounded-full bg-white/10 text-white hover:bg-white/20 disabled:opacity-50 disabled:hover:bg-white/10"
               aria-label="Enviar mensaje"
             >
               <Send className="h-4 w-4" />

@@ -62,11 +62,11 @@ interface Activity {
 const teamMembers: TeamMember[] = [
   {
     id: "1",
-    name: "Genevieve McLean",
-    email: "genevieve@acmecorp.com",
+    name: "Alberto Zurano",
+    email: "alberto@acmecorp.com",
     role: "Admin",
     department: "Operations",
-    avatar: "/images/team/genevieve-mclean.jpeg",
+    avatar: "/images/ai-agent-avatar.jpeg",
     status: "active",
     lastActive: "Just now",
     permissions: [
@@ -168,8 +168,8 @@ const teamMembers: TeamMember[] = [
 const recentActivity: Activity[] = [
   {
     id: "a1",
-    user: "Genevieve McLean",
-    userAvatar: "/images/team/genevieve-mclean.jpeg",
+    user: "Alberto Zurano",
+    userAvatar: "/images/ai-agent-avatar.jpeg",
     action: "added",
     target: "Lyle Kauffman",
     date: "Today at 10:30 AM",
@@ -184,8 +184,8 @@ const recentActivity: Activity[] = [
   },
   {
     id: "a3",
-    user: "Genevieve McLean",
-    userAvatar: "/images/team/genevieve-mclean.jpeg",
+    user: "Alberto Zurano",
+    userAvatar: "/images/ai-agent-avatar.jpeg",
     action: "deactivated",
     target: "Isla Allison",
     date: "May 15, 2025",

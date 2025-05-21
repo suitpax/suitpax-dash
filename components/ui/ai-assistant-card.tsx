@@ -16,6 +16,7 @@ import {
   ChevronRightIcon,
   SparklesIcon,
 } from "@heroicons/react/24/outline"
+import type { Message } from "@/lib/ai/anthropic-service"
 
 // Icon map for categories
 const categoryIcons = {
@@ -28,11 +29,11 @@ const categoryIcons = {
 
 // Fallback questions in case no prompts are available
 const fallbackQuestions = [
-  "How can I book a flight?",
-  "What is the baggage policy?",
-  "Can I modify my hotel reservation?",
-  "How do I report travel expenses?",
-  "What documents do I need for international travel?",
+  "How can I book a flight from Madrid to London?",
+  "What is the baggage policy for business class on British Airways?",
+  "Can I modify my hotel reservation at Marriott Barcelona?",
+  "How do I report travel expenses for my recent business trip to Paris?",
+  "What documents do I need for international travel to Japan?",
 ]
 
 export default function AiAssistantCard() {
@@ -42,9 +43,7 @@ export default function AiAssistantCard() {
   const [suggestions, setSuggestions] = useState<string[]>([])
   const [quickSuggestions, setQuickSuggestions] = useState<string[]>([])
   const [isExpanded, setIsExpanded] = useState(false)
-  const [messages, setMessages] = useState<
-    { role: "user" | "assistant"; content: string; id: string; createdAt: Date }[]
-  >([])
+  const [messages, setMessages] = useState<Message[]>([])
   const [isTyping, setIsTyping] = useState(false)
 
   const messagesEndRef = useRef<HTMLDivElement>(null)
@@ -94,59 +93,55 @@ export default function AiAssistantCard() {
     e.preventDefault()
     if (inputValue.trim()) {
       // Add user message
-      const userMessage = { role: "user", content: inputValue, id: Date.now().toString(), createdAt: new Date() }
+      const userMessage: Message = {
+        id: Date.now().toString(),
+        role: "user",
+        content: inputValue,
+        createdAt: new Date(),
+      }
       setMessages((prev) => [...prev, userMessage])
 
       // Mostrar indicador de escritura
       setIsTyping(true)
+      setInputValue("")
 
       try {
-        // Simular una respuesta después de un breve retraso
-        setTimeout(() => {
-          // Generar una respuesta simple basada en patrones
-          const userMessageLower = inputValue.toLowerCase()
-          let responseContent = ""
+        // Llamar a la API de Anthropic
+        const response = await fetch("/api/ai", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            messages: [...messages, userMessage],
+            systemPrompt:
+              "You are Suitpax AI, a helpful assistant for business travel management. Help users plan trips, find flights and hotels, manage expenses, and navigate travel policies. Be concise but informative. Provide specific details when possible.",
+          }),
+        })
 
-          // Patrones básicos para respuestas
-          if (userMessageLower.includes("flight") || userMessageLower.includes("fly")) {
-            responseContent = "I can help you find flights. What's your destination and travel dates?"
-          } else if (userMessageLower.includes("hotel") || userMessageLower.includes("stay")) {
-            responseContent = "I can help you book a hotel. Where are you planning to stay and for how long?"
-          } else if (userMessageLower.includes("car") || userMessageLower.includes("rental")) {
-            responseContent = "I can help you rent a car. When and where do you need it?"
-          } else if (userMessageLower.includes("train") || userMessageLower.includes("rail")) {
-            responseContent = "I can help you book train tickets. What's your departure and destination station?"
-          } else if (userMessageLower.includes("hello") || userMessageLower.includes("hi")) {
-            responseContent = "Hello! I'm your travel assistant. How can I help you today?"
-          } else if (userMessageLower.includes("thank")) {
-            responseContent = "You're welcome! Is there anything else I can help you with?"
-          } else {
-            responseContent =
-              "I'm your travel assistant. I can help with flights, hotels, car rentals, and train bookings. What do you need assistance with?"
-          }
+        if (!response.ok) {
+          throw new Error(`API error: ${response.status}`)
+        }
 
-          // Añadir respuesta de la IA
-          setMessages((prev) => [
-            ...prev,
-            {
-              role: "assistant",
-              content: responseContent,
-              id: Date.now().toString(),
-              createdAt: new Date(),
-            },
-          ])
+        const data = await response.json()
 
-          // Generar nuevas sugerencias rápidas
-          try {
-            const randomPrompts = getRandomPromptsFromAll(3)
-            setQuickSuggestions(randomPrompts.length > 0 ? randomPrompts : fallbackQuestions.slice(0, 3))
-          } catch (error) {
-            console.error("Error loading new quick suggestions:", error)
-            setQuickSuggestions(fallbackQuestions.slice(0, 3))
-          }
+        // Añadir respuesta de la IA
+        setMessages((prev) => [
+          ...prev,
+          {
+            ...data.response,
+            createdAt: new Date(data.response.createdAt),
+          },
+        ])
 
-          setIsTyping(false)
-        }, 1000)
+        // Generar nuevas sugerencias rápidas
+        try {
+          const randomPrompts = getRandomPromptsFromAll(3)
+          setQuickSuggestions(randomPrompts.length > 0 ? randomPrompts : fallbackQuestions.slice(0, 3))
+        } catch (error) {
+          console.error("Error loading new quick suggestions:", error)
+          setQuickSuggestions(fallbackQuestions.slice(0, 3))
+        }
       } catch (error) {
         console.error("Error al obtener respuesta de la IA:", error)
         // Añadir mensaje de error
@@ -159,10 +154,9 @@ export default function AiAssistantCard() {
             createdAt: new Date(),
           },
         ])
+      } finally {
         setIsTyping(false)
       }
-
-      setInputValue("")
     }
   }
 
@@ -194,7 +188,7 @@ export default function AiAssistantCard() {
 
   return (
     <div
-      className={`bg-black rounded-xl border border-white/10 shadow-sm transition-all duration-300 overflow-hidden ${
+      className={`bg-black/30 backdrop-blur-sm rounded-xl border border-white/10 shadow-sm transition-all duration-300 overflow-hidden ${
         isExpanded ? "h-[500px]" : "h-auto"
       }`}
     >
@@ -202,7 +196,12 @@ export default function AiAssistantCard() {
       <div className="flex items-center justify-between p-3 border-b border-white/10">
         <div className="flex items-center">
           <div className="relative h-8 w-8 rounded-full overflow-hidden mr-2">
-            <Image src="/images/ai-agent-avatar.jpeg" alt="AI Assistant" fill className="object-cover" />
+            <Image
+              src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/IMG-20250405-WA0006.jpg-ssy02udC7rU3LK1do6bZYdDCxA1Z2R.jpeg"
+              alt="AI Assistant"
+              fill
+              className="object-cover"
+            />
           </div>
           <div>
             <h3 className="font-medium text-white text-sm">AI Agent</h3>
@@ -241,7 +240,7 @@ export default function AiAssistantCard() {
                         : "bg-white/5 text-white/70 rounded-tl-none"
                     }`}
                   >
-                    <p className="text-xs">{message.content}</p>
+                    <p className="text-xs whitespace-pre-wrap">{message.content}</p>
                   </div>
                 </div>
               ))}
@@ -322,9 +321,9 @@ export default function AiAssistantCard() {
             />
             <button
               type="submit"
-              disabled={!inputValue.trim()}
+              disabled={!inputValue.trim() || isTyping}
               className={`absolute right-1.5 top-1/2 -translate-y-1/2 p-1 rounded-xl transition-colors duration-200 ${
-                inputValue.trim()
+                inputValue.trim() && !isTyping
                   ? "bg-white/10 text-white hover:bg-white/20"
                   : "bg-white/5 text-white/30 cursor-not-allowed"
               }`}

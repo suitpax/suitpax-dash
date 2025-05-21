@@ -1,94 +1,61 @@
 "use client"
 
 import type React from "react"
-import { createContext, useContext, useState, useEffect, type ReactNode } from "react"
+
+import { createContext, useContext, type ReactNode } from "react"
+import { useUser } from "@auth0/nextjs-auth0/client"
 import { type UserRole, hasPermission } from "./rbac"
 
-interface User {
-  id: string
-  name: string
-  email: string
-  role: UserRole
-  avatar?: string
-}
-
 interface AuthContextType {
-  user: User | null
+  user: {
+    id: string
+    name: string
+    email: string
+    role: UserRole
+    avatar?: string
+  } | null
   isLoading: boolean
   hasPermission: (permissionId: string) => boolean
-  login: (email: string, password: string) => Promise<void>
   logout: () => void
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
 
-// Mock user for demonstration
-const mockUser: User = {
-  id: "1",
-  name: "Genevieve McLean",
-  email: "genevieve@acmecorp.com",
-  role: "admin",
-  avatar: "/images/team/genevieve-mclean.jpeg",
-}
-
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [user, setUser] = useState<User | null>(null)
-  const [isLoading, setIsLoading] = useState(true)
+  const { user, isLoading, error } = useUser()
 
-  // Simulate loading the user on initial render
-  useEffect(() => {
-    // In a real app, this would check for an existing session
-    const loadUser = async () => {
-      try {
-        // Simulate API call delay
-        await new Promise((resolve) => setTimeout(resolve, 500))
-
-        // For demo purposes, we'll auto-login with the mock user
-        setUser(mockUser)
-      } catch (error) {
-        console.error("Failed to load user", error)
-        setUser(null)
-      } finally {
-        setIsLoading(false)
+  // Mapear el usuario de Auth0 a nuestro formato
+  const mappedUser = user
+    ? {
+        id: user.sub || "",
+        name: user.name || "",
+        email: user.email || "",
+        role: (user["https://suitpax.com/roles"] as UserRole) || "user",
+        avatar: user.picture,
       }
-    }
-
-    loadUser()
-  }, [])
+    : null
 
   // Check if the current user has a specific permission
   const checkPermission = (permissionId: string): boolean => {
-    if (!user) return false
-    return hasPermission(user.role, permissionId)
+    if (!mappedUser) return false
+    return hasPermission(mappedUser.role, permissionId)
   }
 
-  // Mock login function
-  const login = async (email: string, password: string) => {
-    setIsLoading(true)
-    try {
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 1000))
-      setUser(mockUser)
-    } catch (error) {
-      console.error("Login failed", error)
-      throw new Error("Invalid credentials")
-    } finally {
-      setIsLoading(false)
-    }
-  }
-
-  // Mock logout function
+  // Logout function
   const logout = () => {
-    setUser(null)
+    window.location.href = "/api/auth/logout"
+  }
+
+  if (error) {
+    console.error("Error loading user", error)
   }
 
   return (
     <AuthContext.Provider
       value={{
-        user,
+        user: mappedUser,
         isLoading,
         hasPermission: checkPermission,
-        login,
         logout,
       }}
     >

@@ -115,7 +115,7 @@ export default function TasksPage() {
                 status: "pending",
               })
             }}
-            className="px-3 py-1.5 rounded-xl bg-black text-white hover:bg-gray-800 flex items-center gap-2"
+            className="px-3 py-1.5 rounded-lg bg-white/10 text-white hover:bg-white/20 flex items-center gap-2"
           >
             <PlusCircle size={14} />
             <span className="text-xs">New Task</span>
@@ -123,7 +123,7 @@ export default function TasksPage() {
         </div>
 
         {isFormOpen && (
-          <div className="bg-white rounded-xl border border-black p-6 shadow-sm mb-6">
+          <div className="bg-black/30 rounded-lg border border-white/10 p-6 shadow-sm mb-6">
             <h2 className="text-lg font-medium tracking-tighter text-black mb-4">
               {editingTaskId ? "Edit Task" : "Create New Task"}
             </h2>
@@ -139,7 +139,7 @@ export default function TasksPage() {
                   value={formData.title}
                   onChange={handleInputChange}
                   required
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-200"
+                  className="w-full px-3 py-2 border border-white/10 rounded-lg focus:outline-none focus:ring-2 focus:ring-white/20 bg-white/5 text-white placeholder:text-white/30"
                   placeholder="Task title"
                 />
               </div>
@@ -248,9 +248,9 @@ export default function TasksPage() {
             {tasks.map((task) => (
               <div
                 key={task.id}
-                className={`bg-white rounded-xl border ${
-                  task.status === "completed" ? "border-gray-200" : "border-gray-200"
-                } p-4 shadow-sm hover:border-black transition-colors`}
+                className={`bg-black/30 rounded-lg border ${
+                  task.status === "completed" ? "border-white/5" : "border-white/10"
+                } p-4 shadow-sm hover:border-white/20 transition-colors`}
               >
                 <div className="flex items-start justify-between">
                   <div className="flex items-start gap-3">
@@ -266,7 +266,7 @@ export default function TasksPage() {
                     </button>
                     <div>
                       <h3
-                        className={`font-medium text-black ${task.status === "completed" ? "line-through text-gray-500" : ""}`}
+                        className={`font-medium text-white ${task.status === "completed" ? "line-through text-white/50" : ""}`}
                       >
                         {task.title}
                       </h3>
@@ -293,7 +293,7 @@ export default function TasksPage() {
                   <div className="flex gap-2">
                     <button
                       onClick={() => handleEdit(task)}
-                      className="p-1.5 text-gray-500 hover:text-black transition-colors"
+                      className="p-1.5 text-white/50 hover:text-white transition-colors"
                     >
                       <Edit2 className="h-4 w-4" />
                     </button>

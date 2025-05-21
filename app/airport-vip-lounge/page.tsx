@@ -1,36 +1,30 @@
 "use client"
 
+import type React from "react"
 import { useState } from "react"
 import Image from "next/image"
+import { useRouter } from "next/navigation"
 import {
-  BuildingOfficeIcon,
-  CheckCircleIcon,
-  ArrowRightIcon,
-  PlusIcon,
-  ClockIcon,
-  CalendarIcon,
-  UserGroupIcon,
-  BuildingLibraryIcon,
-  UsersIcon,
-  GlobeAltIcon,
-  ShieldCheckIcon,
-} from "@heroicons/react/24/outline"
-import { Plane } from "lucide-react"
-import { GlowBorder } from "@/components/ui/glow-border"
+  Calendar,
+  Clock,
+  Check,
+  X,
+  Users,
+  Briefcase,
+  Search,
+  MapPin,
+  Plane,
+  Coffee,
+  Wifi,
+  Utensils,
+  ShowerHeadIcon as Shower,
+  BedSingle,
+  Newspaper,
+} from "lucide-react"
+
 import Layout from "@/components/ui/layout"
 
 // Types for our data
-interface Membership {
-  id: string
-  name: string
-  price: number
-  billingCycle: "monthly" | "annual"
-  features: string[]
-  isPopular?: boolean
-  teamSize?: string
-  enterpriseFeatures?: boolean
-}
-
 interface VIPLounge {
   id: string
   name: string
@@ -41,73 +35,15 @@ interface VIPLounge {
   accessStatus: "available" | "unavailable" | "limited"
   imageUrl: string
   partnerStatus?: "premium" | "standard" | "exclusive"
-}
-
-interface AccessHistory {
-  id: string
-  loungeName: string
-  airport: string
-  date: string
-  duration: string
-  cost: number
-  teamMember?: string
-  teamMemberRole?: string
-  teamMemberAvatar?: string
+  price: string
+  openingHours: string
+  maxStay: string
+  rating: number
+  reviewCount: number
+  travelPolicy: "Compliant" | "Non-compliant" | "Approval required"
 }
 
 // Sample data
-const memberships: Membership[] = [
-  {
-    id: "startup",
-    name: "Startup Team Access",
-    price: 499,
-    billingCycle: "monthly",
-    features: [
-      "Access to 600+ lounges worldwide",
-      "Up to 10 team members",
-      "20 visits per month (shared pool)",
-      "Digital membership cards for all members",
-      "Basic travel analytics dashboard",
-      "Email support",
-    ],
-    teamSize: "1-10 employees",
-  },
-  {
-    id: "business",
-    name: "Business Team Access",
-    price: 999,
-    billingCycle: "monthly",
-    features: [
-      "Access to 1,300+ lounges worldwide",
-      "Up to 50 team members",
-      "Unlimited visits for key executives",
-      "50 visits per month for team (shared pool)",
-      "Priority access during peak hours",
-      "Advanced travel analytics & reporting",
-      "Dedicated account manager",
-    ],
-    isPopular: true,
-    teamSize: "11-50 employees",
-  },
-  {
-    id: "enterprise",
-    name: "Enterprise Solution",
-    price: 2499,
-    billingCycle: "monthly",
-    features: [
-      "Access to 1,500+ premium lounges worldwide",
-      "Unlimited team members",
-      "Unlimited visits for all members",
-      "VIP services (fast track security, meet & greet)",
-      "Enterprise travel management platform",
-      "Custom travel policy integration",
-      "24/7 priority support with dedicated team",
-    ],
-    teamSize: "50+ employees",
-    enterpriseFeatures: true,
-  },
-]
-
 const vipLounges: VIPLounge[] = [
   {
     id: "lounge1",
@@ -119,6 +55,12 @@ const vipLounges: VIPLounge[] = [
     accessStatus: "available",
     imageUrl: "/contemporary-airport-retreat.png",
     partnerStatus: "exclusive",
+    price: "€45",
+    openingHours: "05:00 - 23:00",
+    maxStay: "3 hours",
+    rating: 4.8,
+    reviewCount: 245,
+    travelPolicy: "Compliant",
   },
   {
     id: "lounge2",
@@ -130,6 +72,12 @@ const vipLounges: VIPLounge[] = [
     accessStatus: "limited",
     imageUrl: "/sophisticated-airport-retreat.png",
     partnerStatus: "premium",
+    price: "€35",
+    openingHours: "06:00 - 22:00",
+    maxStay: "3 hours",
+    rating: 4.5,
+    reviewCount: 189,
+    travelPolicy: "Compliant",
   },
   {
     id: "lounge3",
@@ -141,6 +89,12 @@ const vipLounges: VIPLounge[] = [
     accessStatus: "available",
     imageUrl: "/upscale-airport-dining.png",
     partnerStatus: "standard",
+    price: "£40",
+    openingHours: "05:30 - 22:30",
+    maxStay: "3 hours",
+    rating: 4.6,
+    reviewCount: 312,
+    travelPolicy: "Compliant",
   },
   {
     id: "lounge4",
@@ -149,556 +103,697 @@ const vipLounges: VIPLounge[] = [
     airport: "Paris Charles de Gaulle",
     terminal: "T2E",
     amenities: ["French Cuisine", "Wine Selection", "Spa Services", "Quiet Areas", "Shower Suites", "Work Stations"],
-    accessStatus: "unavailable",
+    accessStatus: "available",
     imageUrl: "/serene-airport-spa.png",
     partnerStatus: "premium",
+    price: "€50",
+    openingHours: "05:30 - 23:00",
+    maxStay: "3 hours",
+    rating: 4.7,
+    reviewCount: 276,
+    travelPolicy: "Compliant",
+  },
+  {
+    id: "lounge5",
+    name: "Lufthansa Senator Lounge",
+    location: "Terminal 1, Concourse Z",
+    airport: "Frankfurt Airport",
+    terminal: "T1",
+    amenities: [
+      "German Cuisine",
+      "Premium Bar",
+      "Shower Facilities",
+      "Relaxation Area",
+      "Business Center",
+      "Newspapers",
+    ],
+    accessStatus: "available",
+    imageUrl: "/contemporary-airport-retreat.png",
+    partnerStatus: "premium",
+    price: "€45",
+    openingHours: "05:00 - 22:00",
+    maxStay: "3 hours",
+    rating: 4.6,
+    reviewCount: 198,
+    travelPolicy: "Compliant",
+  },
+  {
+    id: "lounge6",
+    name: "Emirates First Class Lounge",
+    location: "Terminal 3, Concourse A",
+    airport: "Dubai International Airport",
+    terminal: "T3",
+    amenities: ["Fine Dining", "Premium Bar", "Spa Services", "Cigar Lounge", "Shower Suites", "Private Suites"],
+    accessStatus: "limited",
+    imageUrl: "/sophisticated-airport-retreat.png",
+    partnerStatus: "exclusive",
+    price: "€75",
+    openingHours: "24 hours",
+    maxStay: "4 hours",
+    rating: 4.9,
+    reviewCount: 156,
+    travelPolicy: "Approval required",
+  },
+  {
+    id: "lounge7",
+    name: "Cathay Pacific The Pier",
+    location: "Terminal 1, Near Gate 63",
+    airport: "Hong Kong International Airport",
+    terminal: "T1",
+    amenities: ["Asian Cuisine", "Tea House", "Noodle Bar", "Shower Suites", "Relaxation Pods", "Business Center"],
+    accessStatus: "available",
+    imageUrl: "/upscale-airport-dining.png",
+    partnerStatus: "premium",
+    price: "HK$580",
+    openingHours: "05:30 - 00:30",
+    maxStay: "3 hours",
+    rating: 4.8,
+    reviewCount: 234,
+    travelPolicy: "Compliant",
+  },
+  {
+    id: "lounge8",
+    name: "Singapore Airlines SilverKris",
+    location: "Terminal 3, Departure Transit Hall",
+    airport: "Singapore Changi Airport",
+    terminal: "T3",
+    amenities: ["Singaporean Cuisine", "Premium Bar", "Shower Facilities", "Productivity Pods", "Reading Materials"],
+    accessStatus: "available",
+    imageUrl: "/serene-airport-spa.png",
+    partnerStatus: "premium",
+    price: "S$80",
+    openingHours: "24 hours",
+    maxStay: "3 hours",
+    rating: 4.9,
+    reviewCount: 312,
+    travelPolicy: "Compliant",
   },
 ]
 
-const accessHistory: AccessHistory[] = [
-  {
-    id: "access1",
-    loungeName: "Centurion Lounge",
-    airport: "Madrid-Barajas Airport",
-    date: "April 15, 2025",
-    duration: "2h 30m",
-    cost: 0,
-    teamMember: "Sofia Rodriguez",
-    teamMemberRole: "Sales Director",
-    teamMemberAvatar: "/images/team/isla-allison.jpeg",
-  },
-  {
-    id: "access2",
-    loungeName: "Star Alliance Lounge",
-    airport: "Barcelona El Prat Airport",
-    date: "March 22, 2025",
-    duration: "1h 45m",
-    cost: 0,
-    teamMember: "David Chen",
-    teamMemberRole: "Product Manager",
-    teamMemberAvatar: "/images/team/cohen-lozano.jpeg",
-  },
-  {
-    id: "access3",
-    loungeName: "Plaza Premium Lounge",
-    airport: "London Heathrow",
-    date: "February 10, 2025",
-    duration: "3h 15m",
-    cost: 0,
-    teamMember: "Emma Johnson",
-    teamMemberRole: "CEO",
-    teamMemberAvatar: "/images/team/genevieve-mclean.jpeg",
-  },
-  {
-    id: "access4",
-    loungeName: "Air France Lounge",
-    airport: "Paris Charles de Gaulle",
-    date: "January 28, 2025",
-    duration: "2h 10m",
-    cost: 0,
-    teamMember: "Michael Brown",
-    teamMemberRole: "CTO",
-    teamMemberAvatar: "/images/team/orlando-diggs.jpeg",
-  },
+// Popular airports for quick selection
+const popularAirports = [
+  "Madrid-Barajas Airport",
+  "Barcelona El Prat Airport",
+  "London Heathrow",
+  "Paris Charles de Gaulle",
+  "Frankfurt Airport",
+  "Dubai International Airport",
+  "Hong Kong International Airport",
+  "Singapore Changi Airport",
 ]
 
 export default function AirportVIPLoungePage() {
-  const [activeTab, setActiveTab] = useState<"memberships" | "lounges" | "history">("memberships")
-  const [currentMembership, setCurrentMembership] = useState<string>("business")
+  const router = useRouter()
+  const [airport, setAirport] = useState("")
+  const [date, setDate] = useState("2025-05-15")
+  const [time, setTime] = useState("10:30")
+  const [filteredLounges, setFilteredLounges] = useState<VIPLounge[]>([])
+  const [selectedLounge, setSelectedLounge] = useState<number | null>(null)
+  const [showResults, setShowResults] = useState(false)
+  const [isLoading, setIsLoading] = useState(false)
+  const [showBookingConfirmation, setShowBookingConfirmation] = useState(false)
+
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!airport) return
+
+    setIsLoading(true)
+    setShowResults(false)
+
+    // Simulate API call
+    setTimeout(() => {
+      const filtered = vipLounges.filter((lounge) => lounge.airport.toLowerCase().includes(airport.toLowerCase()))
+
+      setFilteredLounges(filtered)
+      setIsLoading(false)
+      setShowResults(true)
+    }, 800)
+  }
+
+  const handleQuickSearch = (selectedAirport: string) => {
+    setAirport(selectedAirport)
+
+    setIsLoading(true)
+    setShowResults(false)
+
+    // Simulate API call
+    setTimeout(() => {
+      const filtered = vipLounges.filter((lounge) => lounge.airport === selectedAirport)
+
+      setFilteredLounges(filtered)
+      setIsLoading(false)
+      setShowResults(true)
+    }, 800)
+  }
+
+  const handleSelectLounge = (index: number) => {
+    setSelectedLounge(index === selectedLounge ? null : index)
+  }
+
+  const handleBookLounge = () => {
+    setShowBookingConfirmation(true)
+  }
+
+  const getAmenityIcon = (amenity: string) => {
+    if (
+      amenity.toLowerCase().includes("food") ||
+      amenity.toLowerCase().includes("buffet") ||
+      amenity.toLowerCase().includes("cuisine")
+    ) {
+      return <Utensils className="h-4 w-4 mr-1" />
+    } else if (
+      amenity.toLowerCase().includes("bar") ||
+      amenity.toLowerCase().includes("beverage") ||
+      amenity.toLowerCase().includes("drink")
+    ) {
+      return <Coffee className="h-4 w-4 mr-1" />
+    } else if (amenity.toLowerCase().includes("wifi") || amenity.toLowerCase().includes("internet")) {
+      return <Wifi className="h-4 w-4 mr-1" />
+    } else if (amenity.toLowerCase().includes("shower")) {
+      return <Shower className="h-4 w-4 mr-1" />
+    } else if (
+      amenity.toLowerCase().includes("relax") ||
+      amenity.toLowerCase().includes("quiet") ||
+      amenity.toLowerCase().includes("pod")
+    ) {
+      return <BedSingle className="h-4 w-4 mr-1" />
+    } else if (
+      amenity.toLowerCase().includes("newspaper") ||
+      amenity.toLowerCase().includes("magazine") ||
+      amenity.toLowerCase().includes("reading")
+    ) {
+      return <Newspaper className="h-4 w-4 mr-1" />
+    } else {
+      return <Check className="h-4 w-4 mr-1" />
+    }
+  }
 
   return (
     <Layout>
-      <div className="container mx-auto">
-        <div className="flex flex-col space-y-6">
-          {/* Header */}
-          <div className="flex flex-col md:flex-row justify-between items-start md:items-center">
-            <div>
-              <h1 className="text-3xl font-medium tracking-tighter mb-2">Airport VIP Lounge Access</h1>
-              <p className="text-gray-500">
-                Streamline your team's travel experience with premium lounge access worldwide
-              </p>
+      <div className="space-y-5">
+        {/* Header */}
+        <div className="bg-black/30 backdrop-blur-sm rounded-xl border border-white/10 p-4 shadow-sm relative overflow-hidden">
+          <div className="absolute top-0 left-0 w-full h-1 bg-white/10"></div>
+
+          <div className="flex items-center gap-3">
+            <div className="flex items-center justify-center p-2 bg-white/5 rounded-lg">
+              <Coffee className="h-6 w-6 text-white" />
             </div>
-            <div className="mt-4 md:mt-0 flex space-x-3">
-              <button className="inline-flex items-center px-4 py-2 bg-gray-200 text-gray-700 rounded-xl hover:bg-gray-300 transition-colors">
-                <UsersIcon className="h-4 w-4 mr-2" />
-                Manage Team Access
-              </button>
-              <button className="inline-flex items-center px-4 py-2 bg-black text-white rounded-xl hover:bg-gray-800 transition-colors">
-                <PlusIcon className="h-4 w-4 mr-2" />
-                Add New Membership
+
+            <div className="flex-1">
+              <div className="flex items-center gap-2">
+                <div className="inline-flex items-center gap-2 bg-white/5 px-2 py-0.5 rounded-full">
+                  <Plane className="h-3 w-3 text-white" />
+                  <span className="text-xs font-medium text-white">VIP Lounge</span>
+                </div>
+              </div>
+
+              <h1 className="text-lg font-medium text-white mb-0.5">Access premium airport lounges</h1>
+            </div>
+          </div>
+        </div>
+
+        {showBookingConfirmation ? (
+          <div className="bg-black/30 backdrop-blur-sm rounded-xl border border-white/10 p-6 shadow-sm mb-6">
+            <div className="flex items-center justify-center mb-4">
+              <div className="w-16 h-16 bg-white/5 rounded-full flex items-center justify-center">
+                <Check className="w-8 h-8 text-emerald-400" />
+              </div>
+            </div>
+            <h2 className="text-xl font-medium tracking-tighter text-white text-center mb-2">Lounge Access Booked!</h2>
+            <p className="text-white/70 text-center mb-4">
+              Your VIP lounge access has been confirmed. We've sent the details to your email.
+            </p>
+            <div className="bg-white/5 rounded-xl p-4 mb-4">
+              <div className="flex justify-between items-center mb-2">
+                <span className="text-sm font-medium text-white/70">Booking reference:</span>
+                <span className="text-sm text-white">SUITPAX-LG12345</span>
+              </div>
+              <div className="flex justify-between items-center mb-2">
+                <span className="text-sm font-medium text-white/70">Lounge:</span>
+                <span className="text-sm text-white">{filteredLounges[selectedLounge || 0].name}</span>
+              </div>
+              <div className="flex justify-between items-center mb-2">
+                <span className="text-sm font-medium text-white/70">Location:</span>
+                <span className="text-sm text-white">
+                  {filteredLounges[selectedLounge || 0].airport}, {filteredLounges[selectedLounge || 0].terminal}
+                </span>
+              </div>
+              <div className="flex justify-between items-center mb-2">
+                <span className="text-sm font-medium text-white/70">Date & Time:</span>
+                <span className="text-sm text-white">
+                  {date.split("-").reverse().join("/")}, {time}
+                </span>
+              </div>
+              <div className="flex justify-between items-center">
+                <span className="text-sm font-medium text-white/70">Total paid:</span>
+                <span className="text-sm text-white">{filteredLounges[selectedLounge || 0].price}</span>
+              </div>
+            </div>
+            <div className="flex justify-center">
+              <button
+                onClick={() => router.push("/dashboard")}
+                className="flex items-center px-3 py-1.5 rounded-lg bg-white/10 text-white hover:bg-white/20 transition-colors"
+              >
+                <span className="text-xs">Back to Dashboard</span>
               </button>
             </div>
           </div>
-
-          {/* Membership Status Card */}
-          <GlowBorder>
-            <div className="bg-white rounded-xl p-6 shadow-sm">
-              <div className="flex flex-col md:flex-row justify-between">
-                <div className="flex items-center mb-4 md:mb-0">
-                  <div className="bg-gray-200 p-3 rounded-xl mr-4">
-                    <BuildingLibraryIcon className="h-8 w-8 text-gray-700" />
-                  </div>
+        ) : (
+          <>
+            <div className="bg-black/30 backdrop-blur-sm rounded-xl border border-white/10 p-6 shadow-sm mb-6">
+              <form onSubmit={handleSearch} className="space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   <div>
-                    <h2 className="text-xl font-medium">Business Team Access</h2>
-                    <p className="text-gray-500">Active until April 30, 2026</p>
-                  </div>
-                </div>
-                <div className="flex flex-col md:flex-row items-start md:items-center space-y-2 md:space-y-0 md:space-x-6">
-                  <div className="flex flex-col items-center">
-                    <span className="text-sm text-gray-500">Team Members</span>
-                    <span className="text-xl font-medium">32/50</span>
-                  </div>
-                  <div className="flex flex-col items-center">
-                    <span className="text-sm text-gray-500">Visits This Month</span>
-                    <span className="text-xl font-medium">28/50</span>
-                  </div>
-                  <button className="inline-flex items-center px-4 py-2 bg-gray-200 text-gray-700 rounded-xl hover:bg-gray-300 transition-colors">
-                    Manage Membership
-                    <ArrowRightIcon className="h-4 w-4 ml-2" />
-                  </button>
-                </div>
-              </div>
-            </div>
-          </GlowBorder>
-
-          {/* Tabs */}
-          <div className="border-b border-gray-200">
-            <nav className="flex space-x-8">
-              <button
-                onClick={() => setActiveTab("memberships")}
-                className={`py-4 px-1 border-b-2 font-medium text-sm ${
-                  activeTab === "memberships"
-                    ? "border-black text-black"
-                    : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
-                }`}
-              >
-                Membership Plans
-              </button>
-              <button
-                onClick={() => setActiveTab("lounges")}
-                className={`py-4 px-1 border-b-2 font-medium text-sm ${
-                  activeTab === "lounges"
-                    ? "border-black text-black"
-                    : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
-                }`}
-              >
-                Available Lounges
-              </button>
-              <button
-                onClick={() => setActiveTab("history")}
-                className={`py-4 px-1 border-b-2 font-medium text-sm ${
-                  activeTab === "history"
-                    ? "border-black text-black"
-                    : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
-                }`}
-              >
-                Team Access History
-              </button>
-            </nav>
-          </div>
-
-          {/* Tab Content */}
-          <div className="mt-4">
-            {/* Membership Plans Tab */}
-            {activeTab === "memberships" && (
-              <div className="space-y-6">
-                <div className="bg-gray-50 rounded-xl p-6 mb-6">
-                  <h3 className="text-lg font-medium mb-2">Choose the right plan for your business</h3>
-                  <p className="text-sm text-gray-600 mb-4">
-                    All plans include access to our global network of premium airport lounges, digital membership cards,
-                    and our travel management platform.
-                  </p>
-                  <div className="flex items-center">
-                    <span className="text-sm text-gray-700 mr-3">Billed Monthly</span>
-                    <div className="relative inline-block w-12 h-6 transition duration-200 ease-in-out rounded-full bg-gray-200">
-                      <label
-                        htmlFor="toggle"
-                        className="absolute left-0 w-6 h-6 transition duration-100 ease-in-out transform bg-white rounded-full cursor-pointer"
-                      ></label>
-                      <input type="checkbox" id="toggle" name="toggle" className="w-0 h-0 opacity-0" />
-                    </div>
-                    <span className="text-sm text-gray-700 ml-3">Billed Annually (Save 15%)</span>
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                  {memberships.map((membership) => (
-                    <div
-                      key={membership.id}
-                      className={`relative bg-white rounded-xl p-6 border ${
-                        membership.id === currentMembership ? "border-black" : "border-gray-200"
-                      } hover:border-gray-300 transition-colors ${membership.isPopular ? "shadow-md" : ""}`}
-                    >
-                      {membership.isPopular && (
-                        <span className="absolute top-4 right-4 bg-gray-200 text-xs font-medium px-2 py-1 rounded-full">
-                          Most Popular
-                        </span>
-                      )}
-                      <h3 className="text-xl font-medium mb-2">{membership.name}</h3>
-                      <div className="text-sm text-gray-500 mb-3">{membership.teamSize}</div>
-                      <div className="flex items-baseline mb-4">
-                        <span className="text-3xl font-bold">${membership.price}</span>
-                        <span className="text-gray-500 ml-1">
-                          /{membership.billingCycle === "monthly" ? "month" : "year"}
-                        </span>
-                      </div>
-                      <ul className="space-y-3 mb-6">
-                        {membership.features.map((feature, index) => (
-                          <li key={index} className="flex items-start">
-                            <CheckCircleIcon className="h-5 w-5 text-gray-700 mr-2 flex-shrink-0" />
-                            <span className="text-sm">{feature}</span>
-                          </li>
-                        ))}
-                      </ul>
-                      {membership.enterpriseFeatures && (
-                        <div className="bg-gray-50 p-3 rounded-lg mb-4">
-                          <p className="text-xs text-gray-600">
-                            Custom enterprise solutions available. Contact our sales team for a personalized quote.
-                          </p>
-                        </div>
-                      )}
-                      <button
-                        className={`w-full py-2 rounded-xl ${
-                          membership.id === currentMembership
-                            ? "bg-black text-white"
-                            : "bg-gray-200 text-gray-700 hover:bg-gray-300"
-                        } transition-colors`}
-                      >
-                        {membership.id === currentMembership ? "Current Plan" : "Select Plan"}
-                      </button>
-                    </div>
-                  ))}
-                </div>
-
-                <div className="bg-white rounded-xl border border-gray-200 p-6 mt-8">
-                  <h3 className="text-lg font-medium mb-4">Enterprise Features</h3>
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    <div className="flex items-start">
-                      <div className="bg-gray-100 p-2 rounded-lg mr-3">
-                        <ShieldCheckIcon className="h-5 w-5 text-gray-700" />
-                      </div>
-                      <div>
-                        <h4 className="text-sm font-medium mb-1">Dedicated Account Management</h4>
-                        <p className="text-xs text-gray-600">Personal support from our enterprise team</p>
-                      </div>
-                    </div>
-                    <div className="flex items-start">
-                      <div className="bg-gray-100 p-2 rounded-lg mr-3">
-                        <GlobeAltIcon className="h-5 w-5 text-gray-700" />
-                      </div>
-                      <div>
-                        <h4 className="text-sm font-medium mb-1">Global Coverage</h4>
-                        <p className="text-xs text-gray-600">Access to exclusive VIP lounges worldwide</p>
-                      </div>
-                    </div>
-                    <div className="flex items-start">
-                      <div className="bg-gray-100 p-2 rounded-lg mr-3">
-                        <UsersIcon className="h-5 w-5 text-gray-700" />
-                      </div>
-                      <div>
-                        <h4 className="text-sm font-medium mb-1">Team Management</h4>
-                        <p className="text-xs text-gray-600">Advanced controls and permission settings</p>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {/* Available Lounges Tab */}
-            {activeTab === "lounges" && (
-              <div className="space-y-6">
-                <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-4">
-                  <h2 className="text-xl font-medium">Available VIP Lounges</h2>
-                  <div className="mt-2 md:mt-0 flex items-center space-x-3">
+                    <label htmlFor="airport" className="block text-xs font-medium text-white/70 mb-1">
+                      Airport
+                    </label>
                     <div className="relative">
                       <input
                         type="text"
-                        placeholder="Search lounges by airport or city"
-                        className="pl-10 pr-4 py-2 border border-gray-200 rounded-xl focus:outline-none focus:ring-1 focus:ring-gray-400 w-full md:w-64"
+                        id="airport"
+                        value={airport}
+                        onChange={(e) => setAirport(e.target.value)}
+                        className="w-full pl-10 pr-3 py-2 bg-white/5 border border-white/10 rounded-lg focus:outline-none focus:ring-2 focus:ring-white/20 text-white placeholder:text-white/30"
+                        placeholder="Enter airport name"
                       />
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        className="h-5 w-5 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        stroke="currentColor"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-                        />
-                      </svg>
+                      <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <Plane className="h-4 w-4 text-white/50" />
+                      </div>
                     </div>
-                    <select className="px-3 py-2 border border-gray-200 rounded-xl focus:outline-none focus:ring-1 focus:ring-gray-400">
-                      <option value="all">All Regions</option>
-                      <option value="europe">Europe</option>
-                      <option value="namerica">North America</option>
-                      <option value="asia">Asia Pacific</option>
-                      <option value="meast">Middle East</option>
+                  </div>
+
+                  <div>
+                    <label htmlFor="date" className="block text-xs font-medium text-white/70 mb-1">
+                      Date
+                    </label>
+                    <div className="relative">
+                      <input
+                        type="date"
+                        id="date"
+                        value={date}
+                        onChange={(e) => setDate(e.target.value)}
+                        className="w-full pl-10 pr-3 py-2 bg-white/5 border border-white/10 rounded-lg focus:outline-none focus:ring-2 focus:ring-white/20 text-white"
+                      />
+                      <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <Calendar className="h-4 w-4 text-white/50" />
+                      </div>
+                    </div>
+                  </div>
+
+                  <div>
+                    <label htmlFor="time" className="block text-xs font-medium text-white/70 mb-1">
+                      Time
+                    </label>
+                    <div className="relative">
+                      <input
+                        type="time"
+                        id="time"
+                        value={time}
+                        onChange={(e) => setTime(e.target.value)}
+                        className="w-full pl-10 pr-3 py-2 bg-white/5 border border-white/10 rounded-lg focus:outline-none focus:ring-2 focus:ring-white/20 text-white"
+                      />
+                      <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <Clock className="h-4 w-4 text-white/50" />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label htmlFor="passengers" className="block text-xs font-medium text-white/70 mb-1">
+                      Guests
+                    </label>
+                    <div className="relative">
+                      <select
+                        id="passengers"
+                        className="w-full pl-10 pr-3 py-2 bg-white/5 border border-white/10 rounded-lg focus:outline-none focus:ring-2 focus:ring-white/20 text-white appearance-none"
+                        defaultValue="1"
+                      >
+                        <option value="1" className="bg-black text-white">
+                          1 Guest
+                        </option>
+                        <option value="2" className="bg-black text-white">
+                          2 Guests
+                        </option>
+                        <option value="3" className="bg-black text-white">
+                          3 Guests
+                        </option>
+                        <option value="4" className="bg-black text-white">
+                          4 Guests
+                        </option>
+                      </select>
+                      <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <Users className="h-4 w-4 text-white/50" />
+                      </div>
+                    </div>
+                  </div>
+
+                  <div>
+                    <label htmlFor="purpose" className="block text-xs font-medium text-white/70 mb-1">
+                      Travel Purpose
+                    </label>
+                    <div className="relative">
+                      <select
+                        id="purpose"
+                        className="w-full pl-10 pr-3 py-2 bg-white/5 border border-white/10 rounded-lg focus:outline-none focus:ring-2 focus:ring-white/20 text-white appearance-none"
+                        defaultValue="business"
+                      >
+                        <option value="business" className="bg-black text-white">
+                          Business Travel
+                        </option>
+                        <option value="layover" className="bg-black text-white">
+                          Long Layover
+                        </option>
+                        <option value="delay" className="bg-black text-white">
+                          Flight Delay
+                        </option>
+                        <option value="leisure" className="bg-black text-white">
+                          Leisure Travel
+                        </option>
+                      </select>
+                      <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <Briefcase className="h-4 w-4 text-white/50" />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="flex flex-col md:flex-row justify-between items-start md:items-center space-y-2 md:space-y-0">
+                  <div className="flex items-center">
+                    <input
+                      type="checkbox"
+                      id="policy-compliant"
+                      className="rounded border-white/10 bg-white/5 text-white focus:ring-white/20 mr-2"
+                      defaultChecked
+                    />
+                    <label htmlFor="policy-compliant" className="text-xs text-white/70">
+                      Show only policy-compliant options
+                    </label>
+                  </div>
+                  <button
+                    type="submit"
+                    className="flex items-center px-4 py-2 rounded-lg bg-white/10 text-white hover:bg-white/20 transition-colors"
+                  >
+                    <Search className="h-4 w-4 mr-2" />
+                    <span className="text-xs">Search Lounges</span>
+                  </button>
+                </div>
+              </form>
+            </div>
+
+            {/* Popular airports */}
+            <div className="bg-black/30 backdrop-blur-sm rounded-xl border border-white/10 p-4 shadow-sm mb-6">
+              <h2 className="text-sm font-medium text-white mb-3">Popular Airports</h2>
+              <div className="flex flex-wrap gap-2">
+                {popularAirports.map((airportName, index) => (
+                  <button
+                    key={index}
+                    onClick={() => handleQuickSearch(airportName)}
+                    className="flex items-center gap-2 px-3 py-1.5 bg-white/5 rounded-lg hover:bg-white/10 transition-colors"
+                  >
+                    <Plane className="h-3 w-3 text-white/70" />
+                    <span className="text-xs font-medium text-white">{airportName.split(" ")[0]}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {isLoading && (
+              <div className="bg-black/30 backdrop-blur-sm rounded-xl border border-white/10 p-8 text-center">
+                <div className="flex justify-center mb-4">
+                  <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-white"></div>
+                </div>
+                <h2 className="text-xl font-medium tracking-tighter text-white mb-2">Searching for lounges...</h2>
+                <p className="text-white/70 mb-6 max-w-md mx-auto">
+                  We're finding the best VIP lounges for your journey.
+                </p>
+              </div>
+            )}
+
+            {showResults && !isLoading && (
+              <div className="space-y-4">
+                <div className="flex items-center justify-between mb-4">
+                  <h2 className="text-lg font-medium tracking-tighter text-white">
+                    Results for: {airport || "Your search"}
+                  </h2>
+                  <div className="flex items-center">
+                    <span className="text-xs text-white/70 mr-2">Sort by:</span>
+                    <select className="text-xs bg-white/5 border border-white/10 rounded-lg px-2 py-1 focus:outline-none focus:ring-2 focus:ring-white/20 text-white">
+                      <option className="bg-black text-white">Price: low to high</option>
+                      <option className="bg-black text-white">Rating: high to low</option>
+                      <option className="bg-black text-white">Most amenities</option>
                     </select>
                   </div>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  {vipLounges.map((lounge) => (
+                {filteredLounges.length > 0 ? (
+                  filteredLounges.map((lounge, index) => (
                     <div
-                      key={lounge.id}
-                      className="bg-white rounded-xl overflow-hidden border border-gray-200 hover:shadow-md transition-shadow"
+                      key={index}
+                      className={`bg-black/30 backdrop-blur-sm rounded-xl border ${
+                        selectedLounge === index ? "border-white/20" : "border-white/10"
+                      } overflow-hidden shadow-sm hover:border-white/20 transition-colors cursor-pointer`}
+                      onClick={() => handleSelectLounge(index)}
                     >
-                      <div className="relative h-48 w-full">
-                        <Image
-                          src={lounge.imageUrl || "/placeholder.svg"}
-                          alt={lounge.name}
-                          fill
-                          className="object-cover"
-                        />
-                        {lounge.partnerStatus && (
-                          <div className="absolute top-4 left-4">
-                            <span
-                              className={`text-xs font-medium px-2 py-1 rounded-full ${
-                                lounge.partnerStatus === "exclusive"
-                                  ? "bg-black text-white"
+                      <div className="flex flex-col md:flex-row">
+                        <div className="relative h-48 md:h-auto md:w-1/3">
+                          <Image
+                            src={lounge.imageUrl || "/placeholder.svg"}
+                            alt={lounge.name}
+                            fill
+                            className="object-cover"
+                          />
+                          {lounge.partnerStatus && (
+                            <div className="absolute top-4 left-4">
+                              <span
+                                className={`text-xs font-medium px-2 py-1 rounded-full ${
+                                  lounge.partnerStatus === "exclusive"
+                                    ? "bg-black/80 text-white"
+                                    : lounge.partnerStatus === "premium"
+                                      ? "bg-black/70 text-white"
+                                      : "bg-black/60 text-white"
+                                }`}
+                              >
+                                {lounge.partnerStatus === "exclusive"
+                                  ? "Exclusive Partner"
                                   : lounge.partnerStatus === "premium"
-                                    ? "bg-gray-800 text-white"
-                                    : "bg-gray-200 text-gray-800"
-                              }`}
-                            >
-                              {lounge.partnerStatus === "exclusive"
-                                ? "Exclusive Partner"
-                                : lounge.partnerStatus === "premium"
-                                  ? "Premium Partner"
-                                  : "Standard Partner"}
-                            </span>
+                                    ? "Premium Partner"
+                                    : "Standard Partner"}
+                              </span>
+                            </div>
+                          )}
+                        </div>
+                        <div className="p-4 md:w-2/3">
+                          <div className="flex justify-between items-start mb-2">
+                            <div>
+                              <h3 className="text-lg font-medium text-white">{lounge.name}</h3>
+                              <div className="flex items-center text-white/70 text-sm">
+                                <MapPin className="h-3.5 w-3.5 mr-1" />
+                                <span>
+                                  {lounge.airport}, {lounge.terminal}
+                                </span>
+                              </div>
+                              <p className="text-xs text-white/50 mt-1">{lounge.location}</p>
+                            </div>
+                            <div className="text-right">
+                              <div className="text-lg font-medium text-white">{lounge.price}</div>
+                              <div className="text-xs text-white/50">per person</div>
+                              <span
+                                className={`inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-medium mt-1 ${
+                                  lounge.accessStatus === "available"
+                                    ? "bg-green-900/30 text-green-400"
+                                    : lounge.accessStatus === "limited"
+                                      ? "bg-yellow-900/30 text-yellow-400"
+                                      : "bg-red-900/30 text-red-400"
+                                }`}
+                              >
+                                {lounge.accessStatus === "available"
+                                  ? "Available Now"
+                                  : lounge.accessStatus === "limited"
+                                    ? "Limited Availability"
+                                    : "Currently Unavailable"}
+                              </span>
+                            </div>
                           </div>
-                        )}
-                      </div>
-                      <div className="p-6">
-                        <div className="flex justify-between items-start mb-2">
-                          <h3 className="text-xl font-medium">{lounge.name}</h3>
-                          <span
-                            className={`text-xs font-medium px-2 py-1 rounded-full ${
-                              lounge.accessStatus === "available"
-                                ? "bg-green-100 text-green-800"
-                                : lounge.accessStatus === "limited"
-                                  ? "bg-yellow-100 text-yellow-800"
-                                  : "bg-red-100 text-red-800"
-                            }`}
-                          >
-                            {lounge.accessStatus === "available"
-                              ? "Available Now"
-                              : lounge.accessStatus === "limited"
-                                ? "Limited Access"
-                                : "Currently Unavailable"}
-                          </span>
-                        </div>
-                        <div className="flex items-center text-gray-500 mb-4">
-                          <BuildingOfficeIcon className="h-4 w-4 mr-1" />
-                          <span className="text-sm">
-                            {lounge.airport} • {lounge.terminal}
-                          </span>
-                        </div>
-                        <p className="text-sm text-gray-500 mb-4">{lounge.location}</p>
-                        <div className="mb-4">
-                          <h4 className="text-sm font-medium mb-2">Amenities</h4>
-                          <div className="flex flex-wrap gap-2">
-                            {lounge.amenities.map((amenity, index) => (
-                              <span key={index} className="text-xs bg-gray-100 px-2 py-1 rounded-full">
+
+                          <div className="flex flex-wrap gap-1.5 mb-3">
+                            {lounge.amenities.slice(0, 5).map((amenity, i) => (
+                              <span
+                                key={i}
+                                className="inline-flex items-center rounded-full bg-white/5 px-2 py-0.5 text-xs font-medium text-white"
+                              >
+                                {getAmenityIcon(amenity)}
                                 {amenity}
                               </span>
                             ))}
+                            {lounge.amenities.length > 5 && (
+                              <span className="inline-flex items-center rounded-full bg-white/5 px-2 py-0.5 text-xs font-medium text-white">
+                                +{lounge.amenities.length - 5} more
+                              </span>
+                            )}
+                          </div>
+
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center text-xs text-white/70">
+                              <Clock className="h-3.5 w-3.5 mr-1" />
+                              <span>Hours: {lounge.openingHours}</span>
+                              <span className="mx-2">•</span>
+                              <span>Max stay: {lounge.maxStay}</span>
+                            </div>
+                            <div className="flex items-center">
+                              <div className="flex">
+                                {[...Array(5)].map((_, i) => (
+                                  <svg
+                                    key={i}
+                                    className={`h-3.5 w-3.5 ${
+                                      i < Math.floor(lounge.rating) ? "text-yellow-400" : "text-white/20"
+                                    }`}
+                                    fill="currentColor"
+                                    viewBox="0 0 20 20"
+                                  >
+                                    <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                                  </svg>
+                                ))}
+                              </div>
+                              <span className="text-xs text-white/50 ml-1">({lounge.reviewCount})</span>
+                            </div>
                           </div>
                         </div>
-                        <div className="flex space-x-2">
-                          <button
-                            className={`flex-1 py-2 rounded-xl ${
-                              lounge.accessStatus === "available"
-                                ? "bg-black text-white hover:bg-gray-800"
-                                : "bg-gray-200 text-gray-500 cursor-not-allowed"
-                            }`}
-                            disabled={lounge.accessStatus !== "available"}
-                          >
-                            Reserve Access
-                          </button>
-                          <button className="px-3 py-2 rounded-xl border border-gray-200 hover:bg-gray-50">
-                            Details
-                          </button>
-                        </div>
                       </div>
-                    </div>
-                  ))}
-                </div>
 
-                <div className="flex justify-center mt-6">
-                  <button className="px-4 py-2 border border-gray-200 rounded-xl hover:bg-gray-50 text-sm">
-                    Load More Lounges
+                      {selectedLounge === index && (
+                        <div className="p-4 border-t border-white/10 bg-black/20">
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                            <div>
+                              <h4 className="text-sm font-medium text-white mb-2">Lounge details</h4>
+                              <div className="space-y-1.5">
+                                <div className="flex items-center gap-2">
+                                  <Users className="h-4 w-4 text-white/50" />
+                                  <span className="text-sm text-white/70">
+                                    Guests: 1 included (additional guests at extra cost)
+                                  </span>
+                                </div>
+                                <div className="flex items-center gap-2">
+                                  <Clock className="h-4 w-4 text-white/50" />
+                                  <span className="text-sm text-white/70">Access duration: {lounge.maxStay}</span>
+                                </div>
+                                <div className="flex items-center gap-2">
+                                  <span className="text-sm text-white/70">
+                                    {lounge.travelPolicy === "Compliant" ? (
+                                      <span className="text-emerald-400 flex items-center">
+                                        <Check className="h-4 w-4 mr-1" /> Policy compliant
+                                      </span>
+                                    ) : lounge.travelPolicy === "Approval required" ? (
+                                      <span className="text-yellow-400 flex items-center">
+                                        <Check className="h-4 w-4 mr-1" /> Approval required
+                                      </span>
+                                    ) : (
+                                      <span className="text-red-400 flex items-center">
+                                        <X className="h-4 w-4 mr-1" /> Not policy compliant
+                                      </span>
+                                    )}
+                                  </span>
+                                </div>
+                              </div>
+                            </div>
+                            <div>
+                              <h4 className="text-sm font-medium text-white mb-2">All amenities</h4>
+                              <div className="flex flex-wrap gap-1.5">
+                                {lounge.amenities.map((amenity, i) => (
+                                  <span
+                                    key={i}
+                                    className="inline-flex items-center rounded-full bg-white/5 px-2 py-0.5 text-xs font-medium text-white"
+                                  >
+                                    {getAmenityIcon(amenity)}
+                                    {amenity}
+                                  </span>
+                                ))}
+                              </div>
+                            </div>
+                          </div>
+                          <div className="flex justify-end">
+                            <button
+                              onClick={handleBookLounge}
+                              className="flex items-center px-3 py-1.5 rounded-lg bg-white/10 text-white hover:bg-white/20 transition-colors"
+                            >
+                              <span className="text-xs">Book Access</span>
+                            </button>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  ))
+                ) : (
+                  <div className="bg-black/30 backdrop-blur-sm rounded-xl border border-white/10 p-6 text-center">
+                    <div className="flex justify-center mb-4">
+                      <X className="h-12 w-12 text-white/40" />
+                    </div>
+                    <h3 className="text-lg font-medium text-white mb-2">No lounges found</h3>
+                    <p className="text-white/70 mb-4">
+                      We couldn't find any VIP lounges matching your search criteria. Please try a different airport or
+                      date.
+                    </p>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {!showResults && !isLoading && (
+              <div className="bg-black/30 backdrop-blur-sm rounded-xl border border-white/10 p-8 text-center">
+                <div className="flex justify-center mb-4">
+                  <div className="flex space-x-2">
+                    <div className="relative h-12 w-12">
+                      <Image
+                        src="/images/team/genevieve-mclean.jpeg"
+                        alt="Team Member"
+                        width={48}
+                        height={48}
+                        className="object-cover rounded-md"
+                      />
+                    </div>
+                    <div className="relative h-12 w-12">
+                      <Image
+                        src="/images/team/cohen-lozano.jpeg"
+                        alt="Team Member"
+                        width={48}
+                        height={48}
+                        className="object-cover rounded-md"
+                      />
+                    </div>
+                    <div className="relative h-12 w-12">
+                      <Image
+                        src="/images/team/orlando-diggs.jpeg"
+                        alt="Team Member"
+                        width={48}
+                        height={48}
+                        className="object-cover rounded-md"
+                      />
+                    </div>
+                  </div>
+                </div>
+                <h2 className="text-xl font-medium tracking-tighter text-white mb-2">
+                  Welcome to your VIP lounge booking portal
+                </h2>
+                <p className="text-white/70 mb-6 max-w-md mx-auto">
+                  Select an airport above to find available premium lounges for your business travel.
+                </p>
+                <div className="flex justify-center">
+                  <button
+                    onClick={() => {
+                      setAirport("Madrid-Barajas Airport")
+                      handleQuickSearch("Madrid-Barajas Airport")
+                    }}
+                    className="flex items-center px-3 py-1.5 rounded-lg bg-white/10 text-white hover:bg-white/20 transition-colors"
+                  >
+                    <span className="text-xs">Try a sample search</span>
                   </button>
                 </div>
               </div>
             )}
-
-            {/* Access History Tab */}
-            {activeTab === "history" && (
-              <div className="space-y-6">
-                <div className="flex justify-between items-center mb-4">
-                  <h2 className="text-xl font-medium">Team Lounge Access History</h2>
-                  <div className="flex space-x-2">
-                    <button className="px-3 py-1.5 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors text-sm">
-                      Last 3 Months
-                    </button>
-                    <button className="px-3 py-1.5 bg-white text-gray-700 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors text-sm">
-                      All Time
-                    </button>
-                    <button className="px-3 py-1.5 bg-white text-gray-700 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors text-sm">
-                      Export Data
-                    </button>
-                  </div>
-                </div>
-
-                {/* Stats Cards */}
-                <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-                  <div className="bg-white p-4 rounded-xl border border-gray-200">
-                    <div className="flex items-center mb-2">
-                      <div className="bg-gray-100 p-2 rounded-lg mr-3">
-                        <Plane className="h-5 w-5 text-gray-700" />
-                      </div>
-                      <span className="text-sm text-gray-500">Total Team Visits</span>
-                    </div>
-                    <p className="text-2xl font-medium">42</p>
-                  </div>
-                  <div className="bg-white p-4 rounded-xl border border-gray-200">
-                    <div className="flex items-center mb-2">
-                      <div className="bg-gray-100 p-2 rounded-lg mr-3">
-                        <ClockIcon className="h-5 w-5 text-gray-700" />
-                      </div>
-                      <span className="text-sm text-gray-500">Avg. Duration</span>
-                    </div>
-                    <p className="text-2xl font-medium">2h 15m</p>
-                  </div>
-                  <div className="bg-white p-4 rounded-xl border border-gray-200">
-                    <div className="flex items-center mb-2">
-                      <div className="bg-gray-100 p-2 rounded-lg mr-3">
-                        <CalendarIcon className="h-5 w-5 text-gray-700" />
-                      </div>
-                      <span className="text-sm text-gray-500">Last Visit</span>
-                    </div>
-                    <p className="text-2xl font-medium">Apr 15, 2025</p>
-                  </div>
-                  <div className="bg-white p-4 rounded-xl border border-gray-200">
-                    <div className="flex items-center mb-2">
-                      <div className="bg-gray-100 p-2 rounded-lg mr-3">
-                        <UserGroupIcon className="h-5 w-5 text-gray-700" />
-                      </div>
-                      <span className="text-sm text-gray-500">Active Users</span>
-                    </div>
-                    <p className="text-2xl font-medium">18/32</p>
-                  </div>
-                </div>
-
-                {/* Access History Table */}
-                <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
-                  <table className="min-w-full divide-y divide-gray-200">
-                    <thead className="bg-gray-50">
-                      <tr>
-                        <th
-                          scope="col"
-                          className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                        >
-                          Team Member
-                        </th>
-                        <th
-                          scope="col"
-                          className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                        >
-                          Lounge
-                        </th>
-                        <th
-                          scope="col"
-                          className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                        >
-                          Airport
-                        </th>
-                        <th
-                          scope="col"
-                          className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                        >
-                          Date
-                        </th>
-                        <th
-                          scope="col"
-                          className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                        >
-                          Duration
-                        </th>
-                        <th
-                          scope="col"
-                          className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                        >
-                          Status
-                        </th>
-                      </tr>
-                    </thead>
-                    <tbody className="bg-white divide-y divide-gray-200">
-                      {accessHistory.map((access) => (
-                        <tr key={access.id} className="hover:bg-gray-50">
-                          <td className="px-6 py-4 whitespace-nowrap">
-                            <div className="flex items-center">
-                              <div className="h-8 w-8 rounded-full overflow-hidden mr-3">
-                                <Image
-                                  src={access.teamMemberAvatar || "/placeholder.svg"}
-                                  alt={access.teamMember || "Team member"}
-                                  width={32}
-                                  height={32}
-                                  className="object-cover"
-                                />
-                              </div>
-                              <div>
-                                <div className="text-sm font-medium text-gray-900">{access.teamMember}</div>
-                                <div className="text-xs text-gray-500">{access.teamMemberRole}</div>
-                              </div>
-                            </div>
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap">
-                            <div className="text-sm font-medium text-gray-900">{access.loungeName}</div>
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap">
-                            <div className="text-sm text-gray-500">{access.airport}</div>
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap">
-                            <div className="text-sm text-gray-500">{access.date}</div>
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap">
-                            <div className="text-sm text-gray-500">{access.duration}</div>
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap">
-                            <span className="px-2 py-1 text-xs font-medium bg-green-100 text-green-800 rounded-full">
-                              Completed
-                            </span>
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-
-                <div className="flex justify-between items-center mt-4">
-                  <div className="text-sm text-gray-500">Showing 4 of 42 entries</div>
-                  <div className="flex space-x-2">
-                    <button className="px-3 py-1 border border-gray-200 rounded-md text-sm text-gray-500">
-                      Previous
-                    </button>
-                    <button className="px-3 py-1 bg-gray-200 rounded-md text-sm">1</button>
-                    <button className="px-3 py-1 border border-gray-200 rounded-md text-sm text-gray-500">2</button>
-                    <button className="px-3 py-1 border border-gray-200 rounded-md text-sm text-gray-500">3</button>
-                    <button className="px-3 py-1 border border-gray-200 rounded-md text-sm text-gray-500">Next</button>
-                  </div>
-                </div>
-              </div>
-            )}
-          </div>
-        </div>
+          </>
+        )}
       </div>
     </Layout>
   )

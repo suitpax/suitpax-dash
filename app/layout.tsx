@@ -1,6 +1,7 @@
 import type React from "react"
 import { Inter } from "next/font/google"
 import { Analytics } from "@vercel/analytics/react"
+import { Providers } from "./providers"
 import "./globals.css"
 import "./glow-effects.css"
 import { Suspense } from "react"
@@ -21,8 +22,10 @@ export default function RootLayout({
   return (
     <html lang="es">
       <body className={inter.className}>
-        <Suspense fallback={"Loading..."}>{children}</Suspense>
-        <Analytics />
+        <Providers>
+          <Suspense fallback={"Loading..."}>{children}</Suspense>
+          <Analytics />
+        </Providers>
       </body>
     </html>
   )

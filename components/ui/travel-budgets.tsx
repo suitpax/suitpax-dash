@@ -67,51 +67,51 @@ export default function TravelBudgets({ budgets = BUDGETS, className }: TravelBu
         {budgets.map((budget) => (
           <div
             key={budget.id}
-            className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-4 hover:shadow-md transition-shadow duration-200"
+            className="bg-black/30 border border-white/10 rounded-lg p-4 hover:bg-white/5 transition-all duration-200"
           >
             <div className="flex justify-between items-start mb-3">
               <div className="flex items-center">
-                <div className="p-2 rounded-lg bg-gray-100 dark:bg-gray-700 mr-3">
-                  <Wallet className="h-4 w-4 text-gray-900 dark:text-gray-100" />
+                <div className="p-2 rounded-lg bg-white/5 mr-3">
+                  <Wallet className="h-4 w-4 text-white" />
                 </div>
                 <div>
-                  <h3 className="font-medium text-sm text-gray-900 dark:text-gray-100">{budget.title}</h3>
-                  <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">{budget.description}</p>
+                  <h3 className="font-medium text-sm text-white">{budget.title}</h3>
+                  <p className="text-xs text-white/70 mt-0.5">{budget.description}</p>
                 </div>
               </div>
               <div className="flex items-center text-xs font-medium">
-                <div className="flex items-center px-2 py-1 rounded-full bg-gray-100 dark:bg-gray-700">
+                <div className="flex items-center px-2 py-1 rounded-full bg-white/10">
                   {budget.department === "Global" ? (
-                    <Building2 className="h-3 w-3 mr-1 text-gray-600 dark:text-gray-300" />
+                    <Building2 className="h-3 w-3 mr-1 text-white/70" />
                   ) : (
-                    <Users2 className="h-3 w-3 mr-1 text-gray-600 dark:text-gray-300" />
+                    <Users2 className="h-3 w-3 mr-1 text-white/70" />
                   )}
-                  <span className="text-gray-700 dark:text-gray-300">{budget.department}</span>
+                  <span className="text-white/70">{budget.department}</span>
                 </div>
               </div>
             </div>
 
             <div className="grid grid-cols-3 gap-2 mb-3">
               <div className="text-center">
-                <p className="text-xs text-gray-500 dark:text-gray-400">Asignado</p>
-                <p className="text-sm font-medium text-gray-900 dark:text-gray-100">{budget.allocated}</p>
+                <p className="text-xs text-white/50">Asignado</p>
+                <p className="text-sm font-medium text-white">{budget.allocated}</p>
               </div>
               <div className="text-center">
-                <p className="text-xs text-gray-500 dark:text-gray-400">Gastado</p>
-                <p className="text-sm font-medium text-gray-900 dark:text-gray-100">{budget.spent}</p>
+                <p className="text-xs text-white/50">Gastado</p>
+                <p className="text-sm font-medium text-white">{budget.spent}</p>
               </div>
               <div className="text-center">
-                <p className="text-xs text-gray-500 dark:text-gray-400">Restante</p>
-                <p className="text-sm font-medium text-gray-900 dark:text-gray-100">{budget.remaining}</p>
+                <p className="text-xs text-white/50">Restante</p>
+                <p className="text-sm font-medium text-white">{budget.remaining}</p>
               </div>
             </div>
 
             <div className="space-y-1.5 mb-3">
               <div className="flex items-center justify-between text-xs">
-                <span className="text-gray-600 dark:text-gray-400">Progreso</span>
-                <span className="text-gray-900 dark:text-gray-100">{budget.progress}%</span>
+                <span className="text-white/70">Progreso</span>
+                <span className="text-white">{budget.progress}%</span>
               </div>
-              <div className="h-1.5 bg-gray-100 dark:bg-gray-700 rounded-full overflow-hidden">
+              <div className="h-1.5 bg-white/10 rounded-full overflow-hidden">
                 <div
                   className={cn(
                     "h-full rounded-full",
@@ -122,7 +122,7 @@ export default function TravelBudgets({ budgets = BUDGETS, className }: TravelBu
               </div>
             </div>
 
-            <button className="w-full flex items-center justify-center gap-2 py-2 px-3 text-xs font-medium text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors duration-200">
+            <button className="w-full flex items-center justify-center gap-2 py-2 px-3 text-xs font-medium text-white/70 hover:text-white hover:bg-white/10 rounded-lg transition-colors duration-200">
               Ver Detalles
               <ArrowRight className="w-3.5 h-3.5" />
             </button>

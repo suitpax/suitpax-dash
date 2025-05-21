@@ -1,5 +1,5 @@
 import { type NextRequest, NextResponse } from "next/server"
-import { promptManager } from "@/lib/ai/prompt-manager"
+import { aiStudioService } from "@/lib/ai/ai-studio"
 
 export async function GET(req: NextRequest) {
   try {
@@ -8,7 +8,7 @@ export async function GET(req: NextRequest) {
     const id = searchParams.get("id")
 
     if (id) {
-      const prompt = await promptManager.getPromptById(id)
+      const prompt = await aiStudioService.getPromptById(id)
       if (!prompt) {
         return NextResponse.json({ error: "Prompt no encontrado" }, { status: 404 })
       }
@@ -16,11 +16,11 @@ export async function GET(req: NextRequest) {
     }
 
     if (category) {
-      const prompts = await promptManager.getPromptsByCategory(category)
+      const prompts = await aiStudioService.getPromptsByCategory(category)
       return NextResponse.json(prompts)
     }
 
-    const prompts = await promptManager.getAllPrompts()
+    const prompts = await aiStudioService.getAllPrompts()
     return NextResponse.json(prompts)
   } catch (error) {
     console.error("Error en la ruta de prompts:", error)
@@ -36,7 +36,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Se requieren los campos title, content y category" }, { status: 400 })
     }
 
-    const newPrompt = await promptManager.createPrompt({
+    const newPrompt = await aiStudioService.createPrompt({
       title: body.title,
       content: body.content,
       category: body.category,
@@ -58,7 +58,7 @@ export async function PUT(req: NextRequest) {
       return NextResponse.json({ error: "Se requiere el ID del prompt" }, { status: 400 })
     }
 
-    const updatedPrompt = await promptManager.updatePrompt(body.id, {
+    const updatedPrompt = await aiStudioService.updatePrompt(body.id, {
       title: body.title,
       content: body.content,
       category: body.category,
@@ -85,7 +85,7 @@ export async function DELETE(req: NextRequest) {
       return NextResponse.json({ error: "Se requiere el ID del prompt" }, { status: 400 })
     }
 
-    const success = await promptManager.deletePrompt(id)
+    const success = await aiStudioService.deletePrompt(id)
 
     if (!success) {
       return NextResponse.json({ error: "Prompt no encontrado" }, { status: 404 })

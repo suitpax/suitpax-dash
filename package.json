@@ -13,7 +13,6 @@
     "@heroicons/react": "latest",
     "@hookform/resolvers": "^3.9.1",
     "@modelcontextprotocol/sdk": "latest",
-    "@neondatabase/serverless": "latest",
     "@phosphor-icons/react": "latest",
     "@radix-ui/react-accordion": "1.2.2",
     "@radix-ui/react-alert-dialog": "1.1.4",

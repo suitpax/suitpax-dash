@@ -3,12 +3,9 @@
 import { useState, useEffect } from "react"
 import Layout from "@/components/ui/layout"
 import AIChat from "@/components/ui/ai-chat"
-import PromptManager from "@/components/ui/prompt-manager"
 import DataExplorer from "@/components/ui/data-explorer"
-import type { Message } from "@/lib/ai/anthropic-service"
-import { type Prompt, promptService } from "@/lib/ai/prompt-service"
-import { dataService } from "@/lib/ai/data-service"
-import { aiService } from "@/lib/ai/ai-service"
+import type { Message } from "@/lib/ai/message-types"
+import { enhancedAiService } from "@/lib/ai/ai-service-enhanced"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 
 export default function AIStudioPage() {
@@ -22,10 +19,6 @@ export default function AIStudioPage() {
     },
   ])
 
-  // Estado para los prompts
-  const [prompts, setPrompts] = useState<Prompt[]>([])
-  const [promptCategories, setPromptCategories] = useState<string[]>([])
-
   // Estado para los datos de las tablas
   const [tables, setTables] = useState<Array<{ name: string; columns: Array<{ name: string; type: string }> }>>([])
   const [selectedTable, setSelectedTable] = useState<string | null>(null)
@@ -38,7 +31,6 @@ export default function AIStudioPage() {
   const [systemPrompt, setSystemPrompt] = useState(
     "Eres un asistente especializado en viajes de negocios. Ayuda a los usuarios a planificar viajes, encontrar vuelos y hoteles, gestionar gastos y navegar por las políticas de viaje.",
   )
-  const [selectedPrompt, setSelectedPrompt] = useState<Prompt | null>(null)
 
   // Cargar datos iniciales
   useEffect(() => {
@@ -48,7 +40,7 @@ export default function AIStudioPage() {
   // Cargar datos cuando se selecciona una tabla
   useEffect(() => {
     if (selectedTable) {
-      fetchTableData(selectedTable, 1, 10)
+      fetchTableData(selectedTable)
     }
   }, [selectedTable])
 
@@ -56,17 +48,10 @@ export default function AIStudioPage() {
   const loadInitialData = async () => {
     try {
       // Cargar información sobre las capacidades de la IA
-      const capabilities = await aiService.getAICapabilities()
+      const capabilities = await enhancedAiService.getAICapabilities()
 
       // Establecer las tablas disponibles
       setTables(capabilities.availableTables)
-
-      // Establecer las categorías de prompts
-      setPromptCategories(capabilities.promptCategories)
-
-      // Cargar todos los prompts
-      const allPrompts = await promptService.getAllPrompts()
-      setPrompts(allPrompts)
     } catch (error) {
       console.error("Error loading initial data:", error)
     }
@@ -95,22 +80,16 @@ export default function AIStudioPage() {
         systemPrompt,
         includeTableData: !!selectedTable,
         tableName: selectedTable || undefined,
-        promptId: selectedPrompt?.id,
       }
 
       // Generar la respuesta
-      const response = await aiService.generateResponse(options)
+      const response = await enhancedAiService.generateResponse(options)
 
       // Crear el mensaje del asistente
-      const assistantMessage: Message = {
-        id: Date.now().toString(),
-        role: "assistant",
-        content: response,
-        createdAt: new Date(),
+      if (response.response) {
+        // Actualizar los mensajes con la respuesta del asistente
+        setMessages([...updatedMessages, response.response])
       }
-
-      // Actualizar los mensajes con la respuesta del asistente
-      setMessages([...updatedMessages, assistantMessage])
     } catch (error) {
       console.error("Error sending message:", error)
 
@@ -125,68 +104,14 @@ export default function AIStudioPage() {
       setMessages([...messages, errorMessage])
     } finally {
       setIsProcessing(false)
-      setSelectedPrompt(null) // Limpiar el prompt seleccionado después de usarlo
     }
-  }
-
-  // Crear un nuevo prompt
-  const createPrompt = async (promptData: Omit<Prompt, "id" | "createdAt" | "updatedAt">) => {
-    try {
-      const newPrompt = await promptService.createPrompt(promptData)
-      setPrompts([newPrompt, ...prompts])
-      return newPrompt
-    } catch (error) {
-      console.error("Error creating prompt:", error)
-      throw error
-    }
-  }
-
-  // Actualizar un prompt existente
-  const updatePrompt = async (id: string, promptData: Partial<Omit<Prompt, "id" | "createdAt" | "updatedAt">>) => {
-    try {
-      const updatedPrompt = await promptService.updatePrompt(id, promptData)
-      setPrompts(prompts.map((p) => (p.id === id ? updatedPrompt : p)))
-      return updatedPrompt
-    } catch (error) {
-      console.error(`Error updating prompt ${id}:`, error)
-      throw error
-    }
-  }
-
-  // Eliminar un prompt
-  const deletePrompt = async (id: string) => {
-    try {
-      const success = await promptService.deletePrompt(id)
-      if (success) {
-        setPrompts(prompts.filter((p) => p.id !== id))
-      }
-      return success
-    } catch (error) {
-      console.error(`Error deleting prompt ${id}:`, error)
-      throw error
-    }
-  }
-
-  // Seleccionar un prompt para usar en el chat
-  const selectPrompt = (prompt: Prompt) => {
-    setSelectedPrompt(prompt)
-
-    // Añadir un mensaje del sistema indicando que se ha seleccionado un prompt
-    const systemMessage: Message = {
-      id: Date.now().toString(),
-      role: "system",
-      content: `Has seleccionado el prompt "${prompt.title}". Este prompt se utilizará en tu próxima consulta.`,
-      createdAt: new Date(),
-    }
-
-    setMessages([...messages, systemMessage])
   }
 
   // Cargar datos de una tabla
   const fetchTableData = async (
     tableName: string,
-    page: number,
-    pageSize: number,
+    page = 1,
+    pageSize = 10,
     searchParams?: { column: string; term: string },
   ) => {
     try {
@@ -197,16 +122,11 @@ export default function AIStudioPage() {
       }
 
       // Obtener los datos de la tabla
-      let data
-      if (searchParams && searchParams.column && searchParams.term) {
-        data = await dataService.searchTableData(tableName, searchParams.column, searchParams.term, pageSize)
-      } else {
-        data = await dataService.getTableData(tableName, pageSize, (page - 1) * pageSize)
-      }
+      const data = await enhancedAiService.getTableData(tableName, searchParams)
 
       setTableData(data)
 
-      // Obtener el total de registros (en una implementación real, esto vendría de la API)
+      // Obtener el total de registros
       setTotalRecords(data.length)
 
       // Añadir un mensaje del sistema indicando que se han cargado datos
@@ -256,22 +176,10 @@ export default function AIStudioPage() {
 
           {/* Panel lateral con herramientas */}
           <div className="lg:col-span-1">
-            <Tabs defaultValue="prompts" className="w-full">
-              <TabsList className="grid grid-cols-2 mb-4">
-                <TabsTrigger value="prompts">Prompts</TabsTrigger>
+            <Tabs defaultValue="data" className="w-full">
+              <TabsList className="grid grid-cols-1 mb-4">
                 <TabsTrigger value="data">Datos</TabsTrigger>
               </TabsList>
-
-              <TabsContent value="prompts" className="mt-0">
-                <PromptManager
-                  prompts={prompts}
-                  categories={promptCategories}
-                  onCreatePrompt={createPrompt}
-                  onUpdatePrompt={updatePrompt}
-                  onDeletePrompt={deletePrompt}
-                  onSelectPrompt={selectPrompt}
-                />
-              </TabsContent>
 
               <TabsContent value="data" className="mt-0">
                 {selectedTable ? (

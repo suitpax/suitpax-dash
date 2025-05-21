@@ -48,16 +48,27 @@ export class EnhancedAIService {
       const lastMessage = options.messages[options.messages.length - 1]
 
       if (lastMessage && lastMessage.role === "user") {
-        // Crear una respuesta simple
+        // Procesar el mensaje del usuario
+        const promptRequest: PromptRequest = {
+          userMessage: lastMessage.content,
+          context: {
+            previousMessages: options.messages.slice(0, -1),
+            useAnthropicFallback: false,
+          },
+        }
+
+        const processedResponse = await this.processPrompt(promptRequest)
+
+        // Crear una respuesta en el formato esperado
         const aiResponse = {
           id: `internal-${Date.now()}`,
-          content: "I'm Suitpax AI, your travel assistant. How can I help you today?",
+          content: processedResponse.response,
           role: "assistant" as const,
           createdAt: new Date(),
           metadata: {
             source: "internal-system",
-            category: "general",
-            confidence: 0.9,
+            category: processedResponse.category,
+            confidence: processedResponse.confidence,
           },
         }
 
@@ -171,6 +182,11 @@ export class EnhancedAIService {
       category,
       confidence,
     }
+  }
+
+  // Obtener datos de una tabla
+  async getTableData(tableName: string, searchParams?: { column: string; term: string }) {
+    return dataService.getTableData(tableName, searchParams)
   }
 }
 

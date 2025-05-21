@@ -31,6 +31,7 @@ import { cn } from "@/lib/utils"
 import { Badge } from "@/components/ui/badge"
 import { Airplane, Train as TrainIcon } from "@phosphor-icons/react"
 import { MobileNavigation } from "@/components/ui/mobile-navigation"
+import { TopNavigation } from "@/components/ui/top-navigation"
 
 interface SidebarProps {
   isOpen?: boolean
@@ -78,13 +79,15 @@ export function Sidebar({ isOpen = true, toggleSidebar }: SidebarProps) {
     }
 
     const handleTouchEnd = () => {
-      // Swipe right to open
-      if (!isMobileMenuOpen && touchEndX - touchStartX > 100) {
+      const windowWidth = window.innerWidth
+
+      // Swipe left to open (from right edge)
+      if (!isMobileMenuOpen && touchStartX > windowWidth - 50 && touchStartX - touchEndX > 50) {
         setIsMobileMenuOpen(true)
       }
 
-      // Swipe left to close
-      if (isMobileMenuOpen && touchStartX - touchEndX > 100) {
+      // Swipe right to close
+      if (isMobileMenuOpen && touchEndX - touchStartX > 50) {
         setIsMobileMenuOpen(false)
       }
     }
@@ -317,29 +320,37 @@ export function Sidebar({ isOpen = true, toggleSidebar }: SidebarProps) {
     )
   }
 
+  // Toggle sidebar function for the top navigation
+  const handleToggleSidebar = () => {
+    setIsMobileMenuOpen(!isMobileMenuOpen)
+  }
+
   return (
     <>
+      {/* Top Navigation Bar */}
+      <TopNavigation toggleSidebar={handleToggleSidebar} />
+
       {/* Sidebar pull indicator - visible only on mobile when sidebar is closed */}
       <div
         className={cn(
-          "fixed top-1/2 left-0 transform -translate-y-1/2 z-50 lg:hidden transition-opacity duration-300",
+          "fixed top-1/2 right-0 transform -translate-y-1/2 z-50 lg:hidden transition-opacity duration-300",
           isMobileMenuOpen ? "opacity-0" : "opacity-100",
         )}
         onClick={() => setIsMobileMenuOpen(true)}
       >
-        <div className="bg-white/10 backdrop-blur-sm h-16 w-1.5 rounded-r-full flex items-center justify-center">
+        <div className="bg-white/10 backdrop-blur-sm h-16 w-1.5 rounded-l-full flex items-center justify-center">
           <div className="h-8 w-1 bg-white/20 rounded-full"></div>
         </div>
       </div>
 
-      {/* Sidebar navigation */}
+      {/* Sidebar navigation - now on the right side */}
       <div
         ref={sidebarRef}
         className={cn(
-          "fixed inset-y-0 left-0 z-[60] transform transition-all duration-300 ease-in-out",
-          "lg:translate-x-0 lg:relative lg:border-r",
+          "fixed inset-y-0 right-0 z-[60] transform transition-all duration-300 ease-in-out",
+          "lg:translate-x-0 lg:relative lg:border-l",
           "bg-black border-white/10",
-          isMobileMenuOpen ? "translate-x-0 shadow-xl" : "-translate-x-full",
+          isMobileMenuOpen ? "translate-x-0 shadow-xl" : "translate-x-full",
           isCollapsed ? "lg:w-16" : "lg:w-64 md:w-64 sm:w-full",
           isCollapsed ? "w-16" : "w-[280px]",
         )}
@@ -389,9 +400,9 @@ export function Sidebar({ isOpen = true, toggleSidebar }: SidebarProps) {
                 aria-label={isCollapsed ? "Expand sidebar" : "Collapse sidebar"}
               >
                 {isCollapsed ? (
-                  <ChevronRightIcon className="h-3.5 w-3.5" />
-                ) : (
                   <ChevronLeftIcon className="h-3.5 w-3.5" />
+                ) : (
+                  <ChevronRightIcon className="h-3.5 w-3.5" />
                 )}
               </button>
             </div>
@@ -766,7 +777,7 @@ export function Sidebar({ isOpen = true, toggleSidebar }: SidebarProps) {
         />
       )}
 
-      {/* Mobile Navigation Bar */}
+      {/* Mobile Navigation Bar - always visible */}
       <MobileNavigation />
     </>
   )

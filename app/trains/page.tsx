@@ -157,7 +157,7 @@ export default function TrainsPage() {
         <h1 className="text-2xl font-medium tracking-tighter text-black mb-6">Train Search</h1>
 
         {showBookingConfirmation ? (
-          <div className="bg-white rounded-xl border border-black p-6 shadow-sm mb-6">
+          <div className="bg-black/30 backdrop-blur-sm rounded-xl border border-white/10 p-6 shadow-sm mb-6">
             <div className="flex items-center justify-center mb-4">
               <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center">
                 <CheckIcon className="w-8 h-8 text-emerald-500" />
@@ -190,7 +190,7 @@ export default function TrainsPage() {
             <div className="flex justify-center">
               <button
                 onClick={() => router.push("/dashboard")}
-                className="flex items-center px-3 py-1.5 rounded-xl bg-black text-white hover:bg-gray-800"
+                className="flex items-center px-3 py-1.5 rounded-xl bg-white/10 text-white hover:bg-white/20"
               >
                 <span className="text-xs">Back to Dashboard</span>
               </button>
@@ -198,11 +198,11 @@ export default function TrainsPage() {
           </div>
         ) : (
           <>
-            <div className="bg-white rounded-xl border border-black p-6 shadow-sm mb-6">
+            <div className="bg-black/30 backdrop-blur-sm rounded-xl border border-white/10 p-6 shadow-sm mb-6">
               <form onSubmit={handleSearch} className="space-y-4">
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                   <div>
-                    <label htmlFor="origin" className="block text-sm font-medium text-gray-700 mb-1">
+                    <label htmlFor="origin" className="block text-sm font-medium text-white mb-1">
                       Origin
                     </label>
                     <input
@@ -210,12 +210,12 @@ export default function TrainsPage() {
                       id="origin"
                       value={origin}
                       onChange={(e) => setOrigin(e.target.value)}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-200"
+                      className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg focus:outline-none focus:ring-2 focus:ring-white/20 text-white placeholder:text-white/30"
                       placeholder="Madrid"
                     />
                   </div>
                   <div>
-                    <label htmlFor="destination" className="block text-sm font-medium text-gray-700 mb-1">
+                    <label htmlFor="destination" className="block text-sm font-medium text-white mb-1">
                       Destination
                     </label>
                     <input
@@ -226,12 +226,12 @@ export default function TrainsPage() {
                         setSearchQuery(e.target.value)
                         setDestination(e.target.value)
                       }}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-200"
+                      className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg focus:outline-none focus:ring-2 focus:ring-white/20 text-white placeholder:text-white/30"
                       placeholder="Barcelona"
                     />
                   </div>
                   <div>
-                    <label htmlFor="date" className="block text-sm font-medium text-gray-700 mb-1">
+                    <label htmlFor="date" className="block text-sm font-medium text-white mb-1">
                       Date
                     </label>
                     <input
@@ -239,68 +239,96 @@ export default function TrainsPage() {
                       id="date"
                       value={departureDate}
                       onChange={(e) => setDepartureDate(e.target.value)}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-200"
+                      className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg focus:outline-none focus:ring-2 focus:ring-white/20 text-white placeholder:text-white/30"
                     />
                   </div>
                   <div>
-                    <label htmlFor="passengers" className="block text-sm font-medium text-gray-700 mb-1">
+                    <label htmlFor="passengers" className="block text-sm font-medium text-white mb-1">
                       Passengers
                     </label>
                     <select
                       id="passengers"
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-200"
+                      className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg focus:outline-none focus:ring-2 focus:ring-white/20 text-white placeholder:text-white/30"
                       defaultValue="1"
                     >
-                      <option value="1">1 Passenger</option>
-                      <option value="2">2 Passengers</option>
-                      <option value="3">3 Passengers</option>
-                      <option value="4">4 Passengers</option>
+                      <option value="1" className="bg-black text-white">
+                        1 Passenger
+                      </option>
+                      <option value="2" className="bg-black text-white">
+                        2 Passengers
+                      </option>
+                      <option value="3" className="bg-black text-white">
+                        3 Passengers
+                      </option>
+                      <option value="4" className="bg-black text-white">
+                        4 Passengers
+                      </option>
                     </select>
                   </div>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   <div>
-                    <label htmlFor="class" className="block text-sm font-medium text-gray-700 mb-1">
+                    <label htmlFor="class" className="block text-sm font-medium text-white mb-1">
                       Class
                     </label>
                     <select
                       id="class"
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-200"
+                      className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg focus:outline-none focus:ring-2 focus:ring-white/20 text-white placeholder:text-white/30"
                       defaultValue="second"
                     >
-                      <option value="second">Second Class</option>
-                      <option value="first">First Class</option>
-                      <option value="business">Business</option>
+                      <option value="second" className="bg-black text-white">
+                        Second Class
+                      </option>
+                      <option value="first" className="bg-black text-white">
+                        First Class
+                      </option>
+                      <option value="business" className="bg-black text-white">
+                        Business
+                      </option>
                     </select>
                   </div>
                   <div>
-                    <label htmlFor="trip-type" className="block text-sm font-medium text-gray-700 mb-1">
+                    <label htmlFor="trip-type" className="block text-sm font-medium text-white mb-1">
                       Trip Type
                     </label>
                     <select
                       id="trip-type"
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-200"
+                      className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg focus:outline-none focus:ring-2 focus:ring-white/20 text-white placeholder:text-white/30"
                       defaultValue="round-trip"
                     >
-                      <option value="round-trip">Round Trip</option>
-                      <option value="one-way">One Way</option>
+                      <option value="round-trip" className="bg-black text-white">
+                        Round Trip
+                      </option>
+                      <option value="one-way" className="bg-black text-white">
+                        One Way
+                      </option>
                     </select>
                   </div>
                   <div>
-                    <label htmlFor="purpose" className="block text-sm font-medium text-gray-700 mb-1">
+                    <label htmlFor="purpose" className="block text-sm font-medium text-white mb-1">
                       Travel Purpose
                     </label>
                     <select
                       id="purpose"
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-200"
+                      className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg focus:outline-none focus:ring-2 focus:ring-white/20 text-white placeholder:text-white/30"
                       defaultValue="business"
                     >
-                      <option value="business">Business Meeting</option>
-                      <option value="conference">Conference</option>
-                      <option value="training">Training</option>
-                      <option value="client">Client Visit</option>
-                      <option value="other">Other</option>
+                      <option value="business" className="bg-black text-white">
+                        Business Meeting
+                      </option>
+                      <option value="conference" className="bg-black text-white">
+                        Conference
+                      </option>
+                      <option value="training" className="bg-black text-white">
+                        Training
+                      </option>
+                      <option value="client" className="bg-black text-white">
+                        Client Visit
+                      </option>
+                      <option value="other" className="bg-black text-white">
+                        Other
+                      </option>
                     </select>
                   </div>
                 </div>
@@ -319,7 +347,7 @@ export default function TrainsPage() {
                   </div>
                   <button
                     type="submit"
-                    className="flex items-center px-3 py-1.5 rounded-xl bg-black text-white hover:bg-gray-800"
+                    className="flex items-center px-3 py-1.5 rounded-xl bg-white/10 text-white hover:bg-white/20"
                   >
                     <span className="text-xs">Search Trains</span>
                   </button>
@@ -328,8 +356,8 @@ export default function TrainsPage() {
             </div>
 
             {/* Popular routes */}
-            <div className="bg-white rounded-xl border border-black p-4 shadow-sm mb-6">
-              <h2 className="text-sm font-medium text-black mb-3">Popular Routes</h2>
+            <div className="bg-black/30 backdrop-blur-sm rounded-xl border border-white/10 p-4 shadow-sm mb-6">
+              <h2 className="text-sm font-medium text-white mb-3">Popular Routes</h2>
               <div className="flex flex-wrap gap-2">
                 {popularRoutes.map((route, index) => (
                   <button
@@ -346,7 +374,7 @@ export default function TrainsPage() {
             </div>
 
             {isLoading && (
-              <div className="bg-white rounded-xl border border-black p-8 text-center">
+              <div className="bg-black/30 backdrop-blur-sm rounded-xl border border-white/10 p-8 text-center">
                 <div className="flex justify-center mb-4">
                   <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-black"></div>
                 </div>
@@ -358,7 +386,7 @@ export default function TrainsPage() {
             {showResults && !isLoading && (
               <div className="space-y-4">
                 <div className="flex items-center justify-between mb-4">
-                  <h2 className="text-lg font-medium tracking-tighter text-black">
+                  <h2 className="text-lg font-medium tracking-tighter text-white">
                     Results for: {searchQuery || destination}
                   </h2>
                   <div className="flex items-center">
@@ -375,9 +403,9 @@ export default function TrainsPage() {
                   filteredTrains.map((train, index) => (
                     <div
                       key={index}
-                      className={`bg-white rounded-xl border ${
-                        selectedTrain === index ? "border-black" : "border-gray-200"
-                      } p-4 shadow-sm hover:border-black transition-colors cursor-pointer`}
+                      className={`bg-black/30 backdrop-blur-sm rounded-xl border ${
+                        selectedTrain === index ? "border-white/20" : "border-white/10"
+                      } p-4 shadow-sm hover:border-white/20 transition-colors cursor-pointer`}
                       onClick={() => handleSelectTrain(index)}
                     >
                       <div className="flex flex-col md:flex-row md:items-center md:justify-between">
@@ -390,19 +418,19 @@ export default function TrainsPage() {
                             </span>
                           </div>
                           <div>
-                            <div className="text-sm font-medium text-black">{train.company}</div>
-                            <div className="text-xs text-gray-500">{train.trainNumber}</div>
+                            <div className="text-sm font-medium text-white">{train.company}</div>
+                            <div className="text-xs text-white/50">{train.trainNumber}</div>
                           </div>
                         </div>
 
                         <div className="flex flex-col md:flex-row md:items-center gap-4 md:gap-8">
                           <div className="text-center">
-                            <div className="text-sm font-medium text-black">{train.departureTime}</div>
-                            <div className="text-xs text-gray-500">{train.originCode}</div>
+                            <div className="text-sm font-medium text-white">{train.departureTime}</div>
+                            <div className="text-xs text-white/50">{train.originCode}</div>
                           </div>
 
                           <div className="flex flex-col items-center">
-                            <div className="flex items-center text-xs text-gray-500 mb-1">
+                            <div className="flex items-center text-xs text-white/50 mb-1">
                               <ClockIcon className="h-3 w-3 mr-1" />
                               {train.duration}
                             </div>
@@ -412,19 +440,19 @@ export default function TrainsPage() {
                                 <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-2 h-2 rounded-full bg-gray-300"></div>
                               ) : null}
                             </div>
-                            <div className="text-xs text-gray-500 mt-1">
+                            <div className="text-xs text-white/50 mt-1">
                               {train.stops === 0 ? "Direct" : `${train.stops} stop in ${train.stopCity}`}
                             </div>
                           </div>
 
                           <div className="text-center">
-                            <div className="text-sm font-medium text-black">{train.arrivalTime}</div>
-                            <div className="text-xs text-gray-500">{train.destinationCode}</div>
+                            <div className="text-sm font-medium text-white">{train.arrivalTime}</div>
+                            <div className="text-xs text-white/50">{train.destinationCode}</div>
                           </div>
 
                           <div className="text-right">
-                            <div className="text-lg font-medium text-black">{train.price}</div>
-                            <div className="text-xs text-gray-500">per passenger</div>
+                            <div className="text-lg font-medium text-white">{train.price}</div>
+                            <div className="text-xs text-white/50">per passenger</div>
                           </div>
                         </div>
                       </div>
@@ -433,7 +461,7 @@ export default function TrainsPage() {
                         <div className="mt-4 pt-4 border-t border-gray-200">
                           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                             <div>
-                              <h4 className="text-sm font-medium text-black mb-2">Train details</h4>
+                              <h4 className="text-sm font-medium text-white mb-2">Train details</h4>
                               <div className="space-y-1">
                                 <div className="flex items-center gap-2">
                                   <CalendarIcon className="h-4 w-4 text-gray-500" />
@@ -464,12 +492,12 @@ export default function TrainsPage() {
                               </div>
                             </div>
                             <div>
-                              <h4 className="text-sm font-medium text-black mb-2">Amenities</h4>
+                              <h4 className="text-sm font-medium text-white mb-2">Amenities</h4>
                               <div className="flex flex-wrap gap-2">
                                 {train.amenities.map((amenity, i) => (
                                   <span
                                     key={i}
-                                    className="inline-flex items-center rounded-full bg-gray-100 px-2.5 py-0.5 text-xs font-medium text-gray-700"
+                                    className="inline-flex items-center rounded-full bg-white/5 px-2.5 py-0.5 text-xs font-medium text-white/70"
                                   >
                                     {amenity}
                                   </span>
@@ -486,7 +514,7 @@ export default function TrainsPage() {
                           <div className="flex justify-end">
                             <button
                               onClick={handleBookTrain}
-                              className="flex items-center px-3 py-1.5 rounded-xl bg-black text-white hover:bg-gray-800"
+                              className="flex items-center px-3 py-1.5 rounded-xl bg-white/10 text-white hover:bg-white/20"
                             >
                               <span className="text-xs">Book</span>
                             </button>
@@ -496,7 +524,7 @@ export default function TrainsPage() {
                     </div>
                   ))
                 ) : (
-                  <div className="bg-white rounded-xl border border-black p-6 text-center">
+                  <div className="bg-black/30 backdrop-blur-sm rounded-xl border border-white/10 p-6 text-center">
                     <div className="flex justify-center mb-4">
                       <XMarkIcon className="h-12 w-12 text-gray-400" />
                     </div>
@@ -511,7 +539,7 @@ export default function TrainsPage() {
             )}
 
             {!showResults && !isLoading && (
-              <div className="bg-white rounded-xl border border-black p-8 text-center">
+              <div className="bg-black/30 backdrop-blur-sm rounded-xl border border-white/10 p-8 text-center">
                 <div className="flex justify-center mb-4">
                   <div className="flex space-x-2">
                     <div className="relative h-12 w-12">
@@ -565,7 +593,7 @@ export default function TrainsPage() {
                       setDestination("Barcelona")
                       filterTrains()
                     }}
-                    className="flex items-center px-3 py-1.5 rounded-xl bg-black text-white hover:bg-gray-800"
+                    className="flex items-center px-3 py-1.5 rounded-xl bg-white/10 text-white hover:bg-white/20"
                   >
                     <span className="text-xs">Try a sample search</span>
                   </button>

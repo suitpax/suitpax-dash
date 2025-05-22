@@ -9,73 +9,15 @@ import {
   MapPinIcon,
   CreditCardIcon,
   BellIcon,
-  MagnifyingGlassIcon,
 } from "@heroicons/react/24/outline"
-import { SiAnthropic } from "react-icons/si"
-import { PlaneIcon as Airplane, Train, Car, CalendarDays } from "lucide-react"
-import { Mic } from "lucide-react"
+import { CalendarDays } from "lucide-react"
+import TravelBookingWidget from "./travel-booking-widget"
 
 export default function DashboardContent() {
   return (
     <div className="space-y-5">
-      {/* Travel Booking Card */}
-      <div className="bg-black/30 backdrop-blur-sm rounded-xl border border-white/10 p-6 relative overflow-hidden">
-        <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-500/50 via-purple-500/50 to-pink-500/50"></div>
-
-        <div className="flex flex-col space-y-5">
-          <div className="flex items-center gap-3">
-            <div className="p-2 bg-white/5 rounded-xl">
-              <SiAnthropic className="h-6 w-6 text-white" />
-            </div>
-            <div>
-              <h2 className="text-lg font-medium tracking-tighter text-white">Book Your Business Trip</h2>
-              <p className="text-xs text-white/70">Let Suitpax AI help you find the best options</p>
-            </div>
-          </div>
-
-          {/* Search Input */}
-          <div className="relative">
-            <div className="absolute left-3 top-1/2 transform -translate-y-1/2">
-              <MagnifyingGlassIcon className="h-5 w-5 text-white/50" />
-            </div>
-            <input
-              type="text"
-              placeholder="Where would you like to go? (e.g., 'Book a flight to New York next week')"
-              className="w-full pl-10 pr-12 py-3 text-sm bg-white/5 border border-white/10 rounded-xl focus:outline-none focus:ring-1 focus:ring-white/20 text-white placeholder:text-white/30"
-            />
-            <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
-              <button className="p-1.5 rounded-lg hover:bg-white/10 text-white/70 transition-colors">
-                <Mic className="h-4 w-4" />
-              </button>
-            </div>
-          </div>
-
-          {/* Quick Search Examples */}
-          <div className="flex flex-wrap gap-2 mt-3">
-            <div className="text-xs bg-white/5 px-3 py-1.5 rounded-full text-white/70 hover:bg-white/10 cursor-pointer transition-colors">
-              Flight to London next week
-            </div>
-            <div className="text-xs bg-white/5 px-3 py-1.5 rounded-full text-white/70 hover:bg-white/10 cursor-pointer transition-colors">
-              Hotel in Paris for 3 nights
-            </div>
-            <div className="text-xs bg-white/5 px-3 py-1.5 rounded-full text-white/70 hover:bg-white/10 cursor-pointer transition-colors">
-              Train from Madrid to Barcelona
-            </div>
-            <div className="text-xs bg-white/5 px-3 py-1.5 rounded-full text-white/70 hover:bg-white/10 cursor-pointer transition-colors">
-              Airport transfer in Tokyo
-            </div>
-          </div>
-
-          {/* Quick Navigation */}
-          <div className="flex overflow-x-auto pb-2 gap-2 -mx-2 px-2 scrollbar-hide">
-            <TravelOption href="/flights" icon={<Airplane className="h-4 w-4" />} label="Flights" />
-            <TravelOption href="/hotels" icon={<BuildingOfficeIcon className="h-4 w-4" />} label="Hotels" />
-            <TravelOption href="/trains" icon={<Train className="h-4 w-4" />} label="Trains" />
-            <TravelOption href="/transfers" icon={<Car className="h-4 w-4" />} label="Transfers" />
-            <TravelOption href="/events" icon={<CalendarDays className="h-4 w-4" />} label="Events" />
-          </div>
-        </div>
-      </div>
+      {/* Travel Booking Widget */}
+      <TravelBookingWidget />
 
       {/* AI Assistant Card */}
       <AiAssistantCard />

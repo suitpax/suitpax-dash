@@ -1,5 +1,5 @@
 import { Loading } from "@/components/ui/loading"
 
-export default function EventsLoading() {
+export default function DashboardLoading() {
   return <Loading />
 }

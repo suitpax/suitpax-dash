@@ -17,10 +17,10 @@ import { Mic } from "lucide-react"
 
 export default function DashboardContent() {
   return (
-    <div className="space-y-5 pt-16">
+    <div className="space-y-5">
       {/* Travel Booking Card */}
       <div className="bg-black/30 backdrop-blur-sm rounded-xl border border-white/10 p-6 relative overflow-hidden">
-        <div className="absolute top-0 left-0 w-full h-1 bg-white/10"></div>
+        <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-500/50 via-purple-500/50 to-pink-500/50"></div>
 
         <div className="flex flex-col space-y-5">
           <div className="flex items-center gap-3">
@@ -41,7 +41,7 @@ export default function DashboardContent() {
             <input
               type="text"
               placeholder="Where would you like to go? (e.g., 'Book a flight to New York next week')"
-              className="w-full pl-10 pr-4 py-3 text-sm bg-white/5 border border-white/10 rounded-xl focus:outline-none focus:ring-1 focus:ring-white/20 text-white placeholder:text-white/30"
+              className="w-full pl-10 pr-12 py-3 text-sm bg-white/5 border border-white/10 rounded-xl focus:outline-none focus:ring-1 focus:ring-white/20 text-white placeholder:text-white/30"
             />
             <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
               <button className="p-1.5 rounded-lg hover:bg-white/10 text-white/70 transition-colors">
@@ -67,11 +67,12 @@ export default function DashboardContent() {
           </div>
 
           {/* Quick Navigation */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-            <QuickNavButton href="/flights" icon={<Airplane className="h-4 w-4" />} label="Flights" />
-            <QuickNavButton href="/hotels" icon={<BuildingOfficeIcon className="h-4 w-4" />} label="Hotels" />
-            <QuickNavButton href="/trains" icon={<Train className="h-4 w-4" />} label="Trains" />
-            <QuickNavButton href="/transfers" icon={<Car className="h-4 w-4" />} label="Transfers" />
+          <div className="flex overflow-x-auto pb-2 gap-2 -mx-2 px-2 scrollbar-hide">
+            <TravelOption href="/flights" icon={<Airplane className="h-4 w-4" />} label="Flights" />
+            <TravelOption href="/hotels" icon={<BuildingOfficeIcon className="h-4 w-4" />} label="Hotels" />
+            <TravelOption href="/trains" icon={<Train className="h-4 w-4" />} label="Trains" />
+            <TravelOption href="/transfers" icon={<Car className="h-4 w-4" />} label="Transfers" />
+            <TravelOption href="/events" icon={<CalendarDays className="h-4 w-4" />} label="Events" />
           </div>
         </div>
       </div>
@@ -81,6 +82,7 @@ export default function DashboardContent() {
 
       {/* Trip Alert */}
       <div className="bg-black/30 backdrop-blur-sm rounded-xl border border-white/10 p-5 relative overflow-hidden">
+        <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-amber-500/50 to-orange-500/50"></div>
         <div className="flex flex-col md:flex-row items-start gap-4">
           <div className="flex items-center justify-center p-3 bg-white/5 rounded-xl">
             <BellIcon className="h-6 w-6 text-white" />
@@ -167,6 +169,7 @@ export default function DashboardContent() {
 
       {/* Getting Started Steps */}
       <div className="bg-black/30 backdrop-blur-sm rounded-xl border border-white/10 p-5 shadow-sm">
+        <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-green-500/50 to-teal-500/50"></div>
         <h2 className="text-base font-medium tracking-tighter text-white mb-4">Getting Started</h2>
 
         <div className="space-y-3">
@@ -228,17 +231,17 @@ export default function DashboardContent() {
   )
 }
 
-interface QuickNavButtonProps {
+interface TravelOptionProps {
   href: string
   icon: React.ReactNode
   label: string
 }
 
-function QuickNavButton({ href, icon, label }: QuickNavButtonProps) {
+function TravelOption({ href, icon, label }: TravelOptionProps) {
   return (
     <Link
       href={href}
-      className="flex items-center justify-center gap-2 p-3 bg-white/5 border border-white/10 rounded-xl hover:bg-white/10 transition-colors"
+      className="flex items-center justify-center gap-2 p-3 bg-white/5 border border-white/10 rounded-xl hover:bg-white/10 transition-colors min-w-[120px] flex-shrink-0"
     >
       <div className="text-white">{icon}</div>
       <span className="text-sm font-medium text-white">{label}</span>

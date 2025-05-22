@@ -22,6 +22,7 @@ import {
   CreditCardIcon,
   BanknotesIcon,
   ChartBarIcon,
+  CalendarIcon,
 } from "@heroicons/react/24/outline"
 import { ChevronDownIcon } from "@heroicons/react/24/solid"
 import { Users, X, Receipt, Mic, Car, Send, CalendarDays } from "lucide-react"
@@ -44,7 +45,7 @@ interface Message {
   createdAt: Date
 }
 
-export function Sidebar({ isOpen = true, toggleSidebar }: SidebarProps) {
+export function Sidebar({ isOpen = false, toggleSidebar }: SidebarProps) {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const [isCollapsed, setIsCollapsed] = useState(!isOpen)
   const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>({
@@ -66,6 +67,12 @@ export function Sidebar({ isOpen = true, toggleSidebar }: SidebarProps) {
   // Actualizar isCollapsed cuando cambia isOpen
   useEffect(() => {
     setIsCollapsed(!isOpen)
+
+    // En escritorio, mantener el sidebar cerrado por defecto
+    if (window.innerWidth >= 1024 && !isOpen) {
+      setIsCollapsed(true)
+    }
+
     // En móvil, actualizar también el estado del menú móvil
     if (window.innerWidth < 1024) {
       setIsMobileMenuOpen(isOpen)
@@ -75,7 +82,8 @@ export function Sidebar({ isOpen = true, toggleSidebar }: SidebarProps) {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === "Escape") {
         setIsMobileMenuOpen(false)
-        if (toggleSidebar && window.innerWidth < 1024) toggleSidebar()
+        setIsCollapsed(true)
+        if (toggleSidebar) toggleSidebar()
       }
     }
 
@@ -336,6 +344,13 @@ export function Sidebar({ isOpen = true, toggleSidebar }: SidebarProps) {
     )
   }
 
+  // Añade esta función para manejar el cierre completo del sidebar
+  function closeSidebar() {
+    setIsCollapsed(true)
+    setIsMobileMenuOpen(false)
+    if (toggleSidebar) toggleSidebar()
+  }
+
   return (
     <>
       {/* Sidebar navigation */}
@@ -384,24 +399,12 @@ export function Sidebar({ isOpen = true, toggleSidebar }: SidebarProps) {
               {/* Toggle button - visible on mobile */}
               <button
                 onClick={() => {
-                  if (isCollapsed) {
-                    setIsCollapsed(false)
-                  } else {
-                    setIsCollapsed(true)
-                    // En dispositivos muy pequeños, cerrar completamente
-                    if (window.innerWidth < 640) {
-                      setIsMobileMenuOpen(false)
-                    }
-                  }
+                  closeSidebar()
                 }}
                 className="lg:hidden p-1.5 rounded-lg hover:bg-white/5 transition-colors bg-white/5 text-white border border-white/10"
-                aria-label={isCollapsed ? "Expand sidebar" : "Collapse sidebar"}
+                aria-label="Collapse sidebar"
               >
-                {isCollapsed ? (
-                  <ChevronRightIcon className="h-3.5 w-3.5" />
-                ) : (
-                  <ChevronLeftIcon className="h-3.5 w-3.5" />
-                )}
+                <ChevronLeftIcon className="h-3.5 w-3.5" />
               </button>
 
               {/* Collapse button */}
@@ -410,17 +413,17 @@ export function Sidebar({ isOpen = true, toggleSidebar }: SidebarProps) {
                   if (toggleSidebar) {
                     toggleSidebar()
                   } else {
-                    setIsCollapsed(!isCollapsed)
+                    setIsCollapsed(true)
+                    // Cerrar completamente en móvil y tablet
+                    if (window.innerWidth < 1024) {
+                      setIsMobileMenuOpen(false)
+                    }
                   }
                 }}
                 className="hidden lg:block p-1.5 rounded-lg hover:bg-white/5 transition-colors bg-transparent text-white/70 border border-white/10"
-                aria-label={isCollapsed ? "Expand sidebar" : "Collapse sidebar"}
+                aria-label="Collapse sidebar"
               >
-                {isCollapsed ? (
-                  <ChevronRightIcon className="h-3.5 w-3.5" />
-                ) : (
-                  <ChevronLeftIcon className="h-3.5 w-3.5" />
-                )}
+                <ChevronLeftIcon className="h-3.5 w-3.5" />
               </button>
             </div>
           </div>
@@ -608,6 +611,9 @@ export function Sidebar({ isOpen = true, toggleSidebar }: SidebarProps) {
                 <NavItem href="/tasks" icon={ClipboardDocumentListIcon}>
                   Tasks
                 </NavItem>
+                <NavItem href="/meetings" icon={CalendarIcon}>
+                  Meetings
+                </NavItem>
               </div>
 
               {/* Automations Section */}
@@ -620,11 +626,11 @@ export function Sidebar({ isOpen = true, toggleSidebar }: SidebarProps) {
                 />
                 {expandedSections.automations && !isCollapsed && (
                   <div className="ml-3 space-y-0.5 border-l border-white/10 pl-3">
-                    <NavItem href="#" icon={RocketLaunchIcon}>
-                      Sequences
-                    </NavItem>
-                    <NavItem href="#" icon={SparklesIcon}>
+                    <NavItem href="/workflows" icon={RocketLaunchIcon}>
                       Workflows
+                    </NavItem>
+                    <NavItem href="/sequences" icon={SparklesIcon}>
+                      Sequences
                     </NavItem>
                   </div>
                 )}
@@ -640,13 +646,13 @@ export function Sidebar({ isOpen = true, toggleSidebar }: SidebarProps) {
                 />
                 {expandedSections.records && !isCollapsed && (
                   <div className="ml-3 space-y-0.5 border-l border-white/10 pl-3">
-                    <NavItem href="#" icon={BuildingOfficeIcon}>
+                    <NavItem href="/companies" icon={BuildingOfficeIcon}>
                       Companies
                     </NavItem>
-                    <NavItem href="#" icon={UserIcon}>
+                    <NavItem href="/people" icon={UserIcon}>
                       People
                     </NavItem>
-                    <NavItem href="#" icon={BriefcaseIcon}>
+                    <NavItem href="/deals" icon={BriefcaseIcon}>
                       Deals
                     </NavItem>
                   </div>
@@ -707,13 +713,13 @@ export function Sidebar({ isOpen = true, toggleSidebar }: SidebarProps) {
                 />
                 {expandedSections.finance && !isCollapsed && (
                   <div className="ml-3 space-y-0.5 border-l border-white/10 pl-3">
-                    <NavItem href="#" icon={BriefcaseIcon}>
+                    <NavItem href="/budgets" icon={BriefcaseIcon}>
                       Budgets
                     </NavItem>
                     <NavItem href="/expenses" icon={Receipt}>
                       Expense Management
                     </NavItem>
-                    <NavItem href="#" icon={BanknotesIcon}>
+                    <NavItem href="/smart-bank" icon={BanknotesIcon}>
                       Smart Bank
                     </NavItem>
                     <NavItem href="/team-management" icon={Users}>
@@ -741,6 +747,21 @@ export function Sidebar({ isOpen = true, toggleSidebar }: SidebarProps) {
                     </NavItem>
                   </div>
                 )}
+              </div>
+
+              {/* Plans Section */}
+              <div className="mb-2">
+                <div
+                  className={`px-3 mb-1 text-[10px] font-medium tracking-tighter uppercase text-white/50 ${isCollapsed ? "text-center" : ""}`}
+                >
+                  {!isCollapsed && "Subscription"}
+                  {isCollapsed && "SUB"}
+                </div>
+                <div className="space-y-0.5">
+                  <NavItem href="/plans" icon={CreditCardIcon} badge="Pro">
+                    Plans
+                  </NavItem>
+                </div>
               </div>
 
               {/* Account Section */}

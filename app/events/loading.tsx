@@ -1,5 +1,3 @@
-import { Loading } from "@/components/ui/loading"
-
-export default function EventsLoading() {
-  return <Loading />
+export default function Loading() {
+  return null
 }

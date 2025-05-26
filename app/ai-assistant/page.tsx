@@ -16,8 +16,6 @@ import {
   SparklesIcon,
   LightBulbIcon,
 } from "@heroicons/react/24/outline"
-import VoiceRecognition from "@/components/ui/voice-recognition"
-
 // Mapa de iconos para las categorías
 const categoryIcons = {
   Briefcase: BriefcaseIcon,
@@ -126,15 +124,6 @@ export default function AiAssistantPage() {
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault()
       handleSubmit(e)
-    }
-  }
-
-  // Manejar la transcripción de voz
-  const handleVoiceTranscript = (text: string) => {
-    setInputValue((prev) => prev + text)
-    if (inputRef.current) {
-      inputRef.current.style.height = "auto"
-      inputRef.current.style.height = `${inputRef.current.scrollHeight}px`
     }
   }
 
@@ -282,7 +271,7 @@ export default function AiAssistantPage() {
               <div className="p-4 border-t border-gray-200">
                 <div className="mb-2 flex items-center">
                   <LightBulbIcon className="h-4 w-4 text-gray-500 mr-2" />
-                  <span className="text-xs text-gray-500">Try using voice input or type your question</span>
+                  <span className="text-xs text-gray-500">Type your question below</span>
                 </div>
 
                 <form onSubmit={handleSubmit} className="relative">
@@ -301,11 +290,6 @@ export default function AiAssistantPage() {
                       rows={1}
                     />
                     <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-1">
-                      <VoiceRecognition
-                        onTranscript={handleVoiceTranscript}
-                        buttonSize="sm"
-                        className="hover:bg-gray-200"
-                      />
                       <button
                         type="submit"
                         disabled={!inputValue.trim() || isTyping}

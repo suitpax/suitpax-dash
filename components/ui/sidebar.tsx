@@ -22,12 +22,12 @@ import {
   CreditCardIcon,
   BanknotesIcon,
   ChartBarIcon,
+  EnvelopeIcon,
   CalendarIcon,
 } from "@heroicons/react/24/outline"
 import { ChevronDownIcon } from "@heroicons/react/24/solid"
-import { Users, X, Receipt, Mic, Car, Send, CalendarDays } from "lucide-react"
+import { Users, Receipt, Car, CalendarDays } from "lucide-react"
 import { cn } from "@/lib/utils"
-// Primero, asegúrate de que tenemos el componente Badge importado
 import { Badge } from "@/components/ui/badge"
 import { Airplane, Train as TrainIcon } from "@phosphor-icons/react"
 import { MobileNavigation } from "@/components/ui/mobile-navigation"
@@ -37,7 +37,6 @@ interface SidebarProps {
   toggleSidebar?: () => void
 }
 
-// Definición de tipo Message sin depender de Anthropic
 interface Message {
   id: string
   role: "user" | "assistant" | "system"
@@ -53,7 +52,6 @@ export function Sidebar({ isOpen = false, toggleSidebar }: SidebarProps) {
     records: false,
     lists: false,
     finance: false,
-    aiTools: false,
     analytics: false,
   })
   const [chatInput, setChatInput] = useState("")
@@ -64,21 +62,17 @@ export function Sidebar({ isOpen = false, toggleSidebar }: SidebarProps) {
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const sidebarRef = useRef<HTMLDivElement>(null)
 
-  // Actualizar isCollapsed cuando cambia isOpen
   useEffect(() => {
     setIsCollapsed(!isOpen)
 
-    // En escritorio, mantener el sidebar cerrado por defecto
     if (window.innerWidth >= 1024 && !isOpen) {
       setIsCollapsed(true)
     }
 
-    // En móvil, actualizar también el estado del menú móvil
     if (window.innerWidth < 1024) {
       setIsMobileMenuOpen(isOpen)
     }
 
-    // Función para manejar el cierre con la tecla Escape
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === "Escape") {
         setIsMobileMenuOpen(false)
@@ -91,7 +85,6 @@ export function Sidebar({ isOpen = false, toggleSidebar }: SidebarProps) {
     return () => window.removeEventListener("keydown", handleKeyDown)
   }, [isOpen, toggleSidebar])
 
-  // Handle touch gestures for mobile
   useEffect(() => {
     let touchStartX = 0
     let touchEndX = 0
@@ -105,12 +98,10 @@ export function Sidebar({ isOpen = false, toggleSidebar }: SidebarProps) {
     }
 
     const handleTouchEnd = () => {
-      // Swipe right to open
       if (!isMobileMenuOpen && touchEndX - touchStartX > 100) {
         setIsMobileMenuOpen(true)
       }
 
-      // Swipe left to close
       if (isMobileMenuOpen && touchStartX - touchEndX > 100) {
         setIsMobileMenuOpen(false)
       }
@@ -127,7 +118,6 @@ export function Sidebar({ isOpen = false, toggleSidebar }: SidebarProps) {
     }
   }, [isMobileMenuOpen])
 
-  // Close mobile menu when screen size changes to desktop
   useEffect(() => {
     const handleResize = () => {
       if (window.innerWidth >= 1024) {
@@ -139,7 +129,6 @@ export function Sidebar({ isOpen = false, toggleSidebar }: SidebarProps) {
     return () => window.removeEventListener("resize", handleResize)
   }, [])
 
-  // Handle body scroll lock when menu is open
   useEffect(() => {
     if (isMobileMenuOpen) {
       document.body.style.overflow = "hidden"
@@ -151,7 +140,6 @@ export function Sidebar({ isOpen = false, toggleSidebar }: SidebarProps) {
     }
   }, [isMobileMenuOpen])
 
-  // Handle escape key to close menu
   useEffect(() => {
     const handleEscape = (e: KeyboardEvent) => {
       if (e.key === "Escape") setIsMobileMenuOpen(false)
@@ -161,7 +149,6 @@ export function Sidebar({ isOpen = false, toggleSidebar }: SidebarProps) {
     return () => window.removeEventListener("keydown", handleEscape)
   }, [])
 
-  // Handle clicks outside sidebar to close it on mobile
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (sidebarRef.current && !sidebarRef.current.contains(event.target as Node) && isMobileMenuOpen) {
@@ -173,7 +160,6 @@ export function Sidebar({ isOpen = false, toggleSidebar }: SidebarProps) {
     return () => document.removeEventListener("mousedown", handleClickOutside)
   }, [isMobileMenuOpen])
 
-  // Scroll to bottom of chat messages
   useEffect(() => {
     if (messagesEndRef.current && chatMessages.length > 0) {
       const container = messagesEndRef.current.parentElement
@@ -192,7 +178,6 @@ export function Sidebar({ isOpen = false, toggleSidebar }: SidebarProps) {
 
   function toggleSection(section: string) {
     setExpandedSections((prev) => {
-      // Create a new object with all sections set to false
       const newState = Object.keys(prev).reduce(
         (acc, key) => {
           acc[key] = false
@@ -201,7 +186,6 @@ export function Sidebar({ isOpen = false, toggleSidebar }: SidebarProps) {
         {} as Record<string, boolean>,
       )
 
-      // Only set the clicked section to true if it wasn't already expanded
       newState[section] = !prev[section]
 
       return newState
@@ -212,7 +196,6 @@ export function Sidebar({ isOpen = false, toggleSidebar }: SidebarProps) {
     e.preventDefault()
     if (!chatInput.trim() || isTyping) return
 
-    // Add user message
     const userMessage: Message = {
       id: Date.now().toString(),
       role: "user",
@@ -224,7 +207,6 @@ export function Sidebar({ isOpen = false, toggleSidebar }: SidebarProps) {
     setIsTyping(true)
 
     try {
-      // Llamar a la API interna
       const response = await fetch("/api/ai", {
         method: "POST",
         headers: {
@@ -243,7 +225,6 @@ export function Sidebar({ isOpen = false, toggleSidebar }: SidebarProps) {
 
       const data = await response.json()
 
-      // Añadir respuesta de la IA
       setChatMessages((prev) => [
         ...prev,
         {
@@ -253,7 +234,6 @@ export function Sidebar({ isOpen = false, toggleSidebar }: SidebarProps) {
       ])
     } catch (error) {
       console.error("Error al obtener respuesta de la IA:", error)
-      // Añadir mensaje de error
       setChatMessages((prev) => [
         ...prev,
         {
@@ -272,7 +252,6 @@ export function Sidebar({ isOpen = false, toggleSidebar }: SidebarProps) {
     setShowMiniChat(true)
   }
 
-  // Modifica el componente NavItem para aceptar un badge
   function NavItem({
     href,
     icon: Icon,
@@ -315,7 +294,6 @@ export function Sidebar({ isOpen = false, toggleSidebar }: SidebarProps) {
             )}
           </div>
         )}
-        {isCollapsed && badge && <div className="absolute -right-1 -top-1 w-2 h-2 bg-amber-500 rounded-full"></div>}
       </Link>
     )
   }
@@ -344,7 +322,6 @@ export function Sidebar({ isOpen = false, toggleSidebar }: SidebarProps) {
     )
   }
 
-  // Añade esta función para manejar el cierre completo del sidebar
   function closeSidebar() {
     setIsCollapsed(true)
     setIsMobileMenuOpen(false)
@@ -353,15 +330,14 @@ export function Sidebar({ isOpen = false, toggleSidebar }: SidebarProps) {
 
   return (
     <>
-      {/* Sidebar navigation */}
       <div
         ref={sidebarRef}
         className={cn(
           "fixed inset-y-0 left-0 z-[100] transform transition-all duration-300 ease-in-out",
           "lg:translate-x-0 lg:relative lg:border-r",
           "bg-black border-white/10",
-          "flex flex-col h-screen", // Altura completa de la pantalla
-          "top-0", // Desde el top de la pantalla
+          "flex flex-col h-screen",
+          "top-0",
           isMobileMenuOpen || isOpen ? "translate-x-0 shadow-xl" : "-translate-x-full",
           isCollapsed ? "lg:w-16" : "lg:w-64 md:w-64 sm:w-full",
           isCollapsed ? "w-16" : "w-[280px]",
@@ -396,173 +372,49 @@ export function Sidebar({ isOpen = false, toggleSidebar }: SidebarProps) {
               )}
             </div>
             <div className="flex items-center space-x-2">
-              {/* Toggle button - visible on mobile */}
-              <button
-                onClick={() => {
-                  closeSidebar()
-                }}
-                className="lg:hidden p-1.5 rounded-lg hover:bg-white/5 transition-colors bg-white/5 text-white border border-white/10"
-                aria-label="Collapse sidebar"
-              >
-                <ChevronLeftIcon className="h-3.5 w-3.5" />
-              </button>
-
-              {/* Collapse button */}
-              <button
-                onClick={() => {
-                  if (toggleSidebar) {
-                    toggleSidebar()
-                  } else {
-                    setIsCollapsed(true)
-                    // Cerrar completamente en móvil y tablet
-                    if (window.innerWidth < 1024) {
-                      setIsMobileMenuOpen(false)
+              {!isCollapsed && (
+                <button
+                  onClick={() => {
+                    if (toggleSidebar) {
+                      toggleSidebar()
+                    } else {
+                      setIsCollapsed(true)
+                      if (window.innerWidth < 1024) {
+                        setIsMobileMenuOpen(false)
+                      }
                     }
-                  }
-                }}
-                className="hidden lg:block p-1.5 rounded-lg hover:bg-white/5 transition-colors bg-transparent text-white/70 border border-white/10"
-                aria-label="Collapse sidebar"
-              >
-                <ChevronLeftIcon className="h-3.5 w-3.5" />
-              </button>
+                  }}
+                  className="p-1.5 rounded-lg hover:bg-white/5 transition-colors bg-white/5 text-white/70 border border-white/10"
+                  aria-label="Collapse sidebar"
+                >
+                  <ChevronLeftIcon className="h-3.5 w-3.5" />
+                </button>
+              )}
+
+              {isCollapsed && (
+                <button
+                  onClick={() => {
+                    if (toggleSidebar) {
+                      toggleSidebar()
+                    } else {
+                      setIsCollapsed(false)
+                      if (window.innerWidth < 1024) {
+                        setIsMobileMenuOpen(true)
+                      }
+                    }
+                  }}
+                  className="hidden lg:block p-1.5 rounded-lg hover:bg-white/5 transition-colors bg-transparent text-white/70 border border-white/10"
+                  aria-label="Expand sidebar"
+                >
+                  <ChevronRightIcon className="h-3.5 w-3.5" />
+                </button>
+              )}
             </div>
           </div>
 
           {/* Sidebar content */}
-          <div className="flex-1 overflow-y-auto py-2 px-2">
-            <div className="space-y-4">
-              {/* Improved AI Chat Input */}
-              <div className="px-2 mb-3">
-                <div className="bg-white/5 border border-white/10 rounded-lg p-2">
-                  <div className="flex items-center gap-2 mb-2">
-                    <div className="relative h-6 w-6 rounded-full overflow-hidden">
-                      <Image src="/images/ai-agent-avatar.jpeg" alt="AI Assistant" fill className="object-cover" />
-                    </div>
-                    <div>
-                      <h3 className="text-xs font-medium text-white">Suitpax AI</h3>
-                    </div>
-                  </div>
-                  <div className="relative">
-                    <input
-                      type="text"
-                      placeholder="Ask me anything about travel..."
-                      className="w-full pl-3 pr-9 py-2 text-xs bg-black/30 border border-white/10 rounded-lg focus:outline-none focus:ring-1 focus:ring-white/20 text-white placeholder:text-white/30"
-                      onClick={handleQuickActionsClick}
-                    />
-                    <button
-                      className="absolute right-2 top-1/2 transform -translate-y-1/2 p-1 rounded-full hover:bg-white/10 text-white/70"
-                      onClick={handleQuickActionsClick}
-                    >
-                      <Send className="h-3 w-3" />
-                    </button>
-                  </div>
-                </div>
-              </div>
-
-              {/* Mini Chat */}
-              {showMiniChat && (
-                <div className="px-2 mb-3">
-                  <div className="bg-black/30 backdrop-blur-sm rounded-xl border border-white/10 shadow-sm overflow-hidden">
-                    {/* Chat Header */}
-                    <div className="flex items-center justify-between p-2 border-b border-white/10">
-                      <div className="flex items-center">
-                        <div className="relative h-6 w-6 rounded-full overflow-hidden mr-2">
-                          <Image src="/images/ai-agent-avatar.jpeg" alt="AI Assistant" fill className="object-cover" />
-                        </div>
-                        <div>
-                          <h3 className="font-medium text-white text-xs">Suitpax AI</h3>
-                        </div>
-                      </div>
-                      <button
-                        onClick={() => setShowMiniChat(false)}
-                        className="p-1 rounded-lg hover:bg-white/5 text-white/70"
-                      >
-                        <X className="h-3 w-3" />
-                      </button>
-                    </div>
-
-                    {/* Chat Messages */}
-                    <div className="max-h-[200px] overflow-y-auto p-2 space-y-2">
-                      {chatMessages.length === 0 ? (
-                        <div className="text-xs text-white/70 text-center py-2">
-                          Ask me anything about business travel...
-                        </div>
-                      ) : (
-                        chatMessages.map((message, index) => (
-                          <div
-                            key={index}
-                            className={`flex ${message.role === "user" ? "justify-end" : "justify-start"}`}
-                          >
-                            <div
-                              className={`max-w-[80%] rounded-lg p-2 ${
-                                message.role === "user"
-                                  ? "bg-white/10 text-white rounded-tr-none"
-                                  : "bg-white/5 text-white/70 rounded-tl-none"
-                              }`}
-                            >
-                              <p className="text-xs whitespace-pre-wrap">{message.content}</p>
-                            </div>
-                          </div>
-                        ))
-                      )}
-                      {isTyping && (
-                        <div className="flex justify-start">
-                          <div className="bg-white/5 text-white/70 rounded-lg rounded-tl-none max-w-[80%] p-2">
-                            <div className="flex space-x-1">
-                              <div className="w-1.5 h-1.5 bg-white/50 rounded-full animate-bounce"></div>
-                              <div
-                                className="w-1.5 h-1.5 bg-white/50 rounded-full animate-bounce"
-                                style={{ animationDelay: "0.2s" }}
-                              ></div>
-                              <div
-                                className="w-1.5 h-1.5 bg-white/50 rounded-full animate-bounce"
-                                style={{ animationDelay: "0.4s" }}
-                              ></div>
-                            </div>
-                          </div>
-                        </div>
-                      )}
-                      <div ref={messagesEndRef} />
-                    </div>
-
-                    {/* Chat Input */}
-                    <form onSubmit={handleChatSubmit} className="p-2 border-t border-white/10">
-                      <div className="relative flex items-center">
-                        <input
-                          type="text"
-                          value={chatInput}
-                          onChange={(e) => setChatInput(e.target.value)}
-                          placeholder="Type your message..."
-                          className="w-full pl-3 pr-8 py-1.5 text-xs bg-white/5 border border-white/10 rounded-lg focus:outline-none focus:ring-1 focus:ring-white/20 text-white placeholder:text-white/30"
-                        />
-                        <button
-                          type="submit"
-                          disabled={!chatInput.trim() || isTyping}
-                          className={`absolute right-2 p-1 rounded-full ${
-                            chatInput.trim() && !isTyping
-                              ? "text-white hover:bg-white/10"
-                              : "text-white/30 cursor-not-allowed"
-                          }`}
-                        >
-                          <Send className="h-3 w-3" />
-                        </button>
-                      </div>
-                    </form>
-
-                    {/* Footer */}
-                    <div className="p-2 border-t border-white/10 flex justify-between items-center">
-                      <span className="text-[10px] text-white/50">Powered by Suitpax AI</span>
-                      <Link
-                        href="/ai-assistant"
-                        className="text-[10px] text-white/70 hover:text-white flex items-center"
-                      >
-                        Open full chat <ChevronRightIcon className="h-2 w-2 ml-1" />
-                      </Link>
-                    </div>
-                  </div>
-                </div>
-              )}
-
+          <div className="flex-1 overflow-y-auto py-3 px-3">
+            <div className="space-y-3">
               {/* Business Travel Section */}
               <div className="mb-2">
                 <div
@@ -571,7 +423,6 @@ export function Sidebar({ isOpen = false, toggleSidebar }: SidebarProps) {
                   {!isCollapsed && "Suitpax AI Platform"}
                   {isCollapsed && "AI"}
                 </div>
-                {/* Añadir la sección de Transfers después de Trains en la sección Business Travel */}
                 <div className="space-y-0.5">
                   <NavItem href="/flights" icon={Airplane}>
                     Flights
@@ -610,6 +461,9 @@ export function Sidebar({ isOpen = false, toggleSidebar }: SidebarProps) {
                 </NavItem>
                 <NavItem href="/tasks" icon={ClipboardDocumentListIcon}>
                   Tasks
+                </NavItem>
+                <NavItem href="/mails" icon={EnvelopeIcon}>
+                  Mails
                 </NavItem>
                 <NavItem href="/meetings" icon={CalendarIcon}>
                   Meetings
@@ -724,26 +578,6 @@ export function Sidebar({ isOpen = false, toggleSidebar }: SidebarProps) {
                     </NavItem>
                     <NavItem href="/team-management" icon={Users}>
                       Team Management
-                    </NavItem>
-                  </div>
-                )}
-              </div>
-
-              {/* AI Tools Section */}
-              <div className="space-y-0.5">
-                <SectionHeader
-                  title="AI Tools"
-                  collapsedTitle="AI"
-                  isExpanded={expandedSections.aiTools}
-                  onToggle={() => toggleSection("aiTools")}
-                />
-                {expandedSections.aiTools && !isCollapsed && (
-                  <div className="ml-3 space-y-0.5 border-l border-white/10 pl-3">
-                    <NavItem href="/ai-agents" icon={PlusCircleIcon}>
-                      AI Agents
-                    </NavItem>
-                    <NavItem href="/voice-ai" icon={Mic}>
-                      Voice AI
                     </NavItem>
                   </div>
                 )}

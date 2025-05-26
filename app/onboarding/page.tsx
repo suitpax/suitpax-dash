@@ -40,15 +40,15 @@ export default function OnboardingPage() {
 
   return (
     <div className="min-h-screen bg-black flex flex-col">
-      <div className="flex-1 flex flex-col items-center justify-center p-4 md:p-8">
-        <div className="w-full max-w-md">
-          <div className="flex justify-center mb-8">
+      <div className="flex-1 flex flex-col items-center justify-center p-2 sm:p-4 lg:p-6">
+        <div className="w-full max-w-sm sm:max-w-md">
+          <div className="flex justify-center mb-4 sm:mb-6">
             <Image
               src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/suitpax-cloud-logo%20%281%29-EshCIztLhPkYutLWdYERhlFOsQAJgu.webp"
               alt="Suitpax Logo"
-              width={180}
-              height={60}
-              className="h-12 w-auto"
+              width={120}
+              height={40}
+              className="h-8 w-auto"
             />
           </div>
 

@@ -8,7 +8,22 @@ export default function TravelPolicyPage() {
   return (
     <Layout>
       <div className="max-w-5xl mx-auto">
-        <h1 className="text-2xl font-medium tracking-tighter text-black mb-6">Travel Policy Management</h1>
+        {/* Header específico de Travel Policy */}
+        <div className="bg-black/30 backdrop-blur-sm rounded-xl border border-white/10 p-4 sm:p-6 shadow-sm mb-6">
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+            <div>
+              <h1 className="text-xl sm:text-2xl font-medium tracking-tighter text-white">Travel Policy Management</h1>
+              <p className="text-sm text-white/70 mt-1">Create and manage company travel policies and approvals</p>
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="inline-flex items-center gap-1 bg-white/5 px-2 py-1 rounded-full">
+                <span className="text-xs font-medium text-white/70">Policy Status</span>
+                <span className="text-xs text-white/50">•</span>
+                <span className="text-xs text-white/70">Active</span>
+              </div>
+            </div>
+          </div>
+        </div>
 
         {/* Empty state for travel policy */}
         <div className="bg-white rounded-xl border border-black p-6 shadow-sm mb-6">

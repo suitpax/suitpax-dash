@@ -1,6 +1,5 @@
 import type React from "react"
 import Link from "next/link"
-import AiAssistantCard from "./ai-assistant-card"
 import {
   ArrowRightIcon,
   PaperAirplaneIcon,
@@ -10,11 +9,14 @@ import {
   CreditCardIcon,
   BellIcon,
 } from "@heroicons/react/24/outline"
+import AiAssistantCard from "./ai-assistant-card"
 import TravelBookingWidget from "./travel-booking-widget"
+import UpcomingTrips from "./upcoming-trips"
+import TravelBudgets from "./travel-budgets"
 
 export default function DashboardContent() {
   return (
-    <div className="space-y-4">
+    <div className="space-y-6">
       {/* Travel Booking Widget */}
       <div className="bg-black/95 backdrop-blur-sm rounded-lg border border-white/10 p-3">
         <TravelBookingWidget />
@@ -22,6 +24,12 @@ export default function DashboardContent() {
 
       {/* AI Assistant Card */}
       <AiAssistantCard />
+
+      {/* Upcoming Trips */}
+      <UpcomingTrips />
+
+      {/* Travel Budgets */}
+      <TravelBudgets />
 
       {/* Trip Alert */}
       <div className="bg-black/95 backdrop-blur-sm rounded-lg border border-white/10 p-3">
@@ -67,69 +75,69 @@ export default function DashboardContent() {
             </div>
           </div>
         </div>
-      </div>
 
-      {/* Quick Access Cards - Simplified */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-        <QuickAccessCard
-          title="Upcoming Trips"
-          icon={<MapPinIcon className="h-4 w-4" />}
-          items={[
-            { label: "Chicago Business Meeting", date: "Today" },
-            { label: "London Conference", date: "Jun 10" },
-          ]}
-          actionLabel="View All"
-          actionLink="/flights"
-        />
+        {/* Quick Access Cards - Simplified */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+          <QuickAccessCard
+            title="Upcoming Trips"
+            icon={<MapPinIcon className="h-4 w-4" />}
+            items={[
+              { label: "Chicago Business Meeting", date: "Today" },
+              { label: "London Conference", date: "Jun 10" },
+            ]}
+            actionLabel="View All"
+            actionLink="/flights"
+          />
 
-        <QuickAccessCard
-          title="Recent Expenses"
-          icon={<CreditCardIcon className="h-4 w-4" />}
-          items={[
-            { label: "Hotel Marriott", date: "$450.75" },
-            { label: "Taxi from Airport", date: "$65.20" },
-          ]}
-          actionLabel="View All"
-          actionLink="/expenses"
-        />
-      </div>
+          <QuickAccessCard
+            title="Recent Expenses"
+            icon={<CreditCardIcon className="h-4 w-4" />}
+            items={[
+              { label: "Hotel Marriott", date: "$450.75" },
+              { label: "Taxi from Airport", date: "$65.20" },
+            ]}
+            actionLabel="View All"
+            actionLink="/expenses"
+          />
+        </div>
 
-      {/* Getting Started Steps - Simplified */}
-      <div className="bg-black/95 backdrop-blur-sm rounded-lg border border-white/10 p-3">
-        <h2 className="text-sm font-medium text-white mb-3">Getting Started</h2>
+        {/* Getting Started Steps - Simplified */}
+        <div className="bg-black/95 backdrop-blur-sm rounded-lg border border-white/10 p-3">
+          <h2 className="text-sm font-medium text-white mb-3">Getting Started</h2>
 
-        <div className="space-y-2">
-          <div className="flex items-start gap-2 p-2 border border-white/10 bg-white/5 rounded-lg">
-            <div className="flex-shrink-0 w-5 h-5 bg-white/10 text-white rounded-full flex items-center justify-center font-medium text-xs">
-              1
+          <div className="space-y-2">
+            <div className="flex items-start gap-2 p-2 border border-white/10 bg-white/5 rounded-lg">
+              <div className="flex-shrink-0 w-5 h-5 bg-white/10 text-white rounded-full flex items-center justify-center font-medium text-xs">
+                1
+              </div>
+              <div className="flex-1">
+                <h3 className="font-medium text-white text-xs mb-0.5">Complete your profile</h3>
+                <p className="text-xs text-white/70 mb-1">Add company details and preferences</p>
+                <Link
+                  href="/onboarding"
+                  className="text-xs font-medium text-white hover:underline flex items-center gap-1 w-fit px-2 py-0.5 bg-transparent border border-white/10 rounded-lg hover:bg-white/5 transition-colors"
+                >
+                  Complete
+                  <ArrowRightIcon className="h-3 w-3" />
+                </Link>
+              </div>
             </div>
-            <div className="flex-1">
-              <h3 className="font-medium text-white text-xs mb-0.5">Complete your profile</h3>
-              <p className="text-xs text-white/70 mb-1">Add company details and preferences</p>
-              <Link
-                href="/onboarding"
-                className="text-xs font-medium text-white hover:underline flex items-center gap-1 w-fit px-2 py-0.5 bg-transparent border border-white/10 rounded-lg hover:bg-white/5 transition-colors"
-              >
-                Complete
-                <ArrowRightIcon className="h-3 w-3" />
-              </Link>
-            </div>
-          </div>
 
-          <div className="flex items-start gap-2 p-2 border border-white/10 bg-white/5 rounded-lg">
-            <div className="flex-shrink-0 w-5 h-5 bg-white/10 text-white rounded-full flex items-center justify-center font-medium text-xs">
-              2
-            </div>
-            <div className="flex-1">
-              <h3 className="font-medium text-white text-xs mb-0.5">Set up travel policies</h3>
-              <p className="text-xs text-white/70 mb-1">Define guidelines and workflows</p>
-              <Link
-                href="/travel-policy"
-                className="text-xs font-medium text-white hover:underline flex items-center gap-1 w-fit px-2 py-0.5 bg-transparent border border-white/10 rounded-lg hover:bg-white/5 transition-colors"
-              >
-                Set up
-                <ArrowRightIcon className="h-3 w-3" />
-              </Link>
+            <div className="flex items-start gap-2 p-2 border border-white/10 bg-white/5 rounded-lg">
+              <div className="flex-shrink-0 w-5 h-5 bg-white/10 text-white rounded-full flex items-center justify-center font-medium text-xs">
+                2
+              </div>
+              <div className="flex-1">
+                <h3 className="font-medium text-white text-xs mb-0.5">Set up travel policies</h3>
+                <p className="text-xs text-white/70 mb-1">Define guidelines and workflows</p>
+                <Link
+                  href="/travel-policy"
+                  className="text-xs font-medium text-white hover:underline flex items-center gap-1 w-fit px-2 py-0.5 bg-transparent border border-white/10 rounded-lg hover:bg-white/5 transition-colors"
+                >
+                  Set up
+                  <ArrowRightIcon className="h-3 w-3" />
+                </Link>
+              </div>
             </div>
           </div>
         </div>

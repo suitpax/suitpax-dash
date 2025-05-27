@@ -149,26 +149,32 @@ export default function ExpensesPage() {
   return (
     <Layout>
       <div className="max-w-5xl mx-auto">
-        <div className="flex justify-between items-center mb-6">
-          <h1 className="text-2xl font-medium tracking-tighter text-white">Expense Management</h1>
-          <button
-            onClick={() => {
-              setIsFormOpen(true)
-              setEditingExpenseId(null)
-              setFormData({
-                title: "",
-                amount: 0,
-                date: new Date().toISOString().split("T")[0],
-                category: "Other",
-                description: "",
-                status: "pending",
-              })
-            }}
-            className="px-3 py-1.5 rounded-lg bg-white/10 text-white hover:bg-white/5 flex items-center gap-2"
-          >
-            <PlusCircle size={14} />
-            <span className="text-xs">New Expense</span>
-          </button>
+        {/* Header específico de Expenses */}
+        <div className="bg-black/30 backdrop-blur-sm rounded-xl border border-white/10 p-4 sm:p-6 shadow-sm mb-6">
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+            <div>
+              <h1 className="text-xl sm:text-2xl font-medium tracking-tighter text-white">Expense Management</h1>
+              <p className="text-sm text-white/70 mt-1">Track and manage your business travel expenses</p>
+            </div>
+            <button
+              onClick={() => {
+                setIsFormOpen(true)
+                setEditingExpenseId(null)
+                setFormData({
+                  title: "",
+                  amount: 0,
+                  date: new Date().toISOString().split("T")[0],
+                  category: "Other",
+                  description: "",
+                  status: "pending",
+                })
+              }}
+              className="px-3 py-1.5 rounded-lg bg-white/10 text-white hover:bg-white/5 flex items-center gap-2 whitespace-nowrap"
+            >
+              <PlusCircle size={14} />
+              <span className="text-xs">New Expense</span>
+            </button>
+          </div>
         </div>
 
         <div className="bg-black rounded-lg border border-white/10 p-6 shadow-sm mb-6">

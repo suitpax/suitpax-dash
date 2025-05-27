@@ -51,14 +51,19 @@ export default function ProfilePage() {
   return (
     <Layout>
       <div className="max-w-5xl mx-auto px-4">
-        <div className="flex flex-col md:flex-row items-start md:items-center justify-between mb-6">
-          <h1 className="text-2xl font-medium tracking-tighter text-white">My Profile</h1>
-
-          <div className="flex items-center space-x-2 mt-2 md:mt-0">
-            <Badge className="bg-white/10 text-white hover:bg-white/20 transition-colors">Business Traveler</Badge>
-            <Badge className="bg-emerald-900/30 text-emerald-400 hover:bg-emerald-900/40 transition-colors">
-              Verified
-            </Badge>
+        {/* Header específico de Profile */}
+        <div className="bg-black/30 backdrop-blur-sm rounded-xl border border-white/10 p-4 sm:p-6 shadow-sm mb-6">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+            <div>
+              <h1 className="text-xl sm:text-2xl font-medium tracking-tighter text-white">My Profile</h1>
+              <p className="text-sm text-white/70 mt-1">Manage your personal information and travel preferences</p>
+            </div>
+            <div className="flex flex-wrap items-center gap-2">
+              <Badge className="bg-white/10 text-white hover:bg-white/20 transition-colors">Business Traveler</Badge>
+              <Badge className="bg-emerald-900/30 text-emerald-400 hover:bg-emerald-900/40 transition-colors">
+                Verified
+              </Badge>
+            </div>
           </div>
         </div>
 

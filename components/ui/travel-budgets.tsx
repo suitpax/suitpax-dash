@@ -1,133 +1,69 @@
-import { cn } from "@/lib/utils"
-import { Wallet, Building2, Users2, ArrowRight } from "lucide-react"
+import type React from "react"
+import { BuildingOfficeIcon, Car, PaperAirplaneIcon, ArrowRightIcon } from "@heroicons/react/24/outline"
+import Link from "next/link"
 
-interface BudgetItem {
-  id: string
-  title: string
-  description: string
-  allocated: string
-  spent: string
-  remaining: string
-  progress: number
-  department: string
-}
-
-interface TravelBudgetsProps {
-  budgets?: BudgetItem[]
-  className?: string
-}
-
-const BUDGETS: BudgetItem[] = [
-  {
-    id: "1",
-    title: "Presupuesto Q2 2024",
-    description: "Viajes corporativos segundo trimestre",
-    allocated: "$75,000",
-    spent: "$45,320",
-    remaining: "$29,680",
-    progress: 60,
-    department: "Global",
-  },
-  {
-    id: "2",
-    title: "Ventas Internacional",
-    description: "Equipo de ventas internacionales",
-    allocated: "$35,000",
-    spent: "$28,450",
-    remaining: "$6,550",
-    progress: 81,
-    department: "Ventas",
-  },
-  {
-    id: "3",
-    title: "Conferencias Tecnología",
-    description: "Eventos y conferencias tecnológicas",
-    allocated: "$25,000",
-    spent: "$12,780",
-    remaining: "$12,220",
-    progress: 51,
-    department: "Tecnología",
-  },
-  {
-    id: "4",
-    title: "Formación Ejecutiva",
-    description: "Programas de formación para directivos",
-    allocated: "$18,000",
-    spent: "$4,250",
-    remaining: "$13,750",
-    progress: 24,
-    department: "Recursos Humanos",
-  },
-]
-
-export default function TravelBudgets({ budgets = BUDGETS, className }: TravelBudgetsProps) {
+export default function TravelBudgets() {
   return (
-    <div className={cn("w-full", className)}>
-      <div className="space-y-4">
-        {budgets.map((budget) => (
-          <div
-            key={budget.id}
-            className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-4 hover:shadow-md transition-shadow duration-200"
-          >
-            <div className="flex justify-between items-start mb-3">
-              <div className="flex items-center">
-                <div className="p-2 rounded-lg bg-gray-100 dark:bg-gray-700 mr-3">
-                  <Wallet className="h-4 w-4 text-gray-900 dark:text-gray-100" />
-                </div>
-                <div>
-                  <h3 className="font-medium text-sm text-gray-900 dark:text-gray-100">{budget.title}</h3>
-                  <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">{budget.description}</p>
-                </div>
-              </div>
-              <div className="flex items-center text-xs font-medium">
-                <div className="flex items-center px-2 py-1 rounded-full bg-gray-100 dark:bg-gray-700">
-                  {budget.department === "Global" ? (
-                    <Building2 className="h-3 w-3 mr-1 text-gray-600 dark:text-gray-300" />
-                  ) : (
-                    <Users2 className="h-3 w-3 mr-1 text-gray-600 dark:text-gray-300" />
-                  )}
-                  <span className="text-gray-700 dark:text-gray-300">{budget.department}</span>
-                </div>
-              </div>
-            </div>
+    <div className="bg-black/95 backdrop-blur-sm rounded-lg border border-white/10 p-3">
+      <h2 className="text-sm font-medium text-white mb-3">Travel Budgets</h2>
+      <div className="space-y-2">
+        <BudgetItem
+          category="Flights"
+          budget="$5,000"
+          spent="$3,250"
+          percentage={65}
+          icon={<PaperAirplaneIcon className="h-3 w-3" />}
+        />
+        <BudgetItem
+          category="Hotels"
+          budget="$7,500"
+          spent="$6,800"
+          percentage={91}
+          icon={<BuildingOfficeIcon className="h-3 w-3" />}
+        />
+        <BudgetItem
+          category="Transfers"
+          budget="$1,000"
+          spent="$750"
+          percentage={75}
+          icon={<Car className="h-3 w-3" />}
+        />
+      </div>
+      <Link
+        href="/expenses"
+        className="text-xs font-medium flex items-center justify-center gap-1 w-full px-2 py-1.5 bg-transparent border border-white/10 rounded-lg hover:bg-white/5 transition-colors text-white mt-3"
+      >
+        View All Budgets
+        <ArrowRightIcon className="h-3 w-3" />
+      </Link>
+    </div>
+  )
+}
 
-            <div className="grid grid-cols-3 gap-2 mb-3">
-              <div className="text-center">
-                <p className="text-xs text-gray-500 dark:text-gray-400">Asignado</p>
-                <p className="text-sm font-medium text-gray-900 dark:text-gray-100">{budget.allocated}</p>
-              </div>
-              <div className="text-center">
-                <p className="text-xs text-gray-500 dark:text-gray-400">Gastado</p>
-                <p className="text-sm font-medium text-gray-900 dark:text-gray-100">{budget.spent}</p>
-              </div>
-              <div className="text-center">
-                <p className="text-xs text-gray-500 dark:text-gray-400">Restante</p>
-                <p className="text-sm font-medium text-gray-900 dark:text-gray-100">{budget.remaining}</p>
-              </div>
-            </div>
+interface BudgetItemProps {
+  category: string
+  budget: string
+  spent: string
+  percentage: number
+  icon: React.ReactNode
+}
 
-            <div className="space-y-1.5 mb-3">
-              <div className="flex items-center justify-between text-xs">
-                <span className="text-gray-600 dark:text-gray-400">Progreso</span>
-                <span className="text-gray-900 dark:text-gray-100">{budget.progress}%</span>
-              </div>
-              <div className="h-1.5 bg-gray-100 dark:bg-gray-700 rounded-full overflow-hidden">
-                <div
-                  className={cn(
-                    "h-full rounded-full",
-                    budget.progress > 80 ? "bg-red-500" : budget.progress > 60 ? "bg-amber-500" : "bg-emerald-500",
-                  )}
-                  style={{ width: `${budget.progress}%` }}
-                />
-              </div>
-            </div>
-
-            <button className="w-full flex items-center justify-center gap-2 py-2 px-3 text-xs font-medium text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors duration-200">
-              Ver Detalles
-              <ArrowRight className="w-3.5 h-3.5" />
-            </button>
-          </div>
-        ))}
+function BudgetItem({ category, budget, spent, percentage, icon }: BudgetItemProps) {
+  return (
+    <div className="flex items-center justify-between p-2 border border-white/10 bg-white/5 rounded-lg">
+      <div className="flex items-center gap-2">
+        <div className="w-5 h-5 bg-white/10 text-white rounded-full flex items-center justify-center font-medium text-xs">
+          {icon}
+        </div>
+        <div className="text-left">
+          <h3 className="text-xs font-medium text-white">{category}</h3>
+          <p className="text-white/70 text-[0.6rem]">
+            {spent} / {budget}
+          </p>
+        </div>
+      </div>
+      <div className="w-16 h-2 bg-white/10 rounded-full overflow-hidden relative">
+        <div className="absolute left-0 top-0 h-full bg-emerald-500" style={{ width: `${percentage}%` }}></div>
       </div>
     </div>
   )

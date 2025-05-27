@@ -228,17 +228,17 @@ export default function HotelsPage() {
   return (
     <Layout>
       <div className="space-y-5">
-        {/* Header with Anthropic branding */}
-        <div className="bg-black/30 backdrop-blur-sm rounded-xl border border-white/10 p-6 shadow-sm relative overflow-hidden">
+        {/* Header específico de Hotels */}
+        <div className="bg-black/30 backdrop-blur-sm rounded-xl border border-white/10 p-4 sm:p-6 shadow-sm relative overflow-hidden">
           <div className="absolute top-0 left-0 w-full h-1 bg-white/10"></div>
 
-          <div className="flex flex-col md:flex-row items-center gap-5">
-            <div className="flex items-center justify-center p-3 bg-white/5 rounded-xl">
-              <SiAnthropic className="h-10 w-10 text-white" />
+          <div className="flex flex-col lg:flex-row items-start lg:items-center gap-4 lg:gap-6">
+            <div className="flex items-center justify-center p-3 bg-white/5 rounded-xl flex-shrink-0">
+              <SiAnthropic className="h-8 w-8 sm:h-10 sm:w-10 text-white" />
             </div>
 
-            <div className="flex-1">
-              <div className="flex items-center gap-2 mb-2">
+            <div className="flex-1 min-w-0">
+              <div className="flex flex-wrap items-center gap-2 mb-2">
                 <div className="inline-flex items-center gap-2 bg-white/5 px-3 py-1 rounded-full">
                   <Building className="h-4 w-4 text-white" />
                   <span className="text-sm font-medium text-white">Hotel Search</span>
@@ -250,11 +250,11 @@ export default function HotelsPage() {
                 </div>
               </div>
 
-              <h1 className="text-xl md:text-2xl font-medium tracking-tighter text-white mb-1.5">
+              <h1 className="text-lg sm:text-xl lg:text-2xl font-medium tracking-tighter text-white mb-1.5">
                 Find the perfect accommodation for your business trip
               </h1>
 
-              <p className="text-sm text-white/70 mb-3">
+              <p className="text-sm text-white/70">
                 Search and compare hotels worldwide with our AI-powered hotel search engine.
               </p>
             </div>

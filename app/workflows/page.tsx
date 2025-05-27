@@ -64,16 +64,18 @@ export default function WorkflowsPage() {
   return (
     <Layout>
       <div className="space-y-6">
-        {/* Header with actions */}
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-          <div>
-            <h1 className="text-2xl font-bold text-white">Workflows</h1>
-            <p className="text-white/70">Automate your travel processes with custom workflows</p>
+        {/* Header específico de Workflows */}
+        <div className="bg-black/30 backdrop-blur-sm rounded-xl border border-white/10 p-4 sm:p-6 shadow-sm mb-6">
+          <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
+            <div>
+              <h1 className="text-xl sm:text-2xl font-bold text-white">Workflows</h1>
+              <p className="text-sm text-white/70 mt-1">Automate your travel processes with custom workflows</p>
+            </div>
+            <button className="flex items-center px-4 py-2 bg-white/5 hover:bg-white/10 border border-white/10 rounded-lg text-white transition-colors whitespace-nowrap">
+              <PlusIcon className="h-4 w-4 mr-2" />
+              Create Workflow
+            </button>
           </div>
-          <button className="flex items-center px-4 py-2 bg-white/5 hover:bg-white/10 border border-white/10 rounded-lg text-white transition-colors">
-            <PlusIcon className="h-4 w-4 mr-2" />
-            Create Workflow
-          </button>
         </div>
 
         {/* Tabs */}

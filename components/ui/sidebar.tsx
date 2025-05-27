@@ -24,13 +24,15 @@ import {
   ChartBarIcon,
   EnvelopeIcon,
   CalendarIcon,
+  ArrowRightIcon,
 } from "@heroicons/react/24/outline"
 import { ChevronDownIcon } from "@heroicons/react/24/solid"
-import { Users, Receipt, Car, CalendarDays } from "lucide-react"
+import { Users, Receipt, CalendarDays } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Badge } from "@/components/ui/badge"
 import { Airplane, Train as TrainIcon } from "@phosphor-icons/react"
 import { MobileNavigation } from "@/components/ui/mobile-navigation"
+import { Car } from "@phosphor-icons/react"
 
 interface SidebarProps {
   isOpen?: boolean
@@ -617,6 +619,61 @@ export function Sidebar({ isOpen = false, toggleSidebar }: SidebarProps) {
               </div>
             </div>
           </div>
+
+          {/* AI Agent Chat Input */}
+          {!isCollapsed && (
+            <div className="p-3 border-t border-white/10">
+              <form onSubmit={handleChatSubmit} className="relative">
+                <div className="flex items-center bg-white/5 rounded-lg border border-white/10 p-2">
+                  <div className="flex-shrink-0 mr-2">
+                    <Image
+                      src="/images/ai-agent-avatar-new.jpg"
+                      alt="AI Agent"
+                      width={24}
+                      height={24}
+                      className="rounded-full object-cover"
+                    />
+                  </div>
+                  <input
+                    type="text"
+                    value={chatInput}
+                    onChange={(e) => setChatInput(e.target.value)}
+                    placeholder="Ask your AI Agent..."
+                    className="flex-1 bg-transparent border-none focus:outline-none text-white text-xs placeholder-white/50"
+                    disabled={isTyping}
+                  />
+                  <button
+                    type="submit"
+                    disabled={!chatInput.trim() || isTyping}
+                    className={`ml-2 p-1.5 rounded-lg transition-colors ${
+                      chatInput.trim() && !isTyping
+                        ? "bg-white/10 text-white hover:bg-white/20"
+                        : "text-white/30 cursor-not-allowed"
+                    }`}
+                  >
+                    <ArrowRightIcon className="h-3 w-3" />
+                  </button>
+                </div>
+
+                {/* Typing indicator */}
+                {isTyping && (
+                  <div className="absolute -top-8 left-0 right-0 bg-white/5 rounded-t-lg border border-white/10 border-b-0 p-2 flex justify-center">
+                    <div className="flex space-x-1 items-center">
+                      <div className="w-1 h-1 bg-white/50 rounded-full animate-bounce"></div>
+                      <div
+                        className="w-1 h-1 bg-white/50 rounded-full animate-bounce"
+                        style={{ animationDelay: "0.2s" }}
+                      ></div>
+                      <div
+                        className="w-1 h-1 bg-white/50 rounded-full animate-bounce"
+                        style={{ animationDelay: "0.4s" }}
+                      ></div>
+                    </div>
+                  </div>
+                )}
+              </form>
+            </div>
+          )}
 
           {/* Footer - Only visible when not collapsed */}
           {!isCollapsed && (

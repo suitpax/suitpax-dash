@@ -1,28 +1,19 @@
 "use client"
 
 import type React from "react"
-
 import { useState, useEffect, useRef } from "react"
-import Layout from "@/components/ui/layout"
 import Image from "next/image"
 import { getRandomPromptsFromAll, getRandomPrompts, promptCategories } from "@/data/prompts"
-import {
-  BriefcaseIcon,
-  PaperAirplaneIcon,
-  BuildingOfficeIcon,
-  ReceiptRefundIcon,
-  TruckIcon,
-  ArrowRightIcon,
-  SparklesIcon,
-  LightBulbIcon,
-} from "@heroicons/react/24/outline"
-// Mapa de iconos para las categorías
+import { enhancedAiService } from "@/lib/ai/ai-service-enhanced"
+import { Send, Sparkles, MessageCircle, ArrowRight, Zap, Brain, Globe, Clock } from "lucide-react"
+import { useRouter } from "next/navigation"
+
 const categoryIcons = {
-  Briefcase: BriefcaseIcon,
-  Plane: PaperAirplaneIcon,
-  Building: BuildingOfficeIcon,
-  Receipt: ReceiptRefundIcon,
-  Car: TruckIcon,
+  Briefcase: Brain,
+  Plane: Globe,
+  Building: MessageCircle,
+  Receipt: Clock,
+  Car: Zap,
 }
 
 export default function AiAssistantPage() {
@@ -31,73 +22,128 @@ export default function AiAssistantPage() {
   const [activeCategory, setActiveCategory] = useState<string | null>(null)
   const [suggestions, setSuggestions] = useState<string[]>([])
   const [quickSuggestions, setQuickSuggestions] = useState<string[]>([])
-  const [messages, setMessages] = useState<{ role: "user" | "assistant"; content: string }[]>([])
+  const [messages, setMessages] = useState<
+    { role: "user" | "assistant"; content: string; id: string; createdAt: Date }[]
+  >([])
   const [isTyping, setIsTyping] = useState(false)
+  const [showFullChatPrompt, setShowFullChatPrompt] = useState(false)
 
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLTextAreaElement>(null)
+  const router = useRouter()
 
   // Cargar sugerencias iniciales
   useEffect(() => {
-    setQuickSuggestions(getRandomPromptsFromAll(5))
+    try {
+      const randomPrompts = getRandomPromptsFromAll(6)
+      setQuickSuggestions(
+        randomPrompts.length > 0
+          ? randomPrompts
+          : [
+              "Book a flight from Madrid to London",
+              "Find hotels near our office",
+              "What's our travel policy?",
+              "Arrange team transportation",
+              "Check flight status",
+              "Book meeting room",
+            ],
+      )
+    } catch (error) {
+      console.error("Error loading suggestions:", error)
+    }
   }, [])
 
   // Cambiar sugerencias cuando cambia la categoría
   useEffect(() => {
     if (activeCategory) {
-      setSuggestions(getRandomPrompts(activeCategory, 8))
+      try {
+        setSuggestions(getRandomPrompts(activeCategory, 8))
+      } catch (error) {
+        setSuggestions([])
+      }
     } else {
-      setSuggestions(getRandomPromptsFromAll(8))
+      try {
+        setSuggestions(getRandomPromptsFromAll(8))
+      } catch (error) {
+        setSuggestions([])
+      }
     }
   }, [activeCategory])
 
-  // Scroll al final de los mensajes solo cuando es necesario
+  // Scroll al final de los mensajes
   useEffect(() => {
     if (messagesEndRef.current && messages.length > 0) {
-      const container = messagesEndRef.current.parentElement
-      if (container) {
-        const isAtBottom = container.scrollHeight - container.scrollTop <= container.clientHeight + 150
-        if (isAtBottom) {
-          // Usar requestAnimationFrame para asegurar que el DOM se ha actualizado
-          requestAnimationFrame(() => {
-            messagesEndRef.current?.scrollIntoView({ behavior: "smooth", block: "end" })
-          })
-        }
-      }
+      messagesEndRef.current.scrollIntoView({ behavior: "smooth" })
     }
   }, [messages])
 
-  // Ajustar altura del textarea automáticamente
+  // Mostrar prompt para ir al chat completo cuando hay texto
   useEffect(() => {
-    if (inputRef.current) {
-      inputRef.current.style.height = "auto"
-      inputRef.current.style.height = `${inputRef.current.scrollHeight}px`
-    }
+    setShowFullChatPrompt(inputValue.trim().length > 0)
   }, [inputValue])
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (inputValue.trim()) {
-      // Añadir mensaje del usuario
-      setMessages((prev) => [...prev, { role: "user", content: inputValue }])
-
-      // Simular respuesta de la IA
+      const userMessage = {
+        role: "user" as const,
+        content: inputValue,
+        id: Date.now().toString(),
+        createdAt: new Date(),
+      }
+      setMessages((prev) => [...prev, userMessage])
       setIsTyping(true)
-      setTimeout(() => {
+
+      try {
+        const apiMessages = [...messages, userMessage].map((msg) => ({
+          role: msg.role,
+          content: msg.content,
+          id: msg.id,
+          createdAt: msg.createdAt || new Date(),
+        }))
+
+        const response = await enhancedAiService.generateResponse({
+          messages: apiMessages,
+          useInternalSystem: true,
+        })
+
+        if (response.response) {
+          setMessages((prev) => [...prev, response.response])
+        }
+
+        // Generar nuevas sugerencias
+        try {
+          const randomPrompts = getRandomPromptsFromAll(6)
+          setQuickSuggestions(
+            randomPrompts.length > 0
+              ? randomPrompts
+              : [
+                  "Book a flight from Madrid to London",
+                  "Find hotels near our office",
+                  "What's our travel policy?",
+                  "Arrange team transportation",
+                  "Check flight status",
+                  "Book meeting room",
+                ],
+          )
+        } catch (error) {
+          console.error("Error loading new suggestions:", error)
+        }
+      } catch (error) {
+        console.error("Error al obtener respuesta de la IA:", error)
         setMessages((prev) => [
           ...prev,
           {
             role: "assistant",
-            content: `Here's information about "${inputValue}". Do you need more details or have another question?`,
+            content: "Lo siento, ha ocurrido un error al procesar tu solicitud. Por favor, inténtalo de nuevo.",
+            id: Date.now().toString(),
+            createdAt: new Date(),
           },
         ])
+      } finally {
         setIsTyping(false)
-
-        // Generar nuevas sugerencias rápidas
-        setQuickSuggestions(getRandomPromptsFromAll(5))
-      }, 1500)
-
-      setInputValue("")
+        setInputValue("")
+      }
     }
   }
 
@@ -110,7 +156,6 @@ export default function AiAssistantPage() {
 
   const handleQuickSuggestionClick = (suggestion: string) => {
     setInputValue(suggestion)
-    // Enviar automáticamente
     setTimeout(() => {
       handleSubmit({ preventDefault: () => {} } as React.FormEvent)
     }, 100)
@@ -127,82 +172,93 @@ export default function AiAssistantPage() {
     }
   }
 
+  const goToFullChat = () => {
+    router.push("/ai-agent")
+  }
+
   return (
-    <Layout>
-      <div className="max-w-5xl mx-auto">
-        <div className="flex items-center mb-6">
-          <div className="relative h-12 w-12 rounded-full overflow-hidden mr-4">
-            <Image src="/images/ai-agent-avatar.jpeg" alt="AI Assistant" fill className="object-cover" />
-          </div>
-          <div>
-            <h1 className="text-2xl font-medium tracking-tighter text-black">Travel Assistant</h1>
-            <p className="text-gray-600">Your AI-powered business travel companion</p>
+    <div className="min-h-screen bg-black">
+      <div className="max-w-7xl mx-auto p-3">
+        {/* Header */}
+        <div className="mb-4">
+          <div className="flex items-center mb-3">
+            <div className="relative h-12 w-12 rounded-full overflow-hidden mr-3">
+              <Image src="/images/ai-agent-avatar-new.jpg" alt="AI Assistant" fill className="object-cover" />
+            </div>
+            <div>
+              <h1 className="text-2xl font-medium text-white">Suitpax AI Assistant</h1>
+              <p className="text-white/70">Your intelligent business travel companion</p>
+            </div>
           </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-          {/* Sidebar with categories and suggestions */}
-          <div className="md:col-span-1">
-            <div className="bg-white rounded-xl border border-black p-4 shadow-sm sticky top-4">
-              <h2 className="font-medium text-black mb-3">Categories</h2>
-              <div className="space-y-2 mb-6">
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-4">
+          {/* Sidebar con categorías */}
+          <div className="lg:col-span-1">
+            <div className="bg-white/5 rounded-lg border border-white/10 p-3 sticky top-4">
+              <h2 className="font-medium text-white mb-3">Categories</h2>
+              <div className="space-y-1 mb-4">
                 {promptCategories.map((category) => {
-                  const Icon = categoryIcons[category.icon as keyof typeof categoryIcons]
+                  const Icon = categoryIcons[category.icon as keyof typeof categoryIcons] || MessageCircle
                   return (
                     <button
                       key={category.id}
                       onClick={() => handleCategoryClick(category.id)}
-                      className={`w-full flex items-center px-3 py-1.5 rounded-xl transition-colors ${
+                      className={`w-full flex items-center px-3 py-1.5 rounded-lg transition-colors ${
                         activeCategory === category.id
-                          ? "bg-black text-white"
-                          : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                          ? "bg-white/10 text-white"
+                          : "text-white/70 hover:bg-white/5 hover:text-white"
                       }`}
                     >
-                      <Icon className="h-3.5 w-3.5 mr-2" />
-                      {category.name}
+                      <Icon className="h-4 w-4 mr-2" />
+                      <span className="text-sm">{category.name}</span>
                     </button>
                   )
                 })}
               </div>
 
-              <h2 className="font-medium text-black mb-3">Popular Questions</h2>
-              <div className="space-y-2">
-                {suggestions.slice(0, 5).map((suggestion, index) => (
-                  <button
-                    key={index}
-                    onClick={() => handleSuggestionClick(suggestion)}
-                    className="w-full text-left p-2 text-xs text-gray-700 hover:bg-gray-100 rounded-xl transition-colors"
-                  >
-                    {suggestion}
-                  </button>
-                ))}
-              </div>
+              {suggestions.length > 0 && (
+                <>
+                  <h3 className="font-medium text-white mb-2 text-sm">Popular Questions</h3>
+                  <div className="space-y-1">
+                    {suggestions.slice(0, 6).map((suggestion, index) => (
+                      <button
+                        key={index}
+                        onClick={() => handleSuggestionClick(suggestion)}
+                        className="w-full text-left p-2 text-xs text-white/70 hover:bg-white/5 hover:text-white rounded-lg transition-colors"
+                      >
+                        {suggestion.length > 50 ? suggestion.substring(0, 50) + "..." : suggestion}
+                      </button>
+                    ))}
+                  </div>
+                </>
+              )}
             </div>
           </div>
 
-          {/* Main chat area */}
-          <div className="md:col-span-3">
-            <div className="bg-white rounded-xl border border-black shadow-sm overflow-hidden flex flex-col h-[calc(100vh-180px)]">
-              {/* Chat messages */}
-              <div className="flex-1 overflow-y-auto p-4 bg-gray-50 overscroll-contain">
+          {/* Área principal de chat */}
+          <div className="lg:col-span-3">
+            <div className="bg-white/5 rounded-lg border border-white/10 overflow-hidden flex flex-col h-[calc(100vh-200px)]">
+              {/* Mensajes de chat */}
+              <div className="flex-1 overflow-y-auto p-3 bg-black/30">
                 {messages.length === 0 ? (
                   <div className="flex flex-col items-center justify-center h-full text-center">
-                    <div className="bg-gray-100 p-4 rounded-full mb-4">
-                      <SparklesIcon className="h-8 w-8 text-gray-600" />
+                    <div className="bg-white/5 p-4 rounded-full mb-4">
+                      <Sparkles className="h-8 w-8 text-white/70" />
                     </div>
-                    <h2 className="text-xl font-medium text-gray-800 mb-2">How can I help you today?</h2>
-                    <p className="text-gray-600 max-w-md mb-6">
+                    <h2 className="text-xl font-medium text-white mb-2">How can I help you today?</h2>
+                    <p className="text-white/70 max-w-md mb-6">
                       Ask me about flight bookings, hotels, travel policies, or any questions related to business
                       travel.
                     </p>
-                    <div className="flex flex-wrap justify-center gap-2">
+                    <div className="flex flex-wrap justify-center gap-2 max-w-2xl">
                       {quickSuggestions.map((suggestion, index) => (
                         <button
                           key={index}
                           onClick={() => handleQuickSuggestionClick(suggestion)}
-                          className="inline-flex items-center rounded-xl bg-gray-100 px-3 py-1.5 text-xs font-medium text-gray-700 hover:bg-gray-200 transition-colors"
+                          className="inline-flex items-center rounded-lg bg-white/5 px-3 py-1.5 text-xs text-white/70 hover:bg-white/10 hover:text-white transition-colors border border-white/10"
                         >
-                          {suggestion.length > 30 ? suggestion.substring(0, 30) + "..." : suggestion}
+                          {suggestion.length > 35 ? suggestion.substring(0, 35) + "..." : suggestion}
                         </button>
                       ))}
                     </div>
@@ -212,35 +268,35 @@ export default function AiAssistantPage() {
                     {messages.map((message, index) => (
                       <div key={index} className={`flex ${message.role === "user" ? "justify-end" : "justify-start"}`}>
                         {message.role === "assistant" && (
-                          <div className="relative h-8 w-8 rounded-full overflow-hidden mr-2 flex-shrink-0">
-                            <Image src="/images/ai-agent-avatar.jpeg" alt="AI" fill className="object-cover" />
+                          <div className="relative h-7 w-7 rounded-full overflow-hidden mr-2 flex-shrink-0 mt-1">
+                            <Image src="/images/ai-agent-avatar-new.jpg" alt="AI" fill className="object-cover" />
                           </div>
                         )}
                         <div
-                          className={`max-w-[80%] rounded-xl p-3 ${
+                          className={`max-w-[80%] rounded-lg p-3 ${
                             message.role === "user"
-                              ? "bg-black text-white rounded-tr-none"
-                              : "bg-gray-200 text-gray-800 rounded-tl-none"
+                              ? "bg-white/10 text-white rounded-tr-none"
+                              : "bg-white/5 text-white/70 rounded-tl-none"
                           }`}
                         >
-                          <p className="text-sm">{message.content}</p>
+                          <p className="text-sm whitespace-pre-wrap">{message.content}</p>
                         </div>
                       </div>
                     ))}
                     {isTyping && (
                       <div className="flex justify-start">
-                        <div className="relative h-8 w-8 rounded-full overflow-hidden mr-2 flex-shrink-0">
-                          <Image src="/images/ai-agent-avatar.jpeg" alt="AI" fill className="object-cover" />
+                        <div className="relative h-7 w-7 rounded-full overflow-hidden mr-2 flex-shrink-0 mt-1">
+                          <Image src="/images/ai-agent-avatar-new.jpg" alt="AI" fill className="object-cover" />
                         </div>
-                        <div className="bg-gray-200 text-gray-800 rounded-xl rounded-tl-none max-w-[80%] p-3">
+                        <div className="bg-white/5 text-white/70 rounded-lg rounded-tl-none max-w-[80%] p-3">
                           <div className="flex space-x-1">
-                            <div className="w-2 h-2 bg-gray-500 rounded-full animate-bounce"></div>
+                            <div className="w-2 h-2 bg-white/50 rounded-full animate-bounce"></div>
                             <div
-                              className="w-2 h-2 bg-gray-500 rounded-full animate-bounce"
+                              className="w-2 h-2 bg-white/50 rounded-full animate-bounce"
                               style={{ animationDelay: "0.2s" }}
                             ></div>
                             <div
-                              className="w-2 h-2 bg-gray-500 rounded-full animate-bounce"
+                              className="w-2 h-2 bg-white/50 rounded-full animate-bounce"
                               style={{ animationDelay: "0.4s" }}
                             ></div>
                           </div>
@@ -252,54 +308,66 @@ export default function AiAssistantPage() {
                 )}
               </div>
 
-              {/* Quick suggestions */}
+              {/* Sugerencias rápidas cuando hay mensajes */}
               {messages.length > 0 && (
-                <div className="px-4 py-3 flex flex-wrap gap-2 border-t border-gray-200">
-                  {quickSuggestions.map((suggestion, index) => (
+                <div className="px-3 py-2 flex flex-wrap gap-2 border-t border-white/10">
+                  {quickSuggestions.slice(0, 4).map((suggestion, index) => (
                     <button
                       key={index}
                       onClick={() => handleQuickSuggestionClick(suggestion)}
-                      className="inline-flex items-center rounded-xl bg-gray-100 px-3 py-1 text-xs font-medium text-gray-700 hover:bg-gray-200 transition-colors"
+                      className="inline-flex items-center rounded-lg bg-white/5 px-2 py-1 text-xs text-white/70 hover:bg-white/10 hover:text-white transition-colors border border-white/10"
                     >
-                      {suggestion.length > 40 ? suggestion.substring(0, 40) + "..." : suggestion}
+                      {suggestion.length > 30 ? suggestion.substring(0, 30) + "..." : suggestion}
                     </button>
                   ))}
                 </div>
               )}
 
-              {/* Input area */}
-              <div className="p-4 border-t border-gray-200">
-                <div className="mb-2 flex items-center">
-                  <LightBulbIcon className="h-4 w-4 text-gray-500 mr-2" />
-                  <span className="text-xs text-gray-500">Type your question below</span>
-                </div>
+              {/* Área de input */}
+              <div className="p-3 border-t border-white/10">
+                {/* Prompt para ir al chat completo */}
+                {showFullChatPrompt && (
+                  <div className="mb-2">
+                    <button
+                      onClick={goToFullChat}
+                      className="flex items-center text-xs text-white/50 hover:text-white/70 transition-colors"
+                    >
+                      <MessageCircle className="h-3 w-3 mr-1" />
+                      Go to full chat experience
+                      <ArrowRight className="h-3 w-3 ml-1" />
+                    </button>
+                  </div>
+                )}
 
                 <form onSubmit={handleSubmit} className="relative">
                   <div className="flex items-start">
-                    <textarea
-                      ref={inputRef}
-                      value={inputValue}
-                      onChange={(e) => setInputValue(e.target.value)}
-                      onKeyDown={handleKeyDown}
-                      onFocus={() => setIsFocused(true)}
-                      onBlur={() => setIsFocused(false)}
-                      placeholder="Ask your travel assistant..."
-                      className={`w-full py-2 px-3 pr-16 bg-white border ${
-                        isFocused ? "border-black" : "border-gray-300"
-                      } rounded-xl focus:outline-none text-xs text-black min-h-[40px] max-h-[120px] resize-none`}
-                      rows={1}
-                    />
-                    <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-1">
+                    <div className="relative h-8 w-8 rounded-full overflow-hidden mr-2 flex-shrink-0 mt-1">
+                      <Image src="/images/ai-agent-avatar-new.jpg" alt="AI" fill className="object-cover" />
+                    </div>
+                    <div className="flex-1 relative">
+                      <textarea
+                        ref={inputRef}
+                        value={inputValue}
+                        onChange={(e) => setInputValue(e.target.value)}
+                        onKeyDown={handleKeyDown}
+                        onFocus={() => setIsFocused(true)}
+                        onBlur={() => setIsFocused(false)}
+                        placeholder="Ask your travel assistant..."
+                        className={`w-full py-2 px-3 pr-12 bg-white/5 border ${
+                          isFocused ? "border-white/20" : "border-white/10"
+                        } rounded-lg focus:outline-none text-sm text-white placeholder:text-white/30 min-h-[40px] max-h-[120px] resize-none`}
+                        rows={1}
+                      />
                       <button
                         type="submit"
                         disabled={!inputValue.trim() || isTyping}
-                        className={`p-1.5 rounded-xl transition-colors duration-200 ${
+                        className={`absolute right-2 top-1/2 -translate-y-1/2 p-1.5 rounded-lg transition-colors duration-200 ${
                           inputValue.trim() && !isTyping
-                            ? "bg-black text-white hover:bg-gray-800"
-                            : "bg-gray-100 text-gray-400 cursor-not-allowed"
+                            ? "bg-white/10 text-white hover:bg-white/20"
+                            : "bg-white/5 text-white/30 cursor-not-allowed"
                         }`}
                       >
-                        <ArrowRightIcon className="h-3 w-3" />
+                        <Send className="h-4 w-4" />
                       </button>
                     </div>
                   </div>
@@ -309,6 +377,6 @@ export default function AiAssistantPage() {
           </div>
         </div>
       </div>
-    </Layout>
+    </div>
   )
 }

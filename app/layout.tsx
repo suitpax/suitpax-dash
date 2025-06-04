@@ -1,12 +1,13 @@
 import type React from "react"
 import type { Metadata } from "next"
 import "./globals.css"
-import { DashboardLayout } from "@/components/ui/dashboard-layout"
+import { DashboardLayout } from "@/components/layout/dashboard-layout"
+import { SidebarProvider } from "@/contexts/sidebar-context"
 
 export const metadata: Metadata = {
   title: "Suitpax",
-  description: "Plataforma de Viajes de Negocios",
-    generator: 'v0.dev'
+  description: "Business Travel Management Platform",
+  generator: "v0.dev",
 }
 
 export default function RootLayout({
@@ -16,8 +17,10 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body>
-        <DashboardLayout>{children}</DashboardLayout>
+      <body className="bg-black text-white antialiased">
+        <SidebarProvider>
+          <DashboardLayout>{children}</DashboardLayout>
+        </SidebarProvider>
       </body>
     </html>
   )

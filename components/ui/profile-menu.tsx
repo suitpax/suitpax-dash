@@ -1,6 +1,10 @@
+"use client"
+
 import type React from "react"
+import { useState } from "react"
 import Image from "next/image"
 import Link from "next/link"
+import ProfileModal from "./profile-modal"
 
 interface MenuItem {
   label: string
@@ -8,6 +12,7 @@ interface MenuItem {
   href: string
   icon?: React.ReactNode
   external?: boolean
+  onClick?: () => void
 }
 
 interface ProfileMenuProps {
@@ -18,13 +23,12 @@ interface ProfileMenuProps {
   subscription?: string
 }
 
-// Cambiar el objeto defaultProfile para actualizar el nombre y la imagen por defecto
 const defaultProfile = {
   name: "Alberto Zurano",
   role: "Travel Manager",
-  company: "Acme Corp",
-  avatar: "/images/ai-agent-avatar.jpeg", // Usar la imagen del AI agent como predeterminada
-  subscription: "Business Premium",
+  company: "Suitpax",
+  avatar: "/images/ai-agent-avatar.jpeg",
+  subscription: "Professional",
 } satisfies Required<ProfileMenuProps>
 
 export default function ProfileMenu({
@@ -34,7 +38,8 @@ export default function ProfileMenu({
   avatar = defaultProfile.avatar,
   subscription = defaultProfile.subscription,
 }: Partial<ProfileMenuProps> = defaultProfile) {
-  // Actualizar los elementos del menú
+  const [isProfileModalOpen, setIsProfileModalOpen] = useState(false)
+
   const menuItems: MenuItem[] = [
     {
       label: "Profile",
@@ -54,6 +59,7 @@ export default function ProfileMenu({
           <circle cx="12" cy="7" r="4" />
         </svg>
       ),
+      onClick: () => setIsProfileModalOpen(true),
       external: false,
     },
     {
@@ -79,7 +85,7 @@ export default function ProfileMenu({
     {
       label: "Subscription",
       value: subscription,
-      href: "#",
+      href: "/plans",
       icon: (
         <svg
           xmlns="http://www.w3.org/2000/svg"
@@ -99,7 +105,7 @@ export default function ProfileMenu({
     },
     {
       label: "Settings",
-      href: "#",
+      href: "/settings",
       icon: (
         <svg
           xmlns="http://www.w3.org/2000/svg"
@@ -141,93 +147,133 @@ export default function ProfileMenu({
     },
   ]
 
-  return (
-    <div className="w-full max-w-sm mx-auto">
-      <div className="relative overflow-hidden rounded-xl border border-black">
-        <div className="relative px-6 pt-12 pb-6">
-          <div className="flex items-center gap-4 mb-8">
-            {/* Mejorar el componente de imagen para manejar mejor las imágenes de perfil */}
-            <div className="relative shrink-0">
-              <Image
-                src={avatar || defaultProfile.avatar}
-                alt={name || defaultProfile.name}
-                width={72}
-                height={72}
-                className="rounded-full ring-4 ring-white object-cover w-[72px] h-[72px]"
-                priority
-              />
-              <div className="absolute bottom-0 right-0 w-4 h-4 rounded-full bg-black ring-2 ring-white" />
-            </div>
+  const handleItemClick = (item: MenuItem) => {
+    if (item.onClick) {
+      item.onClick()
+    }
+  }
 
-            {/* Profile Info */}
-            <div className="flex-1">
-              <h2 className="text-xl font-medium tracking-tighter text-black">{name}</h2>
-              <p className="text-gray-700">{role}</p>
+  return (
+    <>
+      <div className="w-full max-w-sm mx-auto">
+        <div className="relative overflow-hidden rounded-xl border border-black">
+          <div className="relative px-6 pt-12 pb-6">
+            <div className="flex items-center gap-4 mb-8">
+              <div className="relative shrink-0">
+                <Image
+                  src={avatar || defaultProfile.avatar}
+                  alt={name || defaultProfile.name}
+                  width={72}
+                  height={72}
+                  className="rounded-full ring-4 ring-white object-cover w-[72px] h-[72px]"
+                  priority
+                />
+                <div className="absolute bottom-0 right-0 w-4 h-4 rounded-full bg-black ring-2 ring-white" />
+              </div>
+
+              <div className="flex-1">
+                <h2 className="text-xl font-medium tracking-tighter text-black">{name}</h2>
+                <p className="text-gray-700">{role}</p>
+              </div>
             </div>
-          </div>
-          <div className="h-px bg-gray-300 my-6" />
-          <div className="space-y-2">
-            {menuItems.map((item) => (
-              <Link
-                key={item.label}
-                href={item.href}
-                className="flex items-center justify-between p-2 
+            <div className="h-px bg-gray-300 my-6" />
+            <div className="space-y-2">
+              {menuItems.map((item) => (
+                <div key={item.label}>
+                  {item.onClick ? (
+                    <button
+                      onClick={() => handleItemClick(item)}
+                      className="w-full flex items-center justify-between p-2 
+                        hover:bg-gray-100 
+                        rounded-lg transition-colors duration-200"
+                    >
+                      <div className="flex items-center gap-2">
+                        {item.icon}
+                        <span className="text-sm font-medium text-black">{item.label}</span>
+                      </div>
+                      <div className="flex items-center">
+                        {item.value && <span className="text-sm text-gray-700 mr-2">{item.value}</span>}
+                        {item.external && (
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="2"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            className="w-4 h-4"
+                          >
+                            <line x1="7" y1="17" x2="17" y2="7" />
+                            <polyline points="7 7 17 7 17 17" />
+                          </svg>
+                        )}
+                      </div>
+                    </button>
+                  ) : (
+                    <Link
+                      href={item.href}
+                      className="flex items-center justify-between p-2 
+                        hover:bg-gray-100 
+                        rounded-lg transition-colors duration-200"
+                    >
+                      <div className="flex items-center gap-2">
+                        {item.icon}
+                        <span className="text-sm font-medium text-black">{item.label}</span>
+                      </div>
+                      <div className="flex items-center">
+                        {item.value && <span className="text-sm text-gray-700 mr-2">{item.value}</span>}
+                        {item.external && (
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="2"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            className="w-4 h-4"
+                          >
+                            <line x1="7" y1="17" x2="17" y2="7" />
+                            <polyline points="7 7 17 7 17 17" />
+                          </svg>
+                        )}
+                      </div>
+                    </Link>
+                  )}
+                </div>
+              ))}
+
+              <button
+                type="button"
+                className="w-full flex items-center justify-between p-2 
                   hover:bg-gray-100 
                   rounded-lg transition-colors duration-200"
               >
                 <div className="flex items-center gap-2">
-                  {item.icon}
-                  <span className="text-sm font-medium text-black">{item.label}</span>
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    className="w-4 h-4"
+                  >
+                    <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+                    <polyline points="16 17 21 12 16 7" />
+                    <line x1="21" y1="12" x2="9" y2="12" />
+                  </svg>
+                  <span className="text-sm font-medium text-black">Log out</span>
                 </div>
-                <div className="flex items-center">
-                  {item.value && <span className="text-sm text-gray-700 mr-2">{item.value}</span>}
-                  {item.external && (
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      className="w-4 h-4"
-                    >
-                      <line x1="7" y1="17" x2="17" y2="7" />
-                      <polyline points="7 7 17 7 17 17" />
-                    </svg>
-                  )}
-                </div>
-              </Link>
-            ))}
-
-            {/* Actualizar el botón de cerrar sesión */}
-            <button
-              type="button"
-              className="w-full flex items-center justify-between p-2 
-                hover:bg-gray-100 
-                rounded-lg transition-colors duration-200"
-            >
-              <div className="flex items-center gap-2">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  className="w-4 h-4"
-                >
-                  <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
-                  <polyline points="16 17 21 12 16 7" />
-                  <line x1="21" y1="12" x2="9" y2="12" />
-                </svg>
-                <span className="text-sm font-medium text-black">Log out</span>
-              </div>
-            </button>
+              </button>
+            </div>
           </div>
         </div>
       </div>
-    </div>
+
+      <ProfileModal isOpen={isProfileModalOpen} onClose={() => setIsProfileModalOpen(false)} />
+    </>
   )
 }

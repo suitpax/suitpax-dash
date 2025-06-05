@@ -159,7 +159,7 @@ export function Sidebar({ isOpen = false, toggleSidebar }: SidebarProps) {
           onClick?.()
         }}
         className={cn(
-          "flex items-center px-3 py-1.5 text-xs rounded-lg transition-colors",
+          "flex items-center px-3 py-1.5 text-xs rounded-lg transition-colors duration-200",
           isActive ? "bg-white/10 text-white font-medium" : "text-white/70 hover:bg-white/5 hover:text-white",
         )}
         title={isCollapsed ? String(children) : ""}
@@ -217,8 +217,7 @@ export function Sidebar({ isOpen = false, toggleSidebar }: SidebarProps) {
           "flex flex-col h-screen",
           "top-0",
           isMobileMenuOpen || isOpen ? "translate-x-0 shadow-xl" : "-translate-x-full",
-          isCollapsed ? "lg:w-16" : "lg:w-64 md:w-64 sm:w-full",
-          isCollapsed ? "w-16" : "w-[280px]",
+          isCollapsed ? "lg:w-16 w-16" : "lg:w-64 w-72 sm:w-80",
         )}
       >
         <div className="h-full flex flex-col">
@@ -291,7 +290,7 @@ export function Sidebar({ isOpen = false, toggleSidebar }: SidebarProps) {
           </div>
 
           {/* Sidebar content */}
-          <div className="flex-1 overflow-y-auto py-3 px-3">
+          <div className="flex-1 overflow-y-auto py-3 px-3 scrollbar-thin scrollbar-track-transparent scrollbar-thumb-white/10 hover:scrollbar-thumb-white/20 scrollbar-thumb-rounded-full">
             <div className="space-y-3">
               {/* Business Travel Section */}
               <div className="mb-2">

@@ -27,7 +27,7 @@ import {
   TruckIcon,
 } from "@heroicons/react/24/outline"
 import { ChevronDownIcon } from "@heroicons/react/24/solid"
-import { Users, Receipt, CalendarDays } from "lucide-react"
+import { Users, Receipt, CalendarDays, Target, TrendingUp } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Badge } from "@/components/ui/badge"
 import { Airplane, Train as TrainIcon } from "@phosphor-icons/react"
@@ -406,10 +406,10 @@ export function Sidebar({ isOpen = false, toggleSidebar }: SidebarProps) {
                     <NavItem href="/analytics/expenses" icon={Receipt}>
                       Expense Reports
                     </NavItem>
-                    <NavItem href="/analytics/insights" icon={ChartBarIcon}>
+                    <NavItem href="/analytics/insights" icon={TrendingUp}>
                       Travel Insights
                     </NavItem>
-                    <NavItem href="/analytics/budget" icon={BanknotesIcon}>
+                    <NavItem href="/analytics/budget" icon={Target}>
                       Budget Tracking
                     </NavItem>
                   </div>
@@ -496,6 +496,12 @@ export function Sidebar({ isOpen = false, toggleSidebar }: SidebarProps) {
                     </NavItem>
                     <NavItem href="/team-management" icon={Users}>
                       Team
+                    </NavItem>
+                    <NavItem href="/admin-center" icon={Cog6ToothIcon}>
+                      Admin Center
+                    </NavItem>
+                    <NavItem href="/reports" icon={DocumentTextIcon}>
+                      Reports
                     </NavItem>
                   </div>
                 )}

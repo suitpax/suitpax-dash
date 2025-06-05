@@ -2,296 +2,321 @@
 
 import { useState } from "react"
 import Link from "next/link"
-import { motion } from "framer-motion"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { FeatureCard } from "@/components/features/feature-card"
-import {
-  Airplane,
-  CreditCard,
-  ChartLineUp,
-  ClipboardText,
-  ArrowRight,
-  Gear,
-  Wallet,
-  Eye,
-  EyeSlash,
-} from "@phosphor-icons/react"
+import { Airplane, CreditCard, Eye, EyeSlash, Filter, Building, TrendingUp, Download } from "@phosphor-icons/react"
 
 export default function Dashboard() {
-  const [hasData, setHasData] = useState(false)
+  const [hasData, setHasData] = useState(true) // Changed to true to show populated dashboard
   const [onboardingComplete, setOnboardingComplete] = useState(
-    typeof window !== "undefined" ? localStorage.getItem("onboardingComplete") === "true" : false,
+    typeof window !== "undefined" ? localStorage.getItem("onboardingComplete") === "true" : true,
   )
 
   return (
     <div className="min-h-screen bg-black text-white">
-      <div className="space-y-4 pb-6 p-4">
-        <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
-          <h1 className="text-2xl font-medium tracking-tighter mb-1 text-white">Welcome to Suitpax</h1>
-          <p className="text-white/70 text-sm max-w-2xl">
-            Your comprehensive platform for managing business travel, expenses, and optimizing the corporate travel
-            experience.
-          </p>
-        </motion.div>
+      <div className="flex">
+        {/* Main Content */}
+        <div className="flex-1 p-6">
+          {/* Header with User Info */}
+          <div className="flex items-center justify-between mb-8">
+            <div className="flex items-center gap-4">
+              <div className="w-12 h-12 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center">
+                <span className="text-white font-medium text-lg">JD</span>
+              </div>
+              <div>
+                <h1 className="text-xl font-medium text-white">John Doe</h1>
+                <p className="text-sm text-white/70">Hello, Welcome back!</p>
+              </div>
+            </div>
+            <Button className="px-4 py-2 bg-white/10 text-white rounded-lg hover:bg-white/20 flex items-center gap-2">
+              <Download size={16} />
+              <span className="text-sm">Export Data</span>
+            </Button>
+          </div>
 
-        {/* Onboarding configuration card */}
-        {!onboardingComplete && (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.2 }}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            {/* Overview Section */}
+            <div className="lg:col-span-2 space-y-6">
+              {/* Travel Overview */}
+              <Card className="bg-black/95 border border-white/10 rounded-xl">
+                <CardContent className="p-6">
+                  <div className="flex items-center justify-between mb-6">
+                    <h2 className="text-lg font-medium text-white">Travel Overview</h2>
+                    <span className="text-sm text-white/70">June 2024</span>
+                  </div>
+
+                  <div className="grid grid-cols-3 gap-6 mb-8">
+                    <div className="text-center">
+                      <div className="text-3xl font-bold text-white mb-1">12</div>
+                      <div className="text-sm text-white/70">Trips</div>
+                    </div>
+                    <div className="text-center">
+                      <div className="text-3xl font-bold text-white mb-1">8</div>
+                      <div className="text-sm text-white/70">Hotels</div>
+                    </div>
+                    <div className="text-center">
+                      <div className="text-3xl font-bold text-white mb-1">24</div>
+                      <div className="text-sm text-white/70">Expenses</div>
+                    </div>
+                  </div>
+
+                  {/* Calendar */}
+                  <TravelCalendar />
+                </CardContent>
+              </Card>
+
+              {/* Recent Trips */}
+              <Card className="bg-black/95 border border-white/10 rounded-xl">
+                <CardContent className="p-6">
+                  <div className="flex items-center justify-between mb-4">
+                    <h3 className="text-lg font-medium text-white">Recent Trips</h3>
+                    <Button className="p-2 text-white/50 hover:text-white hover:bg-white/5 rounded">
+                      <Filter size={16} />
+                    </Button>
+                  </div>
+
+                  <div className="space-y-4">
+                    <RecentTripItem
+                      type="Flight"
+                      destination="New York"
+                      date="Aug 24, 2024"
+                      amount="$1,500.00"
+                      status="Completed"
+                      method="Corporate Card"
+                    />
+                    <RecentTripItem
+                      type="Hotel"
+                      destination="London"
+                      date="Aug 20, 2024"
+                      amount="$890.00"
+                      status="Pending"
+                      method="Expense Report"
+                    />
+                    <RecentTripItem
+                      type="Flight"
+                      destination="Paris"
+                      date="Aug 18, 2024"
+                      amount="$750.00"
+                      status="Completed"
+                      method="Corporate Card"
+                    />
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+
+            {/* Right Sidebar */}
+            <div className="space-y-6">
+              {/* Travel Budget */}
+              <TravelBudgetCard />
+
+              {/* Travel Health */}
+              <Card className="bg-black/95 border border-white/10 rounded-xl">
+                <CardContent className="p-6">
+                  <h3 className="text-lg font-medium text-white mb-4">Travel Health</h3>
+                  <div className="bg-white/5 rounded-lg p-4 h-32 flex items-center justify-center">
+                    <div className="text-center">
+                      <TrendingUp className="h-8 w-8 text-emerald-400 mx-auto mb-2" />
+                      <p className="text-sm text-white/70">Analyzing travel patterns...</p>
+                    </div>
+                  </div>
+                  <div className="mt-4 text-sm text-white/70">
+                    <p>
+                      Policy compliance: <span className="text-emerald-400">94%</span>
+                    </p>
+                    <p>
+                      Budget efficiency: <span className="text-emerald-400">+12.5%</span>
+                    </p>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Quick Actions */}
+              <Card className="bg-black/95 border border-white/10 rounded-xl">
+                <CardContent className="p-6">
+                  <h3 className="text-lg font-medium text-white mb-4">Quick Actions</h3>
+                  <div className="space-y-3">
+                    <Button
+                      asChild
+                      className="w-full bg-white/10 text-white rounded-lg hover:bg-white/20 justify-start"
+                    >
+                      <Link href="/flights" className="flex items-center gap-3">
+                        <Airplane size={16} />
+                        <span className="text-sm">Book Flight</span>
+                      </Link>
+                    </Button>
+                    <Button
+                      asChild
+                      className="w-full bg-white/10 text-white rounded-lg hover:bg-white/20 justify-start"
+                    >
+                      <Link href="/hotels" className="flex items-center gap-3">
+                        <Building size={16} />
+                        <span className="text-sm">Book Hotel</span>
+                      </Link>
+                    </Button>
+                    <Button
+                      asChild
+                      className="w-full bg-white/10 text-white rounded-lg hover:bg-white/20 justify-start"
+                    >
+                      <Link href="/expenses" className="flex items-center gap-3">
+                        <CreditCard size={16} />
+                        <span className="text-sm">Add Expense</span>
+                      </Link>
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+function TravelCalendar() {
+  const [selectedDate, setSelectedDate] = useState(10)
+  const daysOfWeek = ["S", "M", "T", "W", "T", "F", "S"]
+  const daysInMonth = Array.from({ length: 30 }, (_, i) => i + 1)
+
+  const tripDays = [1, 10, 15, 24] // Days with trips
+
+  return (
+    <div>
+      <div className="grid grid-cols-7 gap-2 mb-2">
+        {daysOfWeek.map((day, index) => (
+          <div key={index} className="text-center text-xs text-white/50 py-2">
+            {day}
+          </div>
+        ))}
+      </div>
+      <div className="grid grid-cols-7 gap-2">
+        {daysInMonth.map((day) => (
+          <button
+            key={day}
+            onClick={() => setSelectedDate(day)}
+            className={`
+              w-8 h-8 rounded-full text-sm transition-colors
+              ${
+                tripDays.includes(day)
+                  ? "bg-orange-500 text-white"
+                  : selectedDate === day
+                    ? "bg-white/20 text-white"
+                    : "text-white/70 hover:bg-white/10"
+              }
+            `}
           >
-            <Card className="border border-white/10 rounded-lg overflow-hidden mb-4 bg-black/95">
-              <CardContent className="p-4">
-                <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-3">
-                  <div className="flex items-start gap-3">
-                    <div className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center flex-shrink-0">
-                      <Gear className="h-5 w-5 text-white" weight="fill" />
-                    </div>
-                    <div>
-                      <h3 className="text-base font-medium tracking-tighter mb-0.5 text-white">Set up your account</h3>
-                      <p className="text-white/70 text-xs">
-                        Customize your Suitpax experience by completing the setup process
-                      </p>
-                    </div>
-                  </div>
-                  <Button asChild className="bg-white/10 text-white rounded-lg hover:bg-white/20 text-xs py-1.5 px-3">
-                    <Link href="/onboarding">Configure now</Link>
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-          </motion.div>
-        )}
-
-        {!hasData ? <EmptyDashboard /> : <PopulatedDashboard />}
+            {day}
+          </button>
+        ))}
       </div>
     </div>
   )
 }
 
-function EmptyDashboard() {
-  return (
-    <div className="space-y-4">
-      {/* Suitpax Virtual Card Section */}
-      <SuitpaxCardSection />
-
-      <Card className="border border-white/10 rounded-lg overflow-hidden bg-black/95">
-        <CardHeader className="bg-black/30 pb-4 pt-3 px-4">
-          <CardTitle className="text-lg font-medium tracking-tighter text-white">Get Started with Suitpax</CardTitle>
-          <CardDescription className="text-white/70 text-xs">
-            Complete these steps to set up your business travel management
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="p-3 pt-0">
-          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-            <FeatureCard
-              icon={<Airplane className="h-4 w-4" weight="duotone" />}
-              title="Book Your First Trip"
-              description="Set up your first business travel reservation"
-              delay={0}
-              className="h-full bg-black/95 border-white/10"
-              iconClassName="bg-white/5 text-white"
-              compact={true}
-            >
-              <Button
-                asChild
-                className="mt-auto bg-white/10 text-white rounded-lg hover:bg-white/20 text-xs py-1.5 px-3"
-              >
-                <Link href="/flights">Start</Link>
-              </Button>
-            </FeatureCard>
-
-            <FeatureCard
-              icon={<CreditCard className="h-4 w-4" weight="duotone" />}
-              title="Configure Expenses"
-              description="Set up tracking for your travel expenses"
-              delay={1}
-              className="h-full bg-black/95 border-white/10"
-              iconClassName="bg-white/5 text-white"
-              compact={true}
-            >
-              <Button
-                asChild
-                className="mt-auto bg-white/10 text-white rounded-lg hover:bg-white/20 text-xs py-1.5 px-3"
-              >
-                <Link href="/expenses">Configure</Link>
-              </Button>
-            </FeatureCard>
-
-            <FeatureCard
-              icon={<ChartLineUp className="h-4 w-4" weight="duotone" />}
-              title="View Analytics"
-              description="Explore your travel data and gain insights"
-              delay={2}
-              className="h-full bg-black/95 border-white/10"
-              iconClassName="bg-white/5 text-white"
-              compact={true}
-            >
-              <Button
-                asChild
-                className="mt-auto bg-white/10 text-white rounded-lg hover:bg-white/20 text-xs py-1.5 px-3"
-              >
-                <Link href="/analytics">Explore</Link>
-              </Button>
-            </FeatureCard>
-
-            <FeatureCard
-              icon={<ClipboardText className="h-4 w-4" weight="duotone" />}
-              title="Manage Tasks"
-              description="Organize your travel-related tasks"
-              delay={3}
-              className="h-full bg-black/95 border-white/10"
-              iconClassName="bg-white/5 text-white"
-              compact={true}
-            >
-              <Button
-                asChild
-                className="mt-auto bg-white/10 text-white rounded-lg hover:bg-white/20 text-xs py-1.5 px-3"
-              >
-                <Link href="/tasks">Organize</Link>
-              </Button>
-            </FeatureCard>
-          </div>
-        </CardContent>
-      </Card>
-    </div>
-  )
-}
-
-function PopulatedDashboard() {
-  return (
-    <div className="space-y-4">
-      {/* Suitpax Virtual Card Section */}
-      <SuitpaxCardSection />
-
-      <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-4">
-        <Card className="border border-white/10 rounded-lg overflow-hidden bg-black/95">
-          <CardHeader className="pb-2 pt-3 px-4">
-            <CardTitle className="text-sm font-medium text-white">Upcoming Trips</CardTitle>
-          </CardHeader>
-          <CardContent className="p-4 pt-0">
-            <div className="text-xl font-bold text-white">3</div>
-            <p className="text-xs text-white/70">Next: London, Jun 15-18</p>
-            <div className="mt-3 flex items-center text-xs">
-              <ArrowRight className="mr-1 h-3 w-3 text-white" weight="bold" />
-              <Link href="/flights" className="text-white hover:text-white/70 underline">
-                View all trips
-              </Link>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-    </div>
-  )
-}
-
-function SuitpaxCardSection() {
+function TravelBudgetCard() {
   const [showBalance, setShowBalance] = useState(false)
-  const [currentExpenses] = useState(2847.5)
-  const [monthlyLimit] = useState(5000.0)
+  const currentSpent = 15420
+  const monthlyBudget = 25000
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5, delay: 0.1 }}
-    >
-      <Card className="border border-white/10 rounded-lg overflow-hidden bg-black/95">
-        <CardHeader className="pb-2 pt-3 px-4">
-          <CardTitle className="text-base font-medium tracking-tighter text-white">Your Suitpax Card</CardTitle>
-          <CardDescription className="text-white/70 text-xs">Manage your business travel expenses</CardDescription>
-        </CardHeader>
-        <CardContent className="p-4">
-          <div className="grid gap-4 md:grid-cols-2">
-            {/* Virtual Card */}
-            <div className="relative">
-              <div className="bg-gradient-to-br from-white/10 to-white/5 rounded-lg p-4 border border-white/10 backdrop-blur-sm">
-                <div className="flex justify-between items-start mb-6">
-                  <div>
-                    <p className="text-xs text-white/50 uppercase tracking-wider">Suitpax Business</p>
-                    <p className="text-xs text-white/70 mt-0.5">Corporate Travel Card</p>
-                  </div>
-                  <Wallet className="h-5 w-5 text-white/70" weight="duotone" />
-                </div>
+    <Card className="bg-black/95 border border-white/10 rounded-xl">
+      <CardContent className="p-6">
+        <div className="flex items-center justify-between mb-4">
+          <h3 className="text-lg font-medium text-white">Your Travel Budget</h3>
+          <span className="text-sm text-white/70">US Dollar</span>
+        </div>
 
-                <div className="mb-4">
-                  <p className="text-base font-mono text-white tracking-wider">•••• •••• •••• 4829</p>
-                </div>
-
-                <div className="flex justify-between items-end">
-                  <div>
-                    <p className="text-xs text-white/50 uppercase tracking-wider">Cardholder</p>
-                    <p className="text-xs text-white font-medium">John Doe</p>
-                  </div>
-                  <div className="text-right">
-                    <p className="text-xs text-white/50 uppercase tracking-wider">Expires</p>
-                    <p className="text-xs text-white font-medium">12/27</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Expenses Overview */}
-            <div className="space-y-3">
-              <div className="bg-white/5 rounded-lg p-3 border border-white/10">
-                <div className="flex items-center justify-between mb-2">
-                  <h4 className="text-xs font-medium text-white">Current Balance</h4>
-                  <button
-                    onClick={() => setShowBalance(!showBalance)}
-                    className="p-1 rounded hover:bg-white/5 transition-colors"
-                  >
-                    {showBalance ? (
-                      <EyeSlash className="h-3 w-3 text-white/70" />
-                    ) : (
-                      <Eye className="h-3 w-3 text-white/70" />
-                    )}
-                  </button>
-                </div>
-                <p className="text-xl font-bold text-white">
-                  {showBalance ? `$${currentExpenses.toLocaleString()}` : "••••••"}
-                </p>
-                <p className="text-xs text-white/50 mt-0.5">of ${monthlyLimit.toLocaleString()} monthly limit</p>
-              </div>
-
-              <div className="bg-white/5 rounded-lg p-3 border border-white/10">
-                <h4 className="text-xs font-medium text-white mb-2">This Month</h4>
-                <div className="space-y-1.5">
-                  <div className="flex justify-between text-xs">
-                    <span className="text-white/70">Travel</span>
-                    <span className="text-white">$1,245.00</span>
-                  </div>
-                  <div className="flex justify-between text-xs">
-                    <span className="text-white/70">Hotels</span>
-                    <span className="text-white">$892.50</span>
-                  </div>
-                  <div className="flex justify-between text-xs">
-                    <span className="text-white/70">Meals</span>
-                    <span className="text-white">$410.00</span>
-                  </div>
-                  <div className="flex justify-between text-xs">
-                    <span className="text-white/70">Other</span>
-                    <span className="text-white">$300.00</span>
-                  </div>
-                </div>
-              </div>
-
-              <div className="flex gap-2">
-                <Button asChild className="flex-1 bg-white/10 text-white rounded-lg hover:bg-white/20 text-xs py-1.5">
-                  <Link href="/expenses">View Details</Link>
-                </Button>
-                <Button
-                  asChild
-                  className="flex-1 bg-transparent border border-white/10 text-white rounded-lg hover:bg-white/5 text-xs py-1.5"
-                >
-                  <Link href="/smart-bank">Manage Card</Link>
-                </Button>
-              </div>
-            </div>
+        <div className="mb-4">
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-sm text-white/70">Balance</span>
+            <button
+              onClick={() => setShowBalance(!showBalance)}
+              className="p-1 rounded hover:bg-white/5 transition-colors"
+            >
+              {showBalance ? (
+                <EyeSlash size={16} className="text-white/70" />
+              ) : (
+                <Eye size={16} className="text-white/70" />
+              )}
+            </button>
           </div>
-        </CardContent>
-      </Card>
-    </motion.div>
+          <div className="text-3xl font-bold text-white mb-1">
+            {showBalance ? `$${currentSpent.toLocaleString()}` : "••••••"}
+          </div>
+          <div className="text-sm text-emerald-400">Compared to last month +24.17%</div>
+        </div>
+
+        <div className="bg-white/5 rounded-lg p-4">
+          <div className="flex justify-between items-center mb-2">
+            <span className="text-sm text-white/70">Monthly Budget</span>
+            <span className="text-sm text-white">${monthlyBudget.toLocaleString()}</span>
+          </div>
+          <div className="w-full bg-white/10 rounded-full h-2 mb-2">
+            <div
+              className="bg-emerald-400 h-2 rounded-full"
+              style={{ width: `${(currentSpent / monthlyBudget) * 100}%` }}
+            />
+          </div>
+          <div className="text-xs text-white/50">
+            ${(monthlyBudget - currentSpent).toLocaleString()} remaining this month
+          </div>
+        </div>
+      </CardContent>
+    </Card>
+  )
+}
+
+function RecentTripItem({
+  type,
+  destination,
+  date,
+  amount,
+  status,
+  method,
+}: {
+  type: string
+  destination: string
+  date: string
+  amount: string
+  status: string
+  method: string
+}) {
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case "Completed":
+        return "text-emerald-400"
+      case "Pending":
+        return "text-amber-400"
+      case "Cancelled":
+        return "text-red-400"
+      default:
+        return "text-white/70"
+    }
+  }
+
+  return (
+    <div className="flex items-center justify-between p-4 bg-white/5 rounded-lg">
+      <div className="flex items-center gap-3">
+        <div className="w-10 h-10 bg-white/10 rounded-lg flex items-center justify-center">
+          {type === "Flight" ? (
+            <Airplane size={16} className="text-white/70" />
+          ) : (
+            <Building size={16} className="text-white/70" />
+          )}
+        </div>
+        <div>
+          <div className="font-medium text-white text-sm">{type}</div>
+          <div className="text-xs text-white/50">
+            {destination} • {date}
+          </div>
+        </div>
+      </div>
+      <div className="text-right">
+        <div className="font-medium text-white text-sm">{amount}</div>
+        <div className="text-xs text-white/50">{method}</div>
+      </div>
+      <div className={`text-sm ${getStatusColor(status)}`}>{status}</div>
+    </div>
   )
 }

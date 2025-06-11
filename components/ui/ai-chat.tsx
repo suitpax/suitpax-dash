@@ -2,7 +2,7 @@
 
 import type React from "react"
 
-import { useState, useRef, useEffect, useCallback } from "react"
+import { useState, useRef, useEffect } from "react"
 import { Send, Paperclip, Mic, ChevronDown, ChevronUp, Settings } from "lucide-react"
 import Image from "next/image"
 import type { Message } from "@/lib/ai/anthropic-service"
@@ -41,27 +41,10 @@ export default function AIChat({
     setMessages(initialMessages)
   }, [initialMessages])
 
-  const scrollToBottom = useCallback(() => {
-    if (messagesEndRef.current) {
-      const container = messagesEndRef.current.parentElement
-      if (container) {
-        const isAtBottom = container.scrollHeight - container.scrollTop <= container.clientHeight + 150
-        if (isAtBottom) {
-          requestAnimationFrame(() => {
-            messagesEndRef.current?.scrollIntoView({
-              behavior: "smooth",
-              block: "end",
-            })
-          })
-        }
-      }
-    }
-  }, [messagesEndRef])
-
   // Scroll al final de los mensajes cuando se añade uno nuevo
   useEffect(() => {
-    scrollToBottom()
-  }, [messages, scrollToBottom])
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
+  }, [messages])
 
   // Manejar el envío de mensajes
   const handleSubmit = async (e: React.FormEvent) => {

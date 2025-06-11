@@ -5,6 +5,7 @@ import Layout from "@/components/ui/layout"
 import AIAgentInterface from "@/components/ui/ai-agent-interface"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Bot, Settings, History, Zap, Mail, FileText } from "lucide-react"
+import { GlowBorder } from "@/components/ui/glow-border"
 
 export default function AIAgentPage() {
   const [activeTab, setActiveTab] = useState("chat")
@@ -12,21 +13,10 @@ export default function AIAgentPage() {
   return (
     <Layout>
       <div className="max-w-6xl mx-auto">
-        {/* Header específico de AI Agent */}
-        <div className="bg-black/30 backdrop-blur-sm rounded-xl border border-white/10 p-4 sm:p-6 shadow-sm mb-6">
-          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-            <div>
-              <h1 className="text-xl sm:text-2xl font-medium tracking-tighter text-white">Suitpax AI Agent</h1>
-              <p className="text-sm text-white/70 mt-1">Your intelligent travel assistant powered by AI</p>
-            </div>
-            <div className="flex items-center gap-2">
-              <div className="inline-flex items-center gap-1 bg-white/5 px-2 py-1 rounded-full">
-                <span className="text-xs font-medium text-white/70">Status</span>
-                <span className="text-xs text-white/50">•</span>
-                <span className="text-xs text-emerald-400">Online</span>
-              </div>
-            </div>
-          </div>
+        <div className="flex justify-between items-center mb-6">
+          <GlowBorder className="inline-block px-4 py-2">
+            <h1 className="text-2xl font-medium tracking-tighter text-black">Suitpax AI Agent</h1>
+          </GlowBorder>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">

@@ -1,6 +1,6 @@
 "use client"
 
-import DashboardContent from "./dashboard-content"
+import MainContent from "./main-content"
 import Layout from "./layout"
 import { useEffect } from "react"
 
@@ -14,7 +14,7 @@ export default function Dashboard() {
 
   return (
     <Layout>
-      <DashboardContent />
+      <MainContent />
     </Layout>
   )
 }

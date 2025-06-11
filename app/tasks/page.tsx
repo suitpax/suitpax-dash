@@ -101,31 +101,25 @@ export default function TasksPage() {
   return (
     <Layout>
       <div className="max-w-5xl mx-auto">
-        {/* Header específico de Tasks */}
-        <div className="bg-black/30 backdrop-blur-sm rounded-xl border border-white/10 p-4 sm:p-6 shadow-sm mb-6">
-          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-            <div>
-              <h1 className="text-xl sm:text-2xl font-medium tracking-tighter text-white">Task Management</h1>
-              <p className="text-sm text-white/70 mt-1">Organize and track your business travel tasks</p>
-            </div>
-            <button
-              onClick={() => {
-                setIsFormOpen(true)
-                setEditingTaskId(null)
-                setFormData({
-                  title: "",
-                  description: "",
-                  dueDate: new Date().toISOString().split("T")[0],
-                  priority: "medium",
-                  status: "pending",
-                })
-              }}
-              className="px-3 py-1.5 rounded-xl bg-white/10 text-white hover:bg-white/5 flex items-center gap-2 whitespace-nowrap"
-            >
-              <PlusCircle size={14} />
-              <span className="text-xs">New Task</span>
-            </button>
-          </div>
+        <div className="flex justify-between items-center mb-6">
+          <h1 className="text-2xl font-medium tracking-tighter text-black">Task Management</h1>
+          <button
+            onClick={() => {
+              setIsFormOpen(true)
+              setEditingTaskId(null)
+              setFormData({
+                title: "",
+                description: "",
+                dueDate: new Date().toISOString().split("T")[0],
+                priority: "medium",
+                status: "pending",
+              })
+            }}
+            className="px-3 py-1.5 rounded-xl bg-black text-white hover:bg-gray-800 flex items-center gap-2"
+          >
+            <PlusCircle size={14} />
+            <span className="text-xs">New Task</span>
+          </button>
         </div>
 
         {isFormOpen && (

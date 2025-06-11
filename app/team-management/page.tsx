@@ -323,22 +323,16 @@ export default function TeamManagementPage() {
   return (
     <Layout>
       <div className="max-w-7xl mx-auto">
-        {/* Header específico de Team Management */}
-        <div className="bg-black/30 backdrop-blur-sm rounded-xl border border-white/10 p-4 sm:p-6 shadow-sm mb-6">
-          <div className="flexflex-col lg:flex-row lg:items-center justify-between gap-4">
-            <div>
-              <h1 className="text-xl sm:text-2xl font-medium tracking-tighter text-white">Team Management</h1>
-              <p className="text-sm text-white/70 mt-1">Manage team members, roles, and permissions</p>
-            </div>
-            <div className="flex items-center gap-2">
-              <Dialog open={isAddMemberOpen} onOpenChange={setIsAddMemberOpen}>
-                <DialogTrigger asChild>
-                  <Button className="bg-white/10 text-white hover:bg-white/5 whitespace-nowrap">
-                    <UserPlus className="h-4 w-4 mr-2" />
-                    Add Team Member
-                  </Button>
-                </DialogTrigger>
-        
+        <div className="flex flex-col md:flex-row md:items-center justify-between mb-6">
+          <h1 className="text-2xl font-medium tracking-tighter text-black mb-2 md:mb-0">Team Management</h1>
+          <div className="flex items-center gap-2">
+            <Dialog open={isAddMemberOpen} onOpenChange={setIsAddMemberOpen}>
+              <DialogTrigger asChild>
+                <Button className="bg-black text-white hover:bg-gray-800">
+                  <UserPlus className="h-4 w-4 mr-2" />
+                  Add Team Member
+                </Button>
+              </DialogTrigger>
               <DialogContent>
                 <DialogHeader>
                   <DialogTitle>Add New Team Member</DialogTitle>

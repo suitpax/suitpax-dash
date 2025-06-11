@@ -1,30 +1,36 @@
-import { NextResponse } from "next/server"
-import { enhancedAiService } from "@/lib/ai/ai-service-enhanced"
+import { type NextRequest, NextResponse } from "next/server"
+import { aiService } from "@/lib/ai/ai-service"
 
-export async function POST(request: Request) {
+export async function POST(req: NextRequest) {
   try {
-    const body = await request.json()
-    const { messages, systemPrompt, stream } = body
+    const body = await req.json()
+    const { messages, systemPrompt, includeTableData, tableName, searchParams, promptId, stream } = body
 
-    const response = await enhancedAiService.generateResponse({
+    // Validar los datos de entrada
+    if (!messages || !Array.isArray(messages)) {
+      return NextResponse.json({ error: "Se requiere un array de mensajes válido" }, { status: 400 })
+    }
+
+    // Generar la respuesta
+    const response = await aiService.generateResponse({
       messages,
       systemPrompt,
-      stream: stream || false,
+      includeTableData,
+      tableName,
+      searchParams,
+      promptId,
+      stream,
     })
 
-    return NextResponse.json(response)
-  } catch (error) {
-    console.error("Error in AI route:", error)
-    return NextResponse.json({ error: "Failed to process request" }, { status: 500 })
-  }
-}
+    // Si es una respuesta en streaming, devolverla directamente
+    if (stream) {
+      return response
+    }
 
-export async function GET() {
-  try {
-    const capabilities = await enhancedAiService.getAICapabilities()
-    return NextResponse.json(capabilities)
+    // Si no, devolver la respuesta como JSON
+    return NextResponse.json({ response })
   } catch (error) {
-    console.error("Error fetching AI capabilities:", error)
-    return NextResponse.json({ error: "Failed to fetch AI capabilities" }, { status: 500 })
+    console.error("Error in AI API route:", error)
+    return NextResponse.json({ error: "Error al procesar la solicitud de IA" }, { status: 500 })
   }
 }

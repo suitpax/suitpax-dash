@@ -40,28 +40,28 @@ Suitpax Dashboard is a web-based application that provides real-time monitoring,
 ## Installation
 
 1. Clone the repository:
-```bash
+\`\`\`bash
 git clone https://github.com/suitpax/suitpax-dash.git
 cd suitpax-dash
-```
+\`\`\`
 
 2. Install dependencies:
-```bash
+\`\`\`bash
 npm install
-```
+\`\`\`
 
 3. Set up environment variables:
 Create a `.env` file in the root directory and add the following:
-```
+\`\`\`
 PORT=3000
 MONGODB_URI=your_mongodb_connection_string
 JWT_SECRET=your_jwt_secret
-```
+\`\`\`
 
 4. Start the development server:
-```bash
+\`\`\`bash
 npm run dev
-```
+\`\`\`
 
 ## Usage
 
@@ -72,7 +72,7 @@ npm run dev
 
 ## Project Structure
 
-```
+\`\`\`
 suitpax-dash/
 ├── client/             # Frontend React application
 ├── server/             # Backend Node.js server
@@ -82,7 +82,7 @@ suitpax-dash/
 ├── middleware/         # Custom middleware
 ├── utils/             # Utility functions
 └── tests/             # Test files
-```
+\`\`\`
 
 ## API Documentation
 
@@ -91,16 +91,16 @@ The API documentation is available at `/api/docs` when running the development s
 ## Testing
 
 Run the test suite:
-```bash
+\`\`\`bash
 npm run test
-```
+\`\`\`
 
 ## Deployment
 
 1. Build the production version:
-```bash
+\`\`\`bash
 npm run build
-```
+\`\`\`
 
 2. Deploy using your preferred hosting service (e.g., Heroku, AWS, Digital Ocean)
 
@@ -133,7 +133,6 @@ For support or inquiries, please contact:
 ## Last Updated
 
 2025-06-07
-```
+\`\`\`
 
 This README provides a comprehensive overview of the project, including all essential sections like installation instructions, usage guidelines, project structure, and contribution guidelines. Feel free to modify any section to better match your specific project requirements or add additional information as needed.
-

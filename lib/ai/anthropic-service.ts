@@ -94,3 +94,21 @@ export async function generateClaudeStream(messages: Message[], systemPrompt?: s
     throw error
   }
 }
+
+export class AnthropicService {
+  async generateResponse(prompt: string, options?: any) {
+    // Mock implementation
+    return "Mock response from Anthropic service"
+  }
+
+  async streamResponse(prompt: string, options?: any) {
+    // Mock streaming response
+    return new Response("Mock streaming response", {
+      headers: {
+        "Content-Type": "text/plain",
+      },
+    })
+  }
+}
+
+export const anthropicService = new AnthropicService()

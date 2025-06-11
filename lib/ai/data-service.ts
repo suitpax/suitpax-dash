@@ -15,3 +15,7 @@ export class DataService {
     return []
   }
 }
+
+// Export as default and named export
+export default DataService
+export const dataService = DataService

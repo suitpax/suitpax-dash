@@ -1,7 +1,7 @@
 import type React from "react"
 import { Sidebar } from "./sidebar"
 
-export default function Layout({ children }: { children: React.ReactNode }) {
+function Layout({ children }: { children: React.ReactNode }) {
   return (
     <div className="min-h-screen bg-black flex">
       <Sidebar />
@@ -9,3 +9,6 @@ export default function Layout({ children }: { children: React.ReactNode }) {
     </div>
   )
 }
+
+export default Layout
+export { Layout }

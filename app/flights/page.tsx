@@ -1,5 +1,7 @@
 "use client"
 
+import type React from "react"
+
 import { Suspense, useState, useEffect } from "react"
 import { useSearchParams } from "next/navigation"
 import { Button } from "@/components/ui/button"
@@ -7,16 +9,8 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Badge } from "@/components/ui/badge"
-import {
-  MicroscopeIcon as MagnifyingGlassIcon,
-  MapPinIcon,
-  CalendarIcon,
-  UsersIcon,
-  MoveHorizontalIcon as AdjustmentsHorizontalIcon,
-  ClockIcon,
-  ArrowLeftIcon as ArrowPathIcon,
-} from "lucide-react"
-import flightsData from "@/data/flights.json"
+import { Card, CardContent } from "@/components/ui/card"
+import { Search, MapPin, Calendar, Plane, Star, Filter, ArrowUpDown, Bookmark, BookmarkCheck } from "lucide-react"
 
 interface Flight {
   id: string
@@ -26,30 +20,45 @@ interface Flight {
     airport: string
     city: string
     time: string
+    date: string
   }
   arrival: {
     airport: string
     city: string
     time: string
+    date: string
   }
   duration: string
   price: number
   class: string
+  stops: number
+  aircraft: string
+  rating: number
 }
 
 function FlightsContent() {
   const searchParams = useSearchParams()
-  const [flights, setFlights] = useState<Flight[]>(flightsData as Flight[])
+  const [flights, setFlights] = useState<Flight[]>([])
+  const [loading, setLoading] = useState(false)
+  const [savedFlights, setSavedFlights] = useState<string[]>([])
+
+  // Search form state
   const [fromCity, setFromCity] = useState("")
   const [toCity, setToCity] = useState("")
   const [departureDate, setDepartureDate] = useState("")
   const [returnDate, setReturnDate] = useState("")
   const [passengers, setPassengers] = useState("1")
   const [tripType, setTripType] = useState("round-trip")
-  const [activeTab, setActiveTab] = useState<"search" | "results" | "saved">("search")
+  const [travelClass, setTravelClass] = useState("economy")
+
+  // Filter state
   const [sortBy, setSortBy] = useState("price")
+  const [maxPrice, setMaxPrice] = useState(2000)
+  const [selectedAirlines, setSelectedAirlines] = useState<string[]>([])
+  const [directOnly, setDirectOnly] = useState(false)
 
   useEffect(() => {
+    // Get URL parameters
     const from = searchParams.get("from") || ""
     const to = searchParams.get("to") || ""
     const departure = searchParams.get("departure") || ""
@@ -62,34 +71,127 @@ function FlightsContent() {
     setReturnDate(returnD)
     setPassengers(pax)
 
-    if (from || to) {
-      setActiveTab("results")
+    // Load saved flights from localStorage
+    const saved = localStorage.getItem("savedFlights")
+    if (saved) {
+      setSavedFlights(JSON.parse(saved))
+    }
+
+    // If we have search params, perform search
+    if (from && to && departure) {
+      performSearch()
     }
   }, [searchParams])
 
-  const filteredFlights = flights
-    .filter((flight) => {
-      const matchesFrom = !fromCity || flight.departure.city.toLowerCase().includes(fromCity.toLowerCase())
-      const matchesTo = !toCity || flight.arrival.city.toLowerCase().includes(toCity.toLowerCase())
-      return matchesFrom && matchesTo
-    })
-    .sort((a, b) => {
+  const performSearch = async () => {
+    setLoading(true)
+
+    // Simulate API call
+    await new Promise((resolve) => setTimeout(resolve, 1500))
+
+    // Generate realistic flight data
+    const generatedFlights = generateFlights(fromCity, toCity, departureDate)
+    setFlights(generatedFlights)
+    setLoading(false)
+  }
+
+  const generateFlights = (from: string, to: string, date: string): Flight[] => {
+    const airlines = [
+      "American Airlines",
+      "Delta",
+      "United",
+      "British Airways",
+      "Lufthansa",
+      "Air France",
+      "Emirates",
+      "Qatar Airways",
+    ]
+
+    const flights: Flight[] = []
+    const numFlights = 8 + Math.floor(Math.random() * 7)
+
+    for (let i = 0; i < numFlights; i++) {
+      const airline = airlines[Math.floor(Math.random() * airlines.length)]
+      const departureHour = 6 + Math.floor(Math.random() * 16)
+      const departureMinute = Math.floor(Math.random() * 60)
+      const durationHours = 2 + Math.floor(Math.random() * 8)
+      const durationMinutes = Math.floor(Math.random() * 60)
+
+      const basePrice =
+        travelClass === "economy"
+          ? 200
+          : travelClass === "premium-economy"
+            ? 400
+            : travelClass === "business"
+              ? 800
+              : 1500
+
+      const price = basePrice + Math.floor(Math.random() * basePrice * 0.5)
+      const stops = Math.random() > 0.6 ? 0 : Math.random() > 0.8 ? 2 : 1
+
+      flights.push({
+        id: `FL${1000 + i}`,
+        airline,
+        flightNumber: `${airline.substring(0, 2).toUpperCase()}${100 + i}`,
+        departure: {
+          airport: `${from.substring(0, 3).toUpperCase()}`,
+          city: from,
+          time: `${departureHour.toString().padStart(2, "0")}:${departureMinute.toString().padStart(2, "0")}`,
+          date: date,
+        },
+        arrival: {
+          airport: `${to.substring(0, 3).toUpperCase()}`,
+          city: to,
+          time: `${(departureHour + durationHours).toString().padStart(2, "0")}:${((departureMinute + durationMinutes) % 60).toString().padStart(2, "0")}`,
+          date: date,
+        },
+        duration: `${durationHours}h ${durationMinutes}m`,
+        price,
+        class: travelClass,
+        stops,
+        aircraft: "Boeing 737",
+        rating: 3.5 + Math.random() * 1.5,
+      })
+    }
+
+    return flights.sort((a, b) => {
       if (sortBy === "price") return a.price - b.price
-      if (sortBy === "duration") return a.duration.localeCompare(b.duration)
+      if (sortBy === "duration") return Number.parseInt(a.duration) - Number.parseInt(b.duration)
       if (sortBy === "departure") return a.departure.time.localeCompare(b.departure.time)
       return 0
     })
-
-  const handleSearch = () => {
-    setActiveTab("results")
   }
 
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault()
+    if (fromCity && toCity && departureDate) {
+      performSearch()
+    }
+  }
+
+  const toggleSaveFlight = (flightId: string) => {
+    const updated = savedFlights.includes(flightId)
+      ? savedFlights.filter((id) => id !== flightId)
+      : [...savedFlights, flightId]
+
+    setSavedFlights(updated)
+    localStorage.setItem("savedFlights", JSON.stringify(updated))
+  }
+
+  const filteredFlights = flights.filter((flight) => {
+    if (flight.price > maxPrice) return false
+    if (selectedAirlines.length > 0 && !selectedAirlines.includes(flight.airline)) return false
+    if (directOnly && flight.stops > 0) return false
+    return true
+  })
+
   const popularDestinations = [
-    { city: "New York", code: "NYC", image: "/placeholder.svg?height=100&width=100" },
-    { city: "London", code: "LON", image: "/placeholder.svg?height=100&width=100" },
-    { city: "Tokyo", code: "TYO", image: "/placeholder.svg?height=100&width=100" },
-    { city: "Paris", code: "PAR", image: "/placeholder.svg?height=100&width=100" },
-    { city: "Madrid", code: "MAD", image: "/placeholder.svg?height=100&width=100" },
+    { city: "New York", code: "NYC", image: "/placeholder.svg?height=120&width=200&text=NYC" },
+    { city: "London", code: "LHR", image: "/placeholder.svg?height=120&width=200&text=London" },
+    { city: "Paris", code: "CDG", image: "/placeholder.svg?height=120&width=200&text=Paris" },
+    { city: "Tokyo", code: "NRT", image: "/placeholder.svg?height=120&width=200&text=Tokyo" },
+    { city: "Dubai", code: "DXB", image: "/placeholder.svg?height=120&width=200&text=Dubai" },
+    { city: "Singapore", code: "SIN", image: "/placeholder.svg?height=120&width=200&text=Singapore" },
   ]
 
   return (
@@ -98,155 +200,85 @@ function FlightsContent() {
         {/* Header */}
         <div className="bg-white/5 border border-white/10 rounded-lg p-6">
           <h1 className="text-3xl font-bold text-white mb-2">Flight Search</h1>
-          <p className="text-white/70">Find the best flights for your business travel</p>
+          <p className="text-white/70">Find and book the perfect flights for your business travel</p>
         </div>
 
-        {/* Tabs de navegación */}
-        <div className="flex space-x-2 mb-6 overflow-x-auto pb-2">
-          <button
-            onClick={() => setActiveTab("search")}
-            className={`flex items-center px-3 py-1.5 rounded-full text-xs font-medium transition-colors ${
-              activeTab === "search"
-                ? "bg-white/10 text-white"
-                : "bg-transparent border border-white/10 text-white/70 hover:bg-white/5"
-            }`}
-          >
-            <MagnifyingGlassIcon className="h-3.5 w-3.5 mr-1.5" />
-            Search Flights
-          </button>
-          <button
-            onClick={() => setActiveTab("results")}
-            className={`flex items-center px-3 py-1.5 rounded-full text-xs font-medium transition-colors ${
-              activeTab === "results"
-                ? "bg-white/10 text-white"
-                : "bg-transparent border border-white/10 text-white/70 hover:bg-white/5"
-            }`}
-          >
-            <AdjustmentsHorizontalIcon className="h-3.5 w-3.5 mr-1.5" />
-            Results
-          </button>
-          <button
-            onClick={() => setActiveTab("saved")}
-            className={`flex items-center px-3 py-1.5 rounded-full text-xs font-medium transition-colors ${
-              activeTab === "saved"
-                ? "bg-white/10 text-white"
-                : "bg-transparent border border-white/10 text-white/70 hover:bg-white/5"
-            }`}
-          >
-            <ClockIcon className="h-3.5 w-3.5 mr-1.5" />
-            Saved Flights
-          </button>
-        </div>
+        {/* Search Form */}
+        <Card className="bg-white/5 border-white/10">
+          <CardContent className="p-6">
+            <form onSubmit={handleSearch} className="space-y-4">
+              {/* Trip Type */}
+              <div className="flex space-x-4 mb-4">
+                <label className="flex items-center space-x-2 cursor-pointer">
+                  <input
+                    type="radio"
+                    value="round-trip"
+                    checked={tripType === "round-trip"}
+                    onChange={(e) => setTripType(e.target.value)}
+                    className="text-white"
+                  />
+                  <span className="text-white text-sm">Round Trip</span>
+                </label>
+                <label className="flex items-center space-x-2 cursor-pointer">
+                  <input
+                    type="radio"
+                    value="one-way"
+                    checked={tripType === "one-way"}
+                    onChange={(e) => setTripType(e.target.value)}
+                    className="text-white"
+                  />
+                  <span className="text-white text-sm">One Way</span>
+                </label>
+              </div>
 
-        {/* Iconos de información */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
-          <div className="bg-black/30 backdrop-blur-sm rounded-xl p-3 border border-white/10">
-            <div className="flex items-center gap-2">
-              <div className="p-2 bg-white/5 rounded-full">
-                <CalendarIcon className="h-4 w-4 text-white" />
-              </div>
-              <div>
-                <h3 className="text-xs font-medium text-white">Flexibility</h3>
-                <p className="text-[10px] text-white/50">No change fees</p>
-              </div>
-            </div>
-          </div>
-          <div className="bg-black/30 backdrop-blur-sm rounded-xl p-3 border border-white/10">
-            <div className="flex items-center gap-2">
-              <div className="p-2 bg-white/5 rounded-full">
-                <MapPinIcon className="h-4 w-4 text-white" />
-              </div>
-              <div>
-                <h3 className="text-xs font-medium text-white">Destinations</h3>
-                <p className="text-[10px] text-white/50">+200 cities</p>
-              </div>
-            </div>
-          </div>
-          <div className="bg-black/30 backdrop-blur-sm rounded-xl p-3 border border-white/10">
-            <div className="flex items-center gap-2">
-              <div className="p-2 bg-white/5 rounded-full">
-                <UsersIcon className="h-4 w-4 text-white" />
-              </div>
-              <div>
-                <h3 className="text-xs font-medium text-white">Group Travel</h3>
-                <p className="text-[10px] text-white/50">Special rates</p>
-              </div>
-            </div>
-          </div>
-          <div className="bg-black/30 backdrop-blur-sm rounded-xl p-3 border border-white/10">
-            <div className="flex items-center gap-2">
-              <div className="p-2 bg-white/5 rounded-full">
-                <ArrowPathIcon className="h-4 w-4 text-white" />
-              </div>
-              <div>
-                <h3 className="text-xs font-medium text-white">Airlines</h3>
-                <p className="text-[10px] text-white/50">+50 companies</p>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {activeTab === "search" && (
-          <>
-            {/* Search Form */}
-            <div className="bg-white/5 border border-white/10 rounded-lg p-6">
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="from" className="text-white">
-                    From
-                  </Label>
+                  <Label className="text-white">From</Label>
                   <div className="relative">
-                    <MapPinIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-white/50" />
+                    <MapPin className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-white/50" />
                     <Input
-                      id="from"
                       placeholder="Departure city"
                       value={fromCity}
                       onChange={(e) => setFromCity(e.target.value)}
                       className="pl-10 bg-white/5 border-white/10 text-white placeholder:text-white/30"
+                      required
                     />
                   </div>
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="to" className="text-white">
-                    To
-                  </Label>
+                  <Label className="text-white">To</Label>
                   <div className="relative">
-                    <MapPinIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-white/50" />
+                    <MapPin className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-white/50" />
                     <Input
-                      id="to"
                       placeholder="Destination city"
                       value={toCity}
                       onChange={(e) => setToCity(e.target.value)}
                       className="pl-10 bg-white/5 border-white/10 text-white placeholder:text-white/30"
+                      required
                     />
                   </div>
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="departure" className="text-white">
-                    Departure
-                  </Label>
+                  <Label className="text-white">Departure</Label>
                   <div className="relative">
-                    <CalendarIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-white/50" />
+                    <Calendar className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-white/50" />
                     <Input
-                      id="departure"
                       type="date"
                       value={departureDate}
                       onChange={(e) => setDepartureDate(e.target.value)}
                       className="pl-10 bg-white/5 border-white/10 text-white"
+                      required
                     />
                   </div>
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="return" className="text-white">
-                    Return
-                  </Label>
+                  <Label className="text-white">Return</Label>
                   <div className="relative">
-                    <CalendarIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-white/50" />
+                    <Calendar className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-white/50" />
                     <Input
-                      id="return"
                       type="date"
                       value={returnDate}
                       onChange={(e) => setReturnDate(e.target.value)}
@@ -257,14 +289,12 @@ function FlightsContent() {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="passengers" className="text-white">
-                    Passengers
-                  </Label>
+                  <Label className="text-white">Passengers</Label>
                   <Select value={passengers} onValueChange={setPassengers}>
                     <SelectTrigger className="bg-white/5 border-white/10 text-white">
                       <SelectValue />
                     </SelectTrigger>
-                    <SelectContent className="bg-black border-white/10">
+                    <SelectContent>
                       <SelectItem value="1">1 Passenger</SelectItem>
                       <SelectItem value="2">2 Passengers</SelectItem>
                       <SelectItem value="3">3 Passengers</SelectItem>
@@ -274,164 +304,193 @@ function FlightsContent() {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="trip-type" className="text-white">
-                    Trip Type
-                  </Label>
-                  <Select value={tripType} onValueChange={setTripType}>
+                  <Label className="text-white">Class</Label>
+                  <Select value={travelClass} onValueChange={setTravelClass}>
                     <SelectTrigger className="bg-white/5 border-white/10 text-white">
                       <SelectValue />
                     </SelectTrigger>
-                    <SelectContent className="bg-black border-white/10">
-                      <SelectItem value="round-trip">Round Trip</SelectItem>
-                      <SelectItem value="one-way">One Way</SelectItem>
+                    <SelectContent>
+                      <SelectItem value="economy">Economy</SelectItem>
+                      <SelectItem value="premium-economy">Premium Economy</SelectItem>
+                      <SelectItem value="business">Business</SelectItem>
+                      <SelectItem value="first">First Class</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
               </div>
 
-              <Button onClick={handleSearch} className="mt-4 bg-white text-black hover:bg-white/90 rounded-full">
-                <MagnifyingGlassIcon className="h-4 w-4 mr-2" />
-                Search Flights
+              <Button type="submit" className="bg-white text-black hover:bg-white/90 rounded-full" disabled={loading}>
+                {loading ? (
+                  <>
+                    <div className="h-4 w-4 border-2 border-black/30 border-t-black rounded-full animate-spin mr-2" />
+                    Searching...
+                  </>
+                ) : (
+                  <>
+                    <Search className="h-4 w-4 mr-2" />
+                    Search Flights
+                  </>
+                )}
               </Button>
-            </div>
+            </form>
+          </CardContent>
+        </Card>
 
-            {/* Popular Destinations */}
-            <div className="bg-white/5 border border-white/10 rounded-lg p-6">
+        {/* Popular Destinations */}
+        {flights.length === 0 && !loading && (
+          <Card className="bg-white/5 border-white/10">
+            <CardContent className="p-6">
               <h2 className="text-xl font-semibold text-white mb-4">Popular Business Destinations</h2>
-              <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
-                {popularDestinations.map((destination, index) => (
+              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+                {popularDestinations.map((destination) => (
                   <div
-                    key={index}
-                    className="bg-black/30 rounded-lg overflow-hidden border border-white/10 hover:border-white/20 cursor-pointer transition-all"
+                    key={destination.code}
+                    className="bg-black/30 rounded-lg overflow-hidden border border-white/10 hover:border-white/20 cursor-pointer transition-all group"
                     onClick={() => {
                       setToCity(destination.city)
-                      setActiveTab("search")
                     }}
                   >
-                    <div className="h-24 relative">
+                    <div className="h-20 relative">
                       <img
                         src={destination.image || "/placeholder.svg"}
                         alt={destination.city}
-                        className="w-full h-full object-cover"
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform"
                       />
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent"></div>
-                      <div className="absolute bottom-2 left-2 right-2">
-                        <p className="text-white font-medium text-sm">{destination.city}</p>
-                        <p className="text-white/70 text-xs">{destination.code}</p>
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent" />
+                      <div className="absolute bottom-1 left-2 right-2">
+                        <p className="text-white font-medium text-xs">{destination.city}</p>
+                        <p className="text-white/70 text-[10px]">{destination.code}</p>
                       </div>
                     </div>
                   </div>
                 ))}
               </div>
-            </div>
-          </>
+            </CardContent>
+          </Card>
         )}
 
-        {activeTab === "results" && (
-          <div className="space-y-4">
-            {/* Sorting and Filters */}
-            <div className="bg-white/5 border border-white/10 rounded-lg p-4">
-              <div className="flex flex-wrap items-center justify-between gap-4">
+        {/* Results */}
+        {flights.length > 0 && (
+          <>
+            {/* Filters */}
+            <div className="flex flex-wrap items-center justify-between gap-4 bg-white/5 border border-white/10 rounded-lg p-4">
+              <div className="flex items-center space-x-4">
                 <div className="flex items-center space-x-2">
-                  <span className="text-white/70 text-sm">Sort by:</span>
+                  <ArrowUpDown className="h-4 w-4 text-white/70" />
+                  <span className="text-white/70 text-sm">Sort:</span>
                   <Select value={sortBy} onValueChange={setSortBy}>
                     <SelectTrigger className="bg-white/5 border-white/10 text-white h-8 text-xs w-[120px]">
                       <SelectValue />
                     </SelectTrigger>
-                    <SelectContent className="bg-black border-white/10">
+                    <SelectContent>
                       <SelectItem value="price">Price</SelectItem>
                       <SelectItem value="duration">Duration</SelectItem>
-                      <SelectItem value="departure">Departure Time</SelectItem>
+                      <SelectItem value="departure">Departure</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
 
-                <div className="flex flex-wrap gap-2">
-                  <Badge className="bg-white/10 text-white hover:bg-white/20 cursor-pointer rounded-full">
-                    Direct Flights
-                  </Badge>
-                  <Badge className="bg-white/10 text-white hover:bg-white/20 cursor-pointer rounded-full">
-                    Morning Departure
-                  </Badge>
-                  <Badge className="bg-white/10 text-white hover:bg-white/20 cursor-pointer rounded-full">
-                    Business Class
+                <div className="flex items-center space-x-2">
+                  <Filter className="h-4 w-4 text-white/70" />
+                  <Badge
+                    onClick={() => setDirectOnly(!directOnly)}
+                    className={`cursor-pointer rounded-full ${
+                      directOnly ? "bg-white text-black" : "bg-white/10 text-white hover:bg-white/20"
+                    }`}
+                  >
+                    Direct Only
                   </Badge>
                 </div>
               </div>
+
+              <div className="text-white/70 text-sm">{filteredFlights.length} flights found</div>
             </div>
 
-            {/* Results */}
-            <div className="flex items-center justify-between">
-              <h2 className="text-xl font-semibold text-white">{filteredFlights.length} flights found</h2>
-            </div>
-
+            {/* Flight Results */}
             <div className="space-y-4">
               {filteredFlights.map((flight) => (
-                <div
-                  key={flight.id}
-                  className="bg-white/5 border border-white/10 rounded-lg p-6 hover:bg-white/10 transition-colors"
-                >
-                  <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-                    <div className="flex flex-col md:flex-row md:items-center gap-6">
-                      <div className="text-center">
-                        <div className="text-2xl font-bold text-white">{flight.departure.time}</div>
-                        <div className="text-white/70 text-sm">{flight.departure.airport}</div>
-                        <div className="text-white/50 text-xs">{flight.departure.city}</div>
-                      </div>
-
-                      <div className="flex flex-col items-center">
-                        <div className="text-white/50 text-sm mb-1">{flight.duration}</div>
-                        <div className="w-16 h-px bg-white/20 relative">
-                          <div className="absolute right-0 top-0 w-2 h-2 bg-white/50 rounded-full transform translate-x-1 -translate-y-0.5"></div>
+                <Card key={flight.id} className="bg-white/5 border-white/10 hover:bg-white/10 transition-colors">
+                  <CardContent className="p-6">
+                    <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+                      <div className="flex flex-col lg:flex-row lg:items-center gap-6 flex-1">
+                        {/* Airline */}
+                        <div className="flex items-center space-x-3">
+                          <div className="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center">
+                            <Plane className="h-5 w-5 text-white" />
+                          </div>
+                          <div>
+                            <p className="text-white font-medium text-sm">{flight.airline}</p>
+                            <p className="text-white/50 text-xs">{flight.flightNumber}</p>
+                          </div>
                         </div>
-                        <div className="text-white/50 text-xs mt-1">Direct</div>
+
+                        {/* Flight Details */}
+                        <div className="flex items-center justify-between flex-1">
+                          <div className="text-center">
+                            <div className="text-xl font-bold text-white">{flight.departure.time}</div>
+                            <div className="text-white/70 text-sm">{flight.departure.airport}</div>
+                            <div className="text-white/50 text-xs">{flight.departure.city}</div>
+                          </div>
+
+                          <div className="flex flex-col items-center mx-4">
+                            <div className="text-white/50 text-xs mb-1">{flight.duration}</div>
+                            <div className="w-16 h-px bg-white/20 relative">
+                              <div className="absolute right-0 top-0 w-2 h-2 bg-white/50 rounded-full transform translate-x-1 -translate-y-0.5" />
+                            </div>
+                            <div className="text-white/50 text-xs mt-1">
+                              {flight.stops === 0 ? "Direct" : `${flight.stops} stop${flight.stops > 1 ? "s" : ""}`}
+                            </div>
+                          </div>
+
+                          <div className="text-center">
+                            <div className="text-xl font-bold text-white">{flight.arrival.time}</div>
+                            <div className="text-white/70 text-sm">{flight.arrival.airport}</div>
+                            <div className="text-white/50 text-xs">{flight.arrival.city}</div>
+                          </div>
+                        </div>
                       </div>
 
-                      <div className="text-center">
-                        <div className="text-2xl font-bold text-white">{flight.arrival.time}</div>
-                        <div className="text-white/70 text-sm">{flight.arrival.airport}</div>
-                        <div className="text-white/50 text-xs">{flight.arrival.city}</div>
+                      {/* Price and Actions */}
+                      <div className="flex items-center justify-between lg:flex-col lg:items-end gap-4">
+                        <div className="text-right">
+                          <div className="text-2xl font-bold text-white">${flight.price}</div>
+                          <div className="text-white/50 text-sm">{flight.class}</div>
+                          <div className="flex items-center mt-1">
+                            <Star className="h-3 w-3 text-yellow-400 fill-current" />
+                            <span className="text-white/70 text-xs ml-1">{flight.rating.toFixed(1)}</span>
+                          </div>
+                        </div>
+
+                        <div className="flex items-center space-x-2">
+                          <Button
+                            onClick={() => toggleSaveFlight(flight.id)}
+                            variant="outline"
+                            size="sm"
+                            className="border-white/20 text-white hover:bg-white/10"
+                          >
+                            {savedFlights.includes(flight.id) ? (
+                              <BookmarkCheck className="h-4 w-4" />
+                            ) : (
+                              <Bookmark className="h-4 w-4" />
+                            )}
+                          </Button>
+                          <Button className="bg-white text-black hover:bg-white/90 rounded-full">Select Flight</Button>
+                        </div>
                       </div>
                     </div>
-
-                    <div className="text-center md:text-right">
-                      <div className="text-3xl font-bold text-white">${flight.price}</div>
-                      <div className="text-white/50 text-sm">{flight.class}</div>
-                      <Button className="mt-2 bg-white text-black hover:bg-white/90 rounded-full">Select Flight</Button>
-                    </div>
-                  </div>
-
-                  <div className="mt-4 flex items-center justify-between text-sm">
-                    <div className="flex items-center space-x-4">
-                      <span className="text-white/70">{flight.airline}</span>
-                      <span className="text-white/50">{flight.flightNumber}</span>
-                    </div>
-                    <Badge variant="secondary" className="bg-white/10 text-white/70 border-white/20 rounded-full">
-                      {flight.class}
-                    </Badge>
-                  </div>
-                </div>
+                  </CardContent>
+                </Card>
               ))}
             </div>
-          </div>
+          </>
         )}
 
-        {activeTab === "saved" && (
-          <div className="bg-white/5 border border-white/10 rounded-lg p-6 text-center">
-            <div className="py-12">
-              <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-white/5 mb-4">
-                <ClockIcon className="h-8 w-8 text-white/30" />
-              </div>
-              <h3 className="text-xl font-medium text-white mb-2">No Saved Flights</h3>
-              <p className="text-white/70 max-w-md mx-auto">
-                You haven't saved any flights yet. Search for flights and save them for quick access later.
-              </p>
-              <Button
-                onClick={() => setActiveTab("search")}
-                className="mt-4 bg-white text-black hover:bg-white/90 rounded-full"
-              >
-                Search Flights
-              </Button>
+        {/* Loading State */}
+        {loading && (
+          <div className="flex justify-center py-12">
+            <div className="text-center">
+              <div className="h-8 w-8 border-2 border-white/50 border-t-transparent rounded-full animate-spin mx-auto mb-4" />
+              <p className="text-white/70">Searching for the best flights...</p>
             </div>
           </div>
         )}
@@ -447,15 +506,8 @@ export default function FlightsPage() {
         <div className="min-h-screen bg-black p-3">
           <div className="max-w-7xl mx-auto space-y-4">
             <div className="bg-white/5 border border-white/10 rounded-lg p-6">
-              <div className="h-8 bg-white/10 rounded w-48 mb-4 animate-pulse"></div>
-              <div className="h-4 bg-white/10 rounded w-96 animate-pulse"></div>
-            </div>
-            <div className="bg-white/5 border border-white/10 rounded-lg p-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {[1, 2, 3, 4, 5, 6].map((i) => (
-                  <div key={i} className="h-24 bg-white/10 rounded animate-pulse"></div>
-                ))}
-              </div>
+              <div className="h-8 bg-white/10 rounded w-48 mb-4 animate-pulse" />
+              <div className="h-4 bg-white/10 rounded w-96 animate-pulse" />
             </div>
           </div>
         </div>

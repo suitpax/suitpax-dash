@@ -448,94 +448,138 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
           {/* Mini Chat Card */}
           <div className="p-3 border-t border-white/10">
             {!isCollapsed ? (
-              <div className="overflow-hidden bg-white/5 rounded-md shadow-sm">
-                <div className="p-2 bg-white/5 border-b border-white/10 flex items-center justify-between">
-                  <div className="flex items-center">
-                    <div className="relative h-6 w-6 rounded-full overflow-hidden mr-2">
-                      <Image src="/images/ai-agent-avatar.jpeg" alt="AI Assistant" fill className="object-cover" />
+              <div className="space-y-3">
+                {/* AI Agent Quick Input */}
+                <div className="bg-white/5 rounded-lg border border-white/10 overflow-hidden">
+                  <div className="p-2 bg-white/5 border-b border-white/10 flex items-center justify-between">
+                    <div className="flex items-center">
+                      <div className="relative h-6 w-6 rounded-full overflow-hidden mr-2">
+                        <Image src="/images/ai-agent-avatar.jpeg" alt="AI Assistant" fill className="object-cover" />
+                      </div>
+                      <span className="text-xs font-medium text-white">AI Agent</span>
                     </div>
-                    <span className="text-xs font-medium text-white">AI Agent</span>
+                    <button
+                      className="p-1 rounded-full hover:bg-white/10 text-white/50 hover:text-white"
+                      onClick={() => setIsChatMinimized(!isChatMinimized)}
+                    >
+                      {isChatMinimized ? <PlusCircleIcon className="h-3 w-3" /> : <MinusIcon className="h-3 w-3" />}
+                    </button>
                   </div>
-                  <button
-                    className="p-1 rounded-full hover:bg-white/10 text-white/50 hover:text-white"
-                    onClick={() => setIsChatMinimized(!isChatMinimized)}
-                  >
-                    {isChatMinimized ? <PlusCircleIcon className="h-3 w-3" /> : <MinusIcon className="h-3 w-3" />}
-                  </button>
+
+                  {!isChatMinimized && (
+                    <>
+                      <div className="p-2 h-32 overflow-y-auto bg-black/30">
+                        {chatMessages.map((msg, index) => (
+                          <div key={index} className={`mb-2 flex ${msg.isUser ? "justify-end" : "justify-start"}`}>
+                            <div
+                              className={`max-w-[85%] p-2 rounded-md text-[10px] ${
+                                msg.isUser
+                                  ? "bg-white/10 text-white rounded-tr-none"
+                                  : "bg-white/5 text-white/90 rounded-tl-none"
+                              }`}
+                            >
+                              <div className="whitespace-pre-wrap">{msg.text}</div>
+                              <div className="text-[8px] text-white/40 mt-1">
+                                {msg.timestamp.toLocaleTimeString("es-ES", {
+                                  hour: "2-digit",
+                                  minute: "2-digit",
+                                })}
+                              </div>
+                            </div>
+                          </div>
+                        ))}
+                        {isTyping && (
+                          <div className="flex justify-start mb-2">
+                            <div className="bg-white/5 p-2 rounded-md rounded-tl-none">
+                              <div className="flex space-x-1">
+                                <div className="w-1 h-1 bg-white/50 rounded-full animate-bounce"></div>
+                                <div
+                                  className="w-1 h-1 bg-white/50 rounded-full animate-bounce"
+                                  style={{ animationDelay: "0.2s" }}
+                                ></div>
+                                <div
+                                  className="w-1 h-1 bg-white/50 rounded-full animate-bounce"
+                                  style={{ animationDelay: "0.4s" }}
+                                ></div>
+                              </div>
+                            </div>
+                          </div>
+                        )}
+                        <div ref={messagesEndRef} />
+                      </div>
+
+                      <form onSubmit={handleChatSubmit} className="p-2 border-t border-white/10">
+                        <div className="relative">
+                          <input
+                            type="text"
+                            value={chatInput}
+                            onChange={(e) => setChatInput(e.target.value)}
+                            placeholder="Ask AI agent..."
+                            disabled={isLoading}
+                            className="w-full pl-3 pr-8 py-1.5 text-xs bg-white/5 border border-white/10 rounded-full focus:outline-none focus:ring-1 focus:ring-white/20 text-white placeholder:text-white/30 disabled:opacity-50"
+                          />
+                          <button
+                            type="submit"
+                            className="absolute right-2 top-1/2 transform -translate-y-1/2 text-white/50 hover:text-white disabled:opacity-50"
+                            disabled={!chatInput.trim() || isLoading}
+                          >
+                            {isLoading ? (
+                              <div className="w-3 h-3 border border-white/30 border-t-white/70 rounded-full animate-spin" />
+                            ) : (
+                              <ArrowRightIcon className="h-3 w-3" />
+                            )}
+                          </button>
+                        </div>
+                      </form>
+                    </>
+                  )}
                 </div>
 
-                {!isChatMinimized && (
-                  <>
-                    <div className="p-2 h-32 overflow-y-auto bg-black/30">
-                      {chatMessages.map((msg, index) => (
-                        <div key={index} className={`mb-2 flex ${msg.isUser ? "justify-end" : "justify-start"}`}>
-                          <div
-                            className={`max-w-[85%] p-2 rounded-md text-[10px] ${
-                              msg.isUser
-                                ? "bg-white/10 text-white rounded-tr-none"
-                                : "bg-white/5 text-white/90 rounded-tl-none"
-                            }`}
-                          >
-                            <div className="whitespace-pre-wrap">{msg.text}</div>
-                            <div className="text-[8px] text-white/40 mt-1">
-                              {msg.timestamp.toLocaleTimeString("es-ES", {
-                                hour: "2-digit",
-                                minute: "2-digit",
-                              })}
-                            </div>
-                          </div>
-                        </div>
-                      ))}
-                      {isTyping && (
-                        <div className="flex justify-start mb-2">
-                          <div className="bg-white/5 p-2 rounded-md rounded-tl-none">
-                            <div className="flex space-x-1">
-                              <div className="w-1 h-1 bg-white/50 rounded-full animate-bounce"></div>
-                              <div
-                                className="w-1 h-1 bg-white/50 rounded-full animate-bounce"
-                                style={{ animationDelay: "0.2s" }}
-                              ></div>
-                              <div
-                                className="w-1 h-1 bg-white/50 rounded-full animate-bounce"
-                                style={{ animationDelay: "0.4s" }}
-                              ></div>
-                            </div>
-                          </div>
-                        </div>
-                      )}
-                      <div ref={messagesEndRef} />
+                {/* Quick AI Input - Always visible */}
+                <div className="bg-white/5 rounded-lg border border-white/10 p-2">
+                  <form onSubmit={handleChatSubmit}>
+                    <div className="relative">
+                      <input
+                        type="text"
+                        value={chatInput}
+                        onChange={(e) => setChatInput(e.target.value)}
+                        placeholder="Quick AI query..."
+                        disabled={isLoading}
+                        className="w-full pl-3 pr-8 py-2 text-xs bg-white/5 border border-white/10 rounded-full focus:outline-none focus:ring-1 focus:ring-white/20 text-white placeholder:text-white/30 disabled:opacity-50"
+                      />
+                      <button
+                        type="submit"
+                        className="absolute right-2 top-1/2 transform -translate-y-1/2 text-white/50 hover:text-white disabled:opacity-50"
+                        disabled={!chatInput.trim() || isLoading}
+                      >
+                        {isLoading ? (
+                          <div className="w-3 h-3 border border-white/30 border-t-white/70 rounded-full animate-spin" />
+                        ) : (
+                          <ArrowRightIcon className="h-3 w-3" />
+                        )}
+                      </button>
                     </div>
-
-                    <form onSubmit={handleChatSubmit} className="p-2 border-t border-white/10">
-                      <div className="relative">
-                        <input
-                          type="text"
-                          value={chatInput}
-                          onChange={(e) => setChatInput(e.target.value)}
-                          placeholder="Pregúntame sobre viajes..."
-                          disabled={isLoading}
-                          className="w-full pl-3 pr-8 py-1.5 text-xs bg-white/5 border border-white/10 rounded-md focus:outline-none focus:ring-1 focus:ring-white/20 text-white placeholder:text-white/30 disabled:opacity-50"
-                        />
-                        <button
-                          type="submit"
-                          className="absolute right-2 top-1/2 transform -translate-y-1/2 text-white/50 hover:text-white disabled:opacity-50"
-                          disabled={!chatInput.trim() || isLoading}
-                        >
-                          {isLoading ? (
-                            <div className="w-3 h-3 border border-white/30 border-t-white/70 rounded-full animate-spin" />
-                          ) : (
-                            <ArrowRightIcon className="h-3 w-3" />
-                          )}
-                        </button>
-                      </div>
-                    </form>
-                  </>
-                )}
+                  </form>
+                </div>
               </div>
             ) : (
-              <div className="flex justify-center">
+              <div className="flex flex-col items-center space-y-2">
                 <div className="relative h-8 w-8 rounded-full overflow-hidden">
                   <Image src="/images/ai-agent-avatar.jpeg" alt="AI Assistant" fill className="object-cover" />
+                </div>
+                <div className="w-full">
+                  <form onSubmit={handleChatSubmit}>
+                    <div className="relative">
+                      <input
+                        type="text"
+                        value={chatInput}
+                        onChange={(e) => setChatInput(e.target.value)}
+                        placeholder="AI..."
+                        disabled={isLoading}
+                        className="w-full px-2 py-1 text-xs bg-white/5 border border-white/10 rounded-full focus:outline-none focus:ring-1 focus:ring-white/20 text-white placeholder:text-white/30 disabled:opacity-50 text-center"
+                      />
+                    </div>
+                  </form>
                 </div>
               </div>
             )}

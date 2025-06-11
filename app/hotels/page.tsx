@@ -1,5 +1,7 @@
 "use client"
 
+import type React from "react"
+
 import { Suspense, useState, useEffect } from "react"
 import { useSearchParams } from "next/navigation"
 import { Button } from "@/components/ui/button"
@@ -7,19 +9,22 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Badge } from "@/components/ui/badge"
+import { Card, CardContent } from "@/components/ui/card"
 import {
-  MicroscopeIcon as MagnifyingGlassIcon,
-  MapPinIcon,
-  CalendarIcon,
-  UsersIcon,
-  StarIcon,
-  HeartIcon,
-  WifiIcon,
+  Search,
+  MapPin,
+  Calendar,
+  Star,
+  Heart,
+  Wifi,
+  Car,
+  Coffee,
+  Dumbbell,
+  Waves,
   UtensilsIcon,
-  TvIcon,
-  ShowerHeadIcon as SwimmingPoolIcon,
+  Filter,
+  ArrowUpDown,
 } from "lucide-react"
-import hotelsData from "@/data/hotels.json"
 
 interface Hotel {
   id: string
@@ -27,104 +32,192 @@ interface Hotel {
   location: string
   price: number
   rating: number
+  reviews: number
   image: string
   amenities: string[]
   description: string
+  stars: number
+  chain?: string
+  distance?: string
 }
 
 function HotelsContent() {
   const searchParams = useSearchParams()
-  const [hotels, setHotels] = useState<Hotel[]>(hotelsData as Hotel[])
-  const [searchTerm, setSearchTerm] = useState("")
-  const [selectedLocation, setSelectedLocation] = useState("")
+  const [hotels, setHotels] = useState<Hotel[]>([])
+  const [loading, setLoading] = useState(false)
+  const [savedHotels, setSavedHotels] = useState<string[]>([])
+
+  // Search form state
+  const [destination, setDestination] = useState("")
   const [checkIn, setCheckIn] = useState("")
   const [checkOut, setCheckOut] = useState("")
-  const [guests, setGuests] = useState("1")
-  const [activeTab, setActiveTab] = useState<"search" | "results" | "saved">("search")
+  const [guests, setGuests] = useState("2")
+  const [rooms, setRooms] = useState("1")
+
+  // Filter state
   const [sortBy, setSortBy] = useState("price")
-  const [priceRange, setPriceRange] = useState<[number, number]>([0, 1000])
+  const [maxPrice, setMaxPrice] = useState(500)
+  const [minRating, setMinRating] = useState(0)
   const [selectedAmenities, setSelectedAmenities] = useState<string[]>([])
+  const [starRating, setStarRating] = useState<number[]>([])
 
   useEffect(() => {
-    // Get search params
-    const location = searchParams.get("location") || ""
+    // Get URL parameters
+    const dest = searchParams.get("destination") || ""
     const checkin = searchParams.get("checkin") || ""
     const checkout = searchParams.get("checkout") || ""
-    const guestCount = searchParams.get("guests") || "1"
+    const guestCount = searchParams.get("guests") || "2"
 
-    setSelectedLocation(location)
+    setDestination(dest)
     setCheckIn(checkin)
     setCheckOut(checkout)
     setGuests(guestCount)
-    setSearchTerm(location)
 
-    if (location) {
-      setActiveTab("results")
+    // Load saved hotels from localStorage
+    const saved = localStorage.getItem("savedHotels")
+    if (saved) {
+      setSavedHotels(JSON.parse(saved))
+    }
+
+    // If we have search params, perform search
+    if (dest && checkin && checkout) {
+      performSearch()
     }
   }, [searchParams])
+
+  const performSearch = async () => {
+    setLoading(true)
+
+    // Simulate API call
+    await new Promise((resolve) => setTimeout(resolve, 1500))
+
+    // Generate realistic hotel data
+    const generatedHotels = generateHotels(destination, checkIn, checkOut)
+    setHotels(generatedHotels)
+    setLoading(false)
+  }
+
+  const generateHotels = (dest: string, checkin: string, checkout: string): Hotel[] => {
+    const hotelChains = [
+      "Marriott",
+      "Hilton",
+      "Hyatt",
+      "InterContinental",
+      "Sheraton",
+      "Westin",
+      "Radisson",
+      "Holiday Inn",
+      "Novotel",
+      "Crowne Plaza",
+    ]
+
+    const hotelTypes = ["Hotel", "Suites", "Resort", "Inn", "Plaza", "Grand"]
+    const amenitiesList = [
+      "Free WiFi",
+      "Parking",
+      "Pool",
+      "Gym",
+      "Spa",
+      "Restaurant",
+      "Bar",
+      "Room Service",
+      "Business Center",
+      "Airport Shuttle",
+      "Pet Friendly",
+      "Laundry",
+      "Concierge",
+      "Breakfast",
+    ]
+
+    const hotels: Hotel[] = []
+    const numHotels = 12 + Math.floor(Math.random() * 8)
+
+    for (let i = 0; i < numHotels; i++) {
+      const chain = hotelChains[Math.floor(Math.random() * hotelChains.length)]
+      const type = hotelTypes[Math.floor(Math.random() * hotelTypes.length)]
+      const stars = 3 + Math.floor(Math.random() * 3) // 3-5 stars
+      const rating = 3.5 + Math.random() * 1.5 // 3.5-5.0 rating
+      const reviews = 50 + Math.floor(Math.random() * 500)
+      const basePrice = stars * 50 + Math.floor(Math.random() * 100)
+
+      // Select random amenities
+      const numAmenities = 4 + Math.floor(Math.random() * 6)
+      const hotelAmenities = []
+      const shuffled = [...amenitiesList].sort(() => 0.5 - Math.random())
+      for (let j = 0; j < numAmenities; j++) {
+        hotelAmenities.push(shuffled[j])
+      }
+
+      hotels.push({
+        id: `HTL${1000 + i}`,
+        name: `${chain} ${type} ${dest}`,
+        location: `${Math.floor(Math.random() * 50) + 1} ${["Main St", "Business District", "Downtown", "City Center"][Math.floor(Math.random() * 4)]}, ${dest}`,
+        price: basePrice,
+        rating: Math.round(rating * 10) / 10,
+        reviews,
+        image: `/placeholder.svg?height=200&width=300&text=${encodeURIComponent(chain + " " + dest)}`,
+        amenities: hotelAmenities,
+        description: `Experience luxury and comfort at ${chain} ${type} ${dest}. Perfect for business travelers with modern amenities and excellent service.`,
+        stars,
+        chain,
+        distance: `${(Math.random() * 5 + 0.5).toFixed(1)} km from city center`,
+      })
+    }
+
+    return hotels.sort((a, b) => {
+      if (sortBy === "price") return a.price - b.price
+      if (sortBy === "rating") return b.rating - a.rating
+      if (sortBy === "stars") return b.stars - a.stars
+      return 0
+    })
+  }
+
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault()
+    if (destination && checkIn && checkOut) {
+      performSearch()
+    }
+  }
+
+  const toggleSaveHotel = (hotelId: string) => {
+    const updated = savedHotels.includes(hotelId)
+      ? savedHotels.filter((id) => id !== hotelId)
+      : [...savedHotels, hotelId]
+
+    setSavedHotels(updated)
+    localStorage.setItem("savedHotels", JSON.stringify(updated))
+  }
 
   const toggleAmenity = (amenity: string) => {
     setSelectedAmenities((prev) => (prev.includes(amenity) ? prev.filter((a) => a !== amenity) : [...prev, amenity]))
   }
 
-  const filteredHotels = hotels
-    .filter((hotel) => {
-      const matchesSearch =
-        hotel.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        hotel.location.toLowerCase().includes(searchTerm.toLowerCase())
-      const matchesLocation = !selectedLocation || hotel.location.toLowerCase().includes(selectedLocation.toLowerCase())
-      const matchesPrice = hotel.price >= priceRange[0] && hotel.price <= priceRange[1]
-      const matchesAmenities =
-        selectedAmenities.length === 0 || selectedAmenities.every((amenity) => hotel.amenities.includes(amenity))
-      return matchesSearch && matchesLocation && matchesPrice && matchesAmenities
-    })
-    .sort((a, b) => {
-      if (sortBy === "price") return a.price - b.price
-      if (sortBy === "rating") return b.rating - a.rating
-      return 0
-    })
+  const filteredHotels = hotels.filter((hotel) => {
+    if (hotel.price > maxPrice) return false
+    if (hotel.rating < minRating) return false
+    if (starRating.length > 0 && !starRating.includes(hotel.stars)) return false
+    if (selectedAmenities.length > 0 && !selectedAmenities.every((amenity) => hotel.amenities.includes(amenity)))
+      return false
+    return true
+  })
 
-  const handleSearch = () => {
-    setActiveTab("results")
+  const featuredDestinations = [
+    { city: "New York", hotels: "1,200+ hotels", image: "/placeholder.svg?height=120&width=200&text=NYC" },
+    { city: "London", hotels: "800+ hotels", image: "/placeholder.svg?height=120&width=200&text=London" },
+    { city: "Paris", hotels: "600+ hotels", image: "/placeholder.svg?height=120&width=200&text=Paris" },
+    { city: "Tokyo", hotels: "900+ hotels", image: "/placeholder.svg?height=120&width=200&text=Tokyo" },
+    { city: "Dubai", hotels: "400+ hotels", image: "/placeholder.svg?height=120&width=200&text=Dubai" },
+    { city: "Singapore", hotels: "300+ hotels", image: "/placeholder.svg?height=120&width=200&text=Singapore" },
+  ]
+
+  const amenityIcons: { [key: string]: React.ReactNode } = {
+    "Free WiFi": <Wifi className="h-4 w-4" />,
+    Parking: <Car className="h-4 w-4" />,
+    Pool: <Waves className="h-4 w-4" />,
+    Gym: <Dumbbell className="h-4 w-4" />,
+    Restaurant: <UtensilsIcon className="h-4 w-4" />,
+    Breakfast: <Coffee className="h-4 w-4" />,
   }
-
-  const featuredHotels = [
-    {
-      name: "Grand Hyatt New York",
-      location: "New York",
-      price: 299,
-      image: "/images/hotels/grand-hyatt-ny.png",
-      rating: 4.7,
-    },
-    {
-      name: "Marriott Madrid",
-      location: "Madrid",
-      price: 189,
-      image: "/images/hotels/marriott-madrid.png",
-      rating: 4.5,
-    },
-    {
-      name: "NH Collection Barcelona",
-      location: "Barcelona",
-      price: 210,
-      image: "/images/hotels/nh-collection-barcelona.png",
-      rating: 4.8,
-    },
-    {
-      name: "Westin Valencia",
-      location: "Valencia",
-      price: 175,
-      image: "/images/hotels/westin-valencia.png",
-      rating: 4.6,
-    },
-  ]
-
-  const amenities = [
-    { name: "WiFi", icon: <WifiIcon className="h-4 w-4" /> },
-    { name: "Restaurant", icon: <UtensilsIcon className="h-4 w-4" /> },
-    { name: "TV", icon: <TvIcon className="h-4 w-4" /> },
-    { name: "Pool", icon: <SwimmingPoolIcon className="h-4 w-4" /> },
-  ]
 
   return (
     <div className="min-h-screen bg-black p-3">
@@ -132,241 +225,185 @@ function HotelsContent() {
         {/* Header */}
         <div className="bg-white/5 border border-white/10 rounded-lg p-6">
           <h1 className="text-3xl font-bold text-white mb-2">Hotel Search</h1>
-          <p className="text-white/70">Find the perfect accommodation for your business trip</p>
+          <p className="text-white/70">Find the perfect accommodation for your business stay</p>
         </div>
 
-        {/* Tabs de navegación */}
-        <div className="flex space-x-2 mb-6 overflow-x-auto pb-2">
-          <button
-            onClick={() => setActiveTab("search")}
-            className={`flex items-center px-3 py-1.5 rounded-full text-xs font-medium transition-colors ${
-              activeTab === "search"
-                ? "bg-white/10 text-white"
-                : "bg-transparent border border-white/10 text-white/70 hover:bg-white/5"
-            }`}
-          >
-            <MagnifyingGlassIcon className="h-3.5 w-3.5 mr-1.5" />
-            Search Hotels
-          </button>
-          <button
-            onClick={() => setActiveTab("results")}
-            className={`flex items-center px-3 py-1.5 rounded-full text-xs font-medium transition-colors ${
-              activeTab === "results"
-                ? "bg-white/10 text-white"
-                : "bg-transparent border border-white/10 text-white/70 hover:bg-white/5"
-            }`}
-          >
-            <MapPinIcon className="h-3.5 w-3.5 mr-1.5" />
-            Results
-          </button>
-          <button
-            onClick={() => setActiveTab("saved")}
-            className={`flex items-center px-3 py-1.5 rounded-full text-xs font-medium transition-colors ${
-              activeTab === "saved"
-                ? "bg-white/10 text-white"
-                : "bg-transparent border border-white/10 text-white/70 hover:bg-white/5"
-            }`}
-          >
-            <HeartIcon className="h-3.5 w-3.5 mr-1.5" />
-            Saved Hotels
-          </button>
-        </div>
-
-        {activeTab === "search" && (
-          <>
-            {/* Search Form */}
-            <div className="bg-white/5 border border-white/10 rounded-lg p-6">
+        {/* Search Form */}
+        <Card className="bg-white/5 border-white/10">
+          <CardContent className="p-6">
+            <form onSubmit={handleSearch} className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="search" className="text-white">
-                    Search Hotels
-                  </Label>
+                  <Label className="text-white">Destination</Label>
                   <div className="relative">
-                    <MagnifyingGlassIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-white/50" />
+                    <MapPin className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-white/50" />
                     <Input
-                      id="search"
-                      placeholder="Hotel name or location"
-                      value={searchTerm}
-                      onChange={(e) => setSearchTerm(e.target.value)}
+                      placeholder="City or hotel name"
+                      value={destination}
+                      onChange={(e) => setDestination(e.target.value)}
                       className="pl-10 bg-white/5 border-white/10 text-white placeholder:text-white/30"
+                      required
                     />
                   </div>
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="location" className="text-white">
-                    Location
-                  </Label>
+                  <Label className="text-white">Check-in</Label>
                   <div className="relative">
-                    <MapPinIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-white/50" />
-                    <Select value={selectedLocation} onValueChange={setSelectedLocation}>
-                      <SelectTrigger className="pl-10 bg-white/5 border-white/10 text-white">
-                        <SelectValue placeholder="Select location" />
-                      </SelectTrigger>
-                      <SelectContent className="bg-black border-white/10">
-                        <SelectItem value="all">All Locations</SelectItem>
-                        <SelectItem value="new york">New York</SelectItem>
-                        <SelectItem value="london">London</SelectItem>
-                        <SelectItem value="paris">Paris</SelectItem>
-                        <SelectItem value="tokyo">Tokyo</SelectItem>
-                        <SelectItem value="madrid">Madrid</SelectItem>
-                        <SelectItem value="barcelona">Barcelona</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="checkin" className="text-white">
-                    Check-in
-                  </Label>
-                  <div className="relative">
-                    <CalendarIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-white/50" />
+                    <Calendar className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-white/50" />
                     <Input
-                      id="checkin"
                       type="date"
                       value={checkIn}
                       onChange={(e) => setCheckIn(e.target.value)}
                       className="pl-10 bg-white/5 border-white/10 text-white"
+                      required
                     />
                   </div>
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="checkout" className="text-white">
-                    Check-out
-                  </Label>
+                  <Label className="text-white">Check-out</Label>
                   <div className="relative">
-                    <CalendarIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-white/50" />
+                    <Calendar className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-white/50" />
                     <Input
-                      id="checkout"
                       type="date"
                       value={checkOut}
                       onChange={(e) => setCheckOut(e.target.value)}
                       className="pl-10 bg-white/5 border-white/10 text-white"
+                      required
                     />
                   </div>
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="guests" className="text-white">
-                    Guests
-                  </Label>
-                  <div className="relative">
-                    <UsersIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-white/50" />
-                    <Select value={guests} onValueChange={setGuests}>
-                      <SelectTrigger className="pl-10 bg-white/5 border-white/10 text-white">
-                        <SelectValue placeholder="1 Guest" />
-                      </SelectTrigger>
-                      <SelectContent className="bg-black border-white/10">
-                        <SelectItem value="1">1 Guest</SelectItem>
-                        <SelectItem value="2">2 Guests</SelectItem>
-                        <SelectItem value="3">3 Guests</SelectItem>
-                        <SelectItem value="4">4 Guests</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
+                  <Label className="text-white">Guests</Label>
+                  <Select value={guests} onValueChange={setGuests}>
+                    <SelectTrigger className="bg-white/5 border-white/10 text-white">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="1">1 Guest</SelectItem>
+                      <SelectItem value="2">2 Guests</SelectItem>
+                      <SelectItem value="3">3 Guests</SelectItem>
+                      <SelectItem value="4">4 Guests</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div className="space-y-2">
+                  <Label className="text-white">Rooms</Label>
+                  <Select value={rooms} onValueChange={setRooms}>
+                    <SelectTrigger className="bg-white/5 border-white/10 text-white">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="1">1 Room</SelectItem>
+                      <SelectItem value="2">2 Rooms</SelectItem>
+                      <SelectItem value="3">3 Rooms</SelectItem>
+                    </SelectContent>
+                  </Select>
                 </div>
               </div>
 
-              <Button onClick={handleSearch} className="mt-4 bg-white text-black hover:bg-white/90 rounded-full">
-                <MagnifyingGlassIcon className="h-4 w-4 mr-2" />
-                Search Hotels
+              <Button type="submit" className="bg-white text-black hover:bg-white/90 rounded-full" disabled={loading}>
+                {loading ? (
+                  <>
+                    <div className="h-4 w-4 border-2 border-black/30 border-t-black rounded-full animate-spin mr-2" />
+                    Searching...
+                  </>
+                ) : (
+                  <>
+                    <Search className="h-4 w-4 mr-2" />
+                    Search Hotels
+                  </>
+                )}
               </Button>
-            </div>
+            </form>
+          </CardContent>
+        </Card>
 
-            {/* Featured Hotels */}
-            <div className="bg-white/5 border border-white/10 rounded-lg p-6">
-              <h2 className="text-xl font-semibold text-white mb-4">Featured Business Hotels</h2>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                {featuredHotels.map((hotel, index) => (
+        {/* Featured Destinations */}
+        {hotels.length === 0 && !loading && (
+          <Card className="bg-white/5 border-white/10">
+            <CardContent className="p-6">
+              <h2 className="text-xl font-semibold text-white mb-4">Popular Business Destinations</h2>
+              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+                {featuredDestinations.map((dest) => (
                   <div
-                    key={index}
-                    className="bg-black/30 rounded-lg overflow-hidden border border-white/10 hover:border-white/20 cursor-pointer transition-all"
+                    key={dest.city}
+                    className="bg-black/30 rounded-lg overflow-hidden border border-white/10 hover:border-white/20 cursor-pointer transition-all group"
                     onClick={() => {
-                      setSearchTerm(hotel.name)
-                      setSelectedLocation(hotel.location)
-                      setActiveTab("results")
+                      setDestination(dest.city)
                     }}
                   >
-                    <div className="h-36 relative">
+                    <div className="h-20 relative">
                       <img
-                        src={hotel.image || "/placeholder.svg"}
-                        alt={hotel.name}
-                        className="w-full h-full object-cover"
+                        src={dest.image || "/placeholder.svg"}
+                        alt={dest.city}
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform"
                       />
-                      <div className="absolute top-2 right-2 bg-black/50 backdrop-blur-sm rounded-full px-2 py-1">
-                        <div className="flex items-center space-x-1">
-                          <StarIcon className="h-3 w-3 text-yellow-400 fill-current" />
-                          <span className="text-white text-xs">{hotel.rating}</span>
-                        </div>
-                      </div>
-                    </div>
-                    <div className="p-3">
-                      <h3 className="font-medium text-white text-sm">{hotel.name}</h3>
-                      <p className="text-white/70 text-xs flex items-center mt-1">
-                        <MapPinIcon className="h-3 w-3 mr-1" />
-                        {hotel.location}
-                      </p>
-                      <div className="flex items-center justify-between mt-2">
-                        <span className="text-white font-bold">${hotel.price}</span>
-                        <span className="text-white/50 text-xs">/night</span>
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent" />
+                      <div className="absolute bottom-1 left-2 right-2">
+                        <p className="text-white font-medium text-xs">{dest.city}</p>
+                        <p className="text-white/70 text-[10px]">{dest.hotels}</p>
                       </div>
                     </div>
                   </div>
                 ))}
               </div>
-            </div>
-          </>
+            </CardContent>
+          </Card>
         )}
 
-        {activeTab === "results" && (
-          <div className="space-y-4">
+        {/* Results */}
+        {hotels.length > 0 && (
+          <>
             {/* Filters */}
-            <div className="bg-white/5 border border-white/10 rounded-lg p-4">
-              <div className="flex flex-wrap items-center justify-between gap-4">
+            <div className="flex flex-wrap items-center justify-between gap-4 bg-white/5 border border-white/10 rounded-lg p-4">
+              <div className="flex items-center space-x-4">
                 <div className="flex items-center space-x-2">
-                  <span className="text-white/70 text-sm">Sort by:</span>
+                  <ArrowUpDown className="h-4 w-4 text-white/70" />
+                  <span className="text-white/70 text-sm">Sort:</span>
                   <Select value={sortBy} onValueChange={setSortBy}>
                     <SelectTrigger className="bg-white/5 border-white/10 text-white h-8 text-xs w-[120px]">
                       <SelectValue />
                     </SelectTrigger>
-                    <SelectContent className="bg-black border-white/10">
-                      <SelectItem value="price">Price: Low to High</SelectItem>
-                      <SelectItem value="rating">Rating: High to Low</SelectItem>
+                    <SelectContent>
+                      <SelectItem value="price">Price</SelectItem>
+                      <SelectItem value="rating">Rating</SelectItem>
+                      <SelectItem value="stars">Stars</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
 
-                <div className="flex flex-wrap gap-2">
-                  {amenities.map((amenity, index) => (
+                <div className="flex items-center space-x-2">
+                  <Filter className="h-4 w-4 text-white/70" />
+                  {["Free WiFi", "Parking", "Pool", "Gym"].map((amenity) => (
                     <Badge
-                      key={index}
-                      className={`flex items-center gap-1 cursor-pointer rounded-full ${
-                        selectedAmenities.includes(amenity.name)
+                      key={amenity}
+                      onClick={() => toggleAmenity(amenity)}
+                      className={`cursor-pointer rounded-full flex items-center gap-1 ${
+                        selectedAmenities.includes(amenity)
                           ? "bg-white text-black"
                           : "bg-white/10 text-white hover:bg-white/20"
                       }`}
-                      onClick={() => toggleAmenity(amenity.name)}
                     >
-                      {amenity.icon}
-                      {amenity.name}
+                      {amenityIcons[amenity]}
+                      {amenity}
                     </Badge>
                   ))}
                 </div>
               </div>
+
+              <div className="text-white/70 text-sm">{filteredHotels.length} hotels found</div>
             </div>
 
-            {/* Results */}
-            <div className="flex items-center justify-between">
-              <h2 className="text-xl font-semibold text-white">{filteredHotels.length} hotels found</h2>
-            </div>
-
+            {/* Hotel Results */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {filteredHotels.map((hotel) => (
-                <div
+                <Card
                   key={hotel.id}
-                  className="bg-white/5 border border-white/10 rounded-lg overflow-hidden hover:bg-white/10 transition-colors"
+                  className="bg-white/5 border-white/10 hover:bg-white/10 transition-colors overflow-hidden"
                 >
                   <div className="relative h-48">
                     <img
@@ -376,38 +413,47 @@ function HotelsContent() {
                     />
                     <div className="absolute top-2 right-2 bg-black/50 backdrop-blur-sm rounded-full px-2 py-1">
                       <div className="flex items-center space-x-1">
-                        <StarIcon className="h-3 w-3 text-yellow-400 fill-current" />
+                        <Star className="h-3 w-3 text-yellow-400 fill-current" />
                         <span className="text-white text-sm">{hotel.rating}</span>
                       </div>
                     </div>
-                    <button className="absolute top-2 left-2 p-1.5 bg-black/50 backdrop-blur-sm rounded-full text-white/70 hover:text-white">
-                      <HeartIcon className="h-4 w-4" />
+                    <button
+                      onClick={() => toggleSaveHotel(hotel.id)}
+                      className="absolute top-2 left-2 p-1.5 bg-black/50 backdrop-blur-sm rounded-full text-white/70 hover:text-white"
+                    >
+                      <Heart
+                        className={`h-4 w-4 ${savedHotels.includes(hotel.id) ? "fill-current text-red-400" : ""}`}
+                      />
                     </button>
+                    <div className="absolute bottom-2 left-2">
+                      <div className="flex">
+                        {Array.from({ length: hotel.stars }).map((_, i) => (
+                          <Star key={i} className="h-3 w-3 text-yellow-400 fill-current" />
+                        ))}
+                      </div>
+                    </div>
                   </div>
 
-                  <div className="p-4">
+                  <CardContent className="p-4">
                     <h3 className="font-semibold text-white mb-1">{hotel.name}</h3>
                     <p className="text-white/70 text-sm mb-2 flex items-center">
-                      <MapPinIcon className="h-3 w-3 mr-1" />
-                      {hotel.location}
+                      <MapPin className="h-3 w-3 mr-1" />
+                      {hotel.distance}
                     </p>
                     <p className="text-white/60 text-sm mb-3 line-clamp-2">{hotel.description}</p>
 
                     <div className="flex flex-wrap gap-1 mb-3">
-                      {hotel.amenities.slice(0, 3).map((amenity, index) => (
+                      {hotel.amenities.slice(0, 3).map((amenity) => (
                         <Badge
-                          key={index}
-                          variant="secondary"
-                          className="text-xs bg-white/10 text-white/70 border-white/20 rounded-full"
+                          key={amenity}
+                          className="text-xs bg-white/10 text-white/70 border-white/20 rounded-full flex items-center gap-1"
                         >
+                          {amenityIcons[amenity]}
                           {amenity}
                         </Badge>
                       ))}
                       {hotel.amenities.length > 3 && (
-                        <Badge
-                          variant="secondary"
-                          className="text-xs bg-white/10 text-white/70 border-white/20 rounded-full"
-                        >
+                        <Badge className="text-xs bg-white/10 text-white/70 border-white/20 rounded-full">
                           +{hotel.amenities.length - 3} more
                         </Badge>
                       )}
@@ -417,34 +463,23 @@ function HotelsContent() {
                       <div>
                         <span className="text-2xl font-bold text-white">${hotel.price}</span>
                         <span className="text-white/50 text-sm">/night</span>
+                        <div className="text-white/50 text-xs">{hotel.reviews} reviews</div>
                       </div>
-                      <Button size="sm" className="bg-white text-black hover:bg-white/90 rounded-full">
-                        Book Now
-                      </Button>
+                      <Button className="bg-white text-black hover:bg-white/90 rounded-full">Book Now</Button>
                     </div>
-                  </div>
-                </div>
+                  </CardContent>
+                </Card>
               ))}
             </div>
-          </div>
+          </>
         )}
 
-        {activeTab === "saved" && (
-          <div className="bg-white/5 border border-white/10 rounded-lg p-6 text-center">
-            <div className="py-12">
-              <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-white/5 mb-4">
-                <HeartIcon className="h-8 w-8 text-white/30" />
-              </div>
-              <h3 className="text-xl font-medium text-white mb-2">No Saved Hotels</h3>
-              <p className="text-white/70 max-w-md mx-auto">
-                You haven't saved any hotels yet. Search for hotels and save them for quick access later.
-              </p>
-              <Button
-                onClick={() => setActiveTab("search")}
-                className="mt-4 bg-white text-black hover:bg-white/90 rounded-full"
-              >
-                Search Hotels
-              </Button>
+        {/* Loading State */}
+        {loading && (
+          <div className="flex justify-center py-12">
+            <div className="text-center">
+              <div className="h-8 w-8 border-2 border-white/50 border-t-transparent rounded-full animate-spin mx-auto mb-4" />
+              <p className="text-white/70">Finding the best hotels for you...</p>
             </div>
           </div>
         )}
@@ -455,26 +490,15 @@ function HotelsContent() {
 
 export default function HotelsPage() {
   return (
-    <Suspense
-      fallback={
-        <div className="min-h-screen bg-black p-3">
-          <div className="max-w-7xl mx-auto space-y-4">
-            <div className="bg-white/5 border border-white/10 rounded-lg p-6">
-              <div className="h-8 bg-white/10 rounded w-48 mb-4 animate-pulse"></div>
-              <div className="h-4 bg-white/10 rounded w-96 animate-pulse"></div>
-            </div>
-            <div className="bg-white/5 border border-white/10 rounded-lg p-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {[1, 2, 3, 4, 5, 6].map((i) => (
-                  <div key={i} className="h-48 bg-white/10 rounded animate-pulse"></div>
-                ))}
-              </div>
-            </div>
+    <Suspense fallback={
+      <div className="min-h-screen bg-black p-3">
+        <div className="max-w-7xl mx-auto space-y-4">
+          <div className="bg-white/5 border border-white/10 rounded-lg p-6">
+            <div className="h-8 bg-white/10 rounded w-48 mb-4 animate-pulse" />
+            <div className="h-4 bg-white/10 rounded w-96 animate-pulse" />
           </div>
         </div>
-      }
-    >
-      <HotelsContent />
+      </div>\
     </Suspense>
   )
 }

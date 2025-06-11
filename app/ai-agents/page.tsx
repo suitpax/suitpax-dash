@@ -1,322 +1,449 @@
 "use client"
 
-import { useState } from "react"
-import Image from "next/image"
-import {
-  ChatBubbleLeftRightIcon,
-  SparklesIcon,
-  UserGroupIcon,
-  ClockIcon,
-  CheckCircleIcon,
-  ExclamationTriangleIcon,
-} from "@heroicons/react/24/outline"
-import { Search, Filter, Plus, MessageCircle, Users } from "lucide-react"
+import type React from "react"
 
-interface Agent {
+import { useState, useRef, useEffect } from "react"
+import Image from "next/image"
+import { Send, Paperclip, Mic, Bot, Settings, Trash2, Plus, MessageCircle } from "lucide-react"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Badge } from "@/components/ui/badge"
+
+interface Message {
   id: string
-  name: string
-  description: string
-  avatar: string
-  status: "online" | "busy" | "offline"
-  capabilities: string[]
-  conversations: number
-  lastActive: string
-  category: "travel" | "finance" | "general"
+  role: "user" | "assistant"
+  content: string
+  timestamp: Date
 }
 
-const agents: Agent[] = [
-  {
-    id: "1",
-    name: "Travel Assistant",
-    description: "Especialista en reservas de vuelos, hoteles y gestión de viajes corporativos",
-    avatar: "/images/ai-agent-avatar.jpeg",
-    status: "online",
-    capabilities: ["Reservas", "Políticas", "Gastos"],
-    conversations: 156,
-    lastActive: "Ahora",
-    category: "travel",
-  },
-  {
-    id: "2",
-    name: "Finance Bot",
-    description: "Experto en análisis financiero, presupuestos y reportes de gastos",
-    avatar: "/images/ai-assistant-avatar.png",
-    status: "online",
-    capabilities: ["Análisis", "Reportes", "Presupuestos"],
-    conversations: 89,
-    lastActive: "2 min",
-    category: "finance",
-  },
-  {
-    id: "3",
-    name: "General Assistant",
-    description: "Asistente general para consultas diversas y soporte administrativo",
-    avatar: "/ai-agents/agent-3.jpeg",
-    status: "busy",
-    capabilities: ["Consultas", "Soporte", "Documentos"],
-    conversations: 234,
-    lastActive: "5 min",
-    category: "general",
-  },
+interface Conversation {
+  id: string
+  title: string
+  messages: Message[]
+  createdAt: Date
+}
+
+const suggestedQueries = [
+  "Find flights to London",
+  "Hotel recommendations in Tokyo",
+  "Create travel checklist",
+  "Expense policy for meals",
+  "Draft approval request",
+  "Best time to visit Paris",
+  "Corporate travel guidelines",
+  "Airport lounge access",
 ]
 
 export default function AIAgentsPage() {
-  const [searchQuery, setSearchQuery] = useState("")
-  const [selectedCategory, setSelectedCategory] = useState<string>("all")
-  const [selectedAgent, setSelectedAgent] = useState<Agent | null>(null)
+  const [input, setInput] = useState("")
+  const [isLoading, setIsLoading] = useState(false)
+  const [conversations, setConversations] = useState<Conversation[]>([])
+  const [activeConversation, setActiveConversation] = useState<Conversation | null>(null)
+  const [showSidebar, setShowSidebar] = useState(true)
+  const messagesEndRef = useRef<HTMLDivElement>(null)
+  const fileInputRef = useRef<HTMLInputElement>(null)
 
-  const filteredAgents = agents.filter((agent) => {
-    const matchesSearch =
-      agent.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      agent.description.toLowerCase().includes(searchQuery.toLowerCase())
-    const matchesCategory = selectedCategory === "all" || agent.category === selectedCategory
-    return matchesSearch && matchesCategory
-  })
+  // Initialize with welcome conversation
+  useEffect(() => {
+    const welcomeConversation: Conversation = {
+      id: "welcome",
+      title: "Welcome Chat",
+      messages: [
+        {
+          id: "welcome-msg",
+          role: "assistant",
+          content:
+            "Hello! I'm your Suitpax AI travel assistant. I can help you with flight bookings, hotel reservations, expense management, travel policies, and much more. What can I assist you with today?",
+          timestamp: new Date(),
+        },
+      ],
+      createdAt: new Date(),
+    }
+    setConversations([welcomeConversation])
+    setActiveConversation(welcomeConversation)
+  }, [])
 
-  const getStatusColor = (status: Agent["status"]) => {
-    switch (status) {
-      case "online":
-        return "bg-green-500"
-      case "busy":
-        return "bg-yellow-500"
-      case "offline":
-        return "bg-gray-500"
-      default:
-        return "bg-gray-500"
+  // Auto scroll to bottom
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
+  }, [activeConversation?.messages])
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!input.trim() || !activeConversation || isLoading) return
+
+    const userMessage: Message = {
+      id: Date.now().toString(),
+      role: "user",
+      content: input.trim(),
+      timestamp: new Date(),
+    }
+
+    // Update conversation with user message
+    const updatedConversation = {
+      ...activeConversation,
+      messages: [...activeConversation.messages, userMessage],
+      title:
+        activeConversation.title === "Welcome Chat"
+          ? input.trim().substring(0, 30) + (input.trim().length > 30 ? "..." : "")
+          : activeConversation.title,
+    }
+
+    setActiveConversation(updatedConversation)
+    setConversations((prev) => prev.map((conv) => (conv.id === activeConversation.id ? updatedConversation : conv)))
+    setInput("")
+    setIsLoading(true)
+
+    try {
+      // Call AI API
+      const response = await fetch("/api/chat", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          message: userMessage.content,
+          isPro: true,
+          plan: "business",
+          conversationId: activeConversation.id,
+        }),
+      })
+
+      if (!response.ok) {
+        throw new Error("Failed to get AI response")
+      }
+
+      const data = await response.json()
+
+      const assistantMessage: Message = {
+        id: (Date.now() + 1).toString(),
+        role: "assistant",
+        content:
+          data.response || "I apologize, but I'm having trouble processing your request right now. Please try again.",
+        timestamp: new Date(),
+      }
+
+      // Update conversation with assistant response
+      const finalConversation = {
+        ...updatedConversation,
+        messages: [...updatedConversation.messages, assistantMessage],
+      }
+
+      setActiveConversation(finalConversation)
+      setConversations((prev) => prev.map((conv) => (conv.id === activeConversation.id ? finalConversation : conv)))
+    } catch (error) {
+      console.error("Error getting AI response:", error)
+
+      const errorMessage: Message = {
+        id: (Date.now() + 1).toString(),
+        role: "assistant",
+        content:
+          "I'm sorry, I encountered an error while processing your request. Please try again or contact support if the issue persists.",
+        timestamp: new Date(),
+      }
+
+      const errorConversation = {
+        ...updatedConversation,
+        messages: [...updatedConversation.messages, errorMessage],
+      }
+
+      setActiveConversation(errorConversation)
+      setConversations((prev) => prev.map((conv) => (conv.id === activeConversation.id ? errorConversation : conv)))
+    } finally {
+      setIsLoading(false)
     }
   }
 
-  const getStatusIcon = (status: Agent["status"]) => {
-    switch (status) {
-      case "online":
-        return <CheckCircleIcon className="h-4 w-4 text-green-400" />
-      case "busy":
-        return <ExclamationTriangleIcon className="h-4 w-4 text-yellow-400" />
-      case "offline":
-        return <ClockIcon className="h-4 w-4 text-gray-400" />
-      default:
-        return <ClockIcon className="h-4 w-4 text-gray-400" />
+  const createNewConversation = () => {
+    const newConversation: Conversation = {
+      id: Date.now().toString(),
+      title: "New Chat",
+      messages: [
+        {
+          id: "new-welcome",
+          role: "assistant",
+          content: "Hello! I'm ready to help you with your business travel needs. What would you like to know?",
+          timestamp: new Date(),
+        },
+      ],
+      createdAt: new Date(),
     }
+    setConversations((prev) => [newConversation, ...prev])
+    setActiveConversation(newConversation)
+  }
+
+  const selectConversation = (conversation: Conversation) => {
+    setActiveConversation(conversation)
+  }
+
+  const deleteConversation = (id: string, e: React.MouseEvent) => {
+    e.stopPropagation()
+    setConversations((prev) => prev.filter((conv) => conv.id !== id))
+    if (activeConversation?.id === id) {
+      const remaining = conversations.filter((conv) => conv.id !== id)
+      setActiveConversation(remaining.length > 0 ? remaining[0] : null)
+    }
+  }
+
+  const handleSuggestedQuery = (query: string) => {
+    setInput(query)
+  }
+
+  const formatMessageContent = (content: string) => {
+    return content.split("\n").map((line, i) => (
+      <span key={i}>
+        {line}
+        {i < content.split("\n").length - 1 && <br />}
+      </span>
+    ))
   }
 
   return (
-    <div className="h-full flex bg-black">
-      {/* Agents List */}
+    <div className="h-full flex bg-black text-white">
+      {/* Sidebar */}
       <div
-        className={`${selectedAgent ? "hidden lg:block lg:w-96" : "w-full lg:w-96"} border-r border-white/10 flex flex-col`}
+        className={`${showSidebar ? "w-80" : "w-0"} transition-all duration-300 border-r border-white/10 flex flex-col overflow-hidden`}
       >
-        {/* Header */}
+        {/* Sidebar Header */}
         <div className="p-4 border-b border-white/10">
           <div className="flex items-center justify-between mb-4">
-            <div>
-              <h1 className="text-xl font-semibold text-white">AI Agents</h1>
-              <p className="text-sm text-white/60">Gestiona tus asistentes inteligentes</p>
+            <div className="flex items-center space-x-3">
+              <div className="relative">
+                <Image
+                  src="/images/ai-agent-avatar.jpeg"
+                  alt="Suitpax AI"
+                  width={40}
+                  height={40}
+                  className="rounded-full object-cover"
+                />
+                <div className="absolute -bottom-1 -right-1 w-3 h-3 bg-green-500 rounded-full border-2 border-black"></div>
+              </div>
+              <div>
+                <h2 className="font-medium text-white">Suitpax AI</h2>
+                <p className="text-xs text-white/60">Business Travel Assistant</p>
+              </div>
             </div>
-            <button className="p-2 bg-white/5 hover:bg-white/10 rounded-lg transition-colors">
-              <Plus className="h-5 w-5 text-white" />
-            </button>
+            <Button
+              onClick={createNewConversation}
+              size="sm"
+              className="bg-white/5 hover:bg-white/10 border border-white/10 rounded-lg h-8 w-8 p-0"
+            >
+              <Plus className="h-4 w-4 text-white" />
+            </Button>
           </div>
+        </div>
 
-          {/* Search */}
-          <div className="relative mb-4">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-white/50" />
-            <input
-              type="text"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Buscar agentes..."
-              className="w-full pl-10 pr-4 py-2 text-sm bg-white/5 border border-white/10 rounded-lg focus:outline-none focus:ring-1 focus:ring-white/20 text-white placeholder:text-white/30"
-            />
-          </div>
-
-          {/* Category Filter */}
-          <div className="flex gap-2">
-            {[
-              { key: "all", label: "Todos", icon: Users },
-              { key: "travel", label: "Viajes", icon: SparklesIcon },
-              { key: "finance", label: "Finanzas", icon: ChatBubbleLeftRightIcon },
-              { key: "general", label: "General", icon: UserGroupIcon },
-            ].map(({ key, label, icon: Icon }) => (
-              <button
-                key={key}
-                onClick={() => setSelectedCategory(key)}
-                className={`flex items-center gap-1 px-3 py-1.5 text-xs rounded-md transition-colors ${
-                  selectedCategory === key
-                    ? "bg-white/10 text-white"
-                    : "text-white/60 hover:text-white hover:bg-white/5"
+        {/* Conversations List */}
+        <div className="flex-1 overflow-y-auto scrollbar-thin scrollbar-track-transparent scrollbar-thumb-white/10">
+          <div className="p-2 space-y-1">
+            {conversations.map((conversation) => (
+              <div
+                key={conversation.id}
+                onClick={() => selectConversation(conversation)}
+                className={`group flex items-center justify-between p-3 rounded-lg cursor-pointer transition-all ${
+                  activeConversation?.id === conversation.id ? "bg-white/10 border border-white/20" : "hover:bg-white/5"
                 }`}
               >
-                <Icon className="h-3 w-3" />
-                {label}
-              </button>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center space-x-2 mb-1">
+                    <MessageCircle className="h-3 w-3 text-white/50 flex-shrink-0" />
+                    <span className="text-sm font-medium text-white truncate">{conversation.title}</span>
+                  </div>
+                  <p className="text-xs text-white/50">{conversation.messages.length} messages</p>
+                </div>
+                <Button
+                  onClick={(e) => deleteConversation(conversation.id, e)}
+                  size="sm"
+                  className="opacity-0 group-hover:opacity-100 bg-transparent hover:bg-white/10 h-6 w-6 p-0"
+                >
+                  <Trash2 className="h-3 w-3 text-white/50" />
+                </Button>
+              </div>
             ))}
           </div>
         </div>
 
-        {/* Agents List */}
-        <div className="flex-1 overflow-y-auto scrollbar-thin scrollbar-track-transparent scrollbar-thumb-white/10 hover:scrollbar-thumb-white/20">
-          <div className="p-2 space-y-2">
-            {filteredAgents.map((agent) => (
-              <div
-                key={agent.id}
-                onClick={() => setSelectedAgent(agent)}
-                className={`p-3 rounded-lg cursor-pointer transition-all duration-200 ${
-                  selectedAgent?.id === agent.id ? "bg-white/10 ring-1 ring-white/20" : "hover:bg-white/5"
-                }`}
-              >
-                <div className="flex items-start gap-3">
-                  <div className="relative">
-                    <Image
-                      src={agent.avatar || "/placeholder.svg"}
-                      alt={agent.name}
-                      width={40}
-                      height={40}
-                      className="rounded-full object-cover"
-                    />
-                    <div
-                      className={`absolute -bottom-1 -right-1 w-3 h-3 rounded-full border-2 border-black ${getStatusColor(agent.status)}`}
-                    />
-                  </div>
-
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center justify-between mb-1">
-                      <h3 className="text-sm font-medium text-white truncate">{agent.name}</h3>
-                      {getStatusIcon(agent.status)}
-                    </div>
-
-                    <p className="text-xs text-white/60 line-clamp-2 mb-2">{agent.description}</p>
-
-                    <div className="flex items-center justify-between text-xs text-white/50">
-                      <div className="flex items-center gap-1">
-                        <MessageCircle className="h-3 w-3" />
-                        <span>{agent.conversations}</span>
-                      </div>
-                      <span>{agent.lastActive}</span>
-                    </div>
-
-                    <div className="flex gap-1 mt-2">
-                      {agent.capabilities.slice(0, 2).map((capability) => (
-                        <span
-                          key={capability}
-                          className="px-2 py-0.5 text-[10px] bg-white/10 text-white/70 rounded-full"
-                        >
-                          {capability}
-                        </span>
-                      ))}
-                      {agent.capabilities.length > 2 && (
-                        <span className="px-2 py-0.5 text-[10px] bg-white/10 text-white/70 rounded-full">
-                          +{agent.capabilities.length - 2}
-                        </span>
-                      )}
-                    </div>
-                  </div>
-                </div>
-              </div>
-            ))}
+        {/* Mini Chat Input */}
+        <div className="p-3 border-t border-white/10">
+          <div className="relative">
+            <Input
+              placeholder="Quick question..."
+              className="bg-white/5 border-white/10 text-white placeholder:text-white/30 rounded-lg pr-10 text-sm"
+              onKeyDown={(e) => {
+                if (e.key === "Enter" && e.currentTarget.value.trim()) {
+                  setInput(e.currentTarget.value)
+                  e.currentTarget.value = ""
+                  // Focus main input
+                  document.getElementById("main-chat-input")?.focus()
+                }
+              }}
+            />
+            <Button
+              size="sm"
+              className="absolute right-1 top-1/2 -translate-y-1/2 bg-white/10 hover:bg-white/20 h-6 w-6 p-0 rounded-md"
+            >
+              <Send className="h-3 w-3 text-white" />
+            </Button>
           </div>
         </div>
       </div>
 
-      {/* Chat Interface */}
-      <div className={`${selectedAgent ? "flex-1" : "hidden lg:flex lg:flex-1"} flex flex-col`}>
-        {selectedAgent ? (
-          <>
-            {/* Chat Header */}
-            <div className="p-4 border-b border-white/10 flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <button
-                  onClick={() => setSelectedAgent(null)}
-                  className="lg:hidden p-2 hover:bg-white/5 rounded-lg transition-colors"
+      {/* Main Chat Area */}
+      <div className="flex-1 flex flex-col">
+        {/* Chat Header */}
+        <div className="p-4 border-b border-white/10 flex items-center justify-between">
+          <div className="flex items-center space-x-3">
+            <Button
+              onClick={() => setShowSidebar(!showSidebar)}
+              size="sm"
+              className="lg:hidden bg-white/5 hover:bg-white/10 border border-white/10 rounded-lg h-8 w-8 p-0"
+            >
+              <Bot className="h-4 w-4 text-white" />
+            </Button>
+            <div className="flex items-center space-x-3">
+              <Image
+                src="/images/ai-agent-avatar.jpeg"
+                alt="Suitpax AI"
+                width={32}
+                height={32}
+                className="rounded-full object-cover"
+              />
+              <div>
+                <h1 className="font-medium text-white">Suitpax AI Assistant</h1>
+                <p className="text-xs text-white/60">Online • Ready to help</p>
+              </div>
+            </div>
+          </div>
+          <div className="flex items-center space-x-2">
+            <Button size="sm" className="bg-white/5 hover:bg-white/10 border border-white/10 rounded-lg h-8 w-8 p-0">
+              <Settings className="h-4 w-4 text-white/70" />
+            </Button>
+          </div>
+        </div>
+
+        {/* Messages */}
+        <div className="flex-1 overflow-y-auto p-4 space-y-4">
+          {activeConversation?.messages.map((message) => (
+            <div key={message.id} className={`flex ${message.role === "user" ? "justify-end" : "justify-start"}`}>
+              <div className={`max-w-[80%] ${message.role === "user" ? "order-2" : "order-1"}`}>
+                {message.role === "assistant" && (
+                  <div className="flex items-center space-x-2 mb-2">
+                    <Image
+                      src="/images/ai-agent-avatar.jpeg"
+                      alt="AI"
+                      width={20}
+                      height={20}
+                      className="rounded-full"
+                    />
+                    <span className="text-xs text-white/50">Suitpax AI</span>
+                  </div>
+                )}
+                <div
+                  className={`rounded-lg p-3 ${
+                    message.role === "user"
+                      ? "bg-white text-black rounded-tr-none"
+                      : "bg-white/5 text-white rounded-tl-none"
+                  }`}
                 >
-                  ←
-                </button>
-                <div className="relative">
-                  <Image
-                    src={selectedAgent.avatar || "/placeholder.svg"}
-                    alt={selectedAgent.name}
-                    width={32}
-                    height={32}
-                    className="rounded-full object-cover"
-                  />
-                  <div
-                    className={`absolute -bottom-1 -right-1 w-2.5 h-2.5 rounded-full border border-black ${getStatusColor(selectedAgent.status)}`}
-                  />
-                </div>
-                <div>
-                  <h2 className="text-sm font-medium text-white">{selectedAgent.name}</h2>
-                  <p className="text-xs text-white/60 capitalize">{selectedAgent.status}</p>
-                </div>
-              </div>
-
-              <div className="flex items-center gap-2">
-                <button className="p-2 hover:bg-white/5 rounded-lg transition-colors">
-                  <Filter className="h-4 w-4 text-white/70" />
-                </button>
-              </div>
-            </div>
-
-            {/* Chat Messages */}
-            <div className="flex-1 overflow-y-auto scrollbar-thin scrollbar-track-transparent scrollbar-thumb-white/10 hover:scrollbar-thumb-white/20 p-4">
-              <div className="space-y-4">
-                {/* Welcome Message */}
-                <div className="flex justify-start">
-                  <div className="max-w-xs lg:max-w-md">
-                    <div className="bg-white/5 rounded-lg rounded-tl-none p-3">
-                      <p className="text-sm text-white">
-                        ¡Hola! Soy {selectedAgent.name}. {selectedAgent.description}
-                      </p>
-                    </div>
-                    <p className="text-xs text-white/40 mt-1 ml-3">Ahora</p>
-                  </div>
-                </div>
-
-                {/* Capabilities */}
-                <div className="flex justify-start">
-                  <div className="max-w-xs lg:max-w-md">
-                    <div className="bg-white/5 rounded-lg rounded-tl-none p-3">
-                      <p className="text-sm text-white mb-2">Mis especialidades incluyen:</p>
-                      <div className="flex flex-wrap gap-1">
-                        {selectedAgent.capabilities.map((capability) => (
-                          <span key={capability} className="px-2 py-1 text-xs bg-white/10 text-white/80 rounded-full">
-                            {capability}
-                          </span>
-                        ))}
-                      </div>
-                    </div>
-                    <p className="text-xs text-white/40 mt-1 ml-3">Ahora</p>
+                  <div className="text-sm leading-relaxed">{formatMessageContent(message.content)}</div>
+                  <div className="mt-2 text-xs opacity-70">
+                    {message.timestamp.toLocaleTimeString([], {
+                      hour: "2-digit",
+                      minute: "2-digit",
+                    })}
                   </div>
                 </div>
               </div>
             </div>
+          ))}
 
-            {/* Chat Input */}
-            <div className="p-4 border-t border-white/10">
-              <div className="relative">
-                <input
-                  type="text"
-                  placeholder={`Escribe un mensaje a ${selectedAgent.name}...`}
-                  className="w-full pl-4 pr-12 py-3 text-sm bg-white/5 border border-white/10 rounded-lg focus:outline-none focus:ring-1 focus:ring-white/20 text-white placeholder:text-white/30"
-                />
-                <button className="absolute right-3 top-1/2 transform -translate-y-1/2 p-1.5 bg-white/10 hover:bg-white/20 rounded-md transition-colors">
-                  <MessageCircle className="h-4 w-4 text-white" />
-                </button>
+          {isLoading && (
+            <div className="flex justify-start">
+              <div className="max-w-[80%]">
+                <div className="flex items-center space-x-2 mb-2">
+                  <Image src="/images/ai-agent-avatar.jpeg" alt="AI" width={20} height={20} className="rounded-full" />
+                  <span className="text-xs text-white/50">Suitpax AI</span>
+                </div>
+                <div className="bg-white/5 rounded-lg rounded-tl-none p-3">
+                  <div className="flex space-x-1">
+                    <div className="w-2 h-2 bg-white/50 rounded-full animate-bounce"></div>
+                    <div
+                      className="w-2 h-2 bg-white/50 rounded-full animate-bounce"
+                      style={{ animationDelay: "0.1s" }}
+                    ></div>
+                    <div
+                      className="w-2 h-2 bg-white/50 rounded-full animate-bounce"
+                      style={{ animationDelay: "0.2s" }}
+                    ></div>
+                  </div>
+                </div>
               </div>
             </div>
-          </>
-        ) : (
-          /* Empty State */
-          <div className="flex-1 flex items-center justify-center p-8">
-            <div className="text-center max-w-md">
-              <div className="w-16 h-16 bg-white/5 rounded-full flex items-center justify-center mx-auto mb-4">
-                <ChatBubbleLeftRightIcon className="h-8 w-8 text-white/50" />
-              </div>
-              <h3 className="text-lg font-medium text-white mb-2">Selecciona un AI Agent</h3>
-              <p className="text-white/60 text-sm">
-                Elige un agente de la lista para comenzar una conversación y obtener asistencia especializada.
-              </p>
+          )}
+          <div ref={messagesEndRef} />
+        </div>
+
+        {/* Suggested Queries */}
+        {activeConversation?.messages.length === 1 && (
+          <div className="px-4 pb-2">
+            <div className="flex flex-wrap gap-2">
+              {suggestedQueries.slice(0, 4).map((query, index) => (
+                <Badge
+                  key={index}
+                  onClick={() => handleSuggestedQuery(query)}
+                  className="bg-white/5 hover:bg-white/10 text-white/70 border border-white/10 cursor-pointer rounded-full text-xs px-3 py-1"
+                >
+                  {query}
+                </Badge>
+              ))}
             </div>
           </div>
         )}
+
+        {/* Chat Input */}
+        <div className="p-4 border-t border-white/10">
+          <form onSubmit={handleSubmit} className="relative">
+            <div className="relative">
+              <Input
+                id="main-chat-input"
+                type="text"
+                value={input}
+                onChange={(e) => setInput(e.target.value)}
+                placeholder="Ask your AI travel assistant anything..."
+                disabled={isLoading}
+                className="bg-white/5 border-white/10 text-white placeholder:text-white/30 rounded-lg pl-4 pr-20 py-3 focus:ring-1 focus:ring-white/20"
+              />
+              <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center space-x-1">
+                <Button
+                  type="button"
+                  onClick={() => fileInputRef.current?.click()}
+                  size="sm"
+                  className="bg-transparent hover:bg-white/10 h-8 w-8 p-0 rounded-md"
+                >
+                  <Paperclip className="h-4 w-4 text-white/50" />
+                </Button>
+                <Button type="button" size="sm" className="bg-transparent hover:bg-white/10 h-8 w-8 p-0 rounded-md">
+                  <Mic className="h-4 w-4 text-white/50" />
+                </Button>
+                <Button
+                  type="submit"
+                  disabled={!input.trim() || isLoading}
+                  size="sm"
+                  className="bg-white text-black hover:bg-white/90 disabled:opacity-50 h-8 w-8 p-0 rounded-md"
+                >
+                  <Send className="h-4 w-4" />
+                </Button>
+              </div>
+            </div>
+          </form>
+          <input
+            type="file"
+            ref={fileInputRef}
+            className="hidden"
+            multiple
+            accept=".pdf,.doc,.docx,.txt,.jpg,.jpeg,.png"
+          />
+        </div>
       </div>
     </div>
   )

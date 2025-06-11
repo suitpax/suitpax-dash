@@ -1,0 +1,62 @@
+[
+  {
+    "id": "flight-search-1",
+    "category": "Flight Booking",
+    "prompt": "Find me the cheapest flights from New York to London next month",
+    "tags": ["flights", "budget", "international"]
+  },
+  {
+    "id": "flight-search-2",
+    "category": "Flight Booking",
+    "prompt": "What are the best business class options from San Francisco to Tokyo?",
+    "tags": ["flights", "business class", "international"]
+  },
+  {
+    "id": "flight-search-3",
+    "category": "Flight Booking",
+    "prompt": "Help me find a direct flight from Chicago to Paris with the shortest duration",
+    "tags": ["flights", "direct", "international"]
+  },
+  {
+    "id": "flight-search-4",
+    "category": "Flight Booking",
+    "prompt": "What airlines offer the most legroom for economy flights to Europe?",
+    "tags": ["flights", "comfort", "economy", "international"]
+  },
+  {
+    "id": "flight-search-5",
+    "category": "Flight Booking",
+    "prompt": "Find flights with the best loyalty program benefits for my trip to Asia",
+    "tags": ["flights", "loyalty programs", "international"]
+  },
+  {
+    "id": "flight-search-6",
+    "category": "Flight Booking",
+    "prompt": "What are the most convenient flight times for a weekend trip to Miami?",
+    "tags": ["flights", "domestic", "weekend"]
+  },
+  {
+    "id": "flight-search-7",
+    "category": "Flight Booking",
+    "prompt": "Help me find flights with the most flexible cancellation policies",
+    "tags": ["flights", "flexibility", "policies"]
+  },
+  {
+    "id": "flight-search-8",
+    "category": "Flight Booking",
+    "prompt": "What's the best time to book flights to Europe for the summer?",
+    "tags": ["flights", "timing", "international", "summer"]
+  },
+  {
+    "id": "flight-search-9",
+    "category": "Flight Booking",
+    "prompt": "Find me flights with the best in-flight entertainment options",
+    "tags": ["flights", "amenities", "entertainment"]
+  },
+  {
+    "id": "flight-search-10",
+    "category": "Flight Booking",
+    "prompt": "What are the most reliable airlines for on-time arrivals?",
+    "tags": ["flights", "reliability", "punctuality"]
+  }
+]

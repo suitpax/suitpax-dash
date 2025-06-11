@@ -1,0 +1,62 @@
+[
+  {
+    "id": "general-1",
+    "category": "General",
+    "prompt": "What are the benefits of using Suitpax for business travel management?",
+    "tags": ["general", "benefits", "platform"]
+  },
+  {
+    "id": "general-2",
+    "category": "General",
+    "prompt": "How can I integrate my calendar with Suitpax?",
+    "tags": ["general", "integration", "calendar"]
+  },
+  {
+    "id": "general-3",
+    "category": "General",
+    "prompt": "What reports can I generate about my team's travel expenses?",
+    "tags": ["general", "reporting", "analytics"]
+  },
+  {
+    "id": "general-4",
+    "category": "General",
+    "prompt": "How do I add a new team member to our Suitpax account?",
+    "tags": ["general", "team", "account"]
+  },
+  {
+    "id": "general-5",
+    "category": "General",
+    "prompt": "What security measures does Suitpax use to protect travel data?",
+    "tags": ["general", "security", "data"]
+  },
+  {
+    "id": "general-6",
+    "category": "General",
+    "prompt": "How can I customize my Suitpax dashboard?",
+    "tags": ["general", "customization", "dashboard"]
+  },
+  {
+    "id": "general-7",
+    "category": "General",
+    "prompt": "What payment methods are accepted for booking through Suitpax?",
+    "tags": ["general", "payment", "booking"]
+  },
+  {
+    "id": "general-8",
+    "category": "General",
+    "prompt": "How do I set up travel alerts for my team?",
+    "tags": ["general", "alerts", "team"]
+  },
+  {
+    "id": "general-9",
+    "category": "General",
+    "prompt": "Can Suitpax help with visa requirements for international travel?",
+    "tags": ["general", "visa", "international"]
+  },
+  {
+    "id": "general-10",
+    "category": "General",
+    "prompt": "What's the difference between business and enterprise plans?",
+    "tags": ["general", "plans", "pricing"]
+  }
+]

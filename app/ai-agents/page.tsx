@@ -1,323 +1,458 @@
 "use client"
 
 import { useState } from "react"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card"
+import { Button } from "@/components/ui/button"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
+import { Badge } from "@/components/ui/badge"
+import { Sparkles, Plus, BarChart2, RefreshCw, CheckCircle, XCircle } from "lucide-react"
 import Image from "next/image"
-import {
-  ChatBubbleLeftRightIcon,
-  SparklesIcon,
-  UserGroupIcon,
-  ClockIcon,
-  CheckCircleIcon,
-  ExclamationTriangleIcon,
-} from "@heroicons/react/24/outline"
-import { Search, Filter, Plus, MessageCircle, Users } from "lucide-react"
-
-interface Agent {
-  id: string
-  name: string
-  description: string
-  avatar: string
-  status: "online" | "busy" | "offline"
-  capabilities: string[]
-  conversations: number
-  lastActive: string
-  category: "travel" | "finance" | "general"
-}
-
-const agents: Agent[] = [
-  {
-    id: "1",
-    name: "Travel Assistant",
-    description: "Especialista en reservas de vuelos, hoteles y gestión de viajes corporativos",
-    avatar: "/images/ai-agent-avatar.jpeg",
-    status: "online",
-    capabilities: ["Reservas", "Políticas", "Gastos"],
-    conversations: 156,
-    lastActive: "Ahora",
-    category: "travel",
-  },
-  {
-    id: "2",
-    name: "Finance Bot",
-    description: "Experto en análisis financiero, presupuestos y reportes de gastos",
-    avatar: "/images/ai-assistant-avatar.png",
-    status: "online",
-    capabilities: ["Análisis", "Reportes", "Presupuestos"],
-    conversations: 89,
-    lastActive: "2 min",
-    category: "finance",
-  },
-  {
-    id: "3",
-    name: "General Assistant",
-    description: "Asistente general para consultas diversas y soporte administrativo",
-    avatar: "/ai-agents/agent-3.jpeg",
-    status: "busy",
-    capabilities: ["Consultas", "Soporte", "Documentos"],
-    conversations: 234,
-    lastActive: "5 min",
-    category: "general",
-  },
-]
 
 export default function AIAgentsPage() {
-  const [searchQuery, setSearchQuery] = useState("")
-  const [selectedCategory, setSelectedCategory] = useState<string>("all")
-  const [selectedAgent, setSelectedAgent] = useState<Agent | null>(null)
+  const [activeTab, setActiveTab] = useState("overview")
 
-  const filteredAgents = agents.filter((agent) => {
-    const matchesSearch =
-      agent.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      agent.description.toLowerCase().includes(searchQuery.toLowerCase())
-    const matchesCategory = selectedCategory === "all" || agent.category === selectedCategory
-    return matchesSearch && matchesCategory
-  })
-
-  const getStatusColor = (status: Agent["status"]) => {
-    switch (status) {
-      case "online":
-        return "bg-green-500"
-      case "busy":
-        return "bg-yellow-500"
-      case "offline":
-        return "bg-gray-500"
-      default:
-        return "bg-gray-500"
-    }
+  // Sample data for AI agent usage
+  const agentUsage = {
+    totalTokens: 1250000,
+    usedTokens: 450000,
+    remainingTokens: 800000,
+    refreshDate: "May 15, 2023",
   }
 
-  const getStatusIcon = (status: Agent["status"]) => {
-    switch (status) {
-      case "online":
-        return <CheckCircleIcon className="h-4 w-4 text-green-400" />
-      case "busy":
-        return <ExclamationTriangleIcon className="h-4 w-4 text-yellow-400" />
-      case "offline":
-        return <ClockIcon className="h-4 w-4 text-gray-400" />
-      default:
-        return <ClockIcon className="h-4 w-4 text-gray-400" />
-    }
-  }
+  // Sample data for recent interactions
+  const recentInteractions = [
+    {
+      id: "int-001",
+      query: "Find flights from New York to London next week",
+      date: "May 2, 2023",
+      tokens: 1250,
+      status: "completed",
+    },
+    {
+      id: "int-002",
+      query: "What are the best hotels in Tokyo for business travelers?",
+      date: "May 1, 2023",
+      tokens: 1850,
+      status: "completed",
+    },
+    {
+      id: "int-003",
+      query: "Help me create an expense report for my Paris trip",
+      date: "April 30, 2023",
+      tokens: 2100,
+      status: "completed",
+    },
+    {
+      id: "int-004",
+      query: "What's our company policy on business class flights?",
+      date: "April 29, 2023",
+      tokens: 950,
+      status: "completed",
+    },
+    {
+      id: "int-005",
+      query: "Draft an email to request travel approval",
+      date: "April 28, 2023",
+      tokens: 1650,
+      status: "completed",
+    },
+  ]
+
+  // Sample data for saved prompts
+  const savedPrompts = [
+    {
+      id: "prompt-001",
+      title: "Flight Search Template",
+      prompt: "Find me flights from [ORIGIN] to [DESTINATION] on [DATE] with [AIRLINE] in [CLASS]",
+      category: "Travel Booking",
+      usage: 24,
+    },
+    {
+      id: "prompt-002",
+      title: "Hotel Recommendation",
+      prompt: "What are the best hotels in [CITY] for business travelers with [AMENITIES]?",
+      category: "Travel Booking",
+      usage: 18,
+    },
+    {
+      id: "prompt-003",
+      title: "Expense Report Generator",
+      prompt: "Create an expense report for my trip to [CITY] from [START_DATE] to [END_DATE]",
+      category: "Expense Management",
+      usage: 32,
+    },
+  ]
 
   return (
-    <div className="h-full flex bg-black">
-      {/* Agents List */}
-      <div
-        className={`${selectedAgent ? "hidden lg:block lg:w-96" : "w-full lg:w-96"} border-r border-white/10 flex flex-col`}
-      >
-        {/* Header */}
-        <div className="p-4 border-b border-white/10">
-          <div className="flex items-center justify-between mb-4">
-            <div>
-              <h1 className="text-xl font-semibold text-white">AI Agents</h1>
-              <p className="text-sm text-white/60">Gestiona tus asistentes inteligentes</p>
-            </div>
-            <button className="p-2 bg-white/5 hover:bg-white/10 rounded-lg transition-colors">
-              <Plus className="h-5 w-5 text-white" />
-            </button>
+    <div className="space-y-6">
+      <div className="flex justify-between items-center">
+        <h1 className="text-3xl font-medium tracking-tighter">AI Agents</h1>
+        <Button className="bg-black text-white rounded-xl">
+          <Plus className="mr-2 h-4 w-4" /> Create Custom Agent
+        </Button>
+      </div>
+
+      <Card className="border border-black rounded-xl">
+        <CardHeader>
+          <CardTitle className="text-xl font-medium tracking-tighter">AI Assistant Usage</CardTitle>
+          <CardDescription>Monitor your AI token usage and limits</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <Card className="border border-black rounded-xl">
+              <CardContent className="p-6">
+                <div className="flex flex-col items-center text-center">
+                  <div className="mb-2 p-2 bg-gray-100 rounded-full">
+                    <Sparkles className="h-6 w-6" />
+                  </div>
+                  <h3 className="text-lg font-medium">Total Tokens</h3>
+                  <p className="text-3xl font-bold mt-2">{agentUsage.totalTokens.toLocaleString()}</p>
+                  <p className="text-sm text-gray-500 mt-1">Monthly allocation</p>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card className="border border-black rounded-xl">
+              <CardContent className="p-6">
+                <div className="flex flex-col items-center text-center">
+                  <div className="mb-2 p-2 bg-gray-100 rounded-full">
+                    <BarChart2 className="h-6 w-6" />
+                  </div>
+                  <h3 className="text-lg font-medium">Used Tokens</h3>
+                  <p className="text-3xl font-bold mt-2">{agentUsage.usedTokens.toLocaleString()}</p>
+                  <p className="text-sm text-gray-500 mt-1">
+                    {Math.round((agentUsage.usedTokens / agentUsage.totalTokens) * 100)}% of allocation
+                  </p>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card className="border border-black rounded-xl">
+              <CardContent className="p-6">
+                <div className="flex flex-col items-center text-center">
+                  <div className="mb-2 p-2 bg-gray-100 rounded-full">
+                    <RefreshCw className="h-6 w-6" />
+                  </div>
+                  <h3 className="text-lg font-medium">Remaining Tokens</h3>
+                  <p className="text-3xl font-bold mt-2">{agentUsage.remainingTokens.toLocaleString()}</p>
+                  <p className="text-sm text-gray-500 mt-1">Refreshes on {agentUsage.refreshDate}</p>
+                </div>
+              </CardContent>
+            </Card>
           </div>
 
-          {/* Search */}
-          <div className="relative mb-4">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-white/50" />
-            <input
-              type="text"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Buscar agentes..."
-              className="w-full pl-10 pr-4 py-2 text-sm bg-white/5 border border-white/10 rounded-lg focus:outline-none focus:ring-1 focus:ring-white/20 text-white placeholder:text-white/30"
-            />
-          </div>
-
-          {/* Category Filter */}
-          <div className="flex gap-2">
-            {[
-              { key: "all", label: "Todos", icon: Users },
-              { key: "travel", label: "Viajes", icon: SparklesIcon },
-              { key: "finance", label: "Finanzas", icon: ChatBubbleLeftRightIcon },
-              { key: "general", label: "General", icon: UserGroupIcon },
-            ].map(({ key, label, icon: Icon }) => (
-              <button
-                key={key}
-                onClick={() => setSelectedCategory(key)}
-                className={`flex items-center gap-1 px-3 py-1.5 text-xs rounded-md transition-colors ${
-                  selectedCategory === key
-                    ? "bg-white/10 text-white"
-                    : "text-white/60 hover:text-white hover:bg-white/5"
-                }`}
-              >
-                <Icon className="h-3 w-3" />
-                {label}
-              </button>
-            ))}
-          </div>
-        </div>
-
-        {/* Agents List */}
-        <div className="flex-1 overflow-y-auto scrollbar-thin scrollbar-track-transparent scrollbar-thumb-white/10 hover:scrollbar-thumb-white/20">
-          <div className="p-2 space-y-2">
-            {filteredAgents.map((agent) => (
+          <div className="mt-6">
+            <div className="w-full bg-gray-200 rounded-full h-2.5">
               <div
-                key={agent.id}
-                onClick={() => setSelectedAgent(agent)}
-                className={`p-3 rounded-lg cursor-pointer transition-all duration-200 ${
-                  selectedAgent?.id === agent.id ? "bg-white/10 ring-1 ring-white/20" : "hover:bg-white/5"
-                }`}
+                className="bg-black h-2.5 rounded-full"
+                style={{ width: `${Math.round((agentUsage.usedTokens / agentUsage.totalTokens) * 100)}%` }}
+              ></div>
+            </div>
+            <div className="flex justify-between mt-2 text-sm">
+              <span>0 tokens</span>
+              <span>{agentUsage.totalTokens.toLocaleString()} tokens</span>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      <Card className="border border-black rounded-xl">
+        <CardHeader>
+          <CardTitle className="text-xl font-medium tracking-tighter">AI Agent Management</CardTitle>
+          <CardDescription>Configure and monitor your AI assistants</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <Tabs defaultValue="overview" value={activeTab} onValueChange={setActiveTab} className="w-full">
+            <TabsList className="grid w-full grid-cols-3 bg-gray-100 rounded-xl p-1">
+              <TabsTrigger
+                value="overview"
+                className="rounded-lg data-[state=active]:bg-white data-[state=active]:border data-[state=active]:border-black"
               >
-                <div className="flex items-start gap-3">
-                  <div className="relative">
-                    <Image
-                      src={agent.avatar || "/placeholder.svg"}
-                      alt={agent.name}
-                      width={40}
-                      height={40}
-                      className="rounded-full object-cover"
-                    />
-                    <div
-                      className={`absolute -bottom-1 -right-1 w-3 h-3 rounded-full border-2 border-black ${getStatusColor(agent.status)}`}
-                    />
-                  </div>
+                Recent Interactions
+              </TabsTrigger>
+              <TabsTrigger
+                value="saved"
+                className="rounded-lg data-[state=active]:bg-white data-[state=active]:border data-[state=active]:border-black"
+              >
+                Saved Prompts
+              </TabsTrigger>
+              <TabsTrigger
+                value="settings"
+                className="rounded-lg data-[state=active]:bg-white data-[state=active]:border data-[state=active]:border-black"
+              >
+                Agent Settings
+              </TabsTrigger>
+            </TabsList>
 
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center justify-between mb-1">
-                      <h3 className="text-sm font-medium text-white truncate">{agent.name}</h3>
-                      {getStatusIcon(agent.status)}
-                    </div>
+            <TabsContent value="overview" className="mt-4">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Query</TableHead>
+                    <TableHead>Date</TableHead>
+                    <TableHead>Tokens Used</TableHead>
+                    <TableHead>Status</TableHead>
+                    <TableHead>Actions</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {recentInteractions.map((interaction) => (
+                    <TableRow key={interaction.id}>
+                      <TableCell className="font-medium">{interaction.query}</TableCell>
+                      <TableCell>{interaction.date}</TableCell>
+                      <TableCell>{interaction.tokens}</TableCell>
+                      <TableCell>
+                        {interaction.status === "completed" ? (
+                          <Badge className="bg-green-100 text-green-800 border-green-300">
+                            <CheckCircle className="h-3 w-3 mr-1" /> Completed
+                          </Badge>
+                        ) : (
+                          <Badge className="bg-red-100 text-red-800 border-red-300">
+                            <XCircle className="h-3 w-3 mr-1" /> Failed
+                          </Badge>
+                        )}
+                      </TableCell>
+                      <TableCell>
+                        <Button variant="outline" size="sm" className="border-black rounded-lg h-8">
+                          View Details
+                        </Button>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </TabsContent>
 
-                    <p className="text-xs text-white/60 line-clamp-2 mb-2">{agent.description}</p>
-
-                    <div className="flex items-center justify-between text-xs text-white/50">
-                      <div className="flex items-center gap-1">
-                        <MessageCircle className="h-3 w-3" />
-                        <span>{agent.conversations}</span>
+            <TabsContent value="saved" className="mt-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {savedPrompts.map((prompt) => (
+                  <Card key={prompt.id} className="border border-black rounded-xl">
+                    <CardHeader className="pb-2">
+                      <div className="flex justify-between items-start">
+                        <CardTitle className="text-md font-medium">{prompt.title}</CardTitle>
+                        <Badge className="bg-gray-100 text-black border-gray-300">{prompt.category}</Badge>
                       </div>
-                      <span>{agent.lastActive}</span>
-                    </div>
-
-                    <div className="flex gap-1 mt-2">
-                      {agent.capabilities.slice(0, 2).map((capability) => (
-                        <span
-                          key={capability}
-                          className="px-2 py-0.5 text-[10px] bg-white/10 text-white/70 rounded-full"
-                        >
-                          {capability}
-                        </span>
-                      ))}
-                      {agent.capabilities.length > 2 && (
-                        <span className="px-2 py-0.5 text-[10px] bg-white/10 text-white/70 rounded-full">
-                          +{agent.capabilities.length - 2}
-                        </span>
-                      )}
-                    </div>
-                  </div>
-                </div>
+                    </CardHeader>
+                    <CardContent>
+                      <p className="text-sm">{prompt.prompt}</p>
+                      <p className="text-xs text-gray-500 mt-2">Used {prompt.usage} times</p>
+                    </CardContent>
+                    <CardFooter className="flex justify-between">
+                      <Button variant="outline" size="sm" className="border-black rounded-lg h-8">
+                        Edit
+                      </Button>
+                      <Button size="sm" className="bg-black text-white rounded-lg h-8">
+                        Use Prompt
+                      </Button>
+                    </CardFooter>
+                  </Card>
+                ))}
               </div>
-            ))}
-          </div>
-        </div>
-      </div>
+            </TabsContent>
 
-      {/* Chat Interface */}
-      <div className={`${selectedAgent ? "flex-1" : "hidden lg:flex lg:flex-1"} flex flex-col`}>
-        {selectedAgent ? (
-          <>
-            {/* Chat Header */}
-            <div className="p-4 border-b border-white/10 flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <button
-                  onClick={() => setSelectedAgent(null)}
-                  className="lg:hidden p-2 hover:bg-white/5 rounded-lg transition-colors"
-                >
-                  ←
-                </button>
-                <div className="relative">
-                  <Image
-                    src={selectedAgent.avatar || "/placeholder.svg"}
-                    alt={selectedAgent.name}
-                    width={32}
-                    height={32}
-                    className="rounded-full object-cover"
-                  />
-                  <div
-                    className={`absolute -bottom-1 -right-1 w-2.5 h-2.5 rounded-full border border-black ${getStatusColor(selectedAgent.status)}`}
-                  />
-                </div>
-                <div>
-                  <h2 className="text-sm font-medium text-white">{selectedAgent.name}</h2>
-                  <p className="text-xs text-white/60 capitalize">{selectedAgent.status}</p>
-                </div>
-              </div>
-
-              <div className="flex items-center gap-2">
-                <button className="p-2 hover:bg-white/5 rounded-lg transition-colors">
-                  <Filter className="h-4 w-4 text-white/70" />
-                </button>
-              </div>
-            </div>
-
-            {/* Chat Messages */}
-            <div className="flex-1 overflow-y-auto scrollbar-thin scrollbar-track-transparent scrollbar-thumb-white/10 hover:scrollbar-thumb-white/20 p-4">
+            <TabsContent value="settings" className="mt-4">
               <div className="space-y-4">
-                {/* Welcome Message */}
-                <div className="flex justify-start">
-                  <div className="max-w-xs lg:max-w-md">
-                    <div className="bg-white/5 rounded-lg rounded-tl-none p-3">
-                      <p className="text-sm text-white">
-                        ¡Hola! Soy {selectedAgent.name}. {selectedAgent.description}
-                      </p>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="model">AI Model</Label>
+                    <Select defaultValue="gpt4">
+                      <SelectTrigger className="border-black rounded-xl">
+                        <SelectValue placeholder="Select AI Model" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="gpt4">GPT-4</SelectItem>
+                        <SelectItem value="gpt35">GPT-3.5 Turbo</SelectItem>
+                        <SelectItem value="claude">Claude 2</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="temperature">Temperature</Label>
+                    <div className="flex items-center space-x-2">
+                      <span className="text-sm">0.0</span>
+                      <Slider defaultValue={[0.7]} max={1} min={0} step={0.1} className="flex-1" />
+                      <span className="text-sm">1.0</span>
                     </div>
-                    <p className="text-xs text-white/40 mt-1 ml-3">Ahora</p>
+                    <p className="text-xs text-gray-500">
+                      Controls randomness: Lower values are more deterministic, higher values more creative
+                    </p>
                   </div>
                 </div>
 
-                {/* Capabilities */}
-                <div className="flex justify-start">
-                  <div className="max-w-xs lg:max-w-md">
-                    <div className="bg-white/5 rounded-lg rounded-tl-none p-3">
-                      <p className="text-sm text-white mb-2">Mis especialidades incluyen:</p>
-                      <div className="flex flex-wrap gap-1">
-                        {selectedAgent.capabilities.map((capability) => (
-                          <span key={capability} className="px-2 py-1 text-xs bg-white/10 text-white/80 rounded-full">
-                            {capability}
-                          </span>
-                        ))}
-                      </div>
-                    </div>
-                    <p className="text-xs text-white/40 mt-1 ml-3">Ahora</p>
-                  </div>
+                <div className="space-y-2">
+                  <Label htmlFor="system-prompt">System Prompt</Label>
+                  <Textarea
+                    id="system-prompt"
+                    placeholder="Enter a system prompt to guide the AI's behavior"
+                    className="border-black rounded-xl"
+                    rows={4}
+                    defaultValue="You are Suitpax AI, a helpful assistant for business travel management. You help users book flights, find hotels, manage expenses, and understand travel policies."
+                  />
+                  <p className="text-xs text-gray-500">
+                    This prompt sets the behavior and context for the AI assistant
+                  </p>
                 </div>
+
+                <div className="flex items-center space-x-2">
+                  <Switch id="knowledge-base" defaultChecked />
+                  <Label htmlFor="knowledge-base">Enable Suitpax Knowledge Base</Label>
+                </div>
+
+                <div className="flex items-center space-x-2">
+                  <Switch id="web-search" />
+                  <Label htmlFor="web-search">Enable Web Search</Label>
+                </div>
+
+                <Button className="bg-black text-white rounded-xl">Save Settings</Button>
               </div>
-            </div>
+            </TabsContent>
+          </Tabs>
+        </CardContent>
+      </Card>
 
-            {/* Chat Input */}
-            <div className="p-4 border-t border-white/10">
+      <Card className="border border-black rounded-xl">
+        <CardHeader>
+          <CardTitle className="text-xl font-medium tracking-tighter">AI Assistant</CardTitle>
+          <CardDescription>Ask questions about business travel management</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="flex items-start space-x-4">
+            <Image
+              src="/images/ai-agent-avatar.jpeg"
+              alt="AI Assistant"
+              width={50}
+              height={50}
+              className="rounded-full"
+            />
+            <div className="flex-1">
+              <div className="bg-gray-100 p-3 rounded-xl mb-3">
+                <p className="text-sm">
+                  Hello! I'm your Suitpax AI Assistant. I can help you with flight and hotel bookings, expense
+                  management, travel policies, and more. What can I assist you with today?
+                </p>
+              </div>
               <div className="relative">
-                <input
-                  type="text"
-                  placeholder={`Escribe un mensaje a ${selectedAgent.name}...`}
-                  className="w-full pl-4 pr-12 py-3 text-sm bg-white/5 border border-white/10 rounded-lg focus:outline-none focus:ring-1 focus:ring-white/20 text-white placeholder:text-white/30"
+                <Textarea
+                  placeholder="Ask me anything about business travel management..."
+                  className="border-black rounded-xl pr-12 min-h-[100px]"
                 />
-                <button className="absolute right-3 top-1/2 transform -translate-y-1/2 p-1.5 bg-white/10 hover:bg-white/20 rounded-md transition-colors">
-                  <MessageCircle className="h-4 w-4 text-white" />
-                </button>
+                <Button className="absolute right-3 bottom-3 h-8 w-8 p-0 bg-black text-white rounded-lg">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="1.5" fill="currentColor" />
+                    <path
+                      d="M7 15L12 10L17 15"
+                      stroke="black"
+                      strokeWidth="1.5"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
+                  </svg>
+                </Button>
               </div>
-            </div>
-          </>
-        ) : (
-          /* Empty State */
-          <div className="flex-1 flex items-center justify-center p-8">
-            <div className="text-center max-w-md">
-              <div className="w-16 h-16 bg-white/5 rounded-full flex items-center justify-center mx-auto mb-4">
-                <ChatBubbleLeftRightIcon className="h-8 w-8 text-white/50" />
+              <div className="mt-2 flex flex-wrap gap-1">
+                <Badge variant="outline" className="text-xs cursor-pointer bg-white hover:bg-gray-50">
+                  Find flights to London
+                </Badge>
+                <Badge variant="outline" className="text-xs cursor-pointer bg-white hover:bg-gray-50">
+                  Hotel recommendations in Tokyo
+                </Badge>
+                <Badge variant="outline" className="text-xs cursor-pointer bg-white hover:bg-gray-50">
+                  Create travel checklist
+                </Badge>
+                <Badge variant="outline" className="text-xs cursor-pointer bg-white hover:bg-gray-50">
+                  Expense policy for meals
+                </Badge>
+                <Badge variant="outline" className="text-xs cursor-pointer bg-white hover:bg-gray-50">
+                  Draft approval request
+                </Badge>
               </div>
-              <h3 className="text-lg font-medium text-white mb-2">Selecciona un AI Agent</h3>
-              <p className="text-white/60 text-sm">
-                Elige un agente de la lista para comenzar una conversación y obtener asistencia especializada.
-              </p>
             </div>
           </div>
-        )}
+        </CardContent>
+      </Card>
+    </div>
+  )
+}
+
+function Label({ htmlFor, children }) {
+  return (
+    <label htmlFor={htmlFor} className="text-sm font-medium">
+      {children}
+    </label>
+  )
+}
+
+function Select({ children, defaultValue }) {
+  return (
+    <div className="relative">
+      <select
+        defaultValue={defaultValue}
+        className="w-full rounded-xl border border-black bg-white px-3 py-2 text-sm appearance-none"
+      >
+        {children}
+      </select>
+      <div className="absolute inset-y-0 right-0 flex items-center pr-2 pointer-events-none">
+        <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path
+            d="M2.5 4.5L6 8L9.5 4.5"
+            stroke="currentColor"
+            strokeWidth="1.5"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+        </svg>
       </div>
+    </div>
+  )
+}
+
+function SelectTrigger({ children, className }) {
+  return <div className={className}>{children}</div>
+}
+
+function SelectValue({ placeholder }) {
+  return <span>{placeholder}</span>
+}
+
+function SelectContent({ children }) {
+  return <div className="bg-white border border-black rounded-xl p-1 mt-1">{children}</div>
+}
+
+function SelectItem({ value, children }) {
+  return <div className="px-2 py-1 hover:bg-gray-100 rounded-lg cursor-pointer">{children}</div>
+}
+
+function Slider({ defaultValue, max, min, step, className }) {
+  return (
+    <div className={`h-2 bg-gray-200 rounded-full ${className}`}>
+      <div
+        className="h-full bg-black rounded-full"
+        style={{ width: `${((defaultValue[0] - min) / (max - min)) * 100}%` }}
+      ></div>
+    </div>
+  )
+}
+
+function Textarea({ id, placeholder, className, rows, defaultValue }) {
+  return (
+    <textarea
+      id={id}
+      placeholder={placeholder}
+      className={`w-full rounded-xl border border-black bg-white px-3 py-2 text-sm ${className}`}
+      rows={rows}
+      defaultValue={defaultValue}
+    ></textarea>
+  )
+}
+
+function Switch({ id, defaultChecked }) {
+  return (
+    <div className="relative inline-flex h-6 w-11 items-center rounded-full border border-black">
+      <input type="checkbox" id={id} defaultChecked={defaultChecked} className="peer sr-only" />
+      <span
+        className={`absolute left-1 top-1 h-4 w-4 rounded-full bg-gray-300 transition-all peer-checked:left-6 peer-checked:bg-black`}
+      ></span>
     </div>
   )
 }

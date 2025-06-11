@@ -1,624 +1,659 @@
-{
-  "hotels": [
-    {
-      "id": "nyc-plaza",
-      "name": "The Plaza Hotel",
-      "cityId": "nyc",
-      "address": "768 5th Ave, New York, NY 10019",
-      "coordinates": {
-        "latitude": 40.7645,
-        "longitude": -73.9741
-      },
-      "stars": 5,
-      "rating": 4.7,
-      "description": "Iconic luxury hotel overlooking Central Park, featured in numerous films and books.",
-      "amenities": ["Spa", "Fine Dining", "Fitness Center", "Concierge", "Room Service", "Business Center", "Wi-Fi"],
-      "priceRange": {
-        "min": 595,
-        "max": 1200,
-        "currency": "USD"
-      },
-      "images": ["plaza-exterior.jpg", "plaza-lobby.jpg", "plaza-room.jpg"],
-      "website": "https://www.theplazany.com"
-    },
-    {
-      "id": "nyc-standard",
-      "name": "The Standard, High Line",
-      "cityId": "nyc",
-      "address": "848 Washington St, New York, NY 10014",
-      "coordinates": {
-        "latitude": 40.7404,
-        "longitude": -74.0083
-      },
-      "stars": 4,
-      "rating": 4.5,
-      "description": "Trendy hotel straddling the High Line with floor-to-ceiling windows and stunning views.",
-      "amenities": ["Rooftop Bar", "Restaurant", "Fitness Center", "Free Wi-Fi", "Pet-Friendly", "Business Center"],
-      "priceRange": {
-        "min": 295,
-        "max": 650,
-        "currency": "USD"
-      },
-      "images": ["standard-exterior.jpg", "standard-room.jpg", "standard-rooftop.jpg"],
-      "website": "https://www.standardhotels.com/new-york/properties/high-line"
-    },
-    {
-      "id": "lax-beverly",
-      "name": "The Beverly Hills Hotel",
-      "cityId": "lax",
-      "address": "9641 Sunset Blvd, Beverly Hills, CA 90210",
-      "coordinates": {
-        "latitude": 34.081,
-        "longitude": -118.414
-      },
-      "stars": 5,
-      "rating": 4.8,
-      "description": "Iconic pink palace on Sunset Boulevard, a favorite of Hollywood stars since 1912.",
-      "amenities": [
-        "Pool",
-        "Spa",
-        "Fine Dining",
-        "Fitness Center",
-        "Concierge",
-        "Room Service",
-        "Business Center",
-        "Wi-Fi"
-      ],
-      "priceRange": {
-        "min": 595,
-        "max": 1500,
-        "currency": "USD"
-      },
-      "images": ["beverly-exterior.jpg", "beverly-pool.jpg", "beverly-room.jpg"],
-      "website": "https://www.dorchestercollection.com/en/los-angeles/the-beverly-hills-hotel/"
-    },
-    {
-      "id": "lax-chateau",
-      "name": "Chateau Marmont",
-      "cityId": "lax",
-      "address": "8221 Sunset Blvd, Los Angeles, CA 90046",
-      "coordinates": {
-        "latitude": 34.0981,
-        "longitude": -118.3662
-      },
-      "stars": 5,
-      "rating": 4.6,
-      "description": "Legendary hotel modeled after a French castle, known for celebrity sightings and privacy.",
-      "amenities": ["Pool", "Restaurant", "Bar", "Room Service", "Wi-Fi", "Concierge"],
-      "priceRange": {
-        "min": 450,
-        "max": 950,
-        "currency": "USD"
-      },
-      "images": ["chateau-exterior.jpg", "chateau-garden.jpg", "chateau-suite.jpg"],
-      "website": "https://www.chateaumarmont.com"
-    },
-    {
-      "id": "chi-langham",
-      "name": "The Langham Chicago",
-      "cityId": "chi",
-      "address": "330 N Wabash Ave, Chicago, IL 60611",
-      "coordinates": {
-        "latitude": 41.8885,
-        "longitude": -87.627
-      },
-      "stars": 5,
-      "rating": 4.9,
-      "description": "Luxury hotel in a Mies van der Rohe-designed skyscraper with river views.",
-      "amenities": [
-        "Spa",
-        "Indoor Pool",
-        "Fine Dining",
-        "Fitness Center",
-        "Concierge",
-        "Room Service",
-        "Business Center",
-        "Wi-Fi"
-      ],
-      "priceRange": {
-        "min": 395,
-        "max": 850,
-        "currency": "USD"
-      },
-      "images": ["langham-exterior.jpg", "langham-lobby.jpg", "langham-room.jpg"],
-      "website": "https://www.langhamhotels.com/en/the-langham/chicago/"
-    },
-    {
-      "id": "chi-ace",
-      "name": "Ace Hotel Chicago",
-      "cityId": "chi",
-      "address": "311 N Morgan St, Chicago, IL 60607",
-      "coordinates": {
-        "latitude": 41.8876,
-        "longitude": -87.6519
-      },
-      "stars": 4,
-      "rating": 4.5,
-      "description": "Hip hotel in the Fulton Market district with minimalist design and a rooftop bar.",
-      "amenities": ["Rooftop Bar", "Restaurant", "Fitness Center", "Free Wi-Fi", "Pet-Friendly", "Business Center"],
-      "priceRange": {
-        "min": 199,
-        "max": 450,
-        "currency": "USD"
-      },
-      "images": ["ace-exterior.jpg", "ace-lobby.jpg", "ace-room.jpg"],
-      "website": "https://www.acehotel.com/chicago/"
-    },
-    {
-      "id": "sfo-fairmont",
-      "name": "Fairmont San Francisco",
-      "cityId": "sfo",
-      "address": "950 Mason St, San Francisco, CA 94108",
-      "coordinates": {
-        "latitude": 37.7924,
-        "longitude": -122.4102
-      },
-      "stars": 5,
-      "rating": 4.7,
-      "description": "Grand, historic hotel atop Nob Hill with panoramic views of the city and bay.",
-      "amenities": ["Spa", "Fine Dining", "Fitness Center", "Concierge", "Room Service", "Business Center", "Wi-Fi"],
-      "priceRange": {
-        "min": 399,
-        "max": 899,
-        "currency": "USD"
-      },
-      "images": ["fairmont-exterior.jpg", "fairmont-lobby.jpg", "fairmont-room.jpg"],
-      "website": "https://www.fairmont.com/san-francisco/"
-    },
-    {
-      "id": "sfo-proper",
-      "name": "San Francisco Proper Hotel",
-      "cityId": "sfo",
-      "address": "1100 Market St, San Francisco, CA 94102",
-      "coordinates": {
-        "latitude": 37.7811,
-        "longitude": -122.4141
-      },
-      "stars": 4,
-      "rating": 4.6,
-      "description": "Stylish hotel in a historic flatiron building with eclectic, colorful interiors by Kelly Wearstler.",
-      "amenities": ["Rooftop Bar", "Restaurant", "Fitness Center", "Free Wi-Fi", "Pet-Friendly", "Business Center"],
-      "priceRange": {
-        "min": 299,
-        "max": 599,
-        "currency": "USD"
-      },
-      "images": ["proper-exterior.jpg", "proper-lobby.jpg", "proper-room.jpg"],
-      "website": "https://www.properhotel.com/san-francisco/"
-    },
-    {
-      "id": "mia-faena",
-      "name": "Faena Hotel Miami Beach",
-      "cityId": "mia",
-      "address": "3201 Collins Ave, Miami Beach, FL 33140",
-      "coordinates": {
-        "latitude": 25.8052,
-        "longitude": -80.1228
-      },
-      "stars": 5,
-      "rating": 4.8,
-      "description": "Opulent beachfront hotel with theatrical design by filmmaker Baz Luhrmann and his wife.",
-      "amenities": [
-        "Beach Access",
-        "Pool",
-        "Spa",
-        "Fine Dining",
-        "Fitness Center",
-        "Concierge",
-        "Room Service",
-        "Business Center",
-        "Wi-Fi"
-      ],
-      "priceRange": {
-        "min": 495,
-        "max": 1200,
-        "currency": "USD"
-      },
-      "images": ["faena-exterior.jpg", "faena-lobby.jpg", "faena-room.jpg"],
-      "website": "https://www.faena.com/miami-beach/"
-    },
-    {
-      "id": "mia-delano",
-      "name": "Delano South Beach",
-      "cityId": "mia",
-      "address": "1685 Collins Ave, Miami Beach, FL 33139",
-      "coordinates": {
-        "latitude": 25.7909,
-        "longitude": -80.1301
-      },
-      "stars": 4,
-      "rating": 4.5,
-      "description": "Trendy Art Deco hotel with all-white rooms and a lively pool scene.",
-      "amenities": ["Beach Access", "Pool", "Spa", "Restaurant", "Bar", "Fitness Center", "Wi-Fi"],
-      "priceRange": {
-        "min": 350,
-        "max": 750,
-        "currency": "USD"
-      },
-      "images": ["delano-exterior.jpg", "delano-pool.jpg", "delano-room.jpg"],
-      "website": "https://www.sbe.com/hotels/delano/south-beach"
-    },
-    {
-      "id": "lon-ritz",
-      "name": "The Ritz London",
-      "cityId": "lon",
-      "address": "150 Piccadilly, St. James's, London W1J 9BR, UK",
-      "coordinates": {
-        "latitude": 51.5074,
-        "longitude": -0.1425
-      },
-      "stars": 5,
-      "rating": 4.8,
-      "description": "Iconic luxury hotel in the heart of London, famous for its afternoon tea and impeccable service.",
-      "amenities": ["Fine Dining", "Afternoon Tea", "Concierge", "Room Service", "Business Center", "Wi-Fi", "Spa"],
-      "priceRange": {
-        "min": 650,
-        "max": 1500,
-        "currency": "GBP"
-      },
-      "images": ["ritz-exterior.jpg", "ritz-tearoom.jpg", "ritz-suite.jpg"],
-      "website": "https://www.theritzlondon.com"
-    },
-    {
-      "id": "lon-ace",
-      "name": "Ace Hotel London Shoreditch",
-      "cityId": "lon",
-      "address": "100 Shoreditch High St, London E1 6JQ, UK",
-      "coordinates": {
-        "latitude": 51.5255,
-        "longitude": -0.0785
-      },
-      "stars": 4,
-      "rating": 4.5,
-      "description": "Hip hotel in trendy Shoreditch with industrial-chic design and a bustling lobby scene.",
-      "amenities": ["Restaurant", "Bar", "Fitness Center", "Free Wi-Fi", "Pet-Friendly", "Business Center"],
-      "priceRange": {
-        "min": 199,
-        "max": 450,
-        "currency": "GBP"
-      },
-      "images": ["ace-london-exterior.jpg", "ace-london-lobby.jpg", "ace-london-room.jpg"],
-      "website": "https://www.acehotel.com/london/"
-    },
-    {
-      "id": "par-ritz",
-      "name": "Ritz Paris",
-      "cityId": "par",
-      "address": "15 Place Vendôme, 75001 Paris, France",
-      "coordinates": {
-        "latitude": 48.8682,
-        "longitude": 2.3289
-      },
-      "stars": 5,
-      "rating": 4.9,
-      "description": "Legendary luxury hotel on Place Vendôme, recently renovated to its Belle Époque splendor.",
-      "amenities": [
-        "Spa",
-        "Fine Dining",
-        "Bar",
-        "Fitness Center",
-        "Concierge",
-        "Room Service",
-        "Business Center",
-        "Wi-Fi"
-      ],
-      "priceRange": {
-        "min": 1100,
-        "max": 2500,
-        "currency": "EUR"
-      },
-      "images": ["ritz-paris-exterior.jpg", "ritz-paris-lobby.jpg", "ritz-paris-suite.jpg"],
-      "website": "https://www.ritzparis.com"
-    },
-    {
-      "id": "par-hoxton",
-      "name": "The Hoxton, Paris",
-      "cityId": "par",
-      "address": "30-32 Rue du Sentier, 75002 Paris, France",
-      "coordinates": {
-        "latitude": 48.8701,
-        "longitude": 2.3448
-      },
-      "stars": 4,
-      "rating": 4.6,
-      "description": "Stylish hotel in an 18th-century residence with a courtyard garden and trendy restaurant.",
-      "amenities": ["Restaurant", "Bar", "Courtyard", "Free Wi-Fi", "Business Center"],
-      "priceRange": {
-        "min": 250,
-        "max": 550,
-        "currency": "EUR"
-      },
-      "images": ["hoxton-paris-exterior.jpg", "hoxton-paris-lobby.jpg", "hoxton-paris-room.jpg"],
-      "website": "https://thehoxton.com/paris/"
-    },
-    {
-      "id": "rom-hassler",
-      "name": "Hotel Hassler Roma",
-      "cityId": "rom",
-      "address": "Piazza della Trinità dei Monti, 6, 00187 Roma RM, Italy",
-      "coordinates": {
-        "latitude": 41.9057,
-        "longitude": 12.4842
-      },
-      "stars": 5,
-      "rating": 4.8,
-      "description": "Historic luxury hotel at the top of the Spanish Steps with panoramic views of Rome.",
-      "amenities": ["Fine Dining", "Spa", "Fitness Center", "Concierge", "Room Service", "Business Center", "Wi-Fi"],
-      "priceRange": {
-        "min": 600,
-        "max": 1500,
-        "currency": "EUR"
-      },
-      "images": ["hassler-exterior.jpg", "hassler-lobby.jpg", "hassler-room.jpg"],
-      "website": "https://www.hotelhasslerroma.com"
-    },
-    {
-      "id": "rom-generator",
-      "name": "Generator Rome",
-      "cityId": "rom",
-      "address": "Via Principe Amedeo, 257, 00185 Roma RM, Italy",
-      "coordinates": {
-        "latitude": 41.9006,
-        "longitude": 12.5033
-      },
-      "stars": 3,
-      "rating": 4.2,
-      "description": "Stylish hostel and hotel near Termini Station with affordable rates and social atmosphere.",
-      "amenities": ["Bar", "Shared Kitchen", "Free Wi-Fi", "Laundry Facilities", "24-Hour Reception"],
-      "priceRange": {
-        "min": 70,
-        "max": 150,
-        "currency": "EUR"
-      },
-      "images": ["generator-rome-exterior.jpg", "generator-rome-common.jpg", "generator-rome-room.jpg"],
-      "website": "https://staygenerator.com/hostels/rome"
-    },
-    {
-      "id": "tyo-aman",
-      "name": "Aman Tokyo",
-      "cityId": "tyo",
-      "address": "The Otemachi Tower, 1-5-6 Otemachi, Chiyoda-ku, Tokyo 100-0004, Japan",
-      "coordinates": {
-        "latitude": 35.6853,
-        "longitude": 139.7661
-      },
-      "stars": 5,
-      "rating": 4.9,
-      "description": "Serene luxury hotel occupying the top six floors of a skyscraper with minimalist design inspired by traditional Japanese aesthetics.",
-      "amenities": [
-        "Spa",
-        "Indoor Pool",
-        "Fine Dining",
-        "Fitness Center",
-        "Concierge",
-        "Room Service",
-        "Business Center",
-        "Wi-Fi"
-      ],
-      "priceRange": {
-        "min": 1200,
-        "max": 2500,
-        "currency": "USD"
-      },
-      "images": ["aman-tokyo-exterior.jpg", "aman-tokyo-lobby.jpg", "aman-tokyo-room.jpg"],
-      "website": "https://www.aman.com/hotels/aman-tokyo"
-    },
-    {
-      "id": "tyo-park",
-      "name": "Park Hyatt Tokyo",
-      "cityId": "tyo",
-      "address": "3-7-1-2 Nishi Shinjuku, Shinjuku-ku, Tokyo 163-1055, Japan",
-      "coordinates": {
-        "latitude": 35.6866,
-        "longitude": 139.6906
-      },
-      "stars": 5,
-      "rating": 4.8,
-      "description": "Luxury hotel made famous by the movie 'Lost in Translation', with stunning views from its upper-floor location.",
-      "amenities": [
-        "Indoor Pool",
-        "Spa",
-        "Fine Dining",
-        "Fitness Center",
-        "Concierge",
-        "Room Service",
-        "Business Center",
-        "Wi-Fi"
-      ],
-      "priceRange": {
-        "min": 600,
-        "max": 1200,
-        "currency": "USD"
-      },
-      "images": ["park-hyatt-tokyo-exterior.jpg", "park-hyatt-tokyo-pool.jpg", "park-hyatt-tokyo-room.jpg"],
-      "website": "https://www.hyatt.com/en-US/hotel/japan/park-hyatt-tokyo/tyoph"
-    },
-    {
-      "id": "bkk-mandarin",
-      "name": "Mandarin Oriental Bangkok",
-      "cityId": "bkk",
-      "address": "48 Oriental Ave, Khwaeng Bang Rak, Bang Rak, Bangkok 10500, Thailand",
-      "coordinates": {
-        "latitude": 13.7248,
-        "longitude": 100.5133
-      },
-      "stars": 5,
-      "rating": 4.9,
-      "description": "Historic luxury hotel on the banks of the Chao Phraya River, a Bangkok institution since 1876.",
-      "amenities": [
-        "Spa",
-        "Outdoor Pool",
-        "Fine Dining",
-        "Fitness Center",
-        "Concierge",
-        "Room Service",
-        "Business Center",
-        "Wi-Fi"
-      ],
-      "priceRange": {
-        "min": 500,
-        "max": 1200,
-        "currency": "USD"
-      },
-      "images": ["mandarin-bangkok-exterior.jpg", "mandarin-bangkok-lobby.jpg", "mandarin-bangkok-room.jpg"],
-      "website": "https://www.mandarinoriental.com/bangkok/chao-phraya-river/luxury-hotel"
-    },
-    {
-      "id": "bkk-lebua",
-      "name": "Lebua at State Tower",
-      "cityId": "bkk",
-      "address": "1055 Si Lom, Khwaeng Silom, Bang Rak, Bangkok 10500, Thailand",
-      "coordinates": {
-        "latitude": 13.7219,
-        "longitude": 100.5172
-      },
-      "stars": 5,
-      "rating": 4.7,
-      "description": "All-suite luxury hotel with stunning city views and the famous Sky Bar featured in 'The Hangover Part II'.",
-      "amenities": [
-        "Rooftop Bar",
-        "Fine Dining",
-        "Outdoor Pool",
-        "Fitness Center",
-        "Concierge",
-        "Room Service",
-        "Business Center",
-        "Wi-Fi"
-      ],
-      "priceRange": {
-        "min": 200,
-        "max": 600,
-        "currency": "USD"
-      },
-      "images": ["lebua-exterior.jpg", "lebua-skybar.jpg", "lebua-suite.jpg"],
-      "website": "https://www.lebua.com/state-tower"
-    },
-    {
-      "id": "sin-raffles",
-      "name": "Raffles Singapore",
-      "cityId": "sin",
-      "address": "1 Beach Rd, Singapore 189673",
-      "coordinates": {
-        "latitude": 1.2946,
-        "longitude": 103.8544
-      },
-      "stars": 5,
-      "rating": 4.9,
-      "description": "Colonial-style luxury hotel, birthplace of the Singapore Sling cocktail, recently restored to its original grandeur.",
-      "amenities": [
-        "Spa",
-        "Outdoor Pool",
-        "Fine Dining",
-        "Fitness Center",
-        "Concierge",
-        "Room Service",
-        "Business Center",
-        "Wi-Fi"
-      ],
-      "priceRange": {
-        "min": 750,
-        "max": 1500,
-        "currency": "SGD"
-      },
-      "images": ["raffles-exterior.jpg", "raffles-lobby.jpg", "raffles-suite.jpg"],
-      "website": "https://www.raffles.com/singapore/"
-    },
-    {
-      "id": "sin-marina",
-      "name": "Marina Bay Sands",
-      "cityId": "sin",
-      "address": "10 Bayfront Ave, Singapore 018956",
-      "coordinates": {
-        "latitude": 1.2834,
-        "longitude": 103.8607
-      },
-      "stars": 5,
-      "rating": 4.7,
-      "description": "Iconic integrated resort with the world's largest rooftop infinity pool and stunning views of the city skyline.",
-      "amenities": [
-        "Infinity Pool",
-        "Casino",
-        "Spa",
-        "Fine Dining",
-        "Shopping Mall",
-        "Fitness Center",
-        "Concierge",
-        "Room Service",
-        "Business Center",
-        "Wi-Fi"
-      ],
-      "priceRange": {
-        "min": 500,
-        "max": 1200,
-        "currency": "SGD"
-      },
-      "images": ["mbs-exterior.jpg", "mbs-pool.jpg", "mbs-room.jpg"],
-      "website": "https://www.marinabaysands.com"
-    },
-    {
-      "id": "dxb-burj",
-      "name": "Burj Al Arab Jumeirah",
-      "cityId": "dxb",
-      "address": "Jumeirah St, Dubai, United Arab Emirates",
-      "coordinates": {
-        "latitude": 25.1412,
-        "longitude": 55.1853
-      },
-      "stars": 5,
-      "rating": 4.9,
-      "description": "Iconic sail-shaped hotel on its own island, often described as the world's only 7-star hotel.",
-      "amenities": [
-        "Private Beach",
-        "Spa",
-        "Outdoor Pool",
-        "Fine Dining",
-        "Fitness Center",
-        "Concierge",
-        "Room Service",
-        "Business Center",
-        "Wi-Fi",
-        "Helipad"
-      ],
-      "priceRange": {
-        "min": 1500,
-        "max": 5000,
-        "currency": "AED"
-      },
-      "images": ["burj-exterior.jpg", "burj-lobby.jpg", "burj-suite.jpg"],
-      "website": "https://www.jumeirah.com/en/stay/dubai/burj-al-arab-jumeirah"
-    },
-    {
-      "id": "dxb-atlantis",
-      "name": "Atlantis, The Palm",
-      "cityId": "dxb",
-      "address": "Crescent Rd, The Palm Jumeirah, Dubai, United Arab Emirates",
-      "coordinates": {
-        "latitude": 25.1304,
-        "longitude": 55.1171
-      },
-      "stars": 5,
-      "rating": 4.7,
-      "description": "Majestic ocean-themed resort on Palm Jumeirah with its own water park and aquarium.",
-      "amenities": [
-        "Water Park",
-        "Aquarium",
-        "Private Beach",
-        "Spa",
-        "Outdoor Pool",
-        "Fine Dining",
-        "Fitness Center",
-        "Concierge",
-        "Room Service",
-        "Business Center",
-        "Wi-Fi"
-      ],
-      "priceRange": {
-        "min": 400,
-        "max": 1200,
-        "currency": "AED"
-      },
-      "images": ["atlantis-exterior.jpg", "atlantis-aquarium.jpg", "atlantis-room.jpg"],
-      "website": "https://www.atlantis.com/dubai"
-    }
-  ]
-}
+[
+  {
+    "id": "NYC001",
+    "name": "The Plaza Hotel",
+    "city": "New York",
+    "country": "United States",
+    "address": "768 5th Ave, New York, NY 10019",
+    "stars": 5,
+    "price": 650,
+    "amenities": ["Spa", "Pool", "Restaurant", "Gym", "Room Service", "Free WiFi", "Business Center"],
+    "description": "Iconic luxury hotel located at the corner of Fifth Avenue and Central Park South.",
+    "image": "/placeholder.svg?height=200&width=300&query=luxury+hotel+new+york"
+  },
+  {
+    "id": "NYC002",
+    "name": "The Standard High Line",
+    "city": "New York",
+    "country": "United States",
+    "address": "848 Washington St, New York, NY 10014",
+    "stars": 4,
+    "price": 350,
+    "amenities": ["Restaurant", "Bar", "Gym", "Free WiFi", "Room Service"],
+    "description": "Modern hotel straddling the High Line in the Meatpacking District with stunning views.",
+    "image": "/placeholder.svg?height=200&width=300&query=modern+hotel+new+york"
+  },
+  {
+    "id": "NYC003",
+    "name": "Ace Hotel New York",
+    "city": "New York",
+    "country": "United States",
+    "address": "20 W 29th St, New York, NY 10001",
+    "stars": 4,
+    "price": 280,
+    "amenities": ["Restaurant", "Bar", "Gym", "Free WiFi", "Business Center"],
+    "description": "Hip hotel in Midtown with vintage-inspired rooms and a popular lobby bar.",
+    "image": "/placeholder.svg?height=200&width=300&query=hip+hotel+new+york"
+  },
+  {
+    "id": "LON001",
+    "name": "The Savoy",
+    "city": "London",
+    "country": "United Kingdom",
+    "address": "Strand, London WC2R 0EZ",
+    "stars": 5,
+    "price": 720,
+    "amenities": ["Spa", "Pool", "Restaurant", "Gym", "Room Service", "Free WiFi", "Business Center"],
+    "description": "Legendary luxury hotel on the River Thames with elegant rooms and world-class dining.",
+    "image": "/placeholder.svg?height=200&width=300&query=luxury+hotel+london"
+  },
+  {
+    "id": "LON002",
+    "name": "The Hoxton, Shoreditch",
+    "city": "London",
+    "country": "United Kingdom",
+    "address": "81 Great Eastern St, London EC2A 3HU",
+    "stars": 4,
+    "price": 240,
+    "amenities": ["Restaurant", "Bar", "Free WiFi", "Business Center"],
+    "description": "Trendy hotel in East London with industrial-chic design and a buzzing atmosphere.",
+    "image": "/placeholder.svg?height=200&width=300&query=trendy+hotel+london"
+  },
+  {
+    "id": "LON003",
+    "name": "Claridge's",
+    "city": "London",
+    "country": "United Kingdom",
+    "address": "Brook Street, Mayfair, London W1K 4HR",
+    "stars": 5,
+    "price": 850,
+    "amenities": ["Spa", "Restaurant", "Gym", "Room Service", "Free WiFi", "Business Center"],
+    "description": "Art Deco landmark in Mayfair offering timeless luxury and impeccable service.",
+    "image": "/placeholder.svg?height=200&width=300&query=art+deco+hotel+london"
+  },
+  {
+    "id": "PAR001",
+    "name": "Hôtel Plaza Athénée",
+    "city": "Paris",
+    "country": "France",
+    "address": "25 Avenue Montaigne, 75008 Paris",
+    "stars": 5,
+    "price": 950,
+    "amenities": ["Spa", "Restaurant", "Gym", "Room Service", "Free WiFi", "Business Center"],
+    "description": "Opulent hotel on Avenue Montaigne with Eiffel Tower views and Dior Institute spa.",
+    "image": "/placeholder.svg?height=200&width=300&query=luxury+hotel+paris"
+  },
+  {
+    "id": "PAR002",
+    "name": "Hôtel des Grands Boulevards",
+    "city": "Paris",
+    "country": "France",
+    "address": "17 Boulevard Poissonnière, 75002 Paris",
+    "stars": 4,
+    "price": 320,
+    "amenities": ["Restaurant", "Bar", "Free WiFi", "Room Service"],
+    "description": "Stylish boutique hotel in a former 18th-century mansion with a rooftop cocktail bar.",
+    "image": "/placeholder.svg?height=200&width=300&query=boutique+hotel+paris"
+  },
+  {
+    "id": "PAR003",
+    "name": "Le Bristol Paris",
+    "city": "Paris",
+    "country": "France",
+    "address": "112 Rue du Faubourg Saint-Honoré, 75008 Paris",
+    "stars": 5,
+    "price": 1100,
+    "amenities": ["Spa", "Pool", "Restaurant", "Gym", "Room Service", "Free WiFi", "Business Center"],
+    "description": "Parisian palace hotel with elegant rooms, a rooftop pool, and Michelin-starred dining.",
+    "image": "/placeholder.svg?height=200&width=300&query=palace+hotel+paris"
+  },
+  {
+    "id": "TYO001",
+    "name": "Park Hyatt Tokyo",
+    "city": "Tokyo",
+    "country": "Japan",
+    "address": "3-7-1-2 Nishi Shinjuku, Shinjuku-ku, Tokyo",
+    "stars": 5,
+    "price": 780,
+    "amenities": ["Spa", "Pool", "Restaurant", "Gym", "Room Service", "Free WiFi", "Business Center"],
+    "description": "Luxury hotel occupying the top floors of a skyscraper with panoramic city views.",
+    "image": "/placeholder.svg?height=200&width=300&query=luxury+hotel+tokyo"
+  },
+  {
+    "id": "TYO002",
+    "name": "Hotel Okura Tokyo",
+    "city": "Tokyo",
+    "country": "Japan",
+    "address": "2-10-4 Toranomon, Minato-ku, Tokyo",
+    "stars": 5,
+    "price": 650,
+    "amenities": ["Spa", "Pool", "Restaurant", "Gym", "Room Service", "Free WiFi", "Business Center"],
+    "description": "Elegant hotel blending Japanese tradition with modern luxury in the heart of Tokyo.",
+    "image": "/placeholder.svg?height=200&width=300&query=traditional+hotel+tokyo"
+  },
+  {
+    "id": "TYO003",
+    "name": "TRUNK Hotel",
+    "city": "Tokyo",
+    "country": "Japan",
+    "address": "5-31 Jingumae, Shibuya-ku, Tokyo",
+    "stars": 4,
+    "price": 380,
+    "amenities": ["Restaurant", "Bar", "Free WiFi", "Room Service"],
+    "description": "Eco-conscious boutique hotel in Shibuya with a focus on sustainability and local culture.",
+    "image": "/placeholder.svg?height=200&width=300&query=boutique+hotel+tokyo"
+  },
+  {
+    "id": "SYD001",
+    "name": "Park Hyatt Sydney",
+    "city": "Sydney",
+    "country": "Australia",
+    "address": "7 Hickson Road, The Rocks, Sydney",
+    "stars": 5,
+    "price": 850,
+    "amenities": ["Spa", "Pool", "Restaurant", "Gym", "Room Service", "Free WiFi", "Business Center"],
+    "description": "Waterfront luxury hotel with stunning Opera House views and rooftop pool.",
+    "image": "/placeholder.svg?height=200&width=300&query=luxury+hotel+sydney"
+  },
+  {
+    "id": "SYD002",
+    "name": "QT Sydney",
+    "city": "Sydney",
+    "country": "Australia",
+    "address": "49 Market St, Sydney NSW 2000",
+    "stars": 5,
+    "price": 420,
+    "amenities": ["Restaurant", "Bar", "Gym", "Free WiFi", "Room Service"],
+    "description": "Designer boutique hotel in a historic building with quirky decor and a spa.",
+    "image": "/placeholder.svg?height=200&width=300&query=boutique+hotel+sydney"
+  },
+  {
+    "id": "SYD003",
+    "name": "The Langham Sydney",
+    "city": "Sydney",
+    "country": "Australia",
+    "address": "89-113 Kent St, Sydney NSW 2000",
+    "stars": 5,
+    "price": 780,
+    "amenities": ["Spa", "Pool", "Restaurant", "Gym", "Room Service", "Free WiFi", "Business Center"],
+    "description": "Elegant luxury hotel in The Rocks district with harbor views and afternoon tea service.",
+    "image": "/placeholder.svg?height=200&width=300&query=elegant+hotel+sydney"
+  },
+  {
+    "id": "DXB001",
+    "name": "Burj Al Arab Jumeirah",
+    "city": "Dubai",
+    "country": "United Arab Emirates",
+    "address": "Jumeirah Beach Road, Dubai",
+    "stars": 5,
+    "price": 1800,
+    "amenities": ["Spa", "Pool", "Restaurant", "Gym", "Room Service", "Free WiFi", "Business Center", "Butler Service"],
+    "description": "Iconic sail-shaped hotel on its own island offering ultra-luxury suites and amenities.",
+    "image": "/placeholder.svg?height=200&width=300&query=burj+al+arab+dubai"
+  },
+  {
+    "id": "DXB002",
+    "name": "Atlantis, The Palm",
+    "city": "Dubai",
+    "country": "United Arab Emirates",
+    "address": "Crescent Road, The Palm, Dubai",
+    "stars": 5,
+    "price": 650,
+    "amenities": ["Spa", "Pool", "Restaurant", "Gym", "Room Service", "Free WiFi", "Water Park", "Aquarium"],
+    "description": "Oceanic-themed resort on Palm Jumeirah with a water park and underwater suites.",
+    "image": "/placeholder.svg?height=200&width=300&query=atlantis+palm+dubai"
+  },
+  {
+    "id": "DXB003",
+    "name": "Armani Hotel Dubai",
+    "city": "Dubai",
+    "country": "United Arab Emirates",
+    "address": "Burj Khalifa, Downtown Dubai",
+    "stars": 5,
+    "price": 720,
+    "amenities": ["Spa", "Pool", "Restaurant", "Gym", "Room Service", "Free WiFi", "Business Center"],
+    "description": "Sophisticated hotel designed by Giorgio Armani inside the Burj Khalifa.",
+    "image": "/placeholder.svg?height=200&width=300&query=armani+hotel+dubai"
+  },
+  {
+    "id": "SIN001",
+    "name": "Marina Bay Sands",
+    "city": "Singapore",
+    "country": "Singapore",
+    "address": "10 Bayfront Avenue, Singapore",
+    "stars": 5,
+    "price": 550,
+    "amenities": ["Spa", "Infinity Pool", "Restaurant", "Gym", "Room Service", "Free WiFi", "Casino", "Shopping Mall"],
+    "description": "Iconic integrated resort with the world's largest rooftop infinity pool.",
+    "image": "/placeholder.svg?height=200&width=300&query=marina+bay+sands+singapore"
+  },
+  {
+    "id": "SIN002",
+    "name": "Raffles Singapore",
+    "city": "Singapore",
+    "country": "Singapore",
+    "address": "1 Beach Road, Singapore",
+    "stars": 5,
+    "price": 750,
+    "amenities": ["Spa", "Pool", "Restaurant", "Gym", "Room Service", "Free WiFi", "Business Center"],
+    "description": "Historic colonial-style hotel known for its Singapore Sling cocktail and butler service.",
+    "image": "/placeholder.svg?height=200&width=300&query=raffles+hotel+singapore"
+  },
+  {
+    "id": "SIN003",
+    "name": "The Warehouse Hotel",
+    "city": "Singapore",
+    "country": "Singapore",
+    "address": "320 Havelock Road, Singapore",
+    "stars": 4,
+    "price": 280,
+    "amenities": ["Pool", "Restaurant", "Bar", "Free WiFi", "Room Service"],
+    "description": "Boutique hotel in a restored 19th-century warehouse on the Singapore River.",
+    "image": "/placeholder.svg?height=200&width=300&query=warehouse+hotel+singapore"
+  },
+  {
+    "id": "HKG001",
+    "name": "The Peninsula Hong Kong",
+    "city": "Hong Kong",
+    "country": "China",
+    "address": "Salisbury Road, Tsim Sha Tsui, Kowloon, Hong Kong",
+    "stars": 5,
+    "price": 680,
+    "amenities": [
+      "Spa",
+      "Pool",
+      "Restaurant",
+      "Gym",
+      "Room Service",
+      "Free WiFi",
+      "Business Center",
+      "Helicopter Service"
+    ],
+    "description": "Grand colonial-era hotel with harbor views and a fleet of Rolls-Royce limousines.",
+    "image": "/placeholder.svg?height=200&width=300&query=peninsula+hotel+hong+kong"
+  },
+  {
+    "id": "HKG002",
+    "name": "The Upper House",
+    "city": "Hong Kong",
+    "country": "China",
+    "address": "Pacific Place, 88 Queensway, Hong Kong",
+    "stars": 5,
+    "price": 580,
+    "amenities": ["Restaurant", "Gym", "Room Service", "Free WiFi", "Business Center"],
+    "description": "Contemporary luxury hotel with minimalist design and panoramic harbor views.",
+    "image": "/placeholder.svg?height=200&width=300&query=upper+house+hong+kong"
+  },
+  {
+    "id": "HKG003",
+    "name": "The Langham Hong Kong",
+    "city": "Hong Kong",
+    "country": "China",
+    "address": "8 Peking Road, Tsim Sha Tsui, Kowloon, Hong Kong",
+    "stars": 5,
+    "price": 420,
+    "amenities": ["Spa", "Pool", "Restaurant", "Gym", "Room Service", "Free WiFi", "Business Center"],
+    "description": "European-style luxury hotel in the heart of Tsim Sha Tsui's shopping district.",
+    "image": "/placeholder.svg?height=200&width=300&query=langham+hotel+hong+kong"
+  },
+  {
+    "id": "LAX001",
+    "name": "The Beverly Hills Hotel",
+    "city": "Los Angeles",
+    "country": "United States",
+    "address": "9641 Sunset Boulevard, Beverly Hills, CA",
+    "stars": 5,
+    "price": 850,
+    "amenities": ["Spa", "Pool", "Restaurant", "Gym", "Room Service", "Free WiFi", "Business Center"],
+    "description": "Iconic pink palace hotel with private bungalows and a legendary pool.",
+    "image": "/placeholder.svg?height=200&width=300&query=beverly+hills+hotel"
+  },
+  {
+    "id": "LAX002",
+    "name": "Chateau Marmont",
+    "city": "Los Angeles",
+    "country": "United States",
+    "address": "8221 Sunset Boulevard, Los Angeles, CA",
+    "stars": 5,
+    "price": 620,
+    "amenities": ["Pool", "Restaurant", "Bar", "Room Service", "Free WiFi"],
+    "description": "Legendary hotel modeled after a French chateau with a storied Hollywood history.",
+    "image": "/placeholder.svg?height=200&width=300&query=chateau+marmont+los+angeles"
+  },
+  {
+    "id": "LAX003",
+    "name": "The Standard Downtown LA",
+    "city": "Los Angeles",
+    "country": "United States",
+    "address": "550 S Flower St, Los Angeles, CA",
+    "stars": 4,
+    "price": 280,
+    "amenities": ["Pool", "Restaurant", "Bar", "Gym", "Free WiFi"],
+    "description": "Hip hotel in a former office building with a rooftop pool and vibrant nightlife.",
+    "image": "/placeholder.svg?height=200&width=300&query=standard+hotel+los+angeles"
+  },
+  {
+    "id": "SFO001",
+    "name": "Fairmont San Francisco",
+    "city": "San Francisco",
+    "country": "United States",
+    "address": "950 Mason St, San Francisco, CA",
+    "stars": 5,
+    "price": 580,
+    "amenities": ["Spa", "Restaurant", "Gym", "Room Service", "Free WiFi", "Business Center"],
+    "description": "Grand historic hotel atop Nob Hill with panoramic city views and elegant rooms.",
+    "image": "/placeholder.svg?height=200&width=300&query=fairmont+hotel+san+francisco"
+  },
+  {
+    "id": "SFO002",
+    "name": "Hotel Zetta San Francisco",
+    "city": "San Francisco",
+    "country": "United States",
+    "address": "55 5th St, San Francisco, CA",
+    "stars": 4,
+    "price": 320,
+    "amenities": ["Restaurant", "Bar", "Gym", "Free WiFi", "Game Room"],
+    "description": "Tech-forward boutique hotel in SoMa with playful design and a game lounge.",
+    "image": "/placeholder.svg?height=200&width=300&query=boutique+hotel+san+francisco"
+  },
+  {
+    "id": "SFO003",
+    "name": "The St. Regis San Francisco",
+    "city": "San Francisco",
+    "country": "United States",
+    "address": "125 3rd St, San Francisco, CA",
+    "stars": 5,
+    "price": 650,
+    "amenities": ["Spa", "Pool", "Restaurant", "Gym", "Room Service", "Free WiFi", "Business Center"],
+    "description": "Luxury hotel in SoMa with contemporary design, butler service, and a spa.",
+    "image": "/placeholder.svg?height=200&width=300&query=st+regis+san+francisco"
+  },
+  {
+    "id": "MIA001",
+    "name": "Fontainebleau Miami Beach",
+    "city": "Miami",
+    "country": "United States",
+    "address": "4441 Collins Ave, Miami Beach, FL",
+    "stars": 5,
+    "price": 480,
+    "amenities": ["Spa", "Pool", "Restaurant", "Gym", "Room Service", "Free WiFi", "Nightclub"],
+    "description": "Iconic oceanfront resort with multiple pools, restaurants, and a lively nightclub.",
+    "image": "/placeholder.svg?height=200&width=300&query=fontainebleau+miami+beach"
+  },
+  {
+    "id": "MIA002",
+    "name": "The Miami Beach EDITION",
+    "city": "Miami",
+    "country": "United States",
+    "address": "2901 Collins Ave, Miami Beach, FL",
+    "stars": 5,
+    "price": 550,
+    "amenities": ["Spa", "Pool", "Restaurant", "Gym", "Room Service", "Free WiFi", "Bowling Alley", "Ice Rink"],
+    "description": "Sophisticated beachfront hotel with a bowling alley, ice skating rink, and nightclub.",
+    "image": "/placeholder.svg?height=200&width=300&query=edition+hotel+miami"
+  },
+  {
+    "id": "MIA003",
+    "name": "1 Hotel South Beach",
+    "city": "Miami",
+    "country": "United States",
+    "address": "2341 Collins Ave, Miami Beach, FL",
+    "stars": 5,
+    "price": 620,
+    "amenities": ["Spa", "Pool", "Restaurant", "Gym", "Room Service", "Free WiFi", "Rooftop Pool"],
+    "description": "Eco-conscious luxury hotel with natural materials and four swimming pools.",
+    "image": "/placeholder.svg?height=200&width=300&query=1+hotel+south+beach+miami"
+  },
+  {
+    "id": "MAD001",
+    "name": "The Westin Palace Madrid",
+    "city": "Madrid",
+    "country": "Spain",
+    "address": "Plaza de las Cortes, 7, Madrid",
+    "stars": 5,
+    "price": 420,
+    "amenities": ["Restaurant", "Gym", "Room Service", "Free WiFi", "Business Center"],
+    "description": "Historic luxury hotel with a stunning stained-glass dome in the heart of Madrid.",
+    "image": "/placeholder.svg?height=200&width=300&query=westin+palace+madrid"
+  },
+  {
+    "id": "MAD002",
+    "name": "Only YOU Boutique Hotel Madrid",
+    "city": "Madrid",
+    "country": "Spain",
+    "address": "Calle Barquillo, 21, Madrid",
+    "stars": 4,
+    "price": 280,
+    "amenities": ["Restaurant", "Bar", "Gym", "Free WiFi", "Room Service"],
+    "description": "Stylish boutique hotel in a former mansion with colonial-inspired decor.",
+    "image": "/placeholder.svg?height=200&width=300&query=boutique+hotel+madrid"
+  },
+  {
+    "id": "MAD003",
+    "name": "Four Seasons Hotel Madrid",
+    "city": "Madrid",
+    "country": "Spain",
+    "address": "Calle de Sevilla, 3, Madrid",
+    "stars": 5,
+    "price": 680,
+    "amenities": ["Spa", "Pool", "Restaurant", "Gym", "Room Service", "Free WiFi", "Business Center"],
+    "description": "Opulent hotel in a restored historic building with a rooftop pool and spa.",
+    "image": "/placeholder.svg?height=200&width=300&query=four+seasons+madrid"
+  },
+  {
+    "id": "BCN001",
+    "name": "W Barcelona",
+    "city": "Barcelona",
+    "country": "Spain",
+    "address": "Plaça Rosa dels Vents, 1, Barcelona",
+    "stars": 5,
+    "price": 480,
+    "amenities": ["Spa", "Pool", "Restaurant", "Gym", "Room Service", "Free WiFi", "Beach Access"],
+    "description": "Striking sail-shaped beachfront hotel with panoramic Mediterranean views.",
+    "image": "/placeholder.svg?height=200&width=300&query=w+hotel+barcelona"
+  },
+  {
+    "id": "BCN002",
+    "name": "Hotel Arts Barcelona",
+    "city": "Barcelona",
+    "country": "Spain",
+    "address": "Carrer de la Marina, 19-21, Barcelona",
+    "stars": 5,
+    "price": 550,
+    "amenities": ["Spa", "Pool", "Restaurant", "Gym", "Room Service", "Free WiFi", "Business Center"],
+    "description": "Beachfront luxury hotel with contemporary art and a two-Michelin-star restaurant.",
+    "image": "/placeholder.svg?height=200&width=300&query=hotel+arts+barcelona"
+  },
+  {
+    "id": "BCN003",
+    "name": "Cotton House Hotel",
+    "city": "Barcelona",
+    "country": "Spain",
+    "address": "Gran Via de les Corts Catalanes, 670, Barcelona",
+    "stars": 5,
+    "price": 380,
+    "amenities": ["Pool", "Restaurant", "Gym", "Room Service", "Free WiFi", "Library"],
+    "description": "Elegant hotel in a 19th-century cotton guild building with a neoclassical design.",
+    "image": "/placeholder.svg?height=200&width=300&query=cotton+house+hotel+barcelona"
+  },
+  {
+    "id": "ROM001",
+    "name": "Hotel de Russie",
+    "city": "Rome",
+    "country": "Italy",
+    "address": "Via del Babuino, 9, Rome",
+    "stars": 5,
+    "price": 720,
+    "amenities": ["Spa", "Restaurant", "Gym", "Room Service", "Free WiFi", "Garden"],
+    "description": "Luxury hotel with a secret garden between the Spanish Steps and Piazza del Popolo.",
+    "image": "/placeholder.svg?height=200&width=300&query=hotel+de+russie+rome"
+  },
+  {
+    "id": "ROM002",
+    "name": "The St. Regis Rome",
+    "city": "Rome",
+    "country": "Italy",
+    "address": "Via Vittorio E. Orlando, 3, Rome",
+    "stars": 5,
+    "price": 680,
+    "amenities": ["Spa", "Restaurant", "Gym", "Room Service", "Free WiFi", "Business Center"],
+    "description": "Opulent Belle Époque hotel with frescoed ballrooms and butler service.",
+    "image": "/placeholder.svg?height=200&width=300&query=st+regis+rome"
+  },
+  {
+    "id": "ROM003",
+    "name": "G-Rough",
+    "city": "Rome",
+    "country": "Italy",
+    "address": "Piazza di Pasquino, 69, Rome",
+    "stars": 5,
+    "price": 420,
+    "amenities": ["Bar", "Free WiFi", "Room Service", "Concierge"],
+    "description": "Boutique design hotel in a 17th-century building near Piazza Navona.",
+    "image": "/placeholder.svg?height=200&width=300&query=boutique+hotel+rome"
+  },
+  {
+    "id": "MIL001",
+    "name": "Bulgari Hotel Milano",
+    "city": "Milan",
+    "country": "Italy",
+    "address": "Via Privata Fratelli Gabba, 7b, Milan",
+    "stars": 5,
+    "price": 850,
+    "amenities": ["Spa", "Restaurant", "Gym", "Room Service", "Free WiFi", "Garden"],
+    "description": "Sophisticated luxury hotel in a renovated 18th-century palazzo with a private garden.",
+    "image": "/placeholder.svg?height=200&width=300&query=bulgari+hotel+milan"
+  },
+  {
+    "id": "MIL002",
+    "name": "Palazzo Parigi Hotel & Grand Spa",
+    "city": "Milan",
+    "country": "Italy",
+    "address": "Corso di Porta Nuova, 1, Milan",
+    "stars": 5,
+    "price": 720,
+    "amenities": ["Spa", "Pool", "Restaurant", "Gym", "Room Service", "Free WiFi", "Business Center"],
+    "description": "Elegant hotel blending Milanese and Parisian styles with a spa and indoor pool.",
+    "image": "/placeholder.svg?height=200&width=300&query=palazzo+parigi+milan"
+  },
+  {
+    "id": "MIL003",
+    "name": "Room Mate Giulia",
+    "city": "Milan",
+    "country": "Italy",
+    "address": "Via Silvio Pellico, 4, Milan",
+    "stars": 4,
+    "price": 280,
+    "amenities": ["Gym", "Free WiFi", "Room Service"],
+    "description": "Colorful design hotel steps from the Duomo with playful contemporary interiors.",
+    "image": "/placeholder.svg?height=200&width=300&query=design+hotel+milan"
+  },
+  {
+    "id": "BER001",
+    "name": "Hotel Adlon Kempinski Berlin",
+    "city": "Berlin",
+    "country": "Germany",
+    "address": "Unter den Linden 77, Berlin",
+    "stars": 5,
+    "price": 480,
+    "amenities": ["Spa", "Pool", "Restaurant", "Gym", "Room Service", "Free WiFi", "Business Center"],
+    "description": "Historic luxury hotel next to the Brandenburg Gate with elegant rooms and fine dining.",
+    "image": "/placeholder.svg?height=200&width=300&query=hotel+adlon+berlin"
+  },
+  {
+    "id": "BER002",
+    "name": "25hours Hotel Bikini Berlin",
+    "city": "Berlin",
+    "country": "Germany",
+    "address": "Budapester Str. 40, Berlin",
+    "stars": 4,
+    "price": 220,
+    "amenities": ["Restaurant", "Bar", "Gym", "Free WiFi", "Bike Rental"],
+    "description": "Urban jungle-themed hotel overlooking the Berlin Zoo with a rooftop bar.",
+    "image": "/placeholder.svg?height=200&width=300&query=25hours+hotel+berlin"
+  },
+  {
+    "id": "BER003",
+    "name": "Soho House Berlin",
+    "city": "Berlin",
+    "country": "Germany",
+    "address": "Torstraße 1, Berlin",
+    "stars": 5,
+    "price": 380,
+    "amenities": ["Spa", "Pool", "Restaurant", "Gym", "Room Service", "Free WiFi", "Rooftop Pool"],
+    "description": "Members club and hotel in a Bauhaus building with a rooftop pool and cinema.",
+    "image": "/placeholder.svg?height=200&width=300&query=soho+house+berlin"
+  },
+  {
+    "id": "MUC001",
+    "name": "Mandarin Oriental Munich",
+    "city": "Munich",
+    "country": "Germany",
+    "address": "Neuturmstraße 1, Munich",
+    "stars": 5,
+    "price": 650,
+    "amenities": ["Restaurant", "Gym", "Room Service", "Free WiFi", "Rooftop Pool"],
+    "description": "Elegant luxury hotel in a converted opera house with a rooftop pool and Alpine views.",
+    "image": "/placeholder.svg?height=200&width=300&query=mandarin+oriental+munich"
+  },
+  {
+    "id": "MUC002",
+    "name": "Hotel Bayerischer Hof",
+    "city": "Munich",
+    "country": "Germany",
+    "address": "Promenadeplatz 2-6, Munich",
+    "stars": 5,
+    "price": 580,
+    "amenities": ["Spa", "Pool", "Restaurant", "Gym", "Room Service", "Free WiFi", "Business Center"],
+    "description": "Historic grand hotel with a rooftop spa, multiple restaurants, and a jazz club.",
+    "image": "/placeholder.svg?height=200&width=300&query=bayerischer+hof+munich"
+  },
+  {
+    "id": "MUC003",
+    "name": "Louis Hotel",
+    "city": "Munich",
+    "country": "Germany",
+    "address": "Viktualienmarkt 6, Munich",
+    "stars": 4,
+    "price": 320,
+    "amenities": ["Restaurant", "Gym", "Free WiFi", "Room Service"],
+    "description": "Boutique hotel overlooking the Viktualienmarkt with Japanese-inspired design.",
+    "image": "/placeholder.svg?height=200&width=300&query=boutique+hotel+munich"
+  },
+  {
+    "id": "AMS001",
+    "name": "Waldorf Astoria Amsterdam",
+    "city": "Amsterdam",
+    "country": "Netherlands",
+    "address": "Herengracht 542-556, Amsterdam",
+    "stars": 5,
+    "price": 720,
+    "amenities": ["Spa", "Pool", "Restaurant", "Gym", "Room Service", "Free WiFi", "Business Center"],
+    "description": "Luxury hotel in six 17th-century canal palaces with a Guerlain spa.",
+    "image": "/placeholder.svg?height=200&width=300&query=waldorf+astoria+amsterdam"
+  },
+  {
+    "id": "AMS002",
+    "name": "The Hoxton Amsterdam",
+    "city": "Amsterdam",
+    "country": "Netherlands",
+    "address": "Herengracht 255, Amsterdam",
+    "stars": 4,
+    "price": 280,
+    "amenities": ["Restaurant", "Bar", "Free WiFi", "Room Service"],
+    "description": "Hip hotel in five canal houses with vintage-inspired decor and a lively restaurant.",
+    "image": "/placeholder.svg?height=200&width=300&query=hoxton+hotel+amsterdam"
+  },
+  {
+    "id": "AMS003",
+    "name": "Pulitzer Amsterdam",
+    "city": "Amsterdam",
+    "country": "Netherlands",
+    "address": "Prinsengracht 315-331, Amsterdam",
+    "stars": 5,
+    "price": 480,
+    "amenities": ["Restaurant", "Bar", "Gym", "Free WiFi", "Room Service", "Garden"],
+    "description": "Unique hotel spanning 25 connected canal houses with a hidden garden.",
+    "image": "/placeholder.svg?height=200&width=300&query=pulitzer+hotel+amsterdam"
+  }
+]

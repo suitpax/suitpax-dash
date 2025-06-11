@@ -1,636 +1,749 @@
-{
-  "cities": [
-    {
-      "id": "nyc",
-      "name": "New York",
-      "country": "United States",
-      "countryCode": "US",
-      "continent": "North America",
-      "airportCode": "JFK",
-      "alternateAirports": ["LGA", "EWR"],
-      "coordinates": {
-        "latitude": 40.7128,
-        "longitude": -74.006
-      },
-      "timezone": "America/New_York",
-      "currency": "USD",
-      "language": "English",
-      "description": "The largest city in the United States, known for its iconic skyline, Broadway shows, and cultural diversity.",
-      "popularAttractions": ["Times Square", "Central Park", "Empire State Building", "Statue of Liberty"],
-      "bestTimeToVisit": "April to June and September to November"
-    },
-    {
-      "id": "lax",
-      "name": "Los Angeles",
-      "country": "United States",
-      "countryCode": "US",
-      "continent": "North America",
-      "airportCode": "LAX",
-      "alternateAirports": ["BUR", "SNA"],
-      "coordinates": {
-        "latitude": 34.0522,
-        "longitude": -118.2437
-      },
-      "timezone": "America/Los_Angeles",
-      "currency": "USD",
-      "language": "English",
-      "description": "The entertainment capital of the world, home to Hollywood, beautiful beaches, and year-round sunshine.",
-      "popularAttractions": ["Hollywood Walk of Fame", "Universal Studios", "Venice Beach", "Griffith Observatory"],
-      "bestTimeToVisit": "March to May and September to November"
-    },
-    {
-      "id": "chi",
-      "name": "Chicago",
-      "country": "United States",
-      "countryCode": "US",
-      "continent": "North America",
-      "airportCode": "ORD",
-      "alternateAirports": ["MDW"],
-      "coordinates": {
-        "latitude": 41.8781,
-        "longitude": -87.6298
-      },
-      "timezone": "America/Chicago",
-      "currency": "USD",
-      "language": "English",
-      "description": "Known for its bold architecture, world-class museums, and vibrant food scene.",
-      "popularAttractions": ["Millennium Park", "Art Institute of Chicago", "Navy Pier", "Willis Tower"],
-      "bestTimeToVisit": "April to May and September to October"
-    },
-    {
-      "id": "sfo",
-      "name": "San Francisco",
-      "country": "United States",
-      "countryCode": "US",
-      "continent": "North America",
-      "airportCode": "SFO",
-      "alternateAirports": ["OAK", "SJC"],
-      "coordinates": {
-        "latitude": 37.7749,
-        "longitude": -122.4194
-      },
-      "timezone": "America/Los_Angeles",
-      "currency": "USD",
-      "language": "English",
-      "description": "Famous for the Golden Gate Bridge, cable cars, and a vibrant tech scene.",
-      "popularAttractions": ["Golden Gate Bridge", "Alcatraz Island", "Fisherman's Wharf", "Chinatown"],
-      "bestTimeToVisit": "September to November"
-    },
-    {
-      "id": "mia",
-      "name": "Miami",
-      "country": "United States",
-      "countryCode": "US",
-      "continent": "North America",
-      "airportCode": "MIA",
-      "alternateAirports": ["FLL"],
-      "coordinates": {
-        "latitude": 25.7617,
-        "longitude": -80.1918
-      },
-      "timezone": "America/New_York",
-      "currency": "USD",
-      "language": "English, Spanish",
-      "description": "A vibrant city known for its beaches, nightlife, and Latin American influences.",
-      "popularAttractions": ["South Beach", "Art Deco Historic District", "Wynwood Walls", "Little Havana"],
-      "bestTimeToVisit": "November to April"
-    },
-    {
-      "id": "sea",
-      "name": "Seattle",
-      "country": "United States",
-      "countryCode": "US",
-      "continent": "North America",
-      "airportCode": "SEA",
-      "alternateAirports": [],
-      "coordinates": {
-        "latitude": 47.6062,
-        "longitude": -122.3321
-      },
-      "timezone": "America/Los_Angeles",
-      "currency": "USD",
-      "language": "English",
-      "description": "Known for its coffee culture, tech industry, and stunning natural surroundings.",
-      "popularAttractions": ["Space Needle", "Pike Place Market", "Museum of Pop Culture", "Chihuly Garden and Glass"],
-      "bestTimeToVisit": "July to September"
-    },
-    {
-      "id": "bos",
-      "name": "Boston",
-      "country": "United States",
-      "countryCode": "US",
-      "continent": "North America",
-      "airportCode": "BOS",
-      "alternateAirports": [],
-      "coordinates": {
-        "latitude": 42.3601,
-        "longitude": -71.0589
-      },
-      "timezone": "America/New_York",
-      "currency": "USD",
-      "language": "English",
-      "description": "One of America's oldest cities, known for its history, universities, and sports teams.",
-      "popularAttractions": ["Freedom Trail", "Fenway Park", "Harvard University", "Boston Common"],
-      "bestTimeToVisit": "June to October"
-    },
-    {
-      "id": "was",
-      "name": "Washington D.C.",
-      "country": "United States",
-      "countryCode": "US",
-      "continent": "North America",
-      "airportCode": "DCA",
-      "alternateAirports": ["IAD", "BWI"],
-      "coordinates": {
-        "latitude": 38.9072,
-        "longitude": -77.0369
-      },
-      "timezone": "America/New_York",
-      "currency": "USD",
-      "language": "English",
-      "description": "The capital of the United States, home to iconic monuments and free museums.",
-      "popularAttractions": ["National Mall", "Smithsonian Museums", "White House", "U.S. Capitol"],
-      "bestTimeToVisit": "March to May and September to November"
-    },
-    {
-      "id": "las",
-      "name": "Las Vegas",
-      "country": "United States",
-      "countryCode": "US",
-      "continent": "North America",
-      "airportCode": "LAS",
-      "alternateAirports": [],
-      "coordinates": {
-        "latitude": 36.1699,
-        "longitude": -115.1398
-      },
-      "timezone": "America/Los_Angeles",
-      "currency": "USD",
-      "language": "English",
-      "description": "Famous for its casinos, entertainment, and vibrant nightlife.",
-      "popularAttractions": ["The Strip", "Bellagio Fountains", "Fremont Street", "Grand Canyon (day trip)"],
-      "bestTimeToVisit": "March to May and September to November"
-    },
-    {
-      "id": "nola",
-      "name": "New Orleans",
-      "country": "United States",
-      "countryCode": "US",
-      "continent": "North America",
-      "airportCode": "MSY",
-      "alternateAirports": [],
-      "coordinates": {
-        "latitude": 29.9511,
-        "longitude": -90.0715
-      },
-      "timezone": "America/Chicago",
-      "currency": "USD",
-      "language": "English",
-      "description": "Known for its distinct music, Creole cuisine, and annual Mardi Gras celebration.",
-      "popularAttractions": ["French Quarter", "Bourbon Street", "Garden District", "Jackson Square"],
-      "bestTimeToVisit": "February to May"
-    },
-    {
-      "id": "lon",
-      "name": "London",
-      "country": "United Kingdom",
-      "countryCode": "GB",
-      "continent": "Europe",
-      "airportCode": "LHR",
-      "alternateAirports": ["LGW", "STN", "LCY", "LTN"],
-      "coordinates": {
-        "latitude": 51.5074,
-        "longitude": -0.1278
-      },
-      "timezone": "Europe/London",
-      "currency": "GBP",
-      "language": "English",
-      "description": "A global city with a rich history, diverse culture, and iconic landmarks.",
-      "popularAttractions": ["Big Ben", "Tower of London", "Buckingham Palace", "British Museum"],
-      "bestTimeToVisit": "May to September"
-    },
-    {
-      "id": "par",
-      "name": "Paris",
-      "country": "France",
-      "countryCode": "FR",
-      "continent": "Europe",
-      "airportCode": "CDG",
-      "alternateAirports": ["ORY", "BVA"],
-      "coordinates": {
-        "latitude": 48.8566,
-        "longitude": 2.3522
-      },
-      "timezone": "Europe/Paris",
-      "currency": "EUR",
-      "language": "French",
-      "description": "Known as the City of Light, famous for its art, fashion, gastronomy, and culture.",
-      "popularAttractions": ["Eiffel Tower", "Louvre Museum", "Notre-Dame Cathedral", "Montmartre"],
-      "bestTimeToVisit": "April to June and October to November"
-    },
-    {
-      "id": "rom",
-      "name": "Rome",
-      "country": "Italy",
-      "countryCode": "IT",
-      "continent": "Europe",
-      "airportCode": "FCO",
-      "alternateAirports": ["CIA"],
-      "coordinates": {
-        "latitude": 41.9028,
-        "longitude": 12.4964
-      },
-      "timezone": "Europe/Rome",
-      "currency": "EUR",
-      "language": "Italian",
-      "description": "The Eternal City, with thousands of years of history, art, and culture.",
-      "popularAttractions": ["Colosseum", "Vatican City", "Roman Forum", "Trevi Fountain"],
-      "bestTimeToVisit": "April to May and September to October"
-    },
-    {
-      "id": "bcn",
-      "name": "Barcelona",
-      "country": "Spain",
-      "countryCode": "ES",
-      "continent": "Europe",
-      "airportCode": "BCN",
-      "alternateAirports": [],
-      "coordinates": {
-        "latitude": 41.3851,
-        "longitude": 2.1734
-      },
-      "timezone": "Europe/Madrid",
-      "currency": "EUR",
-      "language": "Spanish, Catalan",
-      "description": "Known for its unique architecture, vibrant culture, and beautiful beaches.",
-      "popularAttractions": ["Sagrada Familia", "Park Güell", "La Rambla", "Gothic Quarter"],
-      "bestTimeToVisit": "May to June and September to October"
-    },
-    {
-      "id": "ams",
-      "name": "Amsterdam",
-      "country": "Netherlands",
-      "countryCode": "NL",
-      "continent": "Europe",
-      "airportCode": "AMS",
-      "alternateAirports": [],
-      "coordinates": {
-        "latitude": 52.3676,
-        "longitude": 4.9041
-      },
-      "timezone": "Europe/Amsterdam",
-      "currency": "EUR",
-      "language": "Dutch",
-      "description": "Famous for its canals, cycling culture, museums, and historic buildings.",
-      "popularAttractions": ["Anne Frank House", "Van Gogh Museum", "Rijksmuseum", "Canal Belt"],
-      "bestTimeToVisit": "April to May and September to November"
-    },
-    {
-      "id": "ber",
-      "name": "Berlin",
-      "country": "Germany",
-      "countryCode": "DE",
-      "continent": "Europe",
-      "airportCode": "BER",
-      "alternateAirports": [],
-      "coordinates": {
-        "latitude": 52.52,
-        "longitude": 13.405
-      },
-      "timezone": "Europe/Berlin",
-      "currency": "EUR",
-      "language": "German",
-      "description": "A city with a complex history and vibrant contemporary culture.",
-      "popularAttractions": ["Brandenburg Gate", "Berlin Wall Memorial", "Museum Island", "Reichstag Building"],
-      "bestTimeToVisit": "May to September"
-    },
-    {
-      "id": "vie",
-      "name": "Vienna",
-      "country": "Austria",
-      "countryCode": "AT",
-      "continent": "Europe",
-      "airportCode": "VIE",
-      "alternateAirports": [],
-      "coordinates": {
-        "latitude": 48.2082,
-        "longitude": 16.3738
-      },
-      "timezone": "Europe/Vienna",
-      "currency": "EUR",
-      "language": "German",
-      "description": "Known for its imperial palaces, classical music heritage, and coffee house culture.",
-      "popularAttractions": ["Schönbrunn Palace", "St. Stephen's Cathedral", "Vienna State Opera", "Belvedere Palace"],
-      "bestTimeToVisit": "April to May and September to October"
-    },
-    {
-      "id": "prg",
-      "name": "Prague",
-      "country": "Czech Republic",
-      "countryCode": "CZ",
-      "continent": "Europe",
-      "airportCode": "PRG",
-      "alternateAirports": [],
-      "coordinates": {
-        "latitude": 50.0755,
-        "longitude": 14.4378
-      },
-      "timezone": "Europe/Prague",
-      "currency": "CZK",
-      "language": "Czech",
-      "description": "A city of stunning architecture, from Gothic to Art Nouveau, with a rich cultural heritage.",
-      "popularAttractions": ["Prague Castle", "Charles Bridge", "Old Town Square", "Astronomical Clock"],
-      "bestTimeToVisit": "March to May and September to November"
-    },
-    {
-      "id": "bud",
-      "name": "Budapest",
-      "country": "Hungary",
-      "countryCode": "HU",
-      "continent": "Europe",
-      "airportCode": "BUD",
-      "alternateAirports": [],
-      "coordinates": {
-        "latitude": 47.4979,
-        "longitude": 19.0402
-      },
-      "timezone": "Europe/Budapest",
-      "currency": "HUF",
-      "language": "Hungarian",
-      "description": "Known for its thermal baths, stunning architecture, and vibrant nightlife.",
-      "popularAttractions": ["Parliament Building", "Buda Castle", "Fisherman's Bastion", "Széchenyi Thermal Bath"],
-      "bestTimeToVisit": "March to May and September to November"
-    },
-    {
-      "id": "ath",
-      "name": "Athens",
-      "country": "Greece",
-      "countryCode": "GR",
-      "continent": "Europe",
-      "airportCode": "ATH",
-      "alternateAirports": [],
-      "coordinates": {
-        "latitude": 37.9838,
-        "longitude": 23.7275
-      },
-      "timezone": "Europe/Athens",
-      "currency": "EUR",
-      "language": "Greek",
-      "description": "The cradle of Western civilization, home to iconic ancient ruins and vibrant modern life.",
-      "popularAttractions": ["Acropolis", "Parthenon", "Ancient Agora", "National Archaeological Museum"],
-      "bestTimeToVisit": "April to June and September to October"
-    },
-    {
-      "id": "ist",
-      "name": "Istanbul",
-      "country": "Turkey",
-      "countryCode": "TR",
-      "continent": "Europe/Asia",
-      "airportCode": "IST",
-      "alternateAirports": ["SAW"],
-      "coordinates": {
-        "latitude": 41.0082,
-        "longitude": 28.9784
-      },
-      "timezone": "Europe/Istanbul",
-      "currency": "TRY",
-      "language": "Turkish",
-      "description": "A transcontinental city straddling Europe and Asia, with a rich history as Constantinople and Byzantium.",
-      "popularAttractions": ["Hagia Sophia", "Blue Mosque", "Topkapi Palace", "Grand Bazaar"],
-      "bestTimeToVisit": "April to May and September to November"
-    },
-    {
-      "id": "tyo",
-      "name": "Tokyo",
-      "country": "Japan",
-      "countryCode": "JP",
-      "continent": "Asia",
-      "airportCode": "HND",
-      "alternateAirports": ["NRT"],
-      "coordinates": {
-        "latitude": 35.6762,
-        "longitude": 139.6503
-      },
-      "timezone": "Asia/Tokyo",
-      "currency": "JPY",
-      "language": "Japanese",
-      "description": "A dynamic metropolis that blends ultramodern and traditional, from neon-lit skyscrapers to historic temples.",
-      "popularAttractions": ["Tokyo Skytree", "Meiji Shrine", "Senso-ji Temple", "Shibuya Crossing"],
-      "bestTimeToVisit": "March to May and September to November"
-    },
-    {
-      "id": "kyo",
-      "name": "Kyoto",
-      "country": "Japan",
-      "countryCode": "JP",
-      "continent": "Asia",
-      "airportCode": "KIX",
-      "alternateAirports": ["ITM"],
-      "coordinates": {
-        "latitude": 35.0116,
-        "longitude": 135.7681
-      },
-      "timezone": "Asia/Tokyo",
-      "currency": "JPY",
-      "language": "Japanese",
-      "description": "Japan's former capital, known for its classical Buddhist temples, gardens, imperial palaces, and traditional wooden houses.",
-      "popularAttractions": [
-        "Fushimi Inari Shrine",
-        "Kinkaku-ji (Golden Pavilion)",
-        "Arashiyama Bamboo Grove",
-        "Gion District"
-      ],
-      "bestTimeToVisit": "March to May and October to November"
-    },
-    {
-      "id": "sel",
-      "name": "Seoul",
-      "country": "South Korea",
-      "countryCode": "KR",
-      "continent": "Asia",
-      "airportCode": "ICN",
-      "alternateAirports": ["GMP"],
-      "coordinates": {
-        "latitude": 37.5665,
-        "longitude": 126.978
-      },
-      "timezone": "Asia/Seoul",
-      "currency": "KRW",
-      "language": "Korean",
-      "description": "A dynamic city where modern skyscrapers, high-tech subways, and pop culture meet Buddhist temples, palaces, and street markets.",
-      "popularAttractions": ["Gyeongbokgung Palace", "N Seoul Tower", "Bukchon Hanok Village", "Myeongdong"],
-      "bestTimeToVisit": "March to May and September to November"
-    },
-    {
-      "id": "bkk",
-      "name": "Bangkok",
-      "country": "Thailand",
-      "countryCode": "TH",
-      "continent": "Asia",
-      "airportCode": "BKK",
-      "alternateAirports": ["DMK"],
-      "coordinates": {
-        "latitude": 13.7563,
-        "longitude": 100.5018
-      },
-      "timezone": "Asia/Bangkok",
-      "currency": "THB",
-      "language": "Thai",
-      "description": "Thailand's capital, known for ornate shrines, vibrant street life, and a blend of traditional and modern influences.",
-      "popularAttractions": ["Grand Palace", "Wat Arun", "Chatuchak Weekend Market", "Khao San Road"],
-      "bestTimeToVisit": "November to February"
-    },
-    {
-      "id": "sin",
-      "name": "Singapore",
-      "country": "Singapore",
-      "countryCode": "SG",
-      "continent": "Asia",
-      "airportCode": "SIN",
-      "alternateAirports": [],
-      "coordinates": {
-        "latitude": 1.3521,
-        "longitude": 103.8198
-      },
-      "timezone": "Asia/Singapore",
-      "currency": "SGD",
-      "language": "English, Mandarin, Malay, Tamil",
-      "description": "A global financial center with a tropical climate and multicultural population, known for its modern architecture and gardens.",
-      "popularAttractions": ["Gardens by the Bay", "Marina Bay Sands", "Singapore Zoo", "Sentosa Island"],
-      "bestTimeToVisit": "February to April"
-    },
-    {
-      "id": "hkg",
-      "name": "Hong Kong",
-      "country": "China",
-      "countryCode": "HK",
-      "continent": "Asia",
-      "airportCode": "HKG",
-      "alternateAirports": [],
-      "coordinates": {
-        "latitude": 22.3193,
-        "longitude": 114.1694
-      },
-      "timezone": "Asia/Hong_Kong",
-      "currency": "HKD",
-      "language": "Cantonese, English",
-      "description": "A bustling harbor city with a skyline of skyscrapers, a vibrant food scene, and a blend of Eastern and Western influences.",
-      "popularAttractions": ["Victoria Peak", "Hong Kong Disneyland", "Tsim Sha Tsui Promenade", "Tian Tan Buddha"],
-      "bestTimeToVisit": "October to December"
-    },
-    {
-      "id": "sha",
-      "name": "Shanghai",
-      "country": "China",
-      "countryCode": "CN",
-      "continent": "Asia",
-      "airportCode": "PVG",
-      "alternateAirports": ["SHA"],
-      "coordinates": {
-        "latitude": 31.2304,
-        "longitude": 121.4737
-      },
-      "timezone": "Asia/Shanghai",
-      "currency": "CNY",
-      "language": "Mandarin",
-      "description": "China's largest city, a global financial hub with the world's second-tallest tower and a mix of modern and traditional architecture.",
-      "popularAttractions": ["The Bund", "Yu Garden", "Shanghai Tower", "Nanjing Road"],
-      "bestTimeToVisit": "March to May and September to November"
-    },
-    {
-      "id": "bjs",
-      "name": "Beijing",
-      "country": "China",
-      "countryCode": "CN",
-      "continent": "Asia",
-      "airportCode": "PEK",
-      "alternateAirports": ["PKX"],
-      "coordinates": {
-        "latitude": 39.9042,
-        "longitude": 116.4074
-      },
-      "timezone": "Asia/Shanghai",
-      "currency": "CNY",
-      "language": "Mandarin",
-      "description": "China's capital, known for its ancient sites such as the Forbidden City and modern architecture like the Bird's Nest.",
-      "popularAttractions": ["Great Wall of China", "Forbidden City", "Temple of Heaven", "Summer Palace"],
-      "bestTimeToVisit": "March to May and September to October"
-    },
-    {
-      "id": "del",
-      "name": "Delhi",
-      "country": "India",
-      "countryCode": "IN",
-      "continent": "Asia",
-      "airportCode": "DEL",
-      "alternateAirports": [],
-      "coordinates": {
-        "latitude": 28.7041,
-        "longitude": 77.1025
-      },
-      "timezone": "Asia/Kolkata",
-      "currency": "INR",
-      "language": "Hindi, English",
-      "description": "India's capital territory, a massive metropolitan area with a rich history spanning thousands of years.",
-      "popularAttractions": ["Red Fort", "Humayun's Tomb", "Qutub Minar", "India Gate"],
-      "bestTimeToVisit": "October to March"
-    },
-    {
-      "id": "mum",
-      "name": "Mumbai",
-      "country": "India",
-      "countryCode": "IN",
-      "continent": "Asia",
-      "airportCode": "BOM",
-      "alternateAirports": [],
-      "coordinates": {
-        "latitude": 19.076,
-        "longitude": 72.8777
-      },
-      "timezone": "Asia/Kolkata",
-      "currency": "INR",
-      "language": "Marathi, Hindi, English",
-      "description": "India's financial center and largest city, known for its colonial architecture, bustling markets, and Bollywood film industry.",
-      "popularAttractions": ["Gateway of India", "Marine Drive", "Elephanta Caves", "Chhatrapati Shivaji Terminus"],
-      "bestTimeToVisit": "November to February"
-    },
-    {
-      "id": "dxb",
-      "name": "Dubai",
-      "country": "United Arab Emirates",
-      "countryCode": "AE",
-      "continent": "Asia",
-      "airportCode": "DXB",
-      "alternateAirports": ["DWC"],
-      "coordinates": {
-        "latitude": 25.2048,
-        "longitude": 55.2708
-      },
-      "timezone": "Asia/Dubai",
-      "currency": "AED",
-      "language": "Arabic, English",
-      "description": "A city of superlatives, known for luxury shopping, ultramodern architecture, and a lively nightlife scene.",
-      "popularAttractions": ["Burj Khalifa", "Dubai Mall", "Palm Jumeirah", "Dubai Marina"],
-      "bestTimeToVisit": "November to April"
-    },
-    {
-      "id": "syd",
-      "name": "Sydney",
-      "country": "Australia",
-      "countryCode": "AU",
-      "continent": "Oceania",
-      "airportCode": "SYD",
-      "alternateAirports": [],
-      "coordinates": {
-        "latitude": -33.8688,
-        "longitude": 151.2093
-      },
-      "timezone": "Australia/Sydney",
-      "currency": "AUD",
-      "language": "English",
-      "description": "Australia's largest city, known for its harbourfront Opera House, Harbour Bridge, and beautiful beaches.",
-      "popularAttractions": ["Sydney Opera House", "Sydney Harbour Bridge", "Bondi Beach", "Royal Botanic Garden"],
-      "bestTimeToVisit": "September to November and March to May"
-    }
-  ]
-}
+[
+  {
+    "id": "NYC",
+    "name": "New York",
+    "country": "United States",
+    "code": "JFK",
+    "continent": "North America",
+    "popular": true,
+    "timezone": "GMT-5"
+  },
+  {
+    "id": "LON",
+    "name": "London",
+    "country": "United Kingdom",
+    "code": "LHR",
+    "continent": "Europe",
+    "popular": true,
+    "timezone": "GMT+0"
+  },
+  {
+    "id": "PAR",
+    "name": "Paris",
+    "country": "France",
+    "code": "CDG",
+    "continent": "Europe",
+    "popular": true,
+    "timezone": "GMT+1"
+  },
+  {
+    "id": "TYO",
+    "name": "Tokyo",
+    "country": "Japan",
+    "code": "HND",
+    "continent": "Asia",
+    "popular": true,
+    "timezone": "GMT+9"
+  },
+  {
+    "id": "SYD",
+    "name": "Sydney",
+    "country": "Australia",
+    "code": "SYD",
+    "continent": "Oceania",
+    "popular": true,
+    "timezone": "GMT+11"
+  },
+  {
+    "id": "DXB",
+    "name": "Dubai",
+    "country": "United Arab Emirates",
+    "code": "DXB",
+    "continent": "Asia",
+    "popular": true,
+    "timezone": "GMT+4"
+  },
+  {
+    "id": "SIN",
+    "name": "Singapore",
+    "country": "Singapore",
+    "code": "SIN",
+    "continent": "Asia",
+    "popular": true,
+    "timezone": "GMT+8"
+  },
+  {
+    "id": "HKG",
+    "name": "Hong Kong",
+    "country": "China",
+    "code": "HKG",
+    "continent": "Asia",
+    "popular": true,
+    "timezone": "GMT+8"
+  },
+  {
+    "id": "LAX",
+    "name": "Los Angeles",
+    "country": "United States",
+    "code": "LAX",
+    "continent": "North America",
+    "popular": true,
+    "timezone": "GMT-8"
+  },
+  {
+    "id": "SFO",
+    "name": "San Francisco",
+    "country": "United States",
+    "code": "SFO",
+    "continent": "North America",
+    "popular": true,
+    "timezone": "GMT-8"
+  },
+  {
+    "id": "CHI",
+    "name": "Chicago",
+    "country": "United States",
+    "code": "ORD",
+    "continent": "North America",
+    "popular": false,
+    "timezone": "GMT-6"
+  },
+  {
+    "id": "MIA",
+    "name": "Miami",
+    "country": "United States",
+    "code": "MIA",
+    "continent": "North America",
+    "popular": true,
+    "timezone": "GMT-5"
+  },
+  {
+    "id": "MAD",
+    "name": "Madrid",
+    "country": "Spain",
+    "code": "MAD",
+    "continent": "Europe",
+    "popular": true,
+    "timezone": "GMT+1"
+  },
+  {
+    "id": "BCN",
+    "name": "Barcelona",
+    "country": "Spain",
+    "code": "BCN",
+    "continent": "Europe",
+    "popular": true,
+    "timezone": "GMT+1"
+  },
+  {
+    "id": "ROM",
+    "name": "Rome",
+    "country": "Italy",
+    "code": "FCO",
+    "continent": "Europe",
+    "popular": true,
+    "timezone": "GMT+1"
+  },
+  {
+    "id": "MIL",
+    "name": "Milan",
+    "country": "Italy",
+    "code": "MXP",
+    "continent": "Europe",
+    "popular": false,
+    "timezone": "GMT+1"
+  },
+  {
+    "id": "BER",
+    "name": "Berlin",
+    "country": "Germany",
+    "code": "BER",
+    "continent": "Europe",
+    "popular": true,
+    "timezone": "GMT+1"
+  },
+  {
+    "id": "MUC",
+    "name": "Munich",
+    "country": "Germany",
+    "code": "MUC",
+    "continent": "Europe",
+    "popular": false,
+    "timezone": "GMT+1"
+  },
+  {
+    "id": "AMS",
+    "name": "Amsterdam",
+    "country": "Netherlands",
+    "code": "AMS",
+    "continent": "Europe",
+    "popular": true,
+    "timezone": "GMT+1"
+  },
+  {
+    "id": "ZRH",
+    "name": "Zurich",
+    "country": "Switzerland",
+    "code": "ZRH",
+    "continent": "Europe",
+    "popular": false,
+    "timezone": "GMT+1"
+  },
+  {
+    "id": "VIE",
+    "name": "Vienna",
+    "country": "Austria",
+    "code": "VIE",
+    "continent": "Europe",
+    "popular": false,
+    "timezone": "GMT+1"
+  },
+  {
+    "id": "CPH",
+    "name": "Copenhagen",
+    "country": "Denmark",
+    "code": "CPH",
+    "continent": "Europe",
+    "popular": false,
+    "timezone": "GMT+1"
+  },
+  {
+    "id": "OSL",
+    "name": "Oslo",
+    "country": "Norway",
+    "code": "OSL",
+    "continent": "Europe",
+    "popular": false,
+    "timezone": "GMT+1"
+  },
+  {
+    "id": "STO",
+    "name": "Stockholm",
+    "country": "Sweden",
+    "code": "ARN",
+    "continent": "Europe",
+    "popular": false,
+    "timezone": "GMT+1"
+  },
+  {
+    "id": "HEL",
+    "name": "Helsinki",
+    "country": "Finland",
+    "code": "HEL",
+    "continent": "Europe",
+    "popular": false,
+    "timezone": "GMT+2"
+  },
+  {
+    "id": "IST",
+    "name": "Istanbul",
+    "country": "Turkey",
+    "code": "IST",
+    "continent": "Europe",
+    "popular": true,
+    "timezone": "GMT+3"
+  },
+  {
+    "id": "ATH",
+    "name": "Athens",
+    "country": "Greece",
+    "code": "ATH",
+    "continent": "Europe",
+    "popular": false,
+    "timezone": "GMT+2"
+  },
+  {
+    "id": "CAI",
+    "name": "Cairo",
+    "country": "Egypt",
+    "code": "CAI",
+    "continent": "Africa",
+    "popular": false,
+    "timezone": "GMT+2"
+  },
+  {
+    "id": "JNB",
+    "name": "Johannesburg",
+    "country": "South Africa",
+    "code": "JNB",
+    "continent": "Africa",
+    "popular": false,
+    "timezone": "GMT+2"
+  },
+  {
+    "id": "CPT",
+    "name": "Cape Town",
+    "country": "South Africa",
+    "code": "CPT",
+    "continent": "Africa",
+    "popular": true,
+    "timezone": "GMT+2"
+  },
+  {
+    "id": "LOS",
+    "name": "Lagos",
+    "country": "Nigeria",
+    "code": "LOS",
+    "continent": "Africa",
+    "popular": false,
+    "timezone": "GMT+1"
+  },
+  {
+    "id": "NBO",
+    "name": "Nairobi",
+    "country": "Kenya",
+    "code": "NBO",
+    "continent": "Africa",
+    "popular": false,
+    "timezone": "GMT+3"
+  },
+  {
+    "id": "BKK",
+    "name": "Bangkok",
+    "country": "Thailand",
+    "code": "BKK",
+    "continent": "Asia",
+    "popular": true,
+    "timezone": "GMT+7"
+  },
+  {
+    "id": "KUL",
+    "name": "Kuala Lumpur",
+    "country": "Malaysia",
+    "code": "KUL",
+    "continent": "Asia",
+    "popular": false,
+    "timezone": "GMT+8"
+  },
+  {
+    "id": "JKT",
+    "name": "Jakarta",
+    "country": "Indonesia",
+    "code": "CGK",
+    "continent": "Asia",
+    "popular": false,
+    "timezone": "GMT+7"
+  },
+  {
+    "id": "DPS",
+    "name": "Bali",
+    "country": "Indonesia",
+    "code": "DPS",
+    "continent": "Asia",
+    "popular": true,
+    "timezone": "GMT+8"
+  },
+  {
+    "id": "MNL",
+    "name": "Manila",
+    "country": "Philippines",
+    "code": "MNL",
+    "continent": "Asia",
+    "popular": false,
+    "timezone": "GMT+8"
+  },
+  {
+    "id": "SGN",
+    "name": "Ho Chi Minh City",
+    "country": "Vietnam",
+    "code": "SGN",
+    "continent": "Asia",
+    "popular": false,
+    "timezone": "GMT+7"
+  },
+  {
+    "id": "HAN",
+    "name": "Hanoi",
+    "country": "Vietnam",
+    "code": "HAN",
+    "continent": "Asia",
+    "popular": false,
+    "timezone": "GMT+7"
+  },
+  {
+    "id": "PEK",
+    "name": "Beijing",
+    "country": "China",
+    "code": "PEK",
+    "continent": "Asia",
+    "popular": true,
+    "timezone": "GMT+8"
+  },
+  {
+    "id": "SHA",
+    "name": "Shanghai",
+    "country": "China",
+    "code": "PVG",
+    "continent": "Asia",
+    "popular": true,
+    "timezone": "GMT+8"
+  },
+  {
+    "id": "SEL",
+    "name": "Seoul",
+    "country": "South Korea",
+    "code": "ICN",
+    "continent": "Asia",
+    "popular": true,
+    "timezone": "GMT+9"
+  },
+  {
+    "id": "OSA",
+    "name": "Osaka",
+    "country": "Japan",
+    "code": "KIX",
+    "continent": "Asia",
+    "popular": false,
+    "timezone": "GMT+9"
+  },
+  {
+    "id": "TPE",
+    "name": "Taipei",
+    "country": "Taiwan",
+    "code": "TPE",
+    "continent": "Asia",
+    "popular": false,
+    "timezone": "GMT+8"
+  },
+  {
+    "id": "DEL",
+    "name": "Delhi",
+    "country": "India",
+    "code": "DEL",
+    "continent": "Asia",
+    "popular": true,
+    "timezone": "GMT+5:30"
+  },
+  {
+    "id": "BOM",
+    "name": "Mumbai",
+    "country": "India",
+    "code": "BOM",
+    "continent": "Asia",
+    "popular": true,
+    "timezone": "GMT+5:30"
+  },
+  {
+    "id": "MEL",
+    "name": "Melbourne",
+    "country": "Australia",
+    "code": "MEL",
+    "continent": "Oceania",
+    "popular": true,
+    "timezone": "GMT+11"
+  },
+  {
+    "id": "BNE",
+    "name": "Brisbane",
+    "country": "Australia",
+    "code": "BNE",
+    "continent": "Oceania",
+    "popular": false,
+    "timezone": "GMT+10"
+  },
+  {
+    "id": "PER",
+    "name": "Perth",
+    "country": "Australia",
+    "code": "PER",
+    "continent": "Oceania",
+    "popular": false,
+    "timezone": "GMT+8"
+  },
+  {
+    "id": "AKL",
+    "name": "Auckland",
+    "country": "New Zealand",
+    "code": "AKL",
+    "continent": "Oceania",
+    "popular": false,
+    "timezone": "GMT+13"
+  },
+  {
+    "id": "WLG",
+    "name": "Wellington",
+    "country": "New Zealand",
+    "code": "WLG",
+    "continent": "Oceania",
+    "popular": false,
+    "timezone": "GMT+13"
+  },
+  {
+    "id": "YVR",
+    "name": "Vancouver",
+    "country": "Canada",
+    "code": "YVR",
+    "continent": "North America",
+    "popular": false,
+    "timezone": "GMT-8"
+  },
+  {
+    "id": "YYZ",
+    "name": "Toronto",
+    "country": "Canada",
+    "code": "YYZ",
+    "continent": "North America",
+    "popular": true,
+    "timezone": "GMT-5"
+  },
+  {
+    "id": "YUL",
+    "name": "Montreal",
+    "country": "Canada",
+    "code": "YUL",
+    "continent": "North America",
+    "popular": false,
+    "timezone": "GMT-5"
+  },
+  {
+    "id": "YYC",
+    "name": "Calgary",
+    "country": "Canada",
+    "code": "YYC",
+    "continent": "North America",
+    "popular": false,
+    "timezone": "GMT-7"
+  },
+  {
+    "id": "MEX",
+    "name": "Mexico City",
+    "country": "Mexico",
+    "code": "MEX",
+    "continent": "North America",
+    "popular": true,
+    "timezone": "GMT-6"
+  },
+  {
+    "id": "CUN",
+    "name": "Cancun",
+    "country": "Mexico",
+    "code": "CUN",
+    "continent": "North America",
+    "popular": true,
+    "timezone": "GMT-5"
+  },
+  {
+    "id": "GDL",
+    "name": "Guadalajara",
+    "country": "Mexico",
+    "code": "GDL",
+    "continent": "North America",
+    "popular": false,
+    "timezone": "GMT-6"
+  },
+  {
+    "id": "BOG",
+    "name": "Bogota",
+    "country": "Colombia",
+    "code": "BOG",
+    "continent": "South America",
+    "popular": false,
+    "timezone": "GMT-5"
+  },
+  {
+    "id": "LIM",
+    "name": "Lima",
+    "country": "Peru",
+    "code": "LIM",
+    "continent": "South America",
+    "popular": false,
+    "timezone": "GMT-5"
+  },
+  {
+    "id": "SCL",
+    "name": "Santiago",
+    "country": "Chile",
+    "code": "SCL",
+    "continent": "South America",
+    "popular": false,
+    "timezone": "GMT-3"
+  },
+  {
+    "id": "EZE",
+    "name": "Buenos Aires",
+    "country": "Argentina",
+    "code": "EZE",
+    "continent": "South America",
+    "popular": true,
+    "timezone": "GMT-3"
+  },
+  {
+    "id": "GIG",
+    "name": "Rio de Janeiro",
+    "country": "Brazil",
+    "code": "GIG",
+    "continent": "South America",
+    "popular": true,
+    "timezone": "GMT-3"
+  },
+  {
+    "id": "GRU",
+    "name": "Sao Paulo",
+    "country": "Brazil",
+    "code": "GRU",
+    "continent": "South America",
+    "popular": true,
+    "timezone": "GMT-3"
+  },
+  {
+    "id": "MVD",
+    "name": "Montevideo",
+    "country": "Uruguay",
+    "code": "MVD",
+    "continent": "South America",
+    "popular": false,
+    "timezone": "GMT-3"
+  },
+  {
+    "id": "ASU",
+    "name": "Asuncion",
+    "country": "Paraguay",
+    "code": "ASU",
+    "continent": "South America",
+    "popular": false,
+    "timezone": "GMT-4"
+  },
+  {
+    "id": "UIO",
+    "name": "Quito",
+    "country": "Ecuador",
+    "code": "UIO",
+    "continent": "South America",
+    "popular": false,
+    "timezone": "GMT-5"
+  },
+  {
+    "id": "CCS",
+    "name": "Caracas",
+    "country": "Venezuela",
+    "code": "CCS",
+    "continent": "South America",
+    "popular": false,
+    "timezone": "GMT-4"
+  },
+  {
+    "id": "PTY",
+    "name": "Panama City",
+    "country": "Panama",
+    "code": "PTY",
+    "continent": "North America",
+    "popular": false,
+    "timezone": "GMT-5"
+  },
+  {
+    "id": "SJO",
+    "name": "San Jose",
+    "country": "Costa Rica",
+    "code": "SJO",
+    "continent": "North America",
+    "popular": false,
+    "timezone": "GMT-6"
+  },
+  {
+    "id": "SAL",
+    "name": "San Salvador",
+    "country": "El Salvador",
+    "code": "SAL",
+    "continent": "North America",
+    "popular": false,
+    "timezone": "GMT-6"
+  },
+  {
+    "id": "GUA",
+    "name": "Guatemala City",
+    "country": "Guatemala",
+    "code": "GUA",
+    "continent": "North America",
+    "popular": false,
+    "timezone": "GMT-6"
+  },
+  {
+    "id": "MGA",
+    "name": "Managua",
+    "country": "Nicaragua",
+    "code": "MGA",
+    "continent": "North America",
+    "popular": false,
+    "timezone": "GMT-6"
+  },
+  {
+    "id": "TGU",
+    "name": "Tegucigalpa",
+    "country": "Honduras",
+    "code": "TGU",
+    "continent": "North America",
+    "popular": false,
+    "timezone": "GMT-6"
+  },
+  {
+    "id": "HAV",
+    "name": "Havana",
+    "country": "Cuba",
+    "code": "HAV",
+    "continent": "North America",
+    "popular": false,
+    "timezone": "GMT-5"
+  },
+  {
+    "id": "SDQ",
+    "name": "Santo Domingo",
+    "country": "Dominican Republic",
+    "code": "SDQ",
+    "continent": "North America",
+    "popular": false,
+    "timezone": "GMT-4"
+  },
+  {
+    "id": "SJU",
+    "name": "San Juan",
+    "country": "Puerto Rico",
+    "code": "SJU",
+    "continent": "North America",
+    "popular": false,
+    "timezone": "GMT-4"
+  },
+  {
+    "id": "NAS",
+    "name": "Nassau",
+    "country": "Bahamas",
+    "code": "NAS",
+    "continent": "North America",
+    "popular": false,
+    "timezone": "GMT-5"
+  },
+  {
+    "id": "KIN",
+    "name": "Kingston",
+    "country": "Jamaica",
+    "code": "KIN",
+    "continent": "North America",
+    "popular": false,
+    "timezone": "GMT-5"
+  },
+  {
+    "id": "BDA",
+    "name": "Bermuda",
+    "country": "Bermuda",
+    "code": "BDA",
+    "continent": "North America",
+    "popular": false,
+    "timezone": "GMT-4"
+  },
+  {
+    "id": "AUA",
+    "name": "Aruba",
+    "country": "Aruba",
+    "code": "AUA",
+    "continent": "North America",
+    "popular": false,
+    "timezone": "GMT-4"
+  },
+  {
+    "id": "MBJ",
+    "name": "Montego Bay",
+    "country": "Jamaica",
+    "code": "MBJ",
+    "continent": "North America",
+    "popular": false,
+    "timezone": "GMT-5"
+  },
+  {
+    "id": "PUJ",
+    "name": "Punta Cana",
+    "country": "Dominican Republic",
+    "code": "PUJ",
+    "continent": "North America",
+    "popular": true,
+    "timezone": "GMT-4"
+  }
+]

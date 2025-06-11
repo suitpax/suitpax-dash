@@ -1,0 +1,62 @@
+[
+  {
+    "id": "ai-1",
+    "category": "AI Assistance",
+    "prompt": "Can you help me plan an itinerary for a 3-day business trip to London?",
+    "tags": ["ai", "itinerary", "planning", "international"]
+  },
+  {
+    "id": "ai-2",
+    "category": "AI Assistance",
+    "prompt": "What are the best restaurants for client meetings in Tokyo?",
+    "tags": ["ai", "dining", "clients", "international"]
+  },
+  {
+    "id": "ai-3",
+    "category": "AI Assistance",
+    "prompt": "Help me draft an email requesting approval for my business trip",
+    "tags": ["ai", "communication", "approval"]
+  },
+  {
+    "id": "ai-4",
+    "category": "AI Assistance",
+    "prompt": "What should I pack for a business trip to Dubai in summer?",
+    "tags": ["ai", "packing", "international", "seasonal"]
+  },
+  {
+    "id": "ai-5",
+    "category": "AI Assistance",
+    "prompt": "Can you suggest activities for team building during our corporate retreat?",
+    "tags": ["ai", "team building", "activities"]
+  },
+  {
+    "id": "ai-6",
+    "category": "AI Assistance",
+    "prompt": "What are the cultural etiquette tips for business meetings in Japan?",
+    "tags": ["ai", "cultural", "etiquette", "international"]
+  },
+  {
+    "id": "ai-7",
+    "category": "AI Assistance",
+    "prompt": "Help me find a venue for a business presentation in Chicago",
+    "tags": ["ai", "venue", "presentation", "domestic"]
+  },
+  {
+    "id": "ai-8",
+    "category": "AI Assistance",
+    "prompt": "What are the best transportation options from JFK airport to Manhattan?",
+    "tags": ["ai", "transportation", "airport", "domestic"]
+  },
+  {
+    "id": "ai-9",
+    "category": "AI Assistance",
+    "prompt": "Can you suggest ways to reduce jet lag during international business travel?",
+    "tags": ["ai", "health", "jet lag", "international"]
+  },
+  {
+    "id": "ai-10",
+    "category": "AI Assistance",
+    "prompt": "What are the best mobile apps for business travelers?",
+    "tags": ["ai", "technology", "apps", "tools"]
+  }
+]

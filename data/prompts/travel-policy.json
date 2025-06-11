@@ -1,0 +1,62 @@
+[
+  {
+    "id": "policy-1",
+    "category": "Travel Policy",
+    "prompt": "What are our company's flight class policies for international travel?",
+    "tags": ["policy", "flights", "international"]
+  },
+  {
+    "id": "policy-2",
+    "category": "Travel Policy",
+    "prompt": "How do I submit a travel expense report for my recent business trip?",
+    "tags": ["policy", "expenses", "reporting"]
+  },
+  {
+    "id": "policy-3",
+    "category": "Travel Policy",
+    "prompt": "What is the per diem allowance for business travel to London?",
+    "tags": ["policy", "expenses", "per diem", "international"]
+  },
+  {
+    "id": "policy-4",
+    "category": "Travel Policy",
+    "prompt": "Who needs to approve my international business travel request?",
+    "tags": ["policy", "approval", "international"]
+  },
+  {
+    "id": "policy-5",
+    "category": "Travel Policy",
+    "prompt": "What are the company guidelines for booking hotels during business trips?",
+    "tags": ["policy", "hotels", "guidelines"]
+  },
+  {
+    "id": "policy-6",
+    "category": "Travel Policy",
+    "prompt": "How far in advance should I book business travel?",
+    "tags": ["policy", "booking", "timing"]
+  },
+  {
+    "id": "policy-7",
+    "category": "Travel Policy",
+    "prompt": "What documentation do I need for international business travel?",
+    "tags": ["policy", "documentation", "international"]
+  },
+  {
+    "id": "policy-8",
+    "category": "Travel Policy",
+    "prompt": "Are there any restrictions on using ride-sharing services during business trips?",
+    "tags": ["policy", "transportation", "ride-sharing"]
+  },
+  {
+    "id": "policy-9",
+    "category": "Travel Policy",
+    "prompt": "What is our policy on combining business and personal travel?",
+    "tags": ["policy", "personal", "combined"]
+  },
+  {
+    "id": "policy-10",
+    "category": "Travel Policy",
+    "prompt": "How do I request a travel advance for an upcoming business trip?",
+    "tags": ["policy", "advance", "finances"]
+  }
+]

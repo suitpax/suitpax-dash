@@ -1,0 +1,62 @@
+[
+  {
+    "id": "expense-1",
+    "category": "Expense Management",
+    "prompt": "How do I categorize a business meal with clients?",
+    "tags": ["expenses", "meals", "categorization"]
+  },
+  {
+    "id": "expense-2",
+    "category": "Expense Management",
+    "prompt": "What receipts do I need to keep for my business travel expenses?",
+    "tags": ["expenses", "receipts", "documentation"]
+  },
+  {
+    "id": "expense-3",
+    "category": "Expense Management",
+    "prompt": "How can I track expenses in multiple currencies during international travel?",
+    "tags": ["expenses", "international", "currency"]
+  },
+  {
+    "id": "expense-4",
+    "category": "Expense Management",
+    "prompt": "What's the deadline for submitting expense reports after a business trip?",
+    "tags": ["expenses", "deadlines", "reporting"]
+  },
+  {
+    "id": "expense-5",
+    "category": "Expense Management",
+    "prompt": "How do I handle expenses that exceed the company per diem?",
+    "tags": ["expenses", "per diem", "limits"]
+  },
+  {
+    "id": "expense-6",
+    "category": "Expense Management",
+    "prompt": "What expenses are not reimbursable under company policy?",
+    "tags": ["expenses", "reimbursement", "policy"]
+  },
+  {
+    "id": "expense-7",
+    "category": "Expense Management",
+    "prompt": "How can I split an expense between business and personal use?",
+    "tags": ["expenses", "split", "personal"]
+  },
+  {
+    "id": "expense-8",
+    "category": "Expense Management",
+    "prompt": "What's the process for disputing a rejected expense claim?",
+    "tags": ["expenses", "disputes", "rejection"]
+  },
+  {
+    "id": "expense-9",
+    "category": "Expense Management",
+    "prompt": "How do I report expenses when receipts are lost or unavailable?",
+    "tags": ["expenses", "receipts", "missing"]
+  },
+  {
+    "id": "expense-10",
+    "category": "Expense Management",
+    "prompt": "What's the best way to organize receipts during a multi-city business trip?",
+    "tags": ["expenses", "organization", "multi-city"]
+  }
+]

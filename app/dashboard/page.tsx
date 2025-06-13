@@ -246,59 +246,86 @@ export default function Dashboard() {
             </Card>
           </div>
 
-          {/* AI Chat Assistant */}
+          {/* AI Chat Assistant - Redesigned */}
           <div className="space-y-6">
-            <Card className="bg-white/5 border-white/10 h-[600px] flex flex-col">
-              <CardHeader className="pb-3">
+            <Card className="bg-black border border-white/10 h-[400px] flex flex-col overflow-hidden">
+              <CardHeader className="pb-3 px-4 pt-4">
                 <div className="flex items-center space-x-3">
-                  <Image
-                    src="/images/ai-agents/agent-1.jpg"
-                    alt="AI Assistant"
-                    width={32}
-                    height={32}
-                    className="rounded-md"
-                  />
+                  <div className="relative h-8 w-8 rounded-full overflow-hidden bg-white/10 flex items-center justify-center">
+                    <Image
+                      src="/images/ai-agents/agent-1.jpg"
+                      alt="Suitpax AI"
+                      width={32}
+                      height={32}
+                      className="rounded-full object-cover"
+                    />
+                  </div>
                   <div>
-                    <CardTitle className="text-white text-sm">Suitpax AI</CardTitle>
-                    <p className="text-white/60 text-xs">Your travel assistant</p>
+                    <CardTitle className="text-white text-sm font-medium">Suitpax AI</CardTitle>
+                    <p className="text-white/50 text-xs">Your travel assistant</p>
+                  </div>
+                  <div className="ml-auto">
+                    <div className="h-2 w-2 bg-green-400 rounded-full animate-pulse"></div>
                   </div>
                 </div>
               </CardHeader>
 
               <CardContent className="flex-1 flex flex-col p-0">
-                {/* Messages */}
-                <div className="flex-1 overflow-y-auto p-4 space-y-4">
-                  {chatMessages.map((message) => (
+                {/* Messages - Compact */}
+                <div className="flex-1 overflow-y-auto px-4 space-y-3 scrollbar-thin scrollbar-track-transparent scrollbar-thumb-white/10">
+                  {chatMessages.slice(-3).map((message) => (
                     <div
                       key={message.id}
-                      className={`flex ${message.role === "user" ? "justify-end" : "justify-start"}`}
+                      className={`flex items-start space-x-3 ${message.role === "user" ? "justify-end" : "justify-start"}`}
                     >
+                      {message.role === "assistant" && (
+                        <div className="flex-shrink-0 h-6 w-6 rounded-full overflow-hidden bg-white/10 flex items-center justify-center">
+                          <Image
+                            src="/images/ai-agents/agent-1.jpg"
+                            alt="AI"
+                            width={24}
+                            height={24}
+                            className="rounded-full object-cover"
+                          />
+                        </div>
+                      )}
                       <div
-                        className={`max-w-[85%] rounded-lg p-3 ${
+                        className={`max-w-[85%] rounded-full px-4 py-2 ${
                           message.role === "user"
-                            ? "bg-white text-black rounded-tr-none"
-                            : "bg-white/10 text-white rounded-tl-none"
+                            ? "bg-white text-black text-sm font-medium"
+                            : "bg-white/5 text-white text-sm border border-white/10"
                         }`}
                       >
-                        <div className="text-sm">{formatMessageContent(message.content)}</div>
-                        <div className="text-xs opacity-70 mt-1">
-                          {message.timestamp.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
-                        </div>
+                        <div className="text-xs leading-relaxed">{formatMessageContent(message.content)}</div>
                       </div>
+                      {message.role === "user" && (
+                        <div className="flex-shrink-0 h-6 w-6 rounded-full overflow-hidden bg-white/10 flex items-center justify-center">
+                          <User className="h-3 w-3 text-white/70" />
+                        </div>
+                      )}
                     </div>
                   ))}
 
                   {isLoading && (
-                    <div className="flex justify-start">
-                      <div className="bg-white/10 rounded-lg rounded-tl-none p-3">
+                    <div className="flex items-start space-x-3 justify-start">
+                      <div className="flex-shrink-0 h-6 w-6 rounded-full overflow-hidden bg-white/10 flex items-center justify-center">
+                        <Image
+                          src="/images/ai-agents/agent-1.jpg"
+                          alt="AI"
+                          width={24}
+                          height={24}
+                          className="rounded-full object-cover"
+                        />
+                      </div>
+                      <div className="bg-white/5 rounded-full px-4 py-2 border border-white/10">
                         <div className="flex space-x-1">
-                          <div className="w-2 h-2 bg-white/50 rounded-full animate-bounce"></div>
+                          <div className="w-1.5 h-1.5 bg-white/50 rounded-full animate-bounce"></div>
                           <div
-                            className="w-2 h-2 bg-white/50 rounded-full animate-bounce"
+                            className="w-1.5 h-1.5 bg-white/50 rounded-full animate-bounce"
                             style={{ animationDelay: "0.1s" }}
                           ></div>
                           <div
-                            className="w-2 h-2 bg-white/50 rounded-full animate-bounce"
+                            className="w-1.5 h-1.5 bg-white/50 rounded-full animate-bounce"
                             style={{ animationDelay: "0.2s" }}
                           ></div>
                         </div>
@@ -307,33 +334,75 @@ export default function Dashboard() {
                   )}
                 </div>
 
-                {/* Chat Input */}
+                {/* Chat Input - Modern */}
                 <div className="p-4 border-t border-white/10">
                   <form onSubmit={handleChatSubmit} className="relative">
                     <Input
                       value={chatInput}
                       onChange={(e) => setChatInput(e.target.value)}
-                      placeholder="Ask your AI assistant anything..."
+                      placeholder="Ask anything about travel..."
                       disabled={isLoading}
-                      className="bg-white/5 border-white/10 text-white placeholder:text-white/30 pr-20"
+                      className="bg-white/5 border-white/10 text-white placeholder:text-white/40 pr-24 rounded-full h-10 text-sm focus:ring-1 focus:ring-white/20"
                     />
                     <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center space-x-1">
-                      <Button type="button" size="sm" className="bg-transparent hover:bg-white/10 h-8 w-8 p-0">
-                        <Paperclip className="h-4 w-4 text-white/50" />
+                      <Button
+                        type="button"
+                        size="sm"
+                        className="bg-transparent hover:bg-white/10 h-7 w-7 p-0 rounded-full"
+                      >
+                        <Paperclip className="h-3 w-3 text-white/50" />
                       </Button>
-                      <Button type="button" size="sm" className="bg-transparent hover:bg-white/10 h-8 w-8 p-0">
-                        <Mic className="h-4 w-4 text-white/50" />
+                      <Button
+                        type="button"
+                        size="sm"
+                        className="bg-transparent hover:bg-white/10 h-7 w-7 p-0 rounded-full"
+                      >
+                        <Mic className="h-3 w-3 text-white/50" />
                       </Button>
                       <Button
                         type="submit"
                         disabled={!chatInput.trim() || isLoading}
                         size="sm"
-                        className="bg-white text-black hover:bg-white/90 h-8 w-8 p-0"
+                        className="bg-white text-black hover:bg-white/90 h-7 w-7 p-0 rounded-full disabled:opacity-50"
                       >
-                        <Send className="h-4 w-4" />
+                        {isLoading ? (
+                          <div className="w-3 h-3 border border-black/30 border-t-black/70 rounded-full animate-spin" />
+                        ) : (
+                          <Send className="h-3 w-3" />
+                        )}
                       </Button>
                     </div>
                   </form>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Quick Suggestions */}
+            <Card className="bg-white/5 border-white/10">
+              <CardContent className="p-4">
+                <h4 className="text-white text-sm font-medium mb-3">Quick Actions</h4>
+                <div className="space-y-2">
+                  <Button
+                    variant="ghost"
+                    className="w-full justify-start text-xs text-white/70 hover:text-white hover:bg-white/5 h-8 rounded-full"
+                    onClick={() => setChatInput("Find flights from Madrid to Barcelona")}
+                  >
+                    Find flights from Madrid to Barcelona
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    className="w-full justify-start text-xs text-white/70 hover:text-white hover:bg-white/5 h-8 rounded-full"
+                    onClick={() => setChatInput("Show my expense report")}
+                  >
+                    Show my expense report
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    className="w-full justify-start text-xs text-white/70 hover:text-white hover:bg-white/5 h-8 rounded-full"
+                    onClick={() => setChatInput("Book a hotel in London")}
+                  >
+                    Book a hotel in London
+                  </Button>
                 </div>
               </CardContent>
             </Card>

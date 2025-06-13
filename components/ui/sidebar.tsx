@@ -16,7 +16,6 @@ import {
   BellIcon,
   ClipboardDocumentListIcon,
   CommandLineIcon,
-  CreditCardIcon,
   BanknotesIcon,
   ArrowRightIcon,
   MinusIcon,
@@ -29,7 +28,7 @@ import {
   MailIcon,
   CalendarIcon,
   CalendarDaysIcon,
-  Car,
+  Truck,
   ChevronRight,
   PanelLeftClose,
   PanelLeftOpen,
@@ -58,7 +57,7 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
   const [chatInput, setChatInput] = useState("")
   const [chatMessages, setChatMessages] = useState<{ text: string; isUser: boolean; timestamp: Date }[]>([
     {
-      text: "¡Hola! Soy tu asistente de viajes corporativos. ¿En qué puedo ayudarte hoy?",
+      text: "Hello! I'm your corporate travel assistant. How can I help you today?",
       isUser: false,
       timestamp: new Date(),
     },
@@ -137,7 +136,7 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
       setChatMessages((prev) => [
         ...prev,
         {
-          text: "Lo siento, he tenido un problema técnico. Por favor, inténtalo de nuevo.",
+          text: "Sorry, I'm having technical issues. Please try again.",
           isUser: false,
           timestamp: new Date(),
         },
@@ -180,9 +179,13 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
         )}
         title={isCollapsed ? String(children) : ""}
       >
-        <div className="flex items-center">
+        <div className="flex items-center flex-1">
           <Icon className={`h-4 w-4 ${isCollapsed ? "" : "mr-3"} flex-shrink-0`} />
-          {!isCollapsed && <span className="font-light">{children}</span>}
+          {!isCollapsed && (
+            <div className="flex items-center justify-between w-full">
+              <span className="font-light">{children}</span>
+            </div>
+          )}
         </div>
         {badge && !isCollapsed && (
           <span className="ml-2 px-2 py-0.5 text-[10px] font-medium bg-white/10 rounded-full">{badge}</span>
@@ -324,11 +327,11 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
                     <NavItem href="/trains" icon={TrainIcon}>
                       Trains
                     </NavItem>
-                    <NavItem href="/transfers" icon={Car}>
+                    <NavItem href="/transfers" icon={Truck}>
                       Car Transfers
-                    </NavItem>
-                    <NavItem href="/airport-vip-lounge" icon={CreditCardIcon}>
-                      VIP Lounge
+                      <span className="ml-2 px-2 py-0.5 text-[9px] font-medium bg-amber-500/20 text-amber-300 rounded-full border border-amber-500/30">
+                        Development
+                      </span>
                     </NavItem>
                     <NavItem href="/travel-policy" icon={DocumentTextIcon}>
                       Travel Policy
@@ -503,7 +506,7 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
                             type="text"
                             value={chatInput}
                             onChange={(e) => setChatInput(e.target.value)}
-                            placeholder="Ask AI agent..."
+                            placeholder="Try ask anything..."
                             disabled={isLoading}
                             className="w-full pl-3 pr-8 py-1.5 text-xs bg-white/5 border border-white/10 rounded-full focus:outline-none focus:ring-1 focus:ring-white/20 text-white placeholder:text-white/30 disabled:opacity-50"
                           />

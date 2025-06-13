@@ -200,15 +200,15 @@ export default function Dashboard() {
           </CardContent>
         </Card>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
           {/* Quick Actions */}
-          <div className="lg:col-span-2 space-y-6">
+          <div className="xl:col-span-2 space-y-6">
             <Card className="bg-white/5 border-white/10">
               <CardHeader>
                 <CardTitle className="text-white">Quick Actions</CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
                   <Button className="h-20 flex-col bg-white/5 hover:bg-white/10 border border-white/10">
                     <Plane className="h-6 w-6 mb-2 text-blue-400" />
                     <span className="text-xs">Book Flight</span>
@@ -248,7 +248,7 @@ export default function Dashboard() {
 
           {/* AI Chat Assistant */}
           <div className="space-y-6">
-            <Card className="bg-white/5 border-white/10 h-[600px] flex flex-col">
+            <Card className="bg-white/5 border-white/10 h-[500px] lg:h-[600px] flex flex-col">
               <CardHeader className="pb-3">
                 <div className="flex items-center space-x-3">
                   <Image

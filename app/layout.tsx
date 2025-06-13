@@ -1,8 +1,17 @@
 import type React from "react"
+import type { Metadata } from "next"
 import { Inter } from "next/font/google"
-import ClientLayout from "./ClientLayout"
+import "./globals.css"
+import { ThemeProvider } from "@/components/theme-provider"
+import { UserConfigProvider } from "@/lib/contexts/user-config-context"
 
 const inter = Inter({ subsets: ["latin"] })
+
+export const metadata: Metadata = {
+  title: "Suitpax - Business Travel Management",
+  description: "AI-powered business travel management platform",
+    generator: 'v0.dev'
+}
 
 export default function RootLayout({
   children,
@@ -10,17 +19,12 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="es">
+    <html lang="en" suppressHydrationWarning>
       <body className={inter.className}>
-        <ClientLayout>{children}</ClientLayout>
+        <ThemeProvider attribute="class" defaultTheme="dark" enableSystem disableTransitionOnChange>
+          <UserConfigProvider>{children}</UserConfigProvider>
+        </ThemeProvider>
       </body>
     </html>
   )
 }
-
-
-import './globals.css'
-
-export const metadata = {
-      generator: 'v0.dev'
-    };

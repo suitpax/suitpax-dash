@@ -140,10 +140,10 @@ export default function Dashboard() {
                   alt="Profile"
                   width={48}
                   height={48}
-                  className="rounded-full object-cover"
+                  className="rounded-md object-cover"
                 />
               ) : (
-                <div className="w-12 h-12 bg-white/10 rounded-full flex items-center justify-center">
+                <div className="w-12 h-12 bg-white/10 rounded-md flex items-center justify-center">
                   <User className="h-6 w-6 text-white/70" />
                 </div>
               )}
@@ -252,11 +252,11 @@ export default function Dashboard() {
               <CardHeader className="pb-3">
                 <div className="flex items-center space-x-3">
                   <Image
-                    src="/images/ai-agent-avatar.jpeg"
+                    src="/images/ai-agents/agent-1.jpg"
                     alt="AI Assistant"
                     width={32}
                     height={32}
-                    className="rounded-full"
+                    className="rounded-md"
                   />
                   <div>
                     <CardTitle className="text-white text-sm">Suitpax AI</CardTitle>

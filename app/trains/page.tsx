@@ -1,580 +1,400 @@
 "use client"
 
 import type React from "react"
-
-import { useState, useEffect } from "react"
-import Layout from "@/components/ui/layout"
-import Image from "next/image"
-import { useRouter } from "next/navigation"
+import { useState, useEffect, useMemo } from "react"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Badge } from "@/components/ui/badge"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import {
-  CheckIcon,
-  XMarkIcon,
-  ArrowLongRightIcon,
-  ClockIcon,
-  CalendarIcon,
-  UserIcon,
-  CurrencyDollarIcon,
-  AdjustmentsHorizontalIcon,
-  RocketLaunchIcon,
-} from "@heroicons/react/24/outline"
+  Search,
+  MapPin,
+  Calendar,
+  Users,
+  TrainFront,
+  Clock,
+  ArrowRightLeft,
+  Ticket,
+  Sparkles,
+  CheckCircle,
+} from "lucide-react"
+import trainsData from "@/data/trains.json" // Assuming this data structure is suitable
 
-// Importar datos de trenes
-import trainsData from "@/data/trains.json"
+interface Train {
+  id: string
+  company: string
+  trainNumber: string
+  origin: string
+  originCode: string
+  destination: string
+  destinationCode: string
+  departureTime: string
+  arrivalTime: string
+  departureDate: string // Keep this if your data has it, or derive
+  duration: string
+  price: number // Assuming number for easier sorting
+  class: string
+  stops: number
+  stopCity?: string
+  amenities: string[]
+  travelPolicy: "Compliant" | "Non-Compliant"
+  carbonEmission?: string
+  trainType?: string // e.g., High-speed, Regional
+}
 
-// Iconos de compañías ferroviarias
 const trainCompanies = {
-  Renfe: {
-    code: "RN",
-    color: "bg-red-100",
-    textColor: "text-red-700",
-  },
-  SNCF: {
-    code: "SF",
-    color: "bg-blue-100",
-    textColor: "text-blue-700",
-  },
-  "Deutsche Bahn": {
-    code: "DB",
-    color: "bg-red-100",
-    textColor: "text-red-700",
-  },
-  Eurostar: {
-    code: "ES",
-    color: "bg-yellow-100",
-    textColor: "text-yellow-700",
-  },
-  Trenitalia: {
-    code: "TI",
-    color: "bg-green-100",
-    textColor: "text-green-700",
-  },
-  Italo: {
-    code: "IT",
-    color: "bg-purple-100",
-    textColor: "text-purple-700",
-  },
-  Thalys: {
-    code: "TH",
-    color: "bg-red-100",
-    textColor: "text-red-700",
-  },
-  ÖBB: {
-    code: "OB",
-    color: "bg-red-100",
-    textColor: "text-red-700",
-  },
-  SBB: {
-    code: "SB",
-    color: "bg-red-100",
-    textColor: "text-red-700",
-  },
-  "Renfe-SNCF": {
-    code: "RS",
-    color: "bg-blue-100",
-    textColor: "text-blue-700",
-  },
+  Renfe: { code: "RN", logo: "/placeholder.svg?width=32&height=32&text=RN" },
+  SNCF: { code: "SF", logo: "/placeholder.svg?width=32&height=32&text=SF" },
+  "Deutsche Bahn": { code: "DB", logo: "/placeholder.svg?width=32&height=32&text=DB" },
+  Eurostar: { code: "ES", logo: "/placeholder.svg?width=32&height=32&text=ES" },
+  // Add more as needed
 }
 
 export default function TrainsPage() {
-  const router = useRouter()
-  const [searchQuery, setSearchQuery] = useState("")
-  const [origin, setOrigin] = useState("Madrid")
-  const [destination, setDestination] = useState("")
-  const [departureDate, setDepartureDate] = useState("2025-05-15")
-  const [showResults, setShowResults] = useState(false)
-  const [selectedTrain, setSelectedTrain] = useState<null | number>(null)
+  const [allTrains, setAllTrains] = useState<Train[]>(trainsData as Train[])
+  const [filteredTrains, setFilteredTrains] = useState<Train[]>([])
+  const [loading, setLoading] = useState(false)
+  const [selectedTrainId, setSelectedTrainId] = useState<string | null>(null)
   const [showBookingConfirmation, setShowBookingConfirmation] = useState(false)
-  const [filteredTrains, setFilteredTrains] = useState<any[]>([])
-  const [isLoading, setIsLoading] = useState(false)
 
-  // Evitar desplazamiento automático
-  useEffect(() => {
-    window.scrollTo(0, 0)
-  }, [])
+  // Search form state
+  const [originCity, setOriginCity] = useState("Madrid")
+  const [destinationCity, setDestinationCity] = useState("")
+  const [departureDate, setDepartureDate] = useState(new Date().toISOString().split("T")[0])
+  const [passengers, setPassengers] = useState("1")
+  const [travelClass, setTravelClass] = useState("second")
 
-  // Rutas populares para selección rápida
-  const popularRoutes = [
-    { origin: "Madrid", destination: "Barcelona" },
-    { origin: "Madrid", destination: "Valencia" },
-    { origin: "Paris", destination: "Lyon" },
-    { origin: "Berlin", destination: "Munich" },
-    { origin: "London", destination: "Paris" },
-    { origin: "Rome", destination: "Florence" },
-    { origin: "Madrid", destination: "Seville" },
-    { origin: "Paris", destination: "Marseille" },
-    { origin: "Milan", destination: "Venice" },
-    { origin: "Paris", destination: "Brussels" },
-  ]
+  // Filter state
+  const [sortBy, setSortBy] = useState("price")
 
   useEffect(() => {
-    if (destination) {
-      filterTrains()
+    // Initial filter or if search params change
+    if (destinationCity) {
+      // Trigger search if destination is set (e.g., from URL params)
+      performSearch()
     }
-  }, [destination])
+  }, []) // Add dependencies if you want to react to URL searchParams
 
-  const filterTrains = () => {
-    if (!destination) return
+  const performSearch = async () => {
+    setLoading(true)
+    await new Promise((resolve) => setTimeout(resolve, 1000)) // Simulate API
 
-    setIsLoading(true)
-
-    // Simular retraso de API
-    setTimeout(() => {
-      const filtered = trainsData.filter(
-        (train: any) =>
-          train.destination.toLowerCase().includes(destination.toLowerCase()) ||
-          train.destinationCode.toLowerCase() === destination.toLowerCase(),
-      )
-
-      setFilteredTrains(filtered)
-      setShowResults(true)
-      setIsLoading(false)
-    }, 800)
+    const results = allTrains.filter(
+      (train) =>
+        train.origin.toLowerCase().includes(originCity.toLowerCase()) &&
+        train.destination.toLowerCase().includes(destinationCity.toLowerCase()) &&
+        new Date(train.departureDate) >= new Date(departureDate), // Basic date check
+    )
+    setFilteredTrains(results)
+    setLoading(false)
+    setSelectedTrainId(null) // Reset selection
   }
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault()
-    filterTrains()
+    performSearch()
   }
 
-  const handleQuickSearch = (route: { origin: string; destination: string }) => {
-    setOrigin(route.origin)
-    setDestination(route.destination)
-    setSearchQuery(route.destination)
-    filterTrains()
-  }
-
-  const handleSelectTrain = (index: number) => {
-    setSelectedTrain(index)
-  }
+  const sortedAndFilteredTrains = useMemo(() => {
+    return [...filteredTrains].sort((a, b) => {
+      if (sortBy === "price") return a.price - b.price
+      if (sortBy === "duration") {
+        const durA =
+          Number.parseInt(a.duration.split("h")[0]) * 60 +
+          Number.parseInt(a.duration.split("h")[1]?.replace("m", "") || "0")
+        const durB =
+          Number.parseInt(b.duration.split("h")[0]) * 60 +
+          Number.parseInt(b.duration.split("h")[1]?.replace("m", "") || "0")
+        return durA - durB
+      }
+      if (sortBy === "departure") return a.departureTime.localeCompare(b.departureTime)
+      return 0
+    })
+  }, [filteredTrains, sortBy])
 
   const handleBookTrain = () => {
-    setShowBookingConfirmation(true)
+    if (selectedTrainId) {
+      setShowBookingConfirmation(true)
+    }
+  }
+
+  const selectedTrainDetails = selectedTrainId ? sortedAndFilteredTrains.find((t) => t.id === selectedTrainId) : null
+
+  if (showBookingConfirmation && selectedTrainDetails) {
+    return (
+      <div className="min-h-screen bg-black p-3 text-white flex items-center justify-center">
+        <Card className="bg-white/5 border-white/10 w-full max-w-md backdrop-blur-sm">
+          <CardHeader className="items-center">
+            <div className="p-3 bg-green-500/20 rounded-full mb-3">
+              <CheckCircle className="h-10 w-10 text-green-400" />
+            </div>
+            <CardTitle className="text-xl font-medium text-white">Booking Confirmed!</CardTitle>
+          </CardHeader>
+          <CardContent className="text-center space-y-3">
+            <p className="text-sm text-white/70">
+              Your train journey from {selectedTrainDetails.origin} to {selectedTrainDetails.destination} is booked.
+            </p>
+            <div className="text-left bg-white/5 p-3 rounded-lg border border-white/10 text-xs space-y-1">
+              <p>
+                <span className="text-white/60">Reference:</span> SPX-TRN-{selectedTrainDetails.id.slice(-4)}
+              </p>
+              <p>
+                <span className="text-white/60">Train:</span> {selectedTrainDetails.company}{" "}
+                {selectedTrainDetails.trainNumber}
+              </p>
+              <p>
+                <span className="text-white/60">Date:</span> {selectedTrainDetails.departureDate} at{" "}
+                {selectedTrainDetails.departureTime}
+              </p>
+              <p>
+                <span className="text-white/60">Price:</span> ${selectedTrainDetails.price}
+              </p>
+            </div>
+            <Button
+              onClick={() => {
+                setShowBookingConfirmation(false)
+                setSelectedTrainId(null)
+              }}
+              className="w-full mt-2 bg-white text-black hover:bg-white/90 rounded-full"
+            >
+              Book Another Train
+            </Button>
+          </CardContent>
+        </Card>
+      </div>
+    )
   }
 
   return (
-    <Layout>
-      <div className="max-w-5xl mx-auto">
-        <h1 className="text-2xl font-medium tracking-tighter text-black mb-6">Train Search</h1>
+    <div className="min-h-screen bg-black p-3 text-white">
+      <div className="max-w-7xl mx-auto space-y-4">
+        {/* Header */}
+        <header className="bg-white/5 border border-white/10 rounded-2xl p-6 md:p-8 backdrop-blur-sm">
+          <h1 className="text-2xl font-medium text-white">Trains</h1>
+        </header>
 
-        {showBookingConfirmation ? (
-          <div className="bg-white rounded-xl border border-black p-6 shadow-sm mb-6">
-            <div className="flex items-center justify-center mb-4">
-              <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center">
-                <CheckIcon className="w-8 h-8 text-emerald-500" />
+        {/* Search Form */}
+        <Card className="bg-white/5 border-white/10 backdrop-blur-sm">
+          <CardContent className="p-6">
+            <form onSubmit={handleSearch} className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+                {/* Origin, Destination, Date, Passengers, Class inputs */}
+                <InputWithIcon
+                  icon={<MapPin className="h-4 w-4 text-white/50" />}
+                  placeholder="Origin (e.g. Madrid)"
+                  value={originCity}
+                  onChange={(e) => setOriginCity(e.target.value)}
+                />
+                <InputWithIcon
+                  icon={<MapPin className="h-4 w-4 text-white/50" />}
+                  placeholder="Destination (e.g. Barcelona)"
+                  value={destinationCity}
+                  onChange={(e) => setDestinationCity(e.target.value)}
+                />
+                <InputWithIcon
+                  icon={<Calendar className="h-4 w-4 text-white/50" />}
+                  type="date"
+                  value={departureDate}
+                  onChange={(e) => setDepartureDate(e.target.value)}
+                />
+                <Select value={passengers} onValueChange={setPassengers}>
+                  <SelectTrigger className="h-11 bg-white/5 border-white/10 text-white rounded-xl hover:bg-white/10">
+                    <Users className="h-4 w-4 text-white/50 mr-2" />
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {[1, 2, 3, 4].map((p) => (
+                      <SelectItem key={p} value={String(p)}>
+                        {p} Passenger{p > 1 ? "s" : ""}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <Select value={travelClass} onValueChange={setTravelClass}>
+                  <SelectTrigger className="h-11 bg-white/5 border-white/10 text-white rounded-xl hover:bg-white/10">
+                    <Ticket className="h-4 w-4 text-white/50 mr-2" />
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {["second", "first", "business"].map((tc) => (
+                      <SelectItem key={tc} value={tc} className="capitalize">
+                        {tc} Class
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
-            </div>
-            <h2 className="text-xl font-medium tracking-tighter text-black text-center mb-2">Train Booked!</h2>
-            <p className="text-gray-700 text-center mb-4">
-              Your booking has been confirmed. We've sent the details to your email.
-            </p>
-            <div className="bg-gray-100 rounded-xl p-4 mb-4">
-              <div className="flex justify-between items-center mb-2">
-                <span className="text-sm font-medium">Booking reference:</span>
-                <span className="text-sm">SUITPAX-TR12345</span>
-              </div>
-              <div className="flex justify-between items-center mb-2">
-                <span className="text-sm font-medium">Train:</span>
-                <span className="text-sm">
-                  {filteredTrains[selectedTrain || 0].company} {filteredTrains[selectedTrain || 0].trainNumber}
-                </span>
-              </div>
-              <div className="flex justify-between items-center mb-2">
-                <span className="text-sm font-medium">Date:</span>
-                <span className="text-sm">{filteredTrains[selectedTrain || 0].departureDate}</span>
-              </div>
-              <div className="flex justify-between items-center">
-                <span className="text-sm font-medium">Total paid:</span>
-                <span className="text-sm">{filteredTrains[selectedTrain || 0].price}</span>
-              </div>
-            </div>
-            <div className="flex justify-center">
-              <button
-                onClick={() => router.push("/dashboard")}
-                className="flex items-center px-3 py-1.5 rounded-xl bg-black text-white hover:bg-gray-800"
+              <Button
+                type="submit"
+                className="w-full md:w-auto bg-white text-black hover:bg-white/90 rounded-full"
+                disabled={loading}
               >
-                <span className="text-xs">Back to Dashboard</span>
-              </button>
-            </div>
-          </div>
-        ) : (
-          <>
-            <div className="bg-white rounded-xl border border-black p-6 shadow-sm mb-6">
-              <form onSubmit={handleSearch} className="space-y-4">
-                <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                  <div>
-                    <label htmlFor="origin" className="block text-sm font-medium text-gray-700 mb-1">
-                      Origin
-                    </label>
-                    <input
-                      type="text"
-                      id="origin"
-                      value={origin}
-                      onChange={(e) => setOrigin(e.target.value)}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-200"
-                      placeholder="Madrid"
-                    />
-                  </div>
-                  <div>
-                    <label htmlFor="destination" className="block text-sm font-medium text-gray-700 mb-1">
-                      Destination
-                    </label>
-                    <input
-                      type="text"
-                      id="destination"
-                      value={searchQuery}
-                      onChange={(e) => {
-                        setSearchQuery(e.target.value)
-                        setDestination(e.target.value)
-                      }}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-200"
-                      placeholder="Barcelona"
-                    />
-                  </div>
-                  <div>
-                    <label htmlFor="date" className="block text-sm font-medium text-gray-700 mb-1">
-                      Date
-                    </label>
-                    <input
-                      type="date"
-                      id="date"
-                      value={departureDate}
-                      onChange={(e) => setDepartureDate(e.target.value)}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-200"
-                    />
-                  </div>
-                  <div>
-                    <label htmlFor="passengers" className="block text-sm font-medium text-gray-700 mb-1">
-                      Passengers
-                    </label>
-                    <select
-                      id="passengers"
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-200"
-                      defaultValue="1"
-                    >
-                      <option value="1">1 Passenger</option>
-                      <option value="2">2 Passengers</option>
-                      <option value="3">3 Passengers</option>
-                      <option value="4">4 Passengers</option>
-                    </select>
-                  </div>
-                </div>
+                {loading ? (
+                  <div className="h-4 w-4 border-2 border-black/30 border-t-black rounded-full animate-spin mr-2" />
+                ) : (
+                  <Search className="h-4 w-4 mr-2" />
+                )}
+                {loading ? "Searching..." : "Search Trains"}
+              </Button>
+            </form>
+          </CardContent>
+        </Card>
 
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <div>
-                    <label htmlFor="class" className="block text-sm font-medium text-gray-700 mb-1">
-                      Class
-                    </label>
-                    <select
-                      id="class"
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-200"
-                      defaultValue="second"
-                    >
-                      <option value="second">Second Class</option>
-                      <option value="first">First Class</option>
-                      <option value="business">Business</option>
-                    </select>
-                  </div>
-                  <div>
-                    <label htmlFor="trip-type" className="block text-sm font-medium text-gray-700 mb-1">
-                      Trip Type
-                    </label>
-                    <select
-                      id="trip-type"
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-200"
-                      defaultValue="round-trip"
-                    >
-                      <option value="round-trip">Round Trip</option>
-                      <option value="one-way">One Way</option>
-                    </select>
-                  </div>
-                  <div>
-                    <label htmlFor="purpose" className="block text-sm font-medium text-gray-700 mb-1">
-                      Travel Purpose
-                    </label>
-                    <select
-                      id="purpose"
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-200"
-                      defaultValue="business"
-                    >
-                      <option value="business">Business Meeting</option>
-                      <option value="conference">Conference</option>
-                      <option value="training">Training</option>
-                      <option value="client">Client Visit</option>
-                      <option value="other">Other</option>
-                    </select>
-                  </div>
-                </div>
-
-                <div className="flex justify-between items-center">
-                  <div className="flex items-center">
-                    <input
-                      type="checkbox"
-                      id="policy-compliant"
-                      className="rounded border-gray-300 text-black focus:ring-gray-200 mr-2"
-                      defaultChecked
-                    />
-                    <label htmlFor="policy-compliant" className="text-sm text-gray-700">
-                      Show only policy-compliant options
-                    </label>
-                  </div>
-                  <button
-                    type="submit"
-                    className="flex items-center px-3 py-1.5 rounded-xl bg-black text-white hover:bg-gray-800"
-                  >
-                    <span className="text-xs">Search Trains</span>
-                  </button>
-                </div>
-              </form>
+        {/* Results */}
+        {!loading && filteredTrains.length > 0 && (
+          <div className="space-y-3">
+            <div className="flex justify-between items-center bg-white/5 p-3 rounded-lg border border-white/10">
+              <h2 className="text-lg font-medium text-white">{sortedAndFilteredTrains.length} trains found</h2>
+              <Select value={sortBy} onValueChange={setSortBy}>
+                <SelectTrigger className="bg-transparent border-none text-white/70 h-8 text-xs w-auto focus:ring-0">
+                  <ArrowRightLeft className="h-3.5 w-3.5 mr-1.5" />
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {["price", "duration", "departure"].map((s) => (
+                    <SelectItem key={s} value={s} className="capitalize text-xs">
+                      {s}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
 
-            {/* Popular routes */}
-            <div className="bg-white rounded-xl border border-black p-4 shadow-sm mb-6">
-              <h2 className="text-sm font-medium text-black mb-3">Popular Routes</h2>
-              <div className="flex flex-wrap gap-2">
-                {popularRoutes.map((route, index) => (
-                  <button
-                    key={index}
-                    onClick={() => handleQuickSearch(route)}
-                    className="flex items-center gap-2 px-3 py-1.5 bg-gray-100 rounded-xl hover:bg-gray-200 transition-colors"
-                  >
-                    <span className="text-xs font-medium">{route.origin}</span>
-                    <ArrowLongRightIcon className="h-3 w-3 text-gray-500" />
-                    <span className="text-xs font-medium">{route.destination}</span>
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {isLoading && (
-              <div className="bg-white rounded-xl border border-black p-8 text-center">
-                <div className="flex justify-center mb-4">
-                  <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-black"></div>
-                </div>
-                <h2 className="text-xl font-medium tracking-tighter text-black mb-2">Searching for trains...</h2>
-                <p className="text-gray-700 mb-6 max-w-md mx-auto">We're finding the best options for your trip.</p>
-              </div>
-            )}
-
-            {showResults && !isLoading && (
-              <div className="space-y-4">
-                <div className="flex items-center justify-between mb-4">
-                  <h2 className="text-lg font-medium tracking-tighter text-black">
-                    Results for: {searchQuery || destination}
-                  </h2>
-                  <div className="flex items-center">
-                    <span className="text-sm text-gray-700 mr-2">Sort by:</span>
-                    <select className="text-sm border border-gray-300 rounded-lg px-2 py-1 focus:outline-none focus:ring-2 focus:ring-gray-200">
-                      <option>Price: low to high</option>
-                      <option>Duration: shortest</option>
-                      <option>Departure: earliest</option>
-                    </select>
+            {sortedAndFilteredTrains.map((train, index) => (
+              <Card
+                key={train.id}
+                className={`bg-white/5 border hover:bg-white/10 transition-all ${selectedTrainId === train.id ? "border-blue-500/50 ring-2 ring-blue-500/30" : "border-white/10"}`}
+                style={{ animation: `fadeInUp 0.5s ${index * 0.05}s ease-out forwards`, opacity: 0 }}
+              >
+                <CardContent
+                  className="p-4 cursor-pointer"
+                  onClick={() => setSelectedTrainId(train.id === selectedTrainId ? null : train.id)}
+                >
+                  <div className="flex flex-col md:flex-row gap-3">
+                    <div className="flex md:flex-col items-center md:items-start md:w-1/6 gap-2">
+                      <img
+                        src={
+                          trainCompanies[train.company as keyof typeof trainCompanies]?.logo ||
+                          "/placeholder.svg?width=32&height=32&text=TR"
+                        }
+                        alt={train.company}
+                        className="h-8 w-8 rounded-md bg-white/10 p-1"
+                      />
+                      <div>
+                        <p className="text-sm font-medium text-white">{train.company}</p>
+                        <p className="text-xs text-white/50">{train.trainNumber}</p>
+                      </div>
+                    </div>
+                    <div className="flex-1 grid grid-cols-3 items-center text-center md:text-left">
+                      <div>
+                        <p className="text-lg font-semibold text-white">{train.departureTime}</p>
+                        <p className="text-xs text-white/70">{train.originCode}</p>
+                      </div>
+                      <div className="px-2">
+                        <Clock className="h-3.5 w-3.5 text-white/50 mx-auto mb-0.5" />
+                        <p className="text-xs text-white/70">{train.duration}</p>
+                        <div className="w-full h-px bg-white/20 my-0.5"></div>
+                        <p className="text-xs text-white/50">
+                          {train.stops} stop{train.stops !== 1 ? "s" : ""}
+                        </p>
+                      </div>
+                      <div>
+                        <p className="text-lg font-semibold text-white">{train.arrivalTime}</p>
+                        <p className="text-xs text-white/70">{train.destinationCode}</p>
+                      </div>
+                    </div>
+                    <div className="md:w-1/6 flex flex-col items-center md:items-end justify-center">
+                      <p className="text-xl font-bold text-white">${train.price}</p>
+                      <p className="text-xs text-white/50 capitalize">{train.class}</p>
+                    </div>
                   </div>
-                </div>
-
-                {filteredTrains.length > 0 ? (
-                  filteredTrains.map((train, index) => (
-                    <div
-                      key={index}
-                      className={`bg-white rounded-xl border ${
-                        selectedTrain === index ? "border-black" : "border-gray-200"
-                      } p-4 shadow-sm hover:border-black transition-colors cursor-pointer`}
-                      onClick={() => handleSelectTrain(index)}
-                    >
-                      <div className="flex flex-col md:flex-row md:items-center md:justify-between">
-                        <div className="flex items-center mb-4 md:mb-0">
-                          <div
-                            className={`w-12 h-12 ${trainCompanies[train.company]?.color || "bg-gray-100"} rounded-lg flex items-center justify-center mr-4 ${trainCompanies[train.company]?.textColor || "text-gray-700"}`}
-                          >
-                            <span className="font-medium">
-                              {trainCompanies[train.company]?.code || train.company.substring(0, 2)}
+                  {selectedTrainId === train.id && (
+                    <div className="mt-3 pt-3 border-t border-white/10 space-y-2 text-xs">
+                      <div className="grid md:grid-cols-2 gap-2">
+                        <div>
+                          <p className="text-white/70">
+                            <span className="font-medium text-white/90">Type:</span> {train.trainType || "Standard"}
+                          </p>
+                          <p className="text-white/70">
+                            <span className="font-medium text-white/90">Policy:</span>{" "}
+                            <span className={train.travelPolicy === "Compliant" ? "text-green-400" : "text-orange-400"}>
+                              {train.travelPolicy}
                             </span>
-                          </div>
-                          <div>
-                            <div className="text-sm font-medium text-black">{train.company}</div>
-                            <div className="text-xs text-gray-500">{train.trainNumber}</div>
-                          </div>
+                          </p>
                         </div>
-
-                        <div className="flex flex-col md:flex-row md:items-center gap-4 md:gap-8">
-                          <div className="text-center">
-                            <div className="text-sm font-medium text-black">{train.departureTime}</div>
-                            <div className="text-xs text-gray-500">{train.originCode}</div>
-                          </div>
-
-                          <div className="flex flex-col items-center">
-                            <div className="flex items-center text-xs text-gray-500 mb-1">
-                              <ClockIcon className="h-3 w-3 mr-1" />
-                              {train.duration}
-                            </div>
-                            <div className="relative w-20 md:w-32">
-                              <div className="border-t border-gray-300 absolute w-full top-1/2"></div>
-                              {train.stops > 0 ? (
-                                <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-2 h-2 rounded-full bg-gray-300"></div>
-                              ) : null}
-                            </div>
-                            <div className="text-xs text-gray-500 mt-1">
-                              {train.stops === 0 ? "Direct" : `${train.stops} stop in ${train.stopCity}`}
-                            </div>
-                          </div>
-
-                          <div className="text-center">
-                            <div className="text-sm font-medium text-black">{train.arrivalTime}</div>
-                            <div className="text-xs text-gray-500">{train.destinationCode}</div>
-                          </div>
-
-                          <div className="text-right">
-                            <div className="text-lg font-medium text-black">{train.price}</div>
-                            <div className="text-xs text-gray-500">per passenger</div>
+                        <div>
+                          <p className="font-medium text-white/90 mb-0.5">Amenities:</p>
+                          <div className="flex flex-wrap gap-1.5">
+                            {train.amenities.map((a) => (
+                              <Badge
+                                key={a}
+                                variant="secondary"
+                                className="bg-white/10 text-white/70 text-[10px] px-1.5 py-0.5"
+                              >
+                                {a}
+                              </Badge>
+                            ))}
                           </div>
                         </div>
                       </div>
+                      <Button
+                        onClick={handleBookTrain}
+                        size="sm"
+                        className="w-full mt-2 bg-white text-black hover:bg-white/90 rounded-full"
+                      >
+                        Book This Train
+                      </Button>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        )}
 
-                      {selectedTrain === index && (
-                        <div className="mt-4 pt-4 border-t border-gray-200">
-                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                            <div>
-                              <h4 className="text-sm font-medium text-black mb-2">Train details</h4>
-                              <div className="space-y-1">
-                                <div className="flex items-center gap-2">
-                                  <CalendarIcon className="h-4 w-4 text-gray-500" />
-                                  <span className="text-sm text-gray-700">{train.departureDate}</span>
-                                </div>
-                                <div className="flex items-center gap-2">
-                                  <UserIcon className="h-4 w-4 text-gray-500" />
-                                  <span className="text-sm text-gray-700">{train.trainType}</span>
-                                </div>
-                                <div className="flex items-center gap-2">
-                                  <RocketLaunchIcon className="h-4 w-4 text-gray-500" />
-                                  <span className="text-sm text-gray-700">{train.class}</span>
-                                </div>
-                                <div className="flex items-center gap-2">
-                                  <CurrencyDollarIcon className="h-4 w-4 text-gray-500" />
-                                  <span className="text-sm text-gray-700">
-                                    {train.travelPolicy === "Compliant" ? (
-                                      <span className="text-emerald-600 flex items-center">
-                                        <CheckIcon className="h-4 w-4 mr-1" /> Policy compliant
-                                      </span>
-                                    ) : (
-                                      <span className="text-red-600 flex items-center">
-                                        <XMarkIcon className="h-4 w-4 mr-1" /> Not policy compliant
-                                      </span>
-                                    )}
-                                  </span>
-                                </div>
-                              </div>
-                            </div>
-                            <div>
-                              <h4 className="text-sm font-medium text-black mb-2">Amenities</h4>
-                              <div className="flex flex-wrap gap-2">
-                                {train.amenities.map((amenity, i) => (
-                                  <span
-                                    key={i}
-                                    className="inline-flex items-center rounded-full bg-gray-100 px-2.5 py-0.5 text-xs font-medium text-gray-700"
-                                  >
-                                    {amenity}
-                                  </span>
-                                ))}
-                              </div>
-                              <div className="mt-2 flex items-center">
-                                <span className="text-xs text-gray-500 flex items-center">
-                                  <AdjustmentsHorizontalIcon className="h-3.5 w-3.5 mr-1" />
-                                  Carbon footprint: {train.carbonEmission}
-                                </span>
-                              </div>
-                            </div>
-                          </div>
-                          <div className="flex justify-end">
-                            <button
-                              onClick={handleBookTrain}
-                              className="flex items-center px-3 py-1.5 rounded-xl bg-black text-white hover:bg-gray-800"
-                            >
-                              <span className="text-xs">Book</span>
-                            </button>
-                          </div>
-                        </div>
-                      )}
-                    </div>
-                  ))
-                ) : (
-                  <div className="bg-white rounded-xl border border-black p-6 text-center">
-                    <div className="flex justify-center mb-4">
-                      <XMarkIcon className="h-12 w-12 text-gray-400" />
-                    </div>
-                    <h3 className="text-lg font-medium text-black mb-2">No trains found</h3>
-                    <p className="text-gray-600 mb-4">
-                      We couldn't find any trains matching your search criteria. Please try different dates or
-                      destinations.
-                    </p>
-                  </div>
-                )}
-              </div>
-            )}
-
-            {!showResults && !isLoading && (
-              <div className="bg-white rounded-xl border border-black p-8 text-center">
-                <div className="flex justify-center mb-4">
-                  <div className="flex space-x-2">
-                    <div className="relative h-12 w-12">
-                      <Image
-                        src="/confident-professional.png"
-                        alt="Team Member 1"
-                        width={48}
-                        height={48}
-                        className="object-cover rounded-md"
-                      />
-                    </div>
-                    <div className="relative h-12 w-12">
-                      <Image
-                        src="/thoughtful-bearded-professional.png"
-                        alt="Team Member 2"
-                        width={48}
-                        height={48}
-                        className="object-cover rounded-md"
-                      />
-                    </div>
-                    <div className="relative h-12 w-12">
-                      <Image
-                        src="/confident-professional.png"
-                        alt="Team Member 3"
-                        width={48}
-                        height={48}
-                        className="object-cover rounded-md"
-                      />
-                    </div>
-                    <div className="relative h-12 w-12">
-                      <Image
-                        src="/confident-professional.png"
-                        alt="Team Member 4"
-                        width={48}
-                        height={48}
-                        className="object-cover rounded-md"
-                      />
-                    </div>
-                  </div>
-                </div>
-                <h2 className="text-xl font-medium tracking-tighter text-black mb-2">
-                  Welcome to your train booking portal
-                </h2>
-                <p className="text-gray-700 mb-6 max-w-md mx-auto">
-                  This is your first time using our train search. Enter your destination above to find available trains.
-                </p>
-                <div className="flex justify-center">
-                  <button
-                    onClick={() => {
-                      setSearchQuery("Barcelona")
-                      setDestination("Barcelona")
-                      filterTrains()
-                    }}
-                    className="flex items-center px-3 py-1.5 rounded-xl bg-black text-white hover:bg-gray-800"
-                  >
-                    <span className="text-xs">Try a sample search</span>
-                  </button>
-                </div>
-              </div>
-            )}
-          </>
+        {/* Loading or No Results */}
+        {loading && (
+          <div className="text-center py-10">
+            <div className="h-8 w-8 border-2 border-white/30 border-t-white rounded-full animate-spin mx-auto mb-3"></div>
+            <p className="text-white/70">Searching for trains...</p>
+          </div>
+        )}
+        {!loading && filteredTrains.length === 0 && destinationCity && (
+          <Card className="bg-white/5 border-white/10">
+            <CardContent className="p-10 text-center">
+              <TrainFront className="h-12 w-12 text-white/30 mx-auto mb-3" />
+              <h3 className="text-xl font-medium text-white">No Trains Found</h3>
+              <p className="text-white/70 mt-1">Try different destinations or dates.</p>
+            </CardContent>
+          </Card>
+        )}
+        {!loading && !destinationCity && (
+          <Card className="bg-white/5 border-white/10">
+            <CardContent className="p-10 text-center">
+              <Sparkles className="h-12 w-12 text-white/30 mx-auto mb-3" />
+              <h3 className="text-xl font-medium text-white">Find Your Next Journey</h3>
+              <p className="text-white/70 mt-1">Enter your origin and destination to see available trains.</p>
+            </CardContent>
+          </Card>
         )}
       </div>
-    </Layout>
+      <style jsx global>{`
+        @keyframes fadeInUp {
+          from { opacity: 0; transform: translateY(15px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+      `}</style>
+    </div>
   )
 }
+
+const InputWithIcon = ({ icon, ...props }: { icon: React.ReactNode } & React.InputHTMLAttributes<HTMLInputElement>) => (
+  <div className="relative">
+    <div className="absolute left-3.5 top-1/2 transform -translate-y-1/2 pointer-events-none">{icon}</div>
+    <Input
+      {...props}
+      className="pl-10 h-11 bg-white/5 border-white/10 text-white placeholder:text-white/30 rounded-xl hover:bg-white/10 focus:bg-white/10"
+    />
+  </div>
+)

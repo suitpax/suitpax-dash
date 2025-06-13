@@ -4,6 +4,7 @@ import { useState } from "react"
 import Image from "next/image"
 import { Menu, Search, Bell, ChevronDown } from "lucide-react"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
+import { ThemeToggle } from "@/components/ui/theme-toggle"
 import ProfileMenu from "./profile-menu"
 
 interface HeaderProps {
@@ -15,12 +16,12 @@ export function Header({ onMenuClick, isSidebarOpen }: HeaderProps) {
   const [searchQuery, setSearchQuery] = useState("")
 
   return (
-    <header className="h-14 bg-black border-b border-white/10 px-4 flex items-center justify-between">
+    <header className="h-14 bg-black dark:bg-black border-b border-white/10 dark:border-white/10 px-4 flex items-center justify-between">
       {/* Left section */}
       <div className="flex items-center gap-4">
         <button
           onClick={onMenuClick}
-          className={`p-2 hover:bg-white/5 rounded-md transition-all duration-300 text-white/70 hover:text-white ${isSidebarOpen ? "lg:opacity-0 lg:pointer-events-none" : "opacity-100"}`}
+          className={`p-2 hover:bg-white/5 dark:hover:bg-white/5 rounded-md transition-all duration-300 text-white/70 hover:text-white ${isSidebarOpen ? "lg:opacity-0 lg:pointer-events-none" : "opacity-100"}`}
           aria-label="Toggle menu"
         >
           <Menu className="h-5 w-5" />
@@ -70,7 +71,10 @@ export function Header({ onMenuClick, isSidebarOpen }: HeaderProps) {
       </div>
 
       {/* Right section */}
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-3">
+        {/* Theme Toggle */}
+        <ThemeToggle />
+
         <button className="p-2 hover:bg-white/5 rounded-md transition-colors text-white/70 hover:text-white relative">
           <Bell className="h-5 w-5" />
           <span className="absolute top-1 right-1 h-2 w-2 bg-red-500 rounded-full"></span>
@@ -84,7 +88,7 @@ export function Header({ onMenuClick, isSidebarOpen }: HeaderProps) {
                 alt="User avatar"
                 width={32}
                 height={32}
-                className="rounded-full ring-2 ring-white/10"
+                className="rounded-md ring-2 ring-white/10"
               />
               <ChevronDown className="h-4 w-4 text-white/50" />
             </div>

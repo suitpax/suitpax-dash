@@ -1,321 +1,318 @@
 "use client"
 import { useState } from "react"
-import Layout from "@/components/ui/layout"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Badge } from "@/components/ui/badge"
+import {
+  FileText,
+  ShieldCheck,
+  PlusCircle,
+  AlertTriangle,
+  CheckCircle,
+  XCircle,
+  Users,
+  Settings,
+  Edit3,
+} from "lucide-react"
+
+type Policy = {
+  id: string
+  name: string
+  description: string
+  status: "active" | "draft" | "archived"
+  lastUpdated: string
+  complianceRate?: number
+}
+
+type ApprovalRequest = {
+  id: string
+  employeeName: string
+  tripPurpose: string
+  destination: string
+  dates: string
+  estimatedCost: number
+  status: "pending" | "approved" | "rejected"
+  submittedDate: string
+}
+
+const mockPolicies: Policy[] = [
+  {
+    id: "pol1",
+    name: "Standard Flight Policy",
+    description: "Defines rules for domestic and international flight bookings.",
+    status: "active",
+    lastUpdated: "2024-05-15",
+    complianceRate: 92,
+  },
+  {
+    id: "pol2",
+    name: "Hotel Accommodation Tiering",
+    description: "Sets limits for hotel star ratings based on travel purpose.",
+    status: "active",
+    lastUpdated: "2024-04-20",
+    complianceRate: 88,
+  },
+  {
+    id: "pol3",
+    name: "Ground Transportation Guidelines",
+    description: "Rules for car rentals, taxis, and ride-sharing.",
+    status: "draft",
+    lastUpdated: "2024-06-01",
+  },
+]
+
+const mockApprovalRequests: ApprovalRequest[] = [
+  {
+    id: "app1",
+    employeeName: "Alice Wonderland",
+    tripPurpose: "Client Meeting",
+    destination: "New York",
+    dates: "Jul 10 - Jul 12, 2024",
+    estimatedCost: 1250,
+    status: "pending",
+    submittedDate: "2024-06-10",
+  },
+  {
+    id: "app2",
+    employeeName: "Bob The Builder",
+    tripPurpose: "Conference",
+    destination: "London",
+    dates: "Aug 05 - Aug 09, 2024",
+    estimatedCost: 2100,
+    status: "approved",
+    submittedDate: "2024-06-05",
+  },
+  {
+    id: "app3",
+    employeeName: "Charlie Chaplin",
+    tripPurpose: "Team Offsite",
+    destination: "Paris",
+    dates: "Sep 01 - Sep 03, 2024",
+    estimatedCost: 850,
+    status: "rejected",
+    submittedDate: "2024-05-28",
+  },
+]
 
 export default function TravelPolicyPage() {
-  const [activeTab, setActiveTab] = useState("pending")
+  const [activeTab, setActiveTab] = useState<"policies" | "approvals">("policies")
+  const [approvalFilter, setApprovalFilter] = useState<"pending" | "approved" | "rejected">("pending")
+
+  const filteredApprovals = mockApprovalRequests.filter((req) => req.status === approvalFilter)
+
+  const getStatusBadge = (status: Policy["status"] | ApprovalRequest["status"]) => {
+    switch (status) {
+      case "active":
+      case "approved":
+        return (
+          <Badge className="bg-green-500/20 text-green-300 border-green-500/30">
+            <CheckCircle className="h-3 w-3 mr-1.5" />
+            {status}
+          </Badge>
+        )
+      case "draft":
+      case "pending":
+        return (
+          <Badge className="bg-yellow-500/20 text-yellow-300 border-yellow-500/30">
+            <AlertTriangle className="h-3 w-3 mr-1.5" />
+            {status}
+          </Badge>
+        )
+      case "archived":
+      case "rejected":
+        return (
+          <Badge className="bg-red-500/20 text-red-300 border-red-500/30">
+            <XCircle className="h-3 w-3 mr-1.5" />
+            {status}
+          </Badge>
+        )
+      default:
+        return <Badge>{status}</Badge>
+    }
+  }
 
   return (
-    <Layout>
-      <div className="max-w-5xl mx-auto">
-        <h1 className="text-2xl font-medium tracking-tighter text-black mb-6">Travel Policy Management</h1>
-
-        {/* Empty state for travel policy */}
-        <div className="bg-white rounded-xl border border-black p-6 shadow-sm mb-6">
-          <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6">
+    <div className="min-h-screen bg-black p-3 text-white">
+      <div className="max-w-7xl mx-auto space-y-4">
+        {/* Header */}
+        <header className="bg-white/5 border border-white/10 rounded-2xl p-6 md:p-8 backdrop-blur-sm">
+          <div className="flex flex-col md:flex-row justify-between items-start md:items-center">
             <div>
-              <h2 className="text-lg font-medium tracking-tighter text-black mb-1">Business Travel Approval</h2>
-              <p className="text-sm text-gray-600">Manage and approve travel requests from your team</p>
+              <h1 className="text-2xl font-medium text-white mb-1">Travel Policy</h1>
+              <p className="text-sm text-white/70">Manage company travel guidelines and approval workflows.</p>
             </div>
-            <div className="flex mt-4 md:mt-0 space-x-2">
-              <button
-                onClick={() => setActiveTab("pending")}
-                className={`px-3 py-1.5 text-sm font-medium rounded-lg ${
-                  activeTab === "pending" ? "bg-black text-white" : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                }`}
-              >
-                Pending
-              </button>
-              <button
-                onClick={() => setActiveTab("approved")}
-                className={`px-3 py-1.5 text-sm font-medium rounded-lg ${
-                  activeTab === "approved" ? "bg-black text-white" : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                }`}
-              >
-                Approved
-              </button>
-              <button
-                onClick={() => setActiveTab("rejected")}
-                className={`px-3 py-1.5 text-sm font-medium rounded-lg ${
-                  activeTab === "rejected" ? "bg-black text-white" : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                }`}
-              >
-                Rejected
-              </button>
-            </div>
+            <Button className="mt-3 md:mt-0 bg-white text-black hover:bg-white/90 rounded-full">
+              <PlusCircle className="h-4 w-4 mr-2" /> Create New Policy
+            </Button>
           </div>
+        </header>
 
-          <div className="flex flex-col items-center justify-center py-12 text-center">
-            <div className="bg-gray-100 p-4 rounded-full mb-4">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                className="h-8 w-8 text-gray-500"
-              >
-                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
-                <polyline points="14 2 14 8 20 8"></polyline>
-                <line x1="16" y1="13" x2="8" y2="13"></line>
-                <line x1="16" y1="17" x2="8" y2="17"></line>
-                <polyline points="10 9 9 9 8 9"></polyline>
-              </svg>
-            </div>
-            <h3 className="text-lg font-medium text-black mb-2">No travel requests yet</h3>
-            <p className="text-gray-600 max-w-md mb-6">
-              {activeTab === "pending"
-                ? "There are no pending travel requests to approve."
-                : activeTab === "approved"
-                  ? "No travel requests have been approved yet."
-                  : "No travel requests have been rejected."}
-            </p>
-            <button className="px-4 py-2 bg-black text-white rounded-lg text-sm font-medium hover:bg-gray-800 transition-colors">
-              Create Travel Request
-            </button>
-          </div>
+        {/* Tabs */}
+        <div className="flex space-x-2">
+          {(["policies", "approvals"] as const).map((tab) => (
+            <Button
+              key={tab}
+              variant={activeTab === tab ? "default" : "outline"}
+              onClick={() => setActiveTab(tab)}
+              className={`capitalize text-sm px-4 py-2 h-auto rounded-full ${activeTab === tab ? "bg-white text-black hover:bg-white/90" : "border-white/20 text-white/70 hover:bg-white/10 hover:text-white"}`}
+            >
+              {tab === "policies" ? <FileText className="h-4 w-4 mr-2" /> : <Users className="h-4 w-4 mr-2" />}
+              {tab}
+            </Button>
+          ))}
         </div>
 
-        {/* Empty state for company travel policies */}
-        <div className="bg-white rounded-xl border border-black p-6 shadow-sm mb-6">
-          <div className="flex justify-between items-center mb-6">
-            <h2 className="text-lg font-medium tracking-tighter text-black">Company Travel Policies</h2>
-            <button className="px-3 py-1.5 text-sm font-medium rounded-lg bg-black text-white hover:bg-gray-800">
-              Create Policy
-            </button>
-          </div>
-
-          <div className="flex flex-col items-center justify-center py-12 text-center">
-            <div className="bg-gray-100 p-4 rounded-full mb-4">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                className="h-8 w-8 text-gray-500"
+        {/* Policies Section */}
+        {activeTab === "policies" && (
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {mockPolicies.map((policy, index) => (
+              <Card
+                key={policy.id}
+                className="bg-white/5 border-white/10 hover:border-white/20 transition-all duration-300 backdrop-blur-sm"
+                style={{ animation: `fadeInUp 0.5s ${index * 0.1}s ease-out forwards`, opacity: 0 }}
               >
-                <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
-                <line x1="9" y1="3" x2="9" y2="21"></line>
-              </svg>
-            </div>
-            <h3 className="text-lg font-medium text-black mb-2">No travel policies defined</h3>
-            <p className="text-gray-600 max-w-md mb-6">
-              Create your company's travel policies to help your team book compliant travel and streamline approvals.
-            </p>
-            <button className="px-4 py-2 bg-black text-white rounded-lg text-sm font-medium hover:bg-gray-800 transition-colors">
-              Set Up Travel Policies
-            </button>
+                <CardHeader>
+                  <div className="flex justify-between items-start">
+                    <CardTitle className="text-lg font-medium text-white">{policy.name}</CardTitle>
+                    {getStatusBadge(policy.status)}
+                  </div>
+                  <p className="text-xs text-white/50 pt-1">Last updated: {policy.lastUpdated}</p>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-sm text-white/70 mb-3 h-12 overflow-hidden text-ellipsis">{policy.description}</p>
+                  {policy.status === "active" && policy.complianceRate && (
+                    <div className="mb-3">
+                      <div className="flex justify-between text-xs text-white/70 mb-1">
+                        <span>Compliance</span>
+                        <span>{policy.complianceRate}%</span>
+                      </div>
+                      <div className="w-full bg-white/10 rounded-full h-1.5">
+                        <div
+                          className="bg-green-400 h-1.5 rounded-full"
+                          style={{ width: `${policy.complianceRate}%` }}
+                        ></div>
+                      </div>
+                    </div>
+                  )}
+                  <div className="flex justify-end space-x-2">
+                    <Button variant="ghost" size="sm" className="text-white/70 hover:text-white hover:bg-white/10">
+                      <Settings className="h-3.5 w-3.5 mr-1.5" />
+                      Manage
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="border-white/20 text-white/70 hover:bg-white/10 hover:text-white"
+                    >
+                      <Edit3 className="h-3.5 w-3.5 mr-1.5" />
+                      Edit
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+            <Card
+              className="bg-transparent border-2 border-dashed border-white/20 hover:border-white/40 transition-all duration-300 flex flex-col items-center justify-center min-h-[200px] cursor-pointer backdrop-blur-sm"
+              onClick={() => console.log("Create new policy clicked")}
+            >
+              <PlusCircle className="h-10 w-10 text-white/40 mb-2" />
+              <p className="text-white/60 font-medium">Create New Policy</p>
+            </Card>
           </div>
-        </div>
+        )}
 
-        {/* Getting started with travel policies */}
-        <div className="bg-white rounded-xl border border-black p-6 shadow-sm">
-          <h2 className="text-lg font-medium tracking-tighter text-black mb-6">Getting Started with Travel Policies</h2>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="border border-gray-200 rounded-lg p-4">
-              <div className="flex items-center mb-3">
-                <div className="p-2 rounded-lg bg-gray-100 mr-3">
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    className="h-5 w-5 text-black"
-                  >
-                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
-                    <polyline points="14 2 14 8 20 8"></polyline>
-                    <line x1="16" y1="13" x2="8" y2="13"></line>
-                    <line x1="16" y1="17" x2="8" y2="17"></line>
-                    <polyline points="10 9 9 9 8 9"></polyline>
-                  </svg>
+        {/* Approvals Section */}
+        {activeTab === "approvals" && (
+          <Card className="bg-white/5 border-white/10 backdrop-blur-sm">
+            <CardHeader>
+              <div className="flex flex-col md:flex-row justify-between items-start md:items-center">
+                <CardTitle className="text-xl font-medium text-white mb-2 md:mb-0">Travel Approval Requests</CardTitle>
+                <div className="flex space-x-1">
+                  {(["pending", "approved", "rejected"] as const).map((filter) => (
+                    <Button
+                      key={filter}
+                      variant={approvalFilter === filter ? "default" : "outline"}
+                      onClick={() => setApprovalFilter(filter)}
+                      size="sm"
+                      className={`capitalize text-xs px-3 py-1 h-auto rounded-full ${approvalFilter === filter ? "bg-white text-black hover:bg-white/90" : "border-white/20 text-white/70 hover:bg-white/10 hover:text-white"}`}
+                    >
+                      {filter === "pending" ? (
+                        <AlertTriangle className="h-3.5 w-3.5 mr-1.5" />
+                      ) : filter === "approved" ? (
+                        <CheckCircle className="h-3.5 w-3.5 mr-1.5" />
+                      ) : (
+                        <XCircle className="h-3.5 w-3.5 mr-1.5" />
+                      )}
+                      {filter} ({mockApprovalRequests.filter((req) => req.status === filter).length})
+                    </Button>
+                  ))}
                 </div>
-                <h3 className="font-medium text-black">Define Travel Policies</h3>
               </div>
-              <p className="text-sm text-gray-600 mb-3">
-                Create guidelines for flights, accommodations, transportation, and expense limits.
-              </p>
-              <button className="text-sm font-medium text-black hover:underline flex items-center gap-1">
-                Create policy
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  className="h-4 w-4"
-                >
-                  <line x1="5" y1="12" x2="19" y2="12" />
-                  <polyline points="12 5 19 12 12 19" />
-                </svg>
-              </button>
-            </div>
-
-            <div className="border border-gray-200 rounded-lg p-4">
-              <div className="flex items-center mb-3">
-                <div className="p-2 rounded-lg bg-gray-100 mr-3">
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    className="h-5 w-5 text-black"
-                  >
-                    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
-                    <circle cx="9" cy="7" r="4"></circle>
-                    <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
-                    <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
-                  </svg>
+            </CardHeader>
+            <CardContent>
+              {filteredApprovals.length > 0 ? (
+                <div className="space-y-3">
+                  {filteredApprovals.map((req, index) => (
+                    <div
+                      key={req.id}
+                      className="bg-white/5 p-4 rounded-lg border border-white/10 hover:bg-white/10 transition-all"
+                      style={{ animation: `fadeInUp 0.5s ${index * 0.1}s ease-out forwards`, opacity: 0 }}
+                    >
+                      <div className="flex flex-col md:flex-row justify-between md:items-center">
+                        <div>
+                          <h3 className="font-medium text-white">
+                            {req.tripPurpose} - {req.destination}
+                          </h3>
+                          <p className="text-xs text-white/70">
+                            {req.employeeName} • {req.dates}
+                          </p>
+                        </div>
+                        <div className="flex items-center space-x-3 mt-2 md:mt-0">
+                          <span className="text-sm text-white/80 font-medium">${req.estimatedCost}</span>
+                          {getStatusBadge(req.status)}
+                        </div>
+                      </div>
+                      {req.status === "pending" && (
+                        <div className="mt-3 pt-3 border-t border-white/20 flex justify-end space-x-2">
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            className="border-red-500/50 text-red-400 hover:bg-red-500/10 hover:text-red-300"
+                          >
+                            <XCircle className="h-4 w-4 mr-1.5" />
+                            Reject
+                          </Button>
+                          <Button size="sm" className="bg-green-500/80 text-white hover:bg-green-500">
+                            <CheckCircle className="h-4 w-4 mr-1.5" />
+                            Approve
+                          </Button>
+                        </div>
+                      )}
+                    </div>
+                  ))}
                 </div>
-                <h3 className="font-medium text-black">Set Up Approval Workflow</h3>
-              </div>
-              <p className="text-sm text-gray-600 mb-3">
-                Define who can approve travel requests and set up approval chains.
-              </p>
-              <button className="text-sm font-medium text-black hover:underline flex items-center gap-1">
-                Configure workflow
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  className="h-4 w-4"
-                >
-                  <line x1="5" y1="12" x2="19" y2="12" />
-                  <polyline points="12 5 19 12 12 19" />
-                </svg>
-              </button>
-            </div>
-
-            <div className="border border-gray-200 rounded-lg p-4">
-              <div className="flex items-center mb-3">
-                <div className="p-2 rounded-lg bg-gray-100 mr-3">
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    className="h-5 w-5 text-black"
-                  >
-                    <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
-                    <line x1="16" y1="2" x2="16" y2="6"></line>
-                    <line x1="8" y1="2" x2="8" y2="6"></line>
-                    <line x1="3" y1="10" x2="21" y2="10"></line>
-                  </svg>
+              ) : (
+                <div className="text-center py-10">
+                  <ShieldCheck className="h-12 w-12 text-white/30 mx-auto mb-3" />
+                  <p className="text-white/70">No {approvalFilter} requests at the moment.</p>
                 </div>
-                <h3 className="font-medium text-black">Create Travel Request Template</h3>
-              </div>
-              <p className="text-sm text-gray-600 mb-3">
-                Design the form employees will use to request business travel.
-              </p>
-              <button className="text-sm font-medium text-black hover:underline flex items-center gap-1">
-                Create template
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  className="h-4 w-4"
-                >
-                  <line x1="5" y1="12" x2="19" y2="12" />
-                  <polyline points="12 5 19 12 12 19" />
-                </svg>
-              </button>
-            </div>
-
-            <div className="border border-gray-200 rounded-lg p-4">
-              <div className="flex items-center mb-3">
-                <div className="p-2 rounded-lg bg-gray-100 mr-3">
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    className="h-5 w-5 text-black"
-                  >
-                    <path d="M22 12h-4l-3 9L9 3l-3 9H2"></path>
-                  </svg>
-                </div>
-                <h3 className="font-medium text-black">Set Up Notifications</h3>
-              </div>
-              <p className="text-sm text-gray-600 mb-3">
-                Configure email and in-app notifications for travel requests and approvals.
-              </p>
-              <button className="text-sm font-medium text-black hover:underline flex items-center gap-1">
-                Configure notifications
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  className="h-4 w-4"
-                >
-                  <line x1="5" y1="12" x2="19" y2="12" />
-                  <polyline points="12 5 19 12 12 19" />
-                </svg>
-              </button>
-            </div>
-          </div>
-
-          <div className="mt-6 p-4 bg-gray-100 rounded-lg">
-            <div className="flex items-start">
-              <div className="p-2 rounded-full bg-black mr-3">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  className="h-4 w-4 text-white"
-                >
-                  <circle cx="12" cy="12" r="10"></circle>
-                  <line x1="12" y1="8" x2="12" y2="12"></line>
-                  <line x1="12" y1="16" x2="12.01" y2="16"></line>
-                </svg>
-              </div>
-              <div>
-                <h3 className="font-medium text-black mb-1">Need help setting up your travel policies?</h3>
-                <p className="text-sm text-gray-600">
-                  Our AI assistant can help you create travel policies based on industry best practices.
-                </p>
-                <button className="mt-2 px-3 py-1.5 text-sm font-medium rounded-lg bg-black text-white hover:bg-gray-800">
-                  Get AI Recommendations
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
+              )}
+            </CardContent>
+          </Card>
+        )}
       </div>
-    </Layout>
+      <style jsx global>{`
+        @keyframes fadeInUp {
+          from {
+            opacity: 0;
+            transform: translateY(20px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+      `}</style>
+    </div>
   )
 }

@@ -8,7 +8,6 @@ import {
   HomeIcon,
   BuildingOfficeIcon,
   DocumentTextIcon,
-  ChatBubbleLeftRightIcon,
   SparklesIcon,
   BriefcaseIcon,
   PlusCircleIcon,
@@ -68,6 +67,14 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
   const [isChatMinimized, setIsChatMinimized] = useState(true)
   const [isLoading, setIsLoading] = useState(false)
   const messagesEndRef = useRef<HTMLDivElement>(null)
+  const [userProfile, setUserProfile] = useState<any>(null)
+
+  useEffect(() => {
+    const profile = localStorage.getItem("userProfile")
+    if (profile) {
+      setUserProfile(JSON.parse(profile))
+    }
+  }, [])
 
   // Scroll to bottom of chat messages
   useEffect(() => {
@@ -236,8 +243,8 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
                     />
                   </div>
                   <div>
-                    <h2 className="text-sm font-medium text-white">Suitpax</h2>
-                    <p className="text-[10px] text-white/50">Enterprise</p>
+                    <h2 className="text-sm font-medium text-white">{userProfile?.companyName || "Suitpax"}</h2>
+                    <p className="text-[10px] text-white/50">{userProfile?.currentPlan || "Free Plan"}</p>
                   </div>
                 </div>
               )}
@@ -281,11 +288,11 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
 
               {/* Main Navigation */}
               <div className="space-y-1">
-                <NavItem href="/dashboard" icon={HomeIcon} isActive={true}>
+                <NavItem href="/dashboard" icon={HomeIcon} isActive={false}>
                   Dashboard
                 </NavItem>
-                <NavItem href="/ai-agents" icon={ChatBubbleLeftRightIcon}>
-                  AI Assistant
+                <NavItem href="/suitpax-ai" icon={SparklesIcon}>
+                  Suitpax AI
                 </NavItem>
                 <NavItem href="/mails" icon={MailIcon} badge="3">
                   Mails
@@ -382,24 +389,6 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
                 )}
               </div>
 
-              {/* AI Tools Section */}
-              <div className="space-y-1">
-                <SectionHeader
-                  title="AI Tools"
-                  icon={SparklesIcon}
-                  isExpanded={expandedSections.ai}
-                  onToggle={() => toggleSection("ai")}
-                />
-                {expandedSections.ai && !isCollapsed && (
-                  <div className="ml-7 space-y-1">
-                    <NavItem href="/ai-agents" icon={ChatBubbleLeftRightIcon}>
-                      AI Agents
-                    </NavItem>
-                    {/* Eliminadas las opciones de AI Capabilities y AI Studio */}
-                  </div>
-                )}
-              </div>
-
               {/* Finance Section */}
               <div className="space-y-1">
                 <SectionHeader
@@ -468,18 +457,18 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
 
                   {!isChatMinimized && (
                     <>
-                      <div className="p-2 h-32 overflow-y-auto bg-black/30">
+                      <div className="p-2 h-36 overflow-y-auto bg-black/20 scrollbar-thin scrollbar-track-transparent scrollbar-thumb-white/10">
                         {chatMessages.map((msg, index) => (
-                          <div key={index} className={`mb-2 flex ${msg.isUser ? "justify-end" : "justify-start"}`}>
+                          <div key={index} className={`mb-3 flex ${msg.isUser ? "justify-end" : "justify-start"}`}>
                             <div
-                              className={`max-w-[85%] p-2 rounded-md text-[10px] ${
+                              className={`max-w-[90%] p-2.5 rounded-lg text-[10px] leading-relaxed ${
                                 msg.isUser
-                                  ? "bg-white/10 text-white rounded-tr-none"
-                                  : "bg-white/5 text-white/90 rounded-tl-none"
+                                  ? "bg-white/15 text-white rounded-tr-none"
+                                  : "bg-white/8 text-white/95 rounded-tl-none border border-white/10"
                               }`}
                             >
                               <div className="whitespace-pre-wrap">{msg.text}</div>
-                              <div className="text-[8px] text-white/40 mt-1">
+                              <div className="text-[8px] text-white/50 mt-1.5 text-right">
                                 {msg.timestamp.toLocaleTimeString("es-ES", {
                                   hour: "2-digit",
                                   minute: "2-digit",

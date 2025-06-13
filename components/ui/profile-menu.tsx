@@ -1,6 +1,9 @@
+"use client"
+
 import type React from "react"
 import Image from "next/image"
 import Link from "next/link"
+import { useState, useEffect } from "react"
 
 interface MenuItem {
   label: string
@@ -34,6 +37,23 @@ export default function ProfileMenu({
   avatar = defaultProfile.avatar,
   subscription = defaultProfile.subscription,
 }: Partial<ProfileMenuProps> = defaultProfile) {
+  const [userProfile, setUserProfile] = useState<any>(null)
+
+  useEffect(() => {
+    const profile = localStorage.getItem("userProfile")
+    if (profile) {
+      setUserProfile(JSON.parse(profile))
+    }
+  }, [])
+
+  // Update the component props to use userProfile data:
+  const profileData = {
+    name: userProfile?.firstName + " " + userProfile?.lastName || defaultProfile.name,
+    role: userProfile?.jobTitle || defaultProfile.role,
+    company: userProfile?.companyName || defaultProfile.company,
+    avatar: userProfile?.profileImage || defaultProfile.avatar,
+    subscription: userProfile?.currentPlan || defaultProfile.subscription,
+  }
   // Actualizar los elementos del menú
   const menuItems: MenuItem[] = [
     {
@@ -149,11 +169,11 @@ export default function ProfileMenu({
             {/* Componente de imagen mejorado */}
             <div className="relative shrink-0">
               <Image
-                src={avatar || defaultProfile.avatar}
-                alt={name || defaultProfile.name}
+                src={profileData.avatar || defaultProfile.avatar}
+                alt={profileData.name || defaultProfile.name}
                 width={56}
                 height={56}
-                className="rounded-full ring-2 ring-white/10 object-cover w-[56px] h-[56px]"
+                className="rounded-md ring-2 ring-white/10 object-cover w-[56px] h-[56px]"
                 priority
               />
               <div className="absolute bottom-0 right-0 w-3 h-3 rounded-full bg-green-500 ring-2 ring-black" />
@@ -161,8 +181,8 @@ export default function ProfileMenu({
 
             {/* Profile Info - Más compacto */}
             <div className="flex-1">
-              <h2 className="text-base font-medium text-white">{name}</h2>
-              <p className="text-sm text-white/70">{role}</p>
+              <h2 className="text-base font-medium text-white">{profileData.name}</h2>
+              <p className="text-sm text-white/70">{profileData.role}</p>
             </div>
           </div>
           <div className="h-px bg-white/10 my-3" />

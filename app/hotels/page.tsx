@@ -490,15 +490,19 @@ function HotelsContent() {
 
 export default function HotelsPage() {
   return (
-    <Suspense fallback={
-      <div className="min-h-screen bg-black p-3">
-        <div className="max-w-7xl mx-auto space-y-4">
-          <div className="bg-white/5 border border-white/10 rounded-lg p-6">
-            <div className="h-8 bg-white/10 rounded w-48 mb-4 animate-pulse" />
-            <div className="h-4 bg-white/10 rounded w-96 animate-pulse" />
+    <Suspense
+      fallback={
+        <div className="min-h-screen bg-black p-3">
+          <div className="max-w-7xl mx-auto space-y-4">
+            <div className="bg-white/5 border border-white/10 rounded-lg p-6">
+              <div className="h-8 bg-white/10 rounded w-48 mb-4 animate-pulse" />
+              <div className="h-4 bg-white/10 rounded w-96 animate-pulse" />
+            </div>
           </div>
         </div>
-      </div>\
+      }
+    >
+      <HotelsContent />
     </Suspense>
   )
 }

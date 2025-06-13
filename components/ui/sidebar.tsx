@@ -39,7 +39,6 @@ import {
   FileText,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
-import { useUserConfig } from "@/lib/contexts/user-config-context"
 
 interface SidebarProps {
   isOpen: boolean
@@ -69,7 +68,6 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
   const [isChatMinimized, setIsChatMinimized] = useState(true)
   const [isLoading, setIsLoading] = useState(false)
   const messagesEndRef = useRef<HTMLDivElement>(null)
-  const { userConfig } = useUserConfig()
 
   // Scroll to bottom of chat messages
   useEffect(() => {
@@ -224,87 +222,44 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
       >
         <div className="h-full flex flex-col">
           {/* Sidebar Header */}
-          <div className="h-16 px-3 flex items-center justify-between border-b border-white/10 bg-white/5">
-            <div className="flex items-center min-w-0 flex-1">
-              {!isCollapsed ? (
-                <div className="flex items-center min-w-0 flex-1">
-                  <div className="relative h-10 w-10 mr-3 rounded-lg overflow-hidden bg-white/10 border border-white/20 flex-shrink-0">
-                    {/* Dynamic logo based on user configuration */}
+          <div className="h-14 px-3 flex items-center justify-between border-b border-white/10">
+            <div className="flex items-center">
+              {!isCollapsed && (
+                <div className="flex items-center">
+                  <div className="relative h-8 w-8 mr-3 bg-white/10 rounded-md overflow-hidden flex items-center justify-center">
                     <Image
-                      src={userConfig?.company?.logo || userConfig?.avatar || "/images/suitpax-cloud-logo.webp"}
-                      alt={userConfig?.company ? "Company Logo" : "Profile"}
-                      width={40}
-                      height={40}
+                      src="/images/suitpax-cloud-logo.webp"
+                      alt="Suitpax Logo"
+                      width={32}
+                      height={32}
                       className="object-cover"
                     />
                   </div>
-                  <div className="min-w-0 flex-1">
-                    <div className="flex items-center space-x-2">
-                      <h2 className="text-sm font-semibold text-white truncate">
-                        {userConfig?.company?.name || `${userConfig?.firstName} ${userConfig?.lastName}` || "Suitpax"}
-                      </h2>
-                      <span
-                        className={`px-2 py-0.5 text-[10px] font-medium rounded-full border ${
-                          userConfig?.accountType === "enterprise"
-                            ? "bg-amber-500/20 text-amber-400 border-amber-500/30"
-                            : userConfig?.accountType === "business"
-                              ? "bg-emerald-500/20 text-emerald-400 border-emerald-500/30"
-                              : "bg-blue-500/20 text-blue-400 border-blue-500/30"
-                        }`}
-                      >
-                        {userConfig?.accountType === "enterprise"
-                          ? "ENTERPRISE"
-                          : userConfig?.accountType === "business"
-                            ? "PRO"
-                            : "PERSONAL"}
-                      </span>
-                    </div>
-                    <div className="flex items-center space-x-2 mt-0.5">
-                      <p className="text-[11px] text-white/60 truncate">
-                        {userConfig?.company
-                          ? `${userConfig.company.industry || "Business"} Account`
-                          : `${userConfig?.email || "Personal Account"}`}
-                      </p>
-                      <div className="w-1.5 h-1.5 bg-emerald-400 rounded-full animate-pulse"></div>
-                    </div>
+                  <div>
+                    <h2 className="text-sm font-medium text-white">Suitpax</h2>
+                    <p className="text-[10px] text-white/50">Enterprise</p>
                   </div>
                 </div>
-              ) : (
-                <div className="relative h-10 w-10 mx-auto rounded-lg overflow-hidden bg-white/10 border border-white/20">
+              )}
+              {isCollapsed && (
+                <div className="relative h-8 w-8 mx-auto rounded-md overflow-hidden flex items-center justify-center">
                   <Image
-                    src={userConfig?.company?.logo || userConfig?.avatar || "/images/suitpax-cloud-logo.webp"}
-                    alt={userConfig?.company ? "Company Logo" : "Profile"}
-                    width={40}
-                    height={40}
+                    src="/images/suitpax-cloud-logo.webp"
+                    alt="Suitpax Logo"
+                    width={32}
+                    height={32}
                     className="object-cover"
                   />
-                  <div
-                    className={`absolute -top-1 -right-1 w-3 h-3 rounded-full border-2 border-black ${
-                      userConfig?.accountType === "enterprise"
-                        ? "bg-amber-400"
-                        : userConfig?.accountType === "business"
-                          ? "bg-emerald-400"
-                          : "bg-blue-400"
-                    }`}
-                  ></div>
                 </div>
               )}
             </div>
-
-            <div className="flex items-center space-x-1">
-              {!isCollapsed && (
-                <button className="p-1.5 rounded-md hover:bg-white/10 transition-colors text-white/60 hover:text-white">
-                  <Cog6ToothIcon className="h-4 w-4" />
-                </button>
-              )}
-              <button
-                onClick={() => setIsCollapsed(!isCollapsed)}
-                className="p-1.5 rounded-md hover:bg-white/10 transition-colors text-white/60 hover:text-white"
-                aria-label={isCollapsed ? "Expand sidebar" : "Collapse sidebar"}
-              >
-                {isCollapsed ? <PanelLeftOpen className="h-4 w-4" /> : <PanelLeftClose className="h-4 w-4" />}
-              </button>
-            </div>
+            <button
+              onClick={() => setIsCollapsed(!isCollapsed)}
+              className="p-1.5 rounded-md hover:bg-white/5 transition-colors text-white/70 hover:text-white"
+              aria-label={isCollapsed ? "Expand sidebar" : "Collapse sidebar"}
+            >
+              {isCollapsed ? <PanelLeftOpen className="h-4 w-4" /> : <PanelLeftClose className="h-4 w-4" />}
+            </button>
           </div>
 
           {/* Sidebar content */}
@@ -341,9 +296,6 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
                 <NavItem href="/events" icon={CalendarDaysIcon}>
                   Events
                 </NavItem>
-                <NavItem href="/notifications" icon={BellIcon} badge="3">
-                  Notifications
-                </NavItem>
               </div>
 
               {/* Business Travel Section */}
@@ -374,9 +326,6 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
                     <NavItem href="/travel-policy" icon={DocumentTextIcon}>
                       Travel Policy
                     </NavItem>
-                    <NavItem href="/cars" icon={Car}>
-                      Car Rental
-                    </NavItem>
                   </div>
                 )}
               </div>
@@ -397,7 +346,7 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
                     <NavItem href="#" icon={SparklesIcon}>
                       Insights
                     </NavItem>
-                    <NavItem href="/reports" icon={FileText}>
+                    <NavItem href="#" icon={FileText}>
                       Reports
                     </NavItem>
                   </div>
@@ -428,12 +377,6 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
                     </NavItem>
                     <NavItem href="/tasks" icon={ClipboardDocumentListIcon}>
                       Tasks
-                    </NavItem>
-                    <NavItem href="/approvals" icon={ClipboardDocumentListIcon}>
-                      Approvals
-                    </NavItem>
-                    <NavItem href="/travel-history" icon={DocumentTextIcon}>
-                      Travel History
                     </NavItem>
                   </div>
                 )}
@@ -496,12 +439,6 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
                   </NavItem>
                   <NavItem href="/settings" icon={Cog6ToothIcon}>
                     Settings
-                  </NavItem>
-                  <NavItem href="/billing" icon={CreditCardIcon}>
-                    Billing
-                  </NavItem>
-                  <NavItem href="/help" icon={BellIcon}>
-                    Help & Support
                   </NavItem>
                 </div>
               </div>

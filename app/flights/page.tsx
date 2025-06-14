@@ -74,7 +74,7 @@ export default function FlightsPage() {
   const [selectedFlightId, setSelectedFlightId] = useState<string | null>(null)
   const [showBookingConfirmation, setShowBookingConfirmation] = useState(false)
   const [bookingData, setBookingData] = useState<any>(null)
-  const [useDuffelAPI, setUseDuffelAPI] = useState(false)
+  const [useDuffelAPI, setUseDuffelAPI] = useState(true) // Default to true for better UX
   const [searchError, setSearchError] = useState<string | null>(null)
 
   // Search form state
@@ -306,14 +306,14 @@ export default function FlightsPage() {
   return (
     <div className="min-h-screen bg-black p-3 text-white">
       <div className="max-w-7xl mx-auto space-y-4">
-        {/* Header */}
-        <header className="bg-white/5 border border-white/10 rounded-md p-6 md:p-8 backdrop-blur-sm">
-          <div className="flex justify-between items-start">
+        {/* Header - Consistent with Transfers */}
+        <header className="bg-white/5 border border-white/10 rounded-2xl p-6 md:p-8 backdrop-blur-sm">
+          <div className="flex flex-col md:flex-row justify-between items-start md:items-center">
             <div>
-              <h1 className="text-3xl font-light text-white tracking-tight">Flight Search</h1>
-              <p className="text-white/70 text-sm font-light mt-1">Find and book your perfect business flight</p>
+              <h1 className="text-2xl font-medium text-white">Flights</h1>
+              <p className="text-sm text-white/70 mt-1">Find and book your perfect business flight.</p>
             </div>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 mt-3 md:mt-0">
               <Zap className="h-4 w-4 text-yellow-400" />
               <span className="text-xs text-white/70">Live API</span>
               <button
@@ -374,7 +374,7 @@ export default function FlightsPage() {
                   onChange={(e) => setDepartureDate(e.target.value)}
                 />
                 <Select value={passengers} onValueChange={setPassengers}>
-                  <SelectTrigger className="h-11 bg-white/5 border-white/10 text-white rounded-md hover:bg-white/10">
+                  <SelectTrigger className="h-11 bg-white/5 border-white/10 text-white rounded-xl hover:bg-white/10">
                     <Users className="h-4 w-4 text-white/50 mr-2" />
                     <SelectValue />
                   </SelectTrigger>
@@ -387,7 +387,7 @@ export default function FlightsPage() {
                   </SelectContent>
                 </Select>
                 <Select value={travelClass} onValueChange={setTravelClass}>
-                  <SelectTrigger className="h-11 bg-white/5 border-white/10 text-white rounded-md hover:bg-white/10">
+                  <SelectTrigger className="h-11 bg-white/5 border-white/10 text-white rounded-xl hover:bg-white/10">
                     <Ticket className="h-4 w-4 text-white/50 mr-2" />
                     <SelectValue />
                   </SelectTrigger>
@@ -402,7 +402,7 @@ export default function FlightsPage() {
               </div>
               <Button
                 type="submit"
-                className="w-full md:w-auto bg-white text-black hover:bg-white/90 rounded-full font-light"
+                className="w-full md:w-auto bg-white text-black hover:bg-white/90 rounded-full"
                 disabled={loading}
               >
                 {loading ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Search className="h-4 w-4 mr-2" />}
@@ -414,20 +414,20 @@ export default function FlightsPage() {
 
         {/* API Status */}
         {useDuffelAPI && (
-          <div className="bg-blue-500/10 border border-blue-500/20 rounded-md p-3">
+          <div className="bg-blue-500/10 border border-blue-500/20 rounded-xl p-3">
             <div className="flex items-center gap-2">
               <Zap className="h-4 w-4 text-blue-400" />
-              <p className="text-blue-400 text-sm font-light">Live API Mode: Searching real flights via Duffel API</p>
+              <p className="text-blue-400 text-sm">Live API Mode: Searching real flights via Duffel API</p>
             </div>
           </div>
         )}
 
         {/* Search Error */}
         {searchError && (
-          <div className="bg-red-500/10 border border-red-500/20 rounded-md p-3">
+          <div className="bg-red-500/10 border border-red-500/20 rounded-xl p-3">
             <div className="flex items-center gap-2">
               <AlertCircle className="h-4 w-4 text-red-400" />
-              <p className="text-red-400 text-sm font-light">{searchError}</p>
+              <p className="text-red-400 text-sm">{searchError}</p>
             </div>
           </div>
         )}
@@ -435,8 +435,8 @@ export default function FlightsPage() {
         {/* Results */}
         {!loading && filteredFlights.length > 0 && (
           <div className="space-y-3">
-            <div className="flex justify-between items-center bg-white/5 p-3 rounded-md border border-white/10">
-              <h2 className="text-lg font-light text-white">{sortedAndFilteredFlights.length} flights found</h2>
+            <div className="flex justify-between items-center bg-white/5 p-3 rounded-xl border border-white/10">
+              <h2 className="text-lg font-medium text-white">{sortedAndFilteredFlights.length} flights found</h2>
               <Select value={sortBy} onValueChange={setSortBy}>
                 <SelectTrigger className="bg-transparent border-none text-white/70 h-8 text-xs w-auto focus:ring-0">
                   <ArrowRightLeft className="h-3.5 w-3.5 mr-1.5" />
@@ -468,51 +468,50 @@ export default function FlightsPage() {
                         src={
                           airlines[flight.airline as keyof typeof airlines]?.logo ||
                           "/placeholder.svg?width=32&height=32&text=FL" ||
-                          "/placeholder.svg" ||
                           "/placeholder.svg"
                         }
                         alt={flight.airline}
-                        className="h-8 w-8 rounded-md bg-white/10 p-1"
+                        className="h-8 w-8 rounded-lg bg-white/10 p-1"
                       />
                       <div>
-                        <p className="text-sm font-light text-white">{flight.airline}</p>
-                        <p className="text-xs text-white/50 font-light">{flight.flightNumber}</p>
+                        <p className="text-sm font-medium text-white">{flight.airline}</p>
+                        <p className="text-xs text-white/50">{flight.flightNumber}</p>
                         {flight.operatingCarrier && (
-                          <p className="text-xs text-white/40 font-light">Operated by {flight.operatingCarrier}</p>
+                          <p className="text-xs text-white/40">Operated by {flight.operatingCarrier}</p>
                         )}
                       </div>
                     </div>
                     <div className="flex-1 grid grid-cols-3 items-center text-center md:text-left">
                       <div>
-                        <p className="text-lg font-light text-white">{flight.departureTime}</p>
-                        <p className="text-xs text-white/70 font-light">{flight.originCode}</p>
+                        <p className="text-lg font-medium text-white">{flight.departureTime}</p>
+                        <p className="text-xs text-white/70">{flight.originCode}</p>
                       </div>
                       <div className="px-2">
                         <Clock className="h-3.5 w-3.5 text-white/50 mx-auto mb-0.5" />
-                        <p className="text-xs text-white/70 font-light">{flight.duration}</p>
+                        <p className="text-xs text-white/70">{flight.duration}</p>
                         <div className="w-full h-px bg-white/20 my-0.5"></div>
-                        <p className="text-xs text-white/50 font-light">
+                        <p className="text-xs text-white/50">
                           {flight.stops === 0 ? "Direct" : `${flight.stops} stop${flight.stops > 1 ? "s" : ""}`}
                         </p>
                         {flight.stopCities && flight.stopCities.length > 0 && (
-                          <p className="text-xs text-white/40 font-light">via {flight.stopCities.join(", ")}</p>
+                          <p className="text-xs text-white/40">via {flight.stopCities.join(", ")}</p>
                         )}
                       </div>
                       <div>
-                        <p className="text-lg font-light text-white">{flight.arrivalTime}</p>
-                        <p className="text-xs text-white/70 font-light">{flight.destinationCode}</p>
+                        <p className="text-lg font-medium text-white">{flight.arrivalTime}</p>
+                        <p className="text-xs text-white/70">{flight.destinationCode}</p>
                       </div>
                     </div>
                     <div className="md:w-1/6 flex flex-col items-center md:items-end justify-center">
-                      <p className="text-xl font-light text-white">
+                      <p className="text-xl font-medium text-white">
                         ${flight.price}
                         {flight.currency && flight.currency !== "USD" && (
                           <span className="text-xs text-white/50 ml-1">{flight.currency}</span>
                         )}
                       </p>
-                      <p className="text-xs text-white/50 capitalize font-light">{flight.class.replace("_", " ")}</p>
+                      <p className="text-xs text-white/50 capitalize">{flight.class.replace("_", " ")}</p>
                       {flight.basePrice && flight.taxAmount && (
-                        <p className="text-xs text-white/40 font-light">
+                        <p className="text-xs text-white/40">
                           Base: ${flight.basePrice} + Tax: ${flight.taxAmount}
                         </p>
                       )}
@@ -522,12 +521,12 @@ export default function FlightsPage() {
                     <div className="mt-3 pt-3 border-t border-white/10 space-y-2 text-xs">
                       <div className="grid md:grid-cols-2 gap-2">
                         <div>
-                          <p className="text-white/70 font-light">
-                            <span className="font-light text-white/90">Aircraft:</span>{" "}
+                          <p className="text-white/70">
+                            <span className="font-medium text-white/90">Aircraft:</span>{" "}
                             {flight.aircraftType || "Boeing 737"}
                           </p>
-                          <p className="text-white/70 font-light">
-                            <span className="font-light text-white/90">Policy:</span>{" "}
+                          <p className="text-white/70">
+                            <span className="font-medium text-white/90">Policy:</span>{" "}
                             <span
                               className={flight.travelPolicy === "Compliant" ? "text-green-400" : "text-orange-400"}
                             >
@@ -535,20 +534,20 @@ export default function FlightsPage() {
                             </span>
                           </p>
                           {flight.expiresAt && (
-                            <p className="text-white/70 font-light">
-                              <span className="font-light text-white/90">Expires:</span>{" "}
+                            <p className="text-white/70">
+                              <span className="font-medium text-white/90">Expires:</span>{" "}
                               {new Date(flight.expiresAt).toLocaleString()}
                             </p>
                           )}
                         </div>
                         <div>
-                          <p className="font-light text-white/90 mb-0.5">Amenities:</p>
+                          <p className="font-medium text-white/90 mb-0.5">Amenities:</p>
                           <div className="flex flex-wrap gap-1.5">
                             {flight.amenities.map((amenity) => (
                               <Badge
                                 key={amenity}
                                 variant="secondary"
-                                className="bg-white/10 text-white/70 text-[10px] px-1.5 py-0.5 font-light"
+                                className="bg-white/10 text-white/70 text-[10px] px-1.5 py-0.5"
                               >
                                 {amenity}
                               </Badge>
@@ -560,7 +559,7 @@ export default function FlightsPage() {
                       {/* Flight Conditions */}
                       {flight.conditions && (
                         <div className="bg-white/5 p-2 rounded border border-white/10">
-                          <p className="font-light text-white/90 mb-1 text-xs">Booking Conditions:</p>
+                          <p className="font-medium text-white/90 mb-1 text-xs">Booking Conditions:</p>
                           <div className="grid grid-cols-2 gap-2 text-xs">
                             {flight.conditions.change_before_departure && (
                               <div>
@@ -609,7 +608,7 @@ export default function FlightsPage() {
                       <Button
                         onClick={handleBookFlight}
                         size="sm"
-                        className="w-full mt-2 bg-white text-black hover:bg-white/90 rounded-full font-light"
+                        className="w-full mt-2 bg-white text-black hover:bg-white/90 rounded-full"
                         disabled={loading}
                       >
                         {loading ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
@@ -627,9 +626,7 @@ export default function FlightsPage() {
         {loading && (
           <div className="text-center py-10">
             <Loader2 className="h-8 w-8 animate-spin mx-auto mb-3 text-white/70" />
-            <p className="text-white/70 font-light">
-              {useDuffelAPI ? "Searching live flights..." : "Searching for flights..."}
-            </p>
+            <p className="text-white/70">{useDuffelAPI ? "Searching live flights..." : "Searching for flights..."}</p>
           </div>
         )}
 
@@ -638,8 +635,8 @@ export default function FlightsPage() {
           <Card className="bg-white/5 border-white/10">
             <CardContent className="p-10 text-center">
               <Plane className="h-12 w-12 text-white/30 mx-auto mb-3" />
-              <h3 className="text-xl font-light text-white">No Flights Found</h3>
-              <p className="text-white/70 mt-1 font-light">Try different destinations or dates.</p>
+              <h3 className="text-xl font-medium text-white">No Flights Found</h3>
+              <p className="text-white/70 mt-1">Try different destinations or dates.</p>
             </CardContent>
           </Card>
         )}
@@ -649,8 +646,8 @@ export default function FlightsPage() {
           <Card className="bg-white/5 border-white/10">
             <CardContent className="p-10 text-center">
               <Plane className="h-12 w-12 text-white/30 mx-auto mb-3" />
-              <h3 className="text-xl font-light text-white">Find Your Perfect Flight</h3>
-              <p className="text-white/70 mt-1 font-light">Search for flights to your destination.</p>
+              <h3 className="text-xl font-medium text-white">Find Your Perfect Flight</h3>
+              <p className="text-white/70 mt-1">Search for flights to your destination.</p>
             </CardContent>
           </Card>
         )}
@@ -666,7 +663,7 @@ function InputWithIcon({ icon, ...props }: { icon: React.ReactNode } & React.Inp
       <div className="absolute left-3 top-1/2 -translate-y-1/2">{icon}</div>
       <Input
         {...props}
-        className="pl-10 h-11 bg-white/5 border-white/10 text-white placeholder:text-white/30 rounded-md hover:bg-white/10 focus:ring-1 focus:ring-white/20 font-light"
+        className="pl-10 h-11 bg-white/5 border-white/10 text-white placeholder:text-white/30 rounded-xl hover:bg-white/10 focus:ring-1 focus:ring-white/20"
       />
     </div>
   )

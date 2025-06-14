@@ -41,6 +41,33 @@ export default function ExpensesPage() {
     status: "pending",
   })
 
+  const [isDragOver, setIsDragOver] = useState(false)
+
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault()
+    setIsDragOver(true)
+  }
+
+  const handleDragLeave = (e: React.DragEvent) => {
+    e.preventDefault()
+    setIsDragOver(false)
+  }
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault()
+    setIsDragOver(false)
+
+    const files = Array.from(e.dataTransfer.files)
+    const validFiles = files.filter((file) => file.type.startsWith("image/") || file.type === "application/pdf")
+
+    if (validFiles.length > 0) {
+      // Aquí puedes procesar los archivos
+      console.log("Files dropped:", validFiles)
+      // Podrías abrir automáticamente el formulario con los archivos
+      setIsFormOpen(true)
+    }
+  }
+
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target
     setFormData((prev) => ({
@@ -137,16 +164,55 @@ export default function ExpensesPage() {
 
         <div className="bg-white rounded-xl border border-black p-6 shadow-sm mb-6">
           <div className="flex justify-between items-center mb-4">
-            <h2 className="text-lg font-medium tracking-tighter text-black">Connect Your Bank</h2>
+            <h2 className="text-lg font-medium tracking-tighter text-black">Finance Management</h2>
             <button className="px-3 py-1.5 rounded-xl bg-black text-white hover:bg-gray-800 flex items-center gap-2">
               <PlusCircle size={14} />
               <span className="text-xs">Connect Bank</span>
             </button>
           </div>
 
+          {/* Drag and Drop Zone */}
+          <div
+            className={`border-2 border-dashed rounded-lg p-8 text-center mb-6 transition-colors ${
+              isDragOver ? "border-blue-400 bg-blue-50" : "border-gray-300 hover:border-gray-400"
+            }`}
+            onDragOver={handleDragOver}
+            onDragLeave={handleDragLeave}
+            onDrop={handleDrop}
+          >
+            <div className="flex flex-col items-center">
+              <div className="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center mb-4">
+                <FileText className="h-6 w-6 text-gray-500" />
+              </div>
+              <h3 className="text-lg font-medium text-black mb-2">Drop your receipts here</h3>
+              <p className="text-gray-600 mb-4">Drag and drop your expense receipts, or click to browse</p>
+              <input
+                type="file"
+                multiple
+                accept="image/*,.pdf"
+                className="hidden"
+                id="bulk-receipt-upload"
+                onChange={(e) => {
+                  const files = Array.from(e.target.files || [])
+                  if (files.length > 0) {
+                    console.log("Files selected:", files)
+                    setIsFormOpen(true)
+                  }
+                }}
+              />
+              <label
+                htmlFor="bulk-receipt-upload"
+                className="px-4 py-2 bg-black text-white rounded-lg hover:bg-gray-800 cursor-pointer text-sm"
+              >
+                Choose Files
+              </label>
+              <p className="text-xs text-gray-500 mt-2">Supports JPG, PNG, PDF up to 10MB each</p>
+            </div>
+          </div>
+
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div className="border border-gray-200 rounded-lg p-4 flex items-center">
-              <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center mr-3">
+              <div className="w-10 h-10 bg-blue-100 rounded-md flex items-center justify-center mr-3">
                 <CreditCard className="h-5 w-5 text-blue-600" />
               </div>
               <div>
@@ -156,7 +222,7 @@ export default function ExpensesPage() {
             </div>
 
             <div className="border border-gray-200 rounded-lg p-4 flex items-center">
-              <div className="w-10 h-10 bg-red-100 rounded-full flex items-center justify-center mr-3">
+              <div className="w-10 h-10 bg-red-100 rounded-md flex items-center justify-center mr-3">
                 <CreditCard className="h-5 w-5 text-red-600" />
               </div>
               <div>
@@ -166,7 +232,7 @@ export default function ExpensesPage() {
             </div>
 
             <div className="border border-gray-200 rounded-lg p-4 flex items-center">
-              <div className="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center mr-3">
+              <div className="w-10 h-10 bg-green-100 rounded-md flex items-center justify-center mr-3">
                 <CreditCard className="h-5 w-5 text-green-600" />
               </div>
               <div>

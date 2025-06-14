@@ -7,8 +7,9 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
-import { Plane, Building2, User, Send, Mic, Paperclip, Calendar, CreditCard, BarChart3, Settings } from "lucide-react"
+import { Plane, Building2, User, Send, Mic, Paperclip, Calendar, CreditCard, Settings, Receipt } from "lucide-react"
 import Image from "next/image"
+import Link from "next/link"
 
 interface UserProfile {
   firstName: string
@@ -149,7 +150,9 @@ export default function Dashboard() {
               )}
             </div>
             <div>
-              <h1 className="text-2xl font-bold">Welcome back, {userProfile.firstName}</h1>
+              <h1 className="text-2xl font-medium tracking-tighter text-white">
+                Welcome back, {userProfile.firstName}
+              </h1>
               <p className="text-white/70">
                 {userProfile.jobTitle} at {userProfile.companyName}
               </p>
@@ -203,28 +206,86 @@ export default function Dashboard() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Quick Actions */}
           <div className="lg:col-span-2 space-y-6">
+            {/* Mini Action Badges */}
+            <Card className="bg-white/5 border-white/10">
+              <CardContent className="p-4">
+                <div className="flex items-center gap-3">
+                  <Link href="/flights">
+                    <div className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 transition-colors cursor-pointer">
+                      <Plane className="h-4 w-4 text-white/70" />
+                      <span className="text-xs text-white/70">Flights</span>
+                    </div>
+                  </Link>
+                  <Link href="/expenses">
+                    <div className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 transition-colors cursor-pointer">
+                      <Receipt className="h-4 w-4 text-white/70" />
+                      <span className="text-xs text-white/70">Expense Management</span>
+                    </div>
+                  </Link>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Finance Section */}
             <Card className="bg-white/5 border-white/10">
               <CardHeader>
-                <CardTitle className="text-white">Quick Actions</CardTitle>
+                <CardTitle className="text-white text-lg font-medium tracking-tighter">Finance Hub</CardTitle>
               </CardHeader>
-              <CardContent>
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                  <Button className="h-20 flex-col bg-white/5 hover:bg-white/10 border border-white/10">
-                    <Plane className="h-6 w-6 mb-2 text-blue-400" />
-                    <span className="text-xs">Book Flight</span>
-                  </Button>
-                  <Button className="h-20 flex-col bg-white/5 hover:bg-white/10 border border-white/10">
-                    <Building2 className="h-6 w-6 mb-2 text-green-400" />
-                    <span className="text-xs">Find Hotels</span>
-                  </Button>
-                  <Button className="h-20 flex-col bg-white/5 hover:bg-white/10 border border-white/10">
-                    <CreditCard className="h-6 w-6 mb-2 text-purple-400" />
-                    <span className="text-xs">Expenses</span>
-                  </Button>
-                  <Button className="h-20 flex-col bg-white/5 hover:bg-white/10 border border-white/10">
-                    <BarChart3 className="h-6 w-6 mb-2 text-orange-400" />
-                    <span className="text-xs">Analytics</span>
-                  </Button>
+              <CardContent className="space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="border border-white/10 rounded-lg p-4 hover:border-white/20 transition-colors">
+                    <div className="flex items-center mb-3">
+                      <div className="w-10 h-10 bg-blue-500/20 rounded-md flex items-center justify-center mr-3">
+                        <CreditCard className="h-5 w-5 text-blue-400" />
+                      </div>
+                      <div>
+                        <h3 className="text-sm font-medium text-white">Connect Bank</h3>
+                        <p className="text-xs text-white/50">Link your corporate account</p>
+                      </div>
+                    </div>
+                    <Button className="w-full bg-white/10 hover:bg-white/20 text-white border-white/10 text-xs">
+                      Connect Account
+                    </Button>
+                  </div>
+
+                  <div className="border border-white/10 rounded-lg p-4 hover:border-white/20 transition-colors">
+                    <div className="flex items-center mb-3">
+                      <div className="w-10 h-10 bg-green-500/20 rounded-md flex items-center justify-center mr-3">
+                        <Receipt className="h-5 w-5 text-green-400" />
+                      </div>
+                      <div>
+                        <h3 className="text-sm font-medium text-white">Upload Receipts</h3>
+                        <p className="text-xs text-white/50">Drag & drop your expenses</p>
+                      </div>
+                    </div>
+                    <div className="border-2 border-dashed border-white/20 rounded-lg p-4 text-center hover:border-white/30 transition-colors cursor-pointer">
+                      <input type="file" multiple accept="image/*,.pdf" className="hidden" id="receipt-upload" />
+                      <label htmlFor="receipt-upload" className="cursor-pointer">
+                        <div className="text-white/50 text-xs">Drop files here or click to upload</div>
+                      </label>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="bg-white/5 rounded-lg p-4 border border-white/10">
+                  <div className="flex items-center justify-between mb-2">
+                    <h4 className="text-sm font-medium text-white">Monthly Summary</h4>
+                    <Badge className="bg-white/10 text-white border-white/20 text-xs">Current Month</Badge>
+                  </div>
+                  <div className="grid grid-cols-3 gap-4 text-center">
+                    <div>
+                      <p className="text-lg font-medium text-white">$0</p>
+                      <p className="text-xs text-white/50">Spent</p>
+                    </div>
+                    <div>
+                      <p className="text-lg font-medium text-white">$2,500</p>
+                      <p className="text-xs text-white/50">Budget</p>
+                    </div>
+                    <div>
+                      <p className="text-lg font-medium text-green-400">$2,500</p>
+                      <p className="text-xs text-white/50">Remaining</p>
+                    </div>
+                  </div>
                 </div>
               </CardContent>
             </Card>

@@ -12,7 +12,7 @@ interface HeaderProps {
   isSidebarOpen: boolean
 }
 
-export function Header({ onMenuClick, isSidebarOpen }: HeaderProps) {
+function Header({ onMenuClick, isSidebarOpen }: HeaderProps) {
   const [searchQuery, setSearchQuery] = useState("")
 
   return (
@@ -105,3 +105,7 @@ export function Header({ onMenuClick, isSidebarOpen }: HeaderProps) {
     </header>
   )
 }
+
+// Export both named and default
+export { Header }
+export default Header

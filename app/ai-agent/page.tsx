@@ -15,7 +15,7 @@ export default function AIAgentPage() {
       <div className="max-w-6xl mx-auto">
         <div className="flex justify-between items-center mb-6">
           <GlowBorder className="inline-block px-4 py-2">
-            <h1 className="text-2xl font-medium tracking-tighter text-black">Suitpax AI Agent</h1>
+            <h1 className="text-2xl font-medium tracking-tighter text-white">Suitpax AI Agent</h1>
           </GlowBorder>
         </div>
 
@@ -70,7 +70,7 @@ export default function AIAgentPage() {
           </div>
 
           <div className="space-y-6">
-            <div className="bg-black/50 backdrop-blur-sm rounded-xl border border-white/10 shadow-sm">
+            <div className="bg-black/50 backdrop-blur-sm rounded-xl border border-white/10 shadow-sm p-4">
               <h2 className="text-lg font-medium tracking-tighter text-white mb-4">Agent Capabilities</h2>
               <div className="space-y-4">
                 <div className="flex items-start gap-3">
@@ -78,7 +78,7 @@ export default function AIAgentPage() {
                     <Zap className="h-5 w-5 text-black" />
                   </div>
                   <div>
-                    <h3 className="text-sm font-medium">Travel Planning</h3>
+                    <h3 className="text-sm font-medium text-white">Travel Planning</h3>
                     <p className="text-xs text-white/70 mt-1">
                       Search and book flights, hotels, and transportation based on your preferences and company policy.
                     </p>
@@ -90,7 +90,7 @@ export default function AIAgentPage() {
                     <Mail className="h-5 w-5 text-black" />
                   </div>
                   <div>
-                    <h3 className="text-sm font-medium">Email Integration</h3>
+                    <h3 className="text-sm font-medium text-white">Email Integration</h3>
                     <p className="text-xs text-white/70 mt-1">
                       Send travel confirmations, itineraries, and notifications directly to your email or team members.
                     </p>
@@ -102,7 +102,7 @@ export default function AIAgentPage() {
                     <FileText className="h-5 w-5 text-black" />
                   </div>
                   <div>
-                    <h3 className="text-sm font-medium">Policy Compliance</h3>
+                    <h3 className="text-sm font-medium text-white">Policy Compliance</h3>
                     <p className="text-xs text-white/70 mt-1">
                       Ensure all travel bookings comply with your company's travel policy and budget constraints.
                     </p>
@@ -111,7 +111,7 @@ export default function AIAgentPage() {
               </div>
             </div>
 
-            <div className="bg-black/50 backdrop-blur-sm rounded-xl border border-white/10 shadow-sm">
+            <div className="bg-black/50 backdrop-blur-sm rounded-xl border border-white/10 shadow-sm p-4">
               <h2 className="text-lg font-medium tracking-tighter text-white mb-4">Travel Preferences</h2>
               <div className="space-y-3">
                 <div>

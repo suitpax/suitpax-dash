@@ -43,13 +43,12 @@ interface SidebarProps {
   onClose?: () => void
 }
 
-export function Sidebar({ isOpen, onClose }: SidebarProps) {
+function Sidebar({ isOpen, onClose }: SidebarProps) {
   const [isCollapsed, setIsCollapsed] = useState(false)
   const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>({
     travel: false,
     analytics: false,
     business: false,
-    ai: false,
     finance: false,
   })
 
@@ -408,7 +407,7 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
                     <NavItem href="/expenses" icon={Receipt}>
                       Expenses
                     </NavItem>
-                    <NavItem href="#" icon={BanknotesIcon}>
+                    <NavItem href="/smart-bank" icon={BanknotesIcon}>
                       Smart Bank
                     </NavItem>
                     <NavItem href="/team-management" icon={Users}>
@@ -590,3 +589,7 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
     </>
   )
 }
+
+// Export both named and default
+export { Sidebar }
+export default Sidebar

@@ -10,6 +10,7 @@ import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent } from "@/components/ui/card"
+import AIQuickInput from "@/components/ui/ai-quick-input"
 import {
   Search,
   MapPin,
@@ -223,62 +224,65 @@ function HotelsContent() {
     <div className="min-h-screen bg-black p-3">
       <div className="max-w-7xl mx-auto space-y-6">
         {/* Header */}
-        <div className="bg-white/5 border border-white/10 rounded-lg p-6">
-          <h1 className="text-3xl font-bold text-white mb-2">Hotel Search</h1>
-          <p className="text-white/70">Find the perfect accommodation for your business stay</p>
+        <div className="bg-white/5 border border-white/10 rounded-lg py-2 px-2">
+          <h1 className="text-3xl font-light text-white mb-2">Hotel Search</h1>
+          <p className="text-white/70 font-light">Find the perfect accommodation for your business stay</p>
+
+          {/* AI Quick Input */}
+          <AIQuickInput placeholder="Ask AI: 'Find hotels in Barcelona for 3 nights'" className="mt-4" />
         </div>
 
         {/* Search Form */}
         <Card className="bg-white/5 border-white/10">
-          <CardContent className="p-6">
+          <CardContent className="py-2 px-2">
             <form onSubmit={handleSearch} className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
                 <div className="space-y-2">
-                  <Label className="text-white">Destination</Label>
+                  <Label className="text-white font-light">Destination</Label>
                   <div className="relative">
                     <MapPin className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-white/50" />
                     <Input
                       placeholder="City or hotel name"
                       value={destination}
                       onChange={(e) => setDestination(e.target.value)}
-                      className="pl-10 bg-white/5 border-white/10 text-white placeholder:text-white/30"
+                      className="pl-10 bg-white/5 border-white/10 text-white placeholder:text-white/30 font-light"
                       required
                     />
                   </div>
                 </div>
 
                 <div className="space-y-2">
-                  <Label className="text-white">Check-in</Label>
+                  <Label className="text-white font-light">Check-in</Label>
                   <div className="relative">
                     <Calendar className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-white/50" />
                     <Input
                       type="date"
                       value={checkIn}
                       onChange={(e) => setCheckIn(e.target.value)}
-                      className="pl-10 bg-white/5 border-white/10 text-white"
+                      className="pl-10 bg-white/5 border-white/10 text-white font-light"
                       required
                     />
                   </div>
                 </div>
 
                 <div className="space-y-2">
-                  <Label className="text-white">Check-out</Label>
+                  <Label className="text-white font-light">Check-out</Label>
                   <div className="relative">
                     <Calendar className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-white/50" />
                     <Input
                       type="date"
                       value={checkOut}
                       onChange={(e) => setCheckOut(e.target.value)}
-                      className="pl-10 bg-white/5 border-white/10 text-white"
+                      className="pl-10 bg-white/5 border-white/10 text-white font-light"
                       required
                     />
                   </div>
                 </div>
 
                 <div className="space-y-2">
-                  <Label className="text-white">Guests</Label>
+                  <Label className="text-white font-light">Guests</Label>
                   <Select value={guests} onValueChange={setGuests}>
-                    <SelectTrigger className="bg-white/5 border-white/10 text-white">
+                    <SelectTrigger className="bg-white/5 border-white/10 text-white font-light">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
@@ -291,9 +295,9 @@ function HotelsContent() {
                 </div>
 
                 <div className="space-y-2">
-                  <Label className="text-white">Rooms</Label>
+                  <Label className="text-white font-light">Rooms</Label>
                   <Select value={rooms} onValueChange={setRooms}>
-                    <SelectTrigger className="bg-white/5 border-white/10 text-white">
+                    <SelectTrigger className="bg-white/5 border-white/10 text-white font-light">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
@@ -305,7 +309,11 @@ function HotelsContent() {
                 </div>
               </div>
 
-              <Button type="submit" className="bg-white text-black hover:bg-white/90 rounded-full" disabled={loading}>
+              <Button
+                type="submit"
+                className="bg-white text-black hover:bg-white/90 rounded-full font-light"
+                disabled={loading}
+              >
                 {loading ? (
                   <>
                     <div className="h-4 w-4 border-2 border-black/30 border-t-black rounded-full animate-spin mr-2" />
@@ -325,8 +333,8 @@ function HotelsContent() {
         {/* Featured Destinations */}
         {hotels.length === 0 && !loading && (
           <Card className="bg-white/5 border-white/10">
-            <CardContent className="p-6">
-              <h2 className="text-xl font-semibold text-white mb-4">Popular Business Destinations</h2>
+            <CardContent className="py-2 px-2">
+              <h2 className="text-xl font-light text-white mb-4">Popular Business Destinations</h2>
               <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
                 {featuredDestinations.map((dest) => (
                   <div
@@ -344,8 +352,8 @@ function HotelsContent() {
                       />
                       <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent" />
                       <div className="absolute bottom-1 left-2 right-2">
-                        <p className="text-white font-medium text-xs">{dest.city}</p>
-                        <p className="text-white/70 text-[10px]">{dest.hotels}</p>
+                        <p className="text-white font-light text-xs">{dest.city}</p>
+                        <p className="text-white/70 text-[10px] font-light">{dest.hotels}</p>
                       </div>
                     </div>
                   </div>
@@ -359,13 +367,13 @@ function HotelsContent() {
         {hotels.length > 0 && (
           <>
             {/* Filters */}
-            <div className="flex flex-wrap items-center justify-between gap-4 bg-white/5 border border-white/10 rounded-lg p-4">
+            <div className="flex flex-wrap items-center justify-between gap-4 bg-white/5 border border-white/10 rounded-lg py-2 px-2">
               <div className="flex items-center space-x-4">
                 <div className="flex items-center space-x-2">
                   <ArrowUpDown className="h-4 w-4 text-white/70" />
-                  <span className="text-white/70 text-sm">Sort:</span>
+                  <span className="text-white/70 text-sm font-light">Sort:</span>
                   <Select value={sortBy} onValueChange={setSortBy}>
-                    <SelectTrigger className="bg-white/5 border-white/10 text-white h-8 text-xs w-[120px]">
+                    <SelectTrigger className="bg-white/5 border-white/10 text-white h-8 text-xs w-[120px] font-light">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
@@ -382,7 +390,7 @@ function HotelsContent() {
                     <Badge
                       key={amenity}
                       onClick={() => toggleAmenity(amenity)}
-                      className={`cursor-pointer rounded-full flex items-center gap-1 ${
+                      className={`cursor-pointer rounded-full flex items-center gap-1 font-light ${
                         selectedAmenities.includes(amenity)
                           ? "bg-white text-black"
                           : "bg-white/10 text-white hover:bg-white/20"
@@ -395,7 +403,7 @@ function HotelsContent() {
                 </div>
               </div>
 
-              <div className="text-white/70 text-sm">{filteredHotels.length} hotels found</div>
+              <div className="text-white/70 text-sm font-light">{filteredHotels.length} hotels found</div>
             </div>
 
             {/* Hotel Results */}
@@ -414,7 +422,7 @@ function HotelsContent() {
                     <div className="absolute top-2 right-2 bg-black/50 backdrop-blur-sm rounded-full px-2 py-1">
                       <div className="flex items-center space-x-1">
                         <Star className="h-3 w-3 text-yellow-400 fill-current" />
-                        <span className="text-white text-sm">{hotel.rating}</span>
+                        <span className="text-white text-sm font-light">{hotel.rating}</span>
                       </div>
                     </div>
                     <button
@@ -434,26 +442,26 @@ function HotelsContent() {
                     </div>
                   </div>
 
-                  <CardContent className="p-4">
-                    <h3 className="font-semibold text-white mb-1">{hotel.name}</h3>
-                    <p className="text-white/70 text-sm mb-2 flex items-center">
+                  <CardContent className="py-2 px-2">
+                    <h3 className="font-light text-white mb-1">{hotel.name}</h3>
+                    <p className="text-white/70 text-sm mb-2 flex items-center font-light">
                       <MapPin className="h-3 w-3 mr-1" />
                       {hotel.distance}
                     </p>
-                    <p className="text-white/60 text-sm mb-3 line-clamp-2">{hotel.description}</p>
+                    <p className="text-white/60 text-sm mb-3 line-clamp-2 font-light">{hotel.description}</p>
 
                     <div className="flex flex-wrap gap-1 mb-3">
                       {hotel.amenities.slice(0, 3).map((amenity) => (
                         <Badge
                           key={amenity}
-                          className="text-xs bg-white/10 text-white/70 border-white/20 rounded-full flex items-center gap-1"
+                          className="text-xs bg-white/10 text-white/70 border-white/20 rounded-full flex items-center gap-1 font-light"
                         >
                           {amenityIcons[amenity]}
                           {amenity}
                         </Badge>
                       ))}
                       {hotel.amenities.length > 3 && (
-                        <Badge className="text-xs bg-white/10 text-white/70 border-white/20 rounded-full">
+                        <Badge className="text-xs bg-white/10 text-white/70 border-white/20 rounded-full font-light">
                           +{hotel.amenities.length - 3} more
                         </Badge>
                       )}
@@ -461,11 +469,13 @@ function HotelsContent() {
 
                     <div className="flex items-center justify-between">
                       <div>
-                        <span className="text-2xl font-bold text-white">${hotel.price}</span>
-                        <span className="text-white/50 text-sm">/night</span>
-                        <div className="text-white/50 text-xs">{hotel.reviews} reviews</div>
+                        <span className="text-2xl font-light text-white">${hotel.price}</span>
+                        <span className="text-white/50 text-sm font-light">/night</span>
+                        <div className="text-white/50 text-xs font-light">{hotel.reviews} reviews</div>
                       </div>
-                      <Button className="bg-white text-black hover:bg-white/90 rounded-full">Book Now</Button>
+                      <Button className="bg-white text-black hover:bg-white/90 rounded-full font-light">
+                        Book Now
+                      </Button>
                     </div>
                   </CardContent>
                 </Card>
@@ -479,7 +489,7 @@ function HotelsContent() {
           <div className="flex justify-center py-12">
             <div className="text-center">
               <div className="h-8 w-8 border-2 border-white/50 border-t-transparent rounded-full animate-spin mx-auto mb-4" />
-              <p className="text-white/70">Finding the best hotels for you...</p>
+              <p className="text-white/70 font-light">Finding the best hotels for you...</p>
             </div>
           </div>
         )}
@@ -494,7 +504,7 @@ export default function HotelsPage() {
       fallback={
         <div className="min-h-screen bg-black p-3">
           <div className="max-w-7xl mx-auto space-y-4">
-            <div className="bg-white/5 border border-white/10 rounded-lg p-6">
+            <div className="bg-white/5 border border-white/10 rounded-lg py-2 px-2">
               <div className="h-8 bg-white/10 rounded w-48 mb-4 animate-pulse" />
               <div className="h-4 bg-white/10 rounded w-96 animate-pulse" />
             </div>

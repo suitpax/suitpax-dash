@@ -10,6 +10,7 @@ import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent } from "@/components/ui/card"
+import AIQuickInput from "@/components/ui/ai-quick-input"
 import {
   Search,
   MapPin,
@@ -253,19 +254,19 @@ function FlightsContent() {
     switch (dealType) {
       case "best-price":
         return (
-          <Badge className="bg-white/10 text-white/80 border-white/20 text-[10px] px-2 py-0.5 rounded-full">
+          <Badge className="bg-white/10 text-white/80 border-white/20 text-[10px] px-2 py-0.5 rounded-full font-light">
             Best Price
           </Badge>
         )
       case "fastest":
         return (
-          <Badge className="bg-white/10 text-white/80 border-white/20 text-[10px] px-2 py-0.5 rounded-full">
+          <Badge className="bg-white/10 text-white/80 border-white/20 text-[10px] px-2 py-0.5 rounded-full font-light">
             Fastest
           </Badge>
         )
       case "popular":
         return (
-          <Badge className="bg-white/10 text-white/80 border-white/20 text-[10px] px-2 py-0.5 rounded-full">
+          <Badge className="bg-white/10 text-white/80 border-white/20 text-[10px] px-2 py-0.5 rounded-full font-light">
             Popular
           </Badge>
         )
@@ -287,17 +288,17 @@ function FlightsContent() {
     <div className="min-h-screen bg-black p-3 relative overflow-hidden">
       <div className="max-w-7xl mx-auto space-y-4 relative z-10">
         {/* Header */}
-        <div className="relative bg-white/5 border border-white/10 rounded-lg p-6 backdrop-blur-sm">
+        <div className="relative bg-white/5 border border-white/10 rounded-lg py-2 px-2 backdrop-blur-sm">
           <div className="flex items-center justify-between mb-4">
             <div>
-              <h1 className="text-2xl font-medium text-white mb-2 tracking-tight">Flights</h1>
+              <h1 className="text-2xl font-light text-white mb-2 tracking-tight">Flights</h1>
             </div>
 
             {/* Travel Type Badges */}
             <div className="flex space-x-2">
               <Badge
                 onClick={() => setTravelType("business")}
-                className={`cursor-pointer px-4 py-2 rounded-full transition-all duration-300 ${
+                className={`cursor-pointer px-3 py-1.5 rounded-full transition-all duration-300 font-light ${
                   travelType === "business"
                     ? "bg-white/10 text-white border-white/20"
                     : "bg-white/5 text-white/70 border-white/20 hover:bg-white/10"
@@ -308,7 +309,7 @@ function FlightsContent() {
               </Badge>
               <Badge
                 onClick={() => setTravelType("personal")}
-                className={`cursor-pointer px-4 py-2 rounded-full transition-all duration-300 ${
+                className={`cursor-pointer px-3 py-1.5 rounded-full transition-all duration-300 font-light ${
                   travelType === "personal"
                     ? "bg-white/10 text-white border-white/20"
                     : "bg-white/5 text-white/70 border-white/20 hover:bg-white/10"
@@ -319,11 +320,14 @@ function FlightsContent() {
               </Badge>
             </div>
           </div>
+
+          {/* AI Quick Input */}
+          <AIQuickInput placeholder="Ask AI: 'Find flights to London next week'" className="mb-4" />
         </div>
 
         {/* Search Form */}
         <Card className="bg-white/5 border-white/10 backdrop-blur-sm">
-          <CardContent className="p-6">
+          <CardContent className="py-2 px-2">
             <form onSubmit={handleSearch} className="space-y-6">
               {/* Trip Type */}
               <div className="flex space-x-6 mb-6">
@@ -384,7 +388,7 @@ function FlightsContent() {
                       placeholder="Departure city"
                       value={fromCity}
                       onChange={(e) => setFromCity(e.target.value)}
-                      className="pl-12 h-12 bg-white/5 border-white/10 text-white placeholder:text-white/30 rounded-lg hover:bg-white/10 focus:bg-white/10 transition-all duration-200"
+                      className="pl-12 h-12 bg-white/5 border-white/10 text-white placeholder:text-white/30 rounded-lg hover:bg-white/10 focus:bg-white/10 transition-all duration-200 font-light"
                       required
                     />
                   </div>
@@ -398,7 +402,7 @@ function FlightsContent() {
                       placeholder="Destination city"
                       value={toCity}
                       onChange={(e) => setToCity(e.target.value)}
-                      className="pl-12 h-12 bg-white/5 border-white/10 text-white placeholder:text-white/30 rounded-lg hover:bg-white/10 focus:bg-white/10 transition-all duration-200"
+                      className="pl-12 h-12 bg-white/5 border-white/10 text-white placeholder:text-white/30 rounded-lg hover:bg-white/10 focus:bg-white/10 transition-all duration-200 font-light"
                       required
                     />
                   </div>
@@ -412,7 +416,7 @@ function FlightsContent() {
                       type="date"
                       value={departureDate}
                       onChange={(e) => setDepartureDate(e.target.value)}
-                      className="pl-12 h-12 bg-white/5 border-white/10 text-white rounded-lg hover:bg-white/10 focus:bg-white/10 transition-all duration-200"
+                      className="pl-12 h-12 bg-white/5 border-white/10 text-white rounded-lg hover:bg-white/10 focus:bg-white/10 transition-all duration-200 font-light"
                       required
                     />
                   </div>
@@ -426,7 +430,7 @@ function FlightsContent() {
                       type="date"
                       value={returnDate}
                       onChange={(e) => setReturnDate(e.target.value)}
-                      className="pl-12 h-12 bg-white/5 border-white/10 text-white rounded-lg hover:bg-white/10 focus:bg-white/10 transition-all duration-200 disabled:opacity-50"
+                      className="pl-12 h-12 bg-white/5 border-white/10 text-white rounded-lg hover:bg-white/10 focus:bg-white/10 transition-all duration-200 disabled:opacity-50 font-light"
                       disabled={tripType === "one-way"}
                     />
                   </div>
@@ -435,7 +439,7 @@ function FlightsContent() {
                 <div className="space-y-3">
                   <Label className="text-white font-light">Passengers</Label>
                   <Select value={passengers} onValueChange={setPassengers}>
-                    <SelectTrigger className="h-12 bg-white/5 border-white/10 text-white rounded-lg hover:bg-white/10 transition-all duration-200">
+                    <SelectTrigger className="h-12 bg-white/5 border-white/10 text-white rounded-lg hover:bg-white/10 transition-all duration-200 font-light">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
@@ -450,7 +454,7 @@ function FlightsContent() {
                 <div className="space-y-3">
                   <Label className="text-white font-light">Class</Label>
                   <Select value={travelClass} onValueChange={setTravelClass}>
-                    <SelectTrigger className="h-12 bg-white/5 border-white/10 text-white rounded-lg hover:bg-white/10 transition-all duration-200">
+                    <SelectTrigger className="h-12 bg-white/5 border-white/10 text-white rounded-lg hover:bg-white/10 transition-all duration-200 font-light">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
@@ -487,7 +491,7 @@ function FlightsContent() {
         {/* Popular Destinations */}
         {flights.length === 0 && !loading && (
           <Card className="bg-white/5 border-white/10 backdrop-blur-sm">
-            <CardContent className="p-6">
+            <CardContent className="py-2 px-2">
               <h2 className="text-xl font-light text-white mb-4">Popular Business Destinations</h2>
               <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6">
                 {popularDestinations.map((destination) => (
@@ -506,7 +510,7 @@ function FlightsContent() {
                       />
                       <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
                       <div className="absolute top-2 right-2">
-                        <Badge className="bg-white/20 text-white text-[10px] px-2 py-1 backdrop-blur-sm rounded-full">
+                        <Badge className="bg-white/20 text-white text-[10px] px-2 py-1 backdrop-blur-sm rounded-full font-light">
                           {destination.flights} flights
                         </Badge>
                       </div>
@@ -526,13 +530,13 @@ function FlightsContent() {
         {flights.length > 0 && (
           <>
             {/* Filters Bar */}
-            <div className="flex flex-wrap items-center justify-between gap-4 bg-white/5 border border-white/10 rounded-lg p-6 backdrop-blur-sm">
+            <div className="flex flex-wrap items-center justify-between gap-4 bg-white/5 border border-white/10 rounded-lg py-2 px-2 backdrop-blur-sm">
               <div className="flex flex-wrap items-center gap-x-6 gap-y-3">
                 <div className="flex items-center space-x-3">
                   <ArrowUpDown className="h-5 w-5 text-white/70" />
                   <span className="text-white/70 font-light">Sort:</span>
                   <Select value={sortBy} onValueChange={setSortBy}>
-                    <SelectTrigger className="bg-white/5 border-white/10 text-white h-10 text-sm w-[140px] rounded-lg">
+                    <SelectTrigger className="bg-white/5 border-white/10 text-white h-10 text-sm w-[140px] rounded-lg font-light">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
@@ -547,7 +551,7 @@ function FlightsContent() {
                   <Filter className="h-5 w-5 text-white/70" />
                   <Badge
                     onClick={() => setDirectOnly(!directOnly)}
-                    className={`cursor-pointer rounded-full px-4 py-2 transition-all duration-300 ${
+                    className={`cursor-pointer rounded-full px-4 py-2 transition-all duration-300 font-light ${
                       directOnly
                         ? "bg-white/10 text-white border-white/20"
                         : "bg-white/5 text-white/70 hover:bg-white/10"
@@ -570,7 +574,7 @@ function FlightsContent() {
                   key={flight.id}
                   className="bg-white/5 border border-white/10 hover:border-white/20 transition-all duration-300 hover:bg-white/10 group backdrop-blur-sm"
                 >
-                  <CardContent className="p-6">
+                  <CardContent className="py-2 px-2">
                     <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
                       <div className="flex flex-col lg:flex-row lg:items-center gap-6 flex-1">
                         {/* Airline Section */}
@@ -709,7 +713,7 @@ export default function FlightsPage() {
       fallback={
         <div className="min-h-screen bg-black p-3">
           <div className="max-w-7xl mx-auto space-y-4">
-            <div className="bg-white/5 border border-white/10 rounded-lg p-6">
+            <div className="bg-white/5 border border-white/10 rounded-lg py-2 px-2">
               <div className="h-8 bg-white/10 rounded w-48 mb-4 animate-pulse" />
               <div className="h-4 bg-white/10 rounded w-96 animate-pulse" />
             </div>

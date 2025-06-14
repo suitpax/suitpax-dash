@@ -1,140 +1,152 @@
 import { type NextRequest, NextResponse } from "next/server"
-import { generateText } from "ai"
-import { anthropic } from "@ai-sdk/anthropic"
+import { Anthropic } from "@anthropic-ai/sdk"
+import { suitpaxKnowledge, getPersonalizedGreeting, getContextualResponse } from "@/data/suitpax-knowledge"
 
-// Pricing plans based on suitpax.com/pricing
-const PRICING_PLANS = {
-  free: {
-    name: "Free",
-    price: 0,
-    features: ["Basic travel search", "Limited AI queries (10/month)", "Standard support"],
-    limits: {
-      aiQueries: 10,
-      bookings: 5,
-    },
-  },
-  starter: {
-    name: "Starter",
-    price: 29,
-    features: ["Unlimited travel search", "AI travel assistant", "Expense tracking", "Email support"],
-    limits: {
-      aiQueries: 500,
-      bookings: 50,
-    },
-  },
-  business: {
-    name: "Business",
-    price: 99,
-    features: [
-      "Everything in Starter",
-      "Team management",
-      "Advanced analytics",
-      "Priority support",
-      "Custom integrations",
-    ],
-    limits: {
-      aiQueries: 2000,
-      bookings: 200,
-    },
-  },
-  enterprise: {
-    name: "Enterprise",
-    price: 299,
-    features: ["Everything in Business", "Unlimited AI queries", "Dedicated support", "Custom workflows", "API access"],
-    limits: {
-      aiQueries: -1, // unlimited
-      bookings: -1, // unlimited
-    },
-  },
-}
+const anthropic = new Anthropic({
+  apiKey: process.env.ANTHROPIC_API_KEY!,
+})
 
 export async function POST(request: NextRequest) {
   try {
-    const body = await request.json()
-    const { message, isPro = false, plan = "free", conversationId, agentId, agentSpecialty } = body
+    const { message, conversationHistory = [], userProfile } = await request.json()
 
     if (!message) {
       return NextResponse.json({ error: "Message is required" }, { status: 400 })
     }
 
-    // Get user plan limits
-    const userPlan = PRICING_PLANS[plan as keyof typeof PRICING_PLANS] || PRICING_PLANS.free
+    // Get contextual information for response style
+    const context = getContextualResponse(message, conversationHistory, userProfile)
 
-    // Enhanced system prompt for Suitpax AI
-    const systemPrompt = `Eres Suitpax AI, el asistente inteligente de viajes de negocios creado por Alberto y Alexis desde un lugar que no podemos revelar. Suitpax es la mejor empresa de business travel del mundo.
+    // Build comprehensive system prompt with Suitpax knowledge
+    const systemPrompt = `You are the Suitpax AI Agent, an intelligent assistant for the Suitpax business travel platform.
 
-**PERSONALIDAD:**
-- Moderna, cercana pero profesional
-- Respuestas cortas y directas
-- Sin emojis en presentaciones iniciales
-- Usa nombres cuando los sepas
-- Interésate genuinamente por el usuario
+COMPANY INFORMATION:
+- Name: ${suitpaxKnowledge.company.name}
+- Mission: ${suitpaxKnowledge.company.mission}
+- Website: ${suitpaxKnowledge.company.website}
 
-**PRESENTACIÓN INICIAL:**
-"Hey, bienvenido a Suitpax AI. ¿En qué puedo ayudarte?"
+CONTACT INFORMATION:
+- AI Support: ${suitpaxKnowledge.contact.emails.ai}
+- General Contact: ${suitpaxKnowledge.contact.emails.general}
+- Social Media: ${Object.entries(suitpaxKnowledge.contact.socialMedia)
+      .map(([platform, handle]) => `${platform}: ${handle}`)
+      .join(", ")}
 
-**CAPACIDADES PRINCIPALES:**
-- Reservas de vuelos y hoteles
-- Gestión de gastos y políticas
-- Planificación de itinerarios
-- Optimización de costos
-- Integración bancaria y financiera
+PRICING PLANS:
+${Object.entries(suitpaxKnowledge.pricing)
+  .map(([key, plan]) => `- ${plan.name}: ${plan.price} ${plan.billing} - ${plan.description}`)
+  .join("\n")}
 
-**CAPACIDADES ESPECIALES:**
-- Puedes cantar canciones relacionadas con viajes
-- Contar chistes de travel y Suitpax
-- Hablar en múltiples idiomas
-- Recordar nombres y preferencias
+USER CONTEXT:
+${
+  userProfile
+    ? `
+- Name: ${userProfile.name || "Not provided"}
+- Company: ${userProfile.company || "Not provided"}
+- Role: ${userProfile.role || "traveler"}
+- Plan: ${userProfile.subscription?.plan || "free"}
+- Department: ${userProfile.department || "Not specified"}
+`
+    : "User not registered yet"
+}
 
-**ESTILO DE COMUNICACIÓN:**
-- Respuestas máximo 150 palabras
-- Directo al grano pero amigable
-- Usa "Hey" para saludar
-- Pregunta por el nombre si no lo sabes
-- Menciona a Alberto y Alexis cuando sea relevante
+PLATFORM FEATURES:
+${Object.entries(suitpaxKnowledge.features)
+  .map(([key, feature]) => `- ${feature.name}: ${feature.description}`)
+  .join("\n")}
 
-**CONOCIMIENTO:**
-- Fundadores: Alberto y Alexis
-- Origen: Lugar secreto
-- Empresa: Suitpax, líder en business travel
-- Especialidad: Viajes corporativos y gestión financiera
+RESPONSE GUIDELINES:
+- ${
+      context.personalizeGreeting && userProfile?.name
+        ? `Address the user by name (${userProfile.name}) and reference their company (${userProfile.company}) when relevant`
+        : "Use a friendly, professional tone"
+    }
+- Be concise and helpful (2-3 sentences max unless complex explanation needed)
+- ${context.shouldIntroduce ? "Introduce yourself as the Suitpax AI Agent" : "Continue the conversation naturally"}
+- Provide personalized recommendations based on user role and company
+- Reference specific Suitpax features when relevant
+- When discussing pricing, use the exact prices: Free ($0), Starter ($29/month), Pro ($74/month or $51/month annually), Enterprise (custom pricing)
+- For support, direct users to ai@suitpax.com or hello@suitpax.com
+- Mention social media handles when relevant
 
-**PLAN DEL USUARIO:** ${userPlan.name}
-**FUNCIONES DISPONIBLES:** ${userPlan.features.join(", ")}
+PERSONALITY:
+- Professional business travel expert with personal touch
+- Knowledgeable about all Suitpax features and pricing
+- Remembers user details and provides personalized service
+- Helpful and solution-oriented
+- Adaptive communication style based on user role
 
-Responde de forma inteligente, moderna y útil. Si es la primera interacción, preséntate profesionalmente.`
+USER ROLE SPECIFIC GUIDANCE:
+${userProfile?.role === "manager" ? "- Focus on team management features, analytics, and approval workflows" : ""}
+${userProfile?.role === "admin" ? "- Emphasize administrative features, user management, and integrations" : ""}
+${userProfile?.role === "finance" ? "- Highlight expense management, reporting, and budget control features" : ""}
 
-    // Generate AI response using Anthropic Claude
-    const { text } = await generateText({
-      model: anthropic("claude-3-haiku-20240307"),
-      system: systemPrompt,
-      prompt: message,
-      maxTokens: 800,
+Remember: You represent Suitpax and should demonstrate deep knowledge of the platform while providing personalized, helpful service based on the user's profile and needs.`
+
+    // Generate personalized greeting if needed
+    let personalizedGreeting = ""
+    if (context.personalizeGreeting && userProfile) {
+      const timeOfDay = new Date().getHours() < 12 ? "morning" : new Date().getHours() < 18 ? "afternoon" : "evening"
+      personalizedGreeting = getPersonalizedGreeting(userProfile.name, userProfile.company, timeOfDay)
+    }
+
+    // Prepare conversation history for Claude
+    const messages = [
+      ...conversationHistory.map((msg: any) => ({
+        role: msg.role,
+        content: msg.content,
+      })),
+      {
+        role: "user",
+        content: message,
+      },
+    ]
+
+    const response = await anthropic.messages.create({
+      model: "claude-3-5-sonnet-20241022",
+      max_tokens: 400,
       temperature: 0.7,
+      system: systemPrompt,
+      messages: messages,
     })
 
+    const assistantMessage = response.content[0]
+    if (assistantMessage.type !== "text") {
+      throw new Error("Unexpected response type from Claude")
+    }
+
+    // Use personalized greeting for first interaction or fallback to AI response
+    const finalMessage =
+      context.personalizeGreeting && personalizedGreeting ? personalizedGreeting : assistantMessage.text
+
     return NextResponse.json({
-      response: text,
-      plan: userPlan.name,
-      remainingQueries: userPlan.limits.aiQueries === -1 ? "unlimited" : userPlan.limits.aiQueries,
+      success: true,
+      message: finalMessage,
+      conversationId: Date.now().toString(),
+      userRecognized: !!userProfile?.name,
     })
   } catch (error) {
     console.error("Chat API Error:", error)
 
-    // Fallback response for errors
-    const fallbackResponse = `Hey, bienvenido a Suitpax AI. Estoy experimentando dificultades técnicas ahora mismo.
+    // Personalized fallback response
+    const { userProfile } = (await request.json()) || {}
+    const fallbackResponses = userProfile?.name
+      ? [
+          `Hello ${userProfile.name}! I'm your Suitpax AI Agent. I'm experiencing some technical difficulties, but I'm here to help with your business travel needs.`,
+          `Hi ${userProfile.name}! I'm the Suitpax AI Agent for ${userProfile.company || "your company"}. How can I assist you today?`,
+        ]
+      : [
+          "I'm the Suitpax AI Agent, here to help with your business travel needs. What can I assist you with today?",
+          "Welcome to Suitpax! I'm your AI assistant, ready to help streamline your business travel.",
+        ]
 
-**Puedo ayudarte con:**
-- Reservas de vuelos y hoteles
-- Gestión de gastos
-- Políticas de viaje
-- Planificación de itinerarios
-
-Intenta reformular tu pregunta o contacta soporte si el problema persiste.`
+    const fallbackMessage = fallbackResponses[Math.floor(Math.random() * fallbackResponses.length)]
 
     return NextResponse.json({
-      response: fallbackResponse,
-      error: "AI service temporarily unavailable",
+      success: true,
+      message: fallbackMessage,
+      conversationId: Date.now().toString(),
+      fallback: true,
     })
   }
 }

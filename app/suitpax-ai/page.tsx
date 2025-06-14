@@ -3,12 +3,12 @@
 import type React from "react"
 import { useState, useEffect, useRef } from "react"
 import Image from "next/image"
-import { Paperclip, Mic, MicOff, Settings, Plus, ArrowRight } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
 import { TypingEffect } from "@/components/ui/typing-effect"
 import { useSpeechRecognition } from "@/lib/hooks/use-speech-recognition"
+import { PiPaperclip, PiMicrophone, PiMicrophoneSlash, PiGear, PiPlus, PiArrowRight } from "react-icons/pi"
 
 interface Message {
   id: string
@@ -70,7 +70,7 @@ export default function SuitpaxAIPage() {
         {
           id: "welcome-msg",
           role: "assistant",
-          content: "Hey, bienvenido a Suitpax AI. ¿En qué puedo ayudarte?",
+          content: "Hey, welcome to Suitpax AI. How can I help you today?",
           timestamp: new Date(),
           isTyping: true,
         },
@@ -183,7 +183,7 @@ export default function SuitpaxAIPage() {
         {
           id: "new-welcome",
           role: "assistant",
-          content: "Hey, bienvenido a Suitpax AI. ¿En qué puedo ayudarte?",
+          content: "Hey, welcome to Suitpax AI. How can I help you today?",
           timestamp: new Date(),
           isTyping: true,
         },
@@ -214,46 +214,48 @@ export default function SuitpaxAIPage() {
         {/* Header */}
         <div className="flex items-center justify-between p-4 border-b border-white/10">
           <div className="flex items-center space-x-3">
-            <div className="relative h-10 w-10 rounded-xl overflow-hidden">
+            <div className="relative h-10 w-10 rounded-xl overflow-hidden bg-white/10 flex items-center justify-center">
               <Image src="/images/ai-agent-avatar.jpeg" alt="Suitpax AI" fill className="object-cover" />
             </div>
             <div>
-              <h1 className="text-xl font-light text-white tracking-tight">Suitpax AI</h1>
+              <h1 className="text-xl font-medium text-white tracking-tight">Suitpax AI</h1>
               <p className="text-xs text-white/60 font-light">Business Travel Assistant</p>
             </div>
           </div>
           <div className="flex items-center space-x-2">
             <Button
               onClick={createNewConversation}
-              className="bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl h-9 px-3 font-light"
+              className="bg-white/5 hover:bg-white/10 border border-white/10 text-white hover:text-white rounded-xl h-9 px-3 font-light transition-all duration-200"
             >
-              <Plus className="h-4 w-4 mr-2" />
+              <PiPlus className="h-4 w-4 mr-2" />
               New Chat
             </Button>
-            <Button className="bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl h-9 w-9 p-0">
-              <Settings className="h-4 w-4 text-white/70" />
+            <Button className="bg-white/5 hover:bg-white/10 border border-white/10 text-white hover:text-white rounded-xl h-9 w-9 p-0 transition-all duration-200">
+              <PiGear className="h-4 w-4" />
             </Button>
           </div>
         </div>
 
         {/* AI Agents Row */}
         <div className="p-4 border-b border-white/10">
-          <div className="flex items-center space-x-3 overflow-x-auto">
-            <span className="text-sm text-white/70 font-light whitespace-nowrap">Specialized Agents:</span>
-            {aiAgents.map((agent) => (
-              <div
-                key={agent.id}
-                className="flex items-center space-x-2 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl px-3 py-2 cursor-pointer transition-all duration-200 whitespace-nowrap"
-              >
-                <div className="relative h-6 w-6 rounded-lg overflow-hidden">
-                  <Image src={agent.avatar || "/placeholder.svg"} alt={agent.name} fill className="object-cover" />
+          <div className="flex items-center space-x-2 overflow-x-auto pb-2">
+            <span className="text-sm text-white/50 font-light whitespace-nowrap mr-2">Specialized Agents:</span>
+            <div className="flex space-x-2">
+              {aiAgents.map((agent) => (
+                <div
+                  key={agent.id}
+                  className="flex items-center space-x-2 bg-white/5 border border-white/10 hover:border-white/20 hover:bg-white/10 rounded-lg px-3 py-2 cursor-pointer transition-all duration-200 whitespace-nowrap min-w-fit"
+                >
+                  <div className="relative h-5 w-5 rounded-md overflow-hidden flex-shrink-0">
+                    <Image src={agent.avatar || "/placeholder.svg"} alt={agent.name} fill className="object-cover" />
+                  </div>
+                  <div className="min-w-0">
+                    <p className="text-xs font-medium text-white truncate">{agent.name}</p>
+                    <p className="text-[10px] text-white/50 font-light truncate">{agent.specialty}</p>
+                  </div>
                 </div>
-                <div>
-                  <p className="text-xs font-light text-white">{agent.name}</p>
-                  <p className="text-[10px] text-white/50 font-light">{agent.specialty}</p>
-                </div>
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
         </div>
 
@@ -264,7 +266,7 @@ export default function SuitpaxAIPage() {
               <div className={`max-w-[80%] ${message.role === "user" ? "order-2" : "order-1"}`}>
                 {message.role === "assistant" && (
                   <div className="flex items-center space-x-2 mb-2">
-                    <div className="relative h-6 w-6 rounded-lg overflow-hidden">
+                    <div className="relative h-6 w-6 rounded-lg overflow-hidden bg-white/10 flex items-center justify-center">
                       <Image src="/images/ai-agent-avatar.jpeg" alt="AI" fill className="object-cover" />
                     </div>
                     <span className="text-xs text-white/50 font-light">Suitpax AI</span>
@@ -273,7 +275,7 @@ export default function SuitpaxAIPage() {
                 <div
                   className={`rounded-xl py-3 px-4 ${
                     message.role === "user"
-                      ? "bg-white text-black rounded-tr-none"
+                      ? "bg-white/10 text-white rounded-tr-none border border-white/20"
                       : "bg-white/5 text-white rounded-tl-none border border-white/10"
                   }`}
                 >
@@ -289,7 +291,7 @@ export default function SuitpaxAIPage() {
                       ))
                     )}
                   </div>
-                  <div className="mt-2 text-xs opacity-70 font-light">
+                  <div className="mt-2 text-xs text-white/40 font-light">
                     {message.timestamp.toLocaleTimeString([], {
                       hour: "2-digit",
                       minute: "2-digit",
@@ -304,7 +306,7 @@ export default function SuitpaxAIPage() {
             <div className="flex justify-start">
               <div className="max-w-[80%]">
                 <div className="flex items-center space-x-2 mb-2">
-                  <div className="relative h-6 w-6 rounded-lg overflow-hidden">
+                  <div className="relative h-6 w-6 rounded-lg overflow-hidden bg-white/10 flex items-center justify-center">
                     <Image src="/images/ai-agent-avatar.jpeg" alt="AI" fill className="object-cover" />
                   </div>
                   <span className="text-xs text-white/50 font-light">Suitpax AI</span>
@@ -336,7 +338,7 @@ export default function SuitpaxAIPage() {
                 <Badge
                   key={index}
                   onClick={() => handleSuggestedQuery(query)}
-                  className="bg-white/5 hover:bg-white/10 text-white/70 border border-white/10 cursor-pointer rounded-xl text-xs px-3 py-1.5 font-light transition-all duration-200"
+                  className="bg-white/5 border border-white/10 text-white/70 hover:bg-white/10 hover:text-white cursor-pointer rounded-lg text-xs px-3 py-1.5 font-light transition-all duration-200"
                 >
                   {query}
                 </Badge>
@@ -350,7 +352,7 @@ export default function SuitpaxAIPage() {
           <form onSubmit={handleSubmit} className="relative">
             <div className="relative">
               <div className="absolute left-4 top-1/2 transform -translate-y-1/2 flex items-center">
-                <div className="relative h-6 w-6 rounded-lg overflow-hidden mr-2">
+                <div className="relative h-7 w-7 rounded-lg overflow-hidden mr-2 bg-white/10 flex items-center justify-center">
                   <Image
                     src={isFocused ? "/images/ai-assistant-avatar.png" : "/images/ai-agent-avatar.jpeg"}
                     alt="AI Assistant"
@@ -368,38 +370,42 @@ export default function SuitpaxAIPage() {
                 onBlur={() => setIsFocused(false)}
                 placeholder={isListening ? "Listening..." : "Ask your AI travel assistant anything..."}
                 disabled={isLoading}
-                className="bg-white/5 border-white/10 text-white placeholder:text-white/30 rounded-xl pl-12 pr-24 py-3 focus:ring-1 focus:ring-white/20 text-sm font-light"
+                className="bg-white/5 border-white/10 text-white placeholder:text-white/30 rounded-xl pl-12 pr-24 py-4 h-14 focus:ring-1 focus:ring-white/20 text-sm font-light transition-all duration-200 hover:bg-white/10"
               />
               <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center space-x-2">
                 <Button
                   type="button"
                   onClick={() => fileInputRef.current?.click()}
                   size="sm"
-                  className="bg-transparent hover:bg-white/10 h-8 w-8 p-0 rounded-lg"
+                  className="bg-transparent hover:bg-white/10 h-8 w-8 p-0 rounded-lg transition-all duration-200"
                 >
-                  <Paperclip className="h-4 w-4 text-white/50" />
+                  <PiPaperclip className="h-4 w-4 text-white/50 hover:text-white/70" />
                 </Button>
                 {isSupported && (
                   <Button
                     type="button"
                     onClick={toggleListening}
                     size="sm"
-                    className={`h-8 w-8 p-0 rounded-lg ${
+                    className={`h-8 w-8 p-0 rounded-lg transition-all duration-200 ${
                       isListening
                         ? "bg-red-500/20 text-red-400 hover:bg-red-500/30"
                         : "bg-transparent hover:bg-white/10"
                     }`}
                   >
-                    {isListening ? <MicOff className="h-4 w-4" /> : <Mic className="h-4 w-4 text-white/50" />}
+                    {isListening ? (
+                      <PiMicrophoneSlash className="h-4 w-4" />
+                    ) : (
+                      <PiMicrophone className="h-4 w-4 text-white/50 hover:text-white/70" />
+                    )}
                   </Button>
                 )}
                 <Button
                   type="submit"
                   disabled={!input.trim() || isLoading}
                   size="sm"
-                  className="bg-white text-black hover:bg-white/90 disabled:opacity-50 h-8 w-8 p-0 rounded-lg"
+                  className="bg-white/10 text-white hover:bg-white/20 disabled:opacity-50 h-8 w-8 p-0 rounded-lg transition-all duration-200 border border-white/20"
                 >
-                  <ArrowRight className="h-4 w-4" />
+                  <PiArrowRight className="h-4 w-4" />
                 </Button>
               </div>
             </div>

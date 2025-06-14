@@ -5,37 +5,34 @@ import Link from "next/link"
 import { useState, useEffect, useRef } from "react"
 import Image from "next/image"
 import {
-  HomeIcon,
-  BuildingOfficeIcon,
-  DocumentTextIcon,
-  SparklesIcon,
-  BriefcaseIcon,
-  PlusCircleIcon,
-  UserIcon,
-  Cog6ToothIcon,
-  BellIcon,
-  ClipboardDocumentListIcon,
-  CommandLineIcon,
-  BanknotesIcon,
-  ArrowRightIcon,
-  MinusIcon,
-} from "@heroicons/react/24/outline"
-import {
-  Plane,
-  TrainIcon,
-  Users,
-  Receipt,
-  MailIcon,
-  CalendarIcon,
-  CalendarDaysIcon,
-  Truck,
-  ChevronRight,
-  PanelLeftClose,
-  PanelLeftOpen,
-  BarChart3,
-  TrendingUp,
-  FileText,
-} from "lucide-react"
+  PiHouse,
+  PiBuildings,
+  PiFileText,
+  PiSparkle,
+  PiBriefcase,
+  PiPlus,
+  PiUser,
+  PiGear,
+  PiBell,
+  PiClipboardText,
+  PiTerminal,
+  PiCurrencyDollar,
+  PiArrowRight,
+  PiMinus,
+  PiAirplane,
+  PiTrain,
+  PiUsers,
+  PiReceipt,
+  PiEnvelope,
+  PiCalendar,
+  PiCalendarCheck,
+  PiTruck,
+  PiChevronRight,
+  PiSidebarSimple,
+  PiSidebarSimpleFill,
+  PiChartBar,
+  PiTrendUp,
+} from "react-icons/pi"
 import { cn } from "@/lib/utils"
 
 interface SidebarProps {
@@ -52,7 +49,7 @@ function Sidebar({ isOpen, onClose }: SidebarProps) {
     finance: false,
   })
 
-  // Replace the chat state and functionality with this enhanced version:
+  // Enhanced chat functionality
   const [chatInput, setChatInput] = useState("")
   const [chatMessages, setChatMessages] = useState<{ text: string; isUser: boolean; timestamp: Date }[]>([
     {
@@ -106,9 +103,9 @@ function Sidebar({ isOpen, onClose }: SidebarProps) {
         },
         body: JSON.stringify({
           message: userMessage,
-          isPro: false, // You can make this dynamic based on user plan
+          isPro: false,
           plan: "free",
-          userId: "sidebar-user", // You can make this dynamic
+          userId: "sidebar-user",
           conversationId: `sidebar-${Date.now()}`,
         }),
       })
@@ -213,7 +210,7 @@ function Sidebar({ isOpen, onClose }: SidebarProps) {
           {Icon && <Icon className={`h-4 w-4 ${isCollapsed ? "" : "mr-3"}`} />}
           {!isCollapsed && <span className="uppercase tracking-wider text-[11px]">{title}</span>}
         </div>
-        {!isCollapsed && <ChevronRight className={`h-3 w-3 transition-transform ${isExpanded ? "rotate-90" : ""}`} />}
+        {!isCollapsed && <PiChevronRight className={`h-3 w-3 transition-transform ${isExpanded ? "rotate-90" : ""}`} />}
       </button>
     )
   }
@@ -267,7 +264,7 @@ function Sidebar({ isOpen, onClose }: SidebarProps) {
               className="p-1.5 rounded-md hover:bg-white/5 transition-colors text-white/70 hover:text-white"
               aria-label={isCollapsed ? "Expand sidebar" : "Collapse sidebar"}
             >
-              {isCollapsed ? <PanelLeftOpen className="h-4 w-4" /> : <PanelLeftClose className="h-4 w-4" />}
+              {isCollapsed ? <PiSidebarSimpleFill className="h-4 w-4" /> : <PiSidebarSimple className="h-4 w-4" />}
             </button>
           </div>
 
@@ -278,7 +275,7 @@ function Sidebar({ isOpen, onClose }: SidebarProps) {
               {!isCollapsed && (
                 <div className="px-1 mb-4">
                   <div className="relative">
-                    <CommandLineIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-white/50" />
+                    <PiTerminal className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-white/50" />
                     <input
                       type="text"
                       placeholder="Quick actions..."
@@ -290,19 +287,19 @@ function Sidebar({ isOpen, onClose }: SidebarProps) {
 
               {/* Main Navigation */}
               <div className="space-y-1">
-                <NavItem href="/dashboard" icon={HomeIcon} isActive={false}>
+                <NavItem href="/dashboard" icon={PiHouse} isActive={false}>
                   Dashboard
                 </NavItem>
-                <NavItem href="/suitpax-ai" icon={SparklesIcon}>
+                <NavItem href="/suitpax-ai" icon={PiSparkle}>
                   Suitpax AI
                 </NavItem>
-                <NavItem href="/mails" icon={MailIcon} badge="3">
+                <NavItem href="/mails" icon={PiEnvelope} badge="3">
                   Mails
                 </NavItem>
-                <NavItem href="/meetings" icon={CalendarIcon}>
+                <NavItem href="/meetings" icon={PiCalendar}>
                   Meetings
                 </NavItem>
-                <NavItem href="/events" icon={CalendarDaysIcon}>
+                <NavItem href="/events" icon={PiCalendarCheck}>
                   Events
                 </NavItem>
               </div>
@@ -311,28 +308,28 @@ function Sidebar({ isOpen, onClose }: SidebarProps) {
               <div className="space-y-1">
                 <SectionHeader
                   title="Business Travel"
-                  icon={Plane}
+                  icon={PiAirplane}
                   isExpanded={expandedSections.travel}
                   onToggle={() => toggleSection("travel")}
                 />
                 {expandedSections.travel && !isCollapsed && (
                   <div className="ml-7 space-y-1">
-                    <NavItem href="/flights" icon={Plane}>
+                    <NavItem href="/flights" icon={PiAirplane}>
                       Flights
                     </NavItem>
-                    <NavItem href="/hotels" icon={BuildingOfficeIcon}>
+                    <NavItem href="/hotels" icon={PiBuildings}>
                       Hotels
                     </NavItem>
-                    <NavItem href="/trains" icon={TrainIcon}>
+                    <NavItem href="/trains" icon={PiTrain}>
                       Trains
                     </NavItem>
-                    <NavItem href="/transfers" icon={Truck}>
+                    <NavItem href="/transfers" icon={PiTruck}>
                       Car Transfers
                       <span className="ml-2 px-2 py-0.5 text-[9px] font-medium bg-amber-500/20 text-amber-300 rounded-full border border-amber-500/30">
                         Development
                       </span>
                     </NavItem>
-                    <NavItem href="/travel-policy" icon={DocumentTextIcon}>
+                    <NavItem href="/travel-policy" icon={PiFileText}>
                       Travel Policy
                     </NavItem>
                   </div>
@@ -343,19 +340,19 @@ function Sidebar({ isOpen, onClose }: SidebarProps) {
               <div className="space-y-1">
                 <SectionHeader
                   title="Analytics"
-                  icon={BarChart3}
+                  icon={PiChartBar}
                   isExpanded={expandedSections.analytics}
                   onToggle={() => toggleSection("analytics")}
                 />
                 {expandedSections.analytics && !isCollapsed && (
                   <div className="ml-7 space-y-1">
-                    <NavItem href="#" icon={TrendingUp}>
+                    <NavItem href="#" icon={PiTrendUp}>
                       Performance
                     </NavItem>
-                    <NavItem href="#" icon={SparklesIcon}>
+                    <NavItem href="#" icon={PiSparkle}>
                       Insights
                     </NavItem>
-                    <NavItem href="#" icon={FileText}>
+                    <NavItem href="#" icon={PiFileText}>
                       Reports
                     </NavItem>
                   </div>
@@ -366,25 +363,25 @@ function Sidebar({ isOpen, onClose }: SidebarProps) {
               <div className="space-y-1">
                 <SectionHeader
                   title="Business Hub"
-                  icon={BriefcaseIcon}
+                  icon={PiBriefcase}
                   isExpanded={expandedSections.business}
                   onToggle={() => toggleSection("business")}
                 />
                 {expandedSections.business && !isCollapsed && (
                   <div className="ml-7 space-y-1">
-                    <NavItem href="#" icon={BuildingOfficeIcon}>
+                    <NavItem href="#" icon={PiBuildings}>
                       Companies
                     </NavItem>
-                    <NavItem href="#" icon={UserIcon}>
+                    <NavItem href="#" icon={PiUser}>
                       People
                     </NavItem>
-                    <NavItem href="#" icon={BriefcaseIcon}>
+                    <NavItem href="#" icon={PiBriefcase}>
                       Deals
                     </NavItem>
-                    <NavItem href="#" icon={BellIcon}>
+                    <NavItem href="#" icon={PiBell}>
                       Notifications
                     </NavItem>
-                    <NavItem href="/tasks" icon={ClipboardDocumentListIcon}>
+                    <NavItem href="/tasks" icon={PiClipboardText}>
                       Tasks
                     </NavItem>
                   </div>
@@ -395,22 +392,22 @@ function Sidebar({ isOpen, onClose }: SidebarProps) {
               <div className="space-y-1">
                 <SectionHeader
                   title="Finance"
-                  icon={BanknotesIcon}
+                  icon={PiCurrencyDollar}
                   isExpanded={expandedSections.finance}
                   onToggle={() => toggleSection("finance")}
                 />
                 {expandedSections.finance && !isCollapsed && (
                   <div className="ml-7 space-y-1">
-                    <NavItem href="#" icon={BriefcaseIcon}>
+                    <NavItem href="#" icon={PiBriefcase}>
                       Budgets
                     </NavItem>
-                    <NavItem href="/expenses" icon={Receipt}>
+                    <NavItem href="/expenses" icon={PiReceipt}>
                       Expenses
                     </NavItem>
-                    <NavItem href="/smart-bank" icon={BanknotesIcon}>
+                    <NavItem href="/smart-bank" icon={PiCurrencyDollar}>
                       Smart Bank
                     </NavItem>
-                    <NavItem href="/team-management" icon={Users}>
+                    <NavItem href="/team-management" icon={PiUsers}>
                       Teams
                     </NavItem>
                   </div>
@@ -425,10 +422,10 @@ function Sidebar({ isOpen, onClose }: SidebarProps) {
                   {!isCollapsed && "Account"}
                 </div>
                 <div className="space-y-1">
-                  <NavItem href="/profile" icon={UserIcon}>
+                  <NavItem href="/profile" icon={PiUser}>
                     Profile
                   </NavItem>
-                  <NavItem href="/settings" icon={Cog6ToothIcon}>
+                  <NavItem href="/settings" icon={PiGear}>
                     Settings
                   </NavItem>
                 </div>
@@ -453,7 +450,7 @@ function Sidebar({ isOpen, onClose }: SidebarProps) {
                       className="p-1 rounded-full hover:bg-white/10 text-white/50 hover:text-white"
                       onClick={() => setIsChatMinimized(!isChatMinimized)}
                     >
-                      {isChatMinimized ? <PlusCircleIcon className="h-3 w-3" /> : <MinusIcon className="h-3 w-3" />}
+                      {isChatMinimized ? <PiPlus className="h-3 w-3" /> : <PiMinus className="h-3 w-3" />}
                     </button>
                   </div>
 
@@ -517,7 +514,7 @@ function Sidebar({ isOpen, onClose }: SidebarProps) {
                             {isLoading ? (
                               <div className="w-3 h-3 border border-white/30 border-t-white/70 rounded-full animate-spin" />
                             ) : (
-                              <ArrowRightIcon className="h-3 w-3" />
+                              <PiArrowRight className="h-3 w-3" />
                             )}
                           </button>
                         </div>
@@ -546,7 +543,7 @@ function Sidebar({ isOpen, onClose }: SidebarProps) {
                         {isLoading ? (
                           <div className="w-3 h-3 border border-white/30 border-t-white/70 rounded-full animate-spin" />
                         ) : (
-                          <ArrowRightIcon className="h-3 w-3" />
+                          <PiArrowRight className="h-3 w-3" />
                         )}
                       </button>
                     </div>

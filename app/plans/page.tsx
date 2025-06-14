@@ -28,7 +28,7 @@ export default function PlansPage() {
     {
       id: "starter",
       name: "Starter",
-      price: billingPeriod === "monthly" ? 29 : 290,
+      price: 0, // Cambiar a 0 para Free
       period: billingPeriod === "monthly" ? "month" : "year",
       description: "Perfect for small teams getting started with business travel",
       features: [
@@ -45,7 +45,7 @@ export default function PlansPage() {
     {
       id: "professional",
       name: "Professional",
-      price: billingPeriod === "monthly" ? 79 : 790,
+      price: billingPeriod === "monthly" ? 71 : 59, // Cambiar a 71 mensual y 59 anual
       period: billingPeriod === "monthly" ? "month" : "year",
       description: "Advanced features for growing businesses",
       features: [
@@ -66,7 +66,7 @@ export default function PlansPage() {
     {
       id: "enterprise",
       name: "Enterprise",
-      price: billingPeriod === "monthly" ? 199 : 1990,
+      price: 0, // Cambiar a 0 para custom pricing
       period: billingPeriod === "monthly" ? "month" : "year",
       description: "Complete solution for large organizations",
       features: [
@@ -197,13 +197,19 @@ export default function PlansPage() {
                   <CardTitle className="text-2xl font-light text-white">{plan.name}</CardTitle>
                   <div className="mt-4">
                     <div className="flex items-baseline justify-center">
-                      <span className="text-4xl font-light text-white">${plan.price}</span>
-                      <span className="text-white/50 ml-2">/{plan.period}</span>
+                      {plan.id === "starter" ? (
+                        <span className="text-4xl font-light text-white">Free</span>
+                      ) : plan.id === "enterprise" ? (
+                        <span className="text-2xl font-light text-white">Custom Pricing</span>
+                      ) : (
+                        <>
+                          <span className="text-4xl font-light text-white">${plan.price}</span>
+                          <span className="text-white/50 ml-2">/{plan.period}</span>
+                        </>
+                      )}
                     </div>
-                    {billingPeriod === "yearly" && (
-                      <p className="text-sm text-green-400 mt-1">
-                        Save ${((plan.price * 12 * 0.2) / 12).toFixed(0)}/month
-                      </p>
+                    {billingPeriod === "yearly" && plan.id === "professional" && (
+                      <p className="text-sm text-green-400 mt-1">Save $12/month with yearly billing</p>
                     )}
                   </div>
                   <p className="text-white/70 text-sm font-light mt-3">{plan.description}</p>
@@ -239,7 +245,11 @@ export default function PlansPage() {
                       "Current Plan"
                     ) : (
                       <div className="flex items-center justify-center">
-                        {plan.id === "enterprise" ? "Contact Sales" : "Upgrade Now"}
+                        {plan.id === "starter"
+                          ? "Get Started Free"
+                          : plan.id === "enterprise"
+                            ? "Contact Sales"
+                            : "Upgrade Now"}
                         <ArrowRight className="h-4 w-4 ml-2" />
                       </div>
                     )}

@@ -133,17 +133,17 @@ export default function TeamManagementPage() {
     department: "Operations",
     phone: "",
     location: "",
-    travelBudget: 10000
+    travelBudget: 10000,
   })
 
   useEffect(() => {
     // Filter team members based on search and filters
     const filtered = teamMembers.filter((member) => {
-      const matchesSearch = 
+      const matchesSearch =
         member.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
         member.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
         member.department.toLowerCase().includes(searchTerm.toLowerCase())
-      
+
       const matchesRole = selectedRole === "all" || member.role === selectedRole
       const matchesDepartment = selectedDepartment === "all" || member.department === selectedDepartment
       const matchesStatus = selectedStatus === "all" || member.status === selectedStatus
@@ -157,20 +157,20 @@ export default function TeamManagementPage() {
   const handleInviteMember = async () => {
     setLoading(true)
     // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 1000))
+    await new Promise((resolve) => setTimeout(resolve, 1000))
 
     const member: TeamMember = {
       id: Date.now().toString(),
       ...newMember,
       avatar: "/images/team/scott-clayton.jpeg", // Default avatar
       status: "Pending",
-      joinDate: new Date().toISOString().split('T')[0],
+      joinDate: new Date().toISOString().split("T")[0],
       lastActive: "Never",
       totalTrips: 0,
-      permissions: ["book_travel", "submit_expenses"]
+      permissions: ["book_travel", "submit_expenses"],
     }
 
-    setTeamMembers(prev => [...prev, member])
+    setTeamMembers((prev) => [...prev, member])
     setNewMember({
       name: "",
       email: "",
@@ -178,14 +178,14 @@ export default function TeamManagementPage() {
       department: "Operations",
       phone: "",
       location: "",
-      travelBudget: 10000
+      travelBudget: 10000,
     })
     setShowInviteDialog(false)
     setLoading(false)
   }
 
   const handleRemoveMember = (id: string) => {
-    setTeamMembers(prev => prev.filter(member => member.id !== id))
+    setTeamMembers((prev) => prev.filter((member) => member.id !== id))
   }
 
   const getStatusColor = (status: string) => {
@@ -232,8 +232,10 @@ export default function TeamManagementPage() {
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="all">All Roles</SelectItem>
-                    {roles.map(role => (
-                      <SelectItem key={role} value={role}>{role}</SelectItem>
+                    {roles.map((role) => (
+                      <SelectItem key={role} value={role}>
+                        {role}
+                      </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
@@ -243,8 +245,10 @@ export default function TeamManagementPage() {
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="all">All Departments</SelectItem>
-                    {departments.map(dept => (
-                      <SelectItem key={dept} value={dept}>{dept}</SelectItem>
+                    {departments.map((dept) => (
+                      <SelectItem key={dept} value={dept}>
+                        {dept}
+                      </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
@@ -254,8 +258,10 @@ export default function TeamManagementPage() {
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="all">All Status</SelectItem>
-                    {statuses.map(status => (
-                      <SelectItem key={status} value={status}>{status}</SelectItem>
+                    {statuses.map((status) => (
+                      <SelectItem key={status} value={status}>
+                        {status}
+                      </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
@@ -269,7 +275,7 @@ export default function TeamManagementPage() {
           <div className="flex items-center gap-3">
             <h2 className="text-lg font-medium text-white">{filteredMembers.length} team members</h2>
             <Badge className="bg-blue-500/20 text-blue-400 border-blue-500/30">
-              {teamMembers.filter(m => m.status === "Active").length} Active
+              {teamMembers.filter((m) => m.status === "Active").length} Active
             </Badge>
           </div>
           <div className="flex gap-2">
@@ -291,22 +297,26 @@ export default function TeamManagementPage() {
                 <div className="space-y-4">
                   <div className="grid grid-cols-2 gap-4">
                     <div>
-                      <Label htmlFor="name" className="text-white/70">Full Name</Label>
+                      <Label htmlFor="name" className="text-white/70">
+                        Full Name
+                      </Label>
                       <Input
                         id="name"
                         value={newMember.name}
-                        onChange={(e) => setNewMember(prev => ({ ...prev, name: e.target.value }))}
+                        onChange={(e) => setNewMember((prev) => ({ ...prev, name: e.target.value }))}
                         className="bg-white/5 border-white/10 text-white"
                         placeholder="John Doe"
                       />
                     </div>
                     <div>
-                      <Label htmlFor="email" className="text-white/70">Email</Label>
+                      <Label htmlFor="email" className="text-white/70">
+                        Email
+                      </Label>
                       <Input
                         id="email"
                         type="email"
                         value={newMember.email}
-                        onChange={(e) => setNewMember(prev => ({ ...prev, email: e.target.value }))}
+                        onChange={(e) => setNewMember((prev) => ({ ...prev, email: e.target.value }))}
                         className="bg-white/5 border-white/10 text-white"
                         placeholder="john@company.com"
                       />
@@ -314,27 +324,41 @@ export default function TeamManagementPage() {
                   </div>
                   <div className="grid grid-cols-2 gap-4">
                     <div>
-                      <Label htmlFor="role" className="text-white/70">Role</Label>
-                      <Select value={newMember.role} onValueChange={(value) => setNewMember(prev => ({ ...prev, role: value }))}>
+                      <Label htmlFor="role" className="text-white/70">
+                        Role
+                      </Label>
+                      <Select
+                        value={newMember.role}
+                        onValueChange={(value) => setNewMember((prev) => ({ ...prev, role: value }))}
+                      >
                         <SelectTrigger className="bg-white/5 border-white/10 text-white">
                           <SelectValue />
                         </SelectTrigger>
                         <SelectContent>
-                          {roles.map(role => (
-                            <SelectItem key={role} value={role}>{role}</SelectItem>
+                          {roles.map((role) => (
+                            <SelectItem key={role} value={role}>
+                              {role}
+                            </SelectItem>
                           ))}
                         </SelectContent>
                       </Select>
                     </div>
                     <div>
-                      <Label htmlFor="department" className="text-white/70">Department</Label>
-                      <Select value={newMember.department} onValueChange={(value) => setNewMember(prev => ({ ...prev, department: value }))}>
+                      <Label htmlFor="department" className="text-white/70">
+                        Department
+                      </Label>
+                      <Select
+                        value={newMember.department}
+                        onValueChange={(value) => setNewMember((prev) => ({ ...prev, department: value }))}
+                      >
                         <SelectTrigger className="bg-white/5 border-white/10 text-white">
                           <SelectValue />
                         </SelectTrigger>
                         <SelectContent>
-                          {departments.map(dept => (
-                            <SelectItem key={dept} value={dept}>{dept}</SelectItem>
+                          {departments.map((dept) => (
+                            <SelectItem key={dept} value={dept}>
+                              {dept}
+                            </SelectItem>
                           ))}
                         </SelectContent>
                       </Select>
@@ -342,39 +366,45 @@ export default function TeamManagementPage() {
                   </div>
                   <div className="grid grid-cols-2 gap-4">
                     <div>
-                      <Label htmlFor="phone" className="text-white/70">Phone (Optional)</Label>
+                      <Label htmlFor="phone" className="text-white/70">
+                        Phone (Optional)
+                      </Label>
                       <Input
                         id="phone"
                         value={newMember.phone}
-                        onChange={(e) => setNewMember(prev => ({ ...prev, phone: e.target.value }))}
+                        onChange={(e) => setNewMember((prev) => ({ ...prev, phone: e.target.value }))}
                         className="bg-white/5 border-white/10 text-white"
                         placeholder="+1 (555) 123-4567"
                       />
                     </div>
                     <div>
-                      <Label htmlFor="location" className="text-white/70">Location (Optional)</Label>
+                      <Label htmlFor="location" className="text-white/70">
+                        Location (Optional)
+                      </Label>
                       <Input
                         id="location"
                         value={newMember.location}
-                        onChange={(e) => setNewMember(prev => ({ ...prev, location: e.target.value }))}
+                        onChange={(e) => setNewMember((prev) => ({ ...prev, location: e.target.value }))}
                         className="bg-white/5 border-white/10 text-white"
                         placeholder="New York, NY"
                       />
                     </div>
                   </div>
                   <div>
-                    <Label htmlFor="budget" className="text-white/70">Travel Budget ($)</Label>
+                    <Label htmlFor="budget" className="text-white/70">
+                      Travel Budget ($)
+                    </Label>
                     <Input
                       id="budget"
                       type="number"
                       value={newMember.travelBudget}
-                      onChange={(e) => setNewMember(prev => ({ ...prev, travelBudget: Number(e.target.value) }))}
+                      onChange={(e) => setNewMember((prev) => ({ ...prev, travelBudget: Number(e.target.value) }))}
                       className="bg-white/5 border-white/10 text-white"
                       placeholder="10000"
                     />
                   </div>
-                  <Button 
-                    onClick={handleInviteMember} 
+                  <Button
+                    onClick={handleInviteMember}
                     disabled={loading || !newMember.name || !newMember.email}
                     className="w-full bg-white text-black hover:bg-white/90 rounded-xl"
                   >
@@ -408,17 +438,152 @@ export default function TeamManagementPage() {
                     <div className="flex-1">
                       <div className="flex items-center gap-2 mb-1">
                         <h3 className="text-lg font-medium text-white">{member.name}</h3>
-                        <Badge className={`text-xs ${getStatusColor(member.status)}`}>
-                          {member.status}
-                        </Badge>
+                        <Badge className={`text-xs ${getStatusColor(member.status)}`}>{member.status}</Badge>
                       </div>
                       <p className="text-sm text-white/70">{member.email}</p>
                       <div className="flex items-center gap-4 mt-2 text-xs text-white/50">
-                        <span>{member.role} • {member.department}</span>
+                        <span>
+                          {member.role} • {member.department}
+                        </span>
                         {member.location && (
                           <>
                             <span>•</span>
                             <div className="flex items-center gap-1">
                               <MapPin className="h-3 w-3" />
-                              <span>{member.location}</span>\
+                              <span>{member.location}</span>
                             </div>
+                          </>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                  <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
+                    <div className="flex flex-col sm:flex-row gap-2 text-sm text-white/50">
+                      <span>Joined {new Date(member.joinDate).toLocaleDateString()}</span>
+                      <span className="hidden sm:inline">•</span>
+                      <span>Last active {member.lastActive}</span>
+                      {member.totalTrips !== undefined && (
+                        <>
+                          <span className="hidden sm:inline">•</span>
+                          <span>{member.totalTrips} trips</span>
+                        </>
+                      )}
+                      {member.travelBudget && (
+                        <>
+                          <span className="hidden sm:inline">•</span>
+                          <span>Budget: ${member.travelBudget.toLocaleString()}</span>
+                        </>
+                      )}
+                    </div>
+                    <div className="flex gap-2">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => setSelectedMember(member)}
+                        className="bg-white/5 hover:bg-white/10 border-white/10 text-white rounded-lg h-8 px-3 text-xs"
+                      >
+                        View Details
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => handleRemoveMember(member.id)}
+                        className="bg-red-500/10 hover:bg-red-500/20 border-red-500/20 text-red-400 rounded-lg h-8 px-3 text-xs"
+                      >
+                        Remove
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+
+        {filteredMembers.length === 0 && (
+          <Card className="bg-white/5 border-white/10">
+            <CardContent className="p-8 text-center">
+              <div className="text-white/50 mb-2">No team members found</div>
+              <div className="text-sm text-white/30">Try adjusting your search or filters</div>
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Member Details Dialog */}
+        {selectedMember && (
+          <Dialog open={!!selectedMember} onOpenChange={() => setSelectedMember(null)}>
+            <DialogContent className="bg-black border-white/10 text-white max-w-2xl">
+              <DialogHeader>
+                <DialogTitle className="text-white font-light">Team Member Details</DialogTitle>
+              </DialogHeader>
+              <div className="space-y-6">
+                <div className="flex items-center gap-4">
+                  <div className="relative h-16 w-16 rounded-full overflow-hidden bg-white/10">
+                    <Image
+                      src={selectedMember.avatar || "/placeholder.svg"}
+                      alt={selectedMember.name}
+                      fill
+                      className="object-cover"
+                    />
+                  </div>
+                  <div>
+                    <h3 className="text-xl font-medium text-white">{selectedMember.name}</h3>
+                    <p className="text-white/70">{selectedMember.email}</p>
+                    <Badge className={`mt-1 ${getStatusColor(selectedMember.status)}`}>{selectedMember.status}</Badge>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-6">
+                  <div>
+                    <h4 className="text-sm font-medium text-white/70 mb-2">Role & Department</h4>
+                    <p className="text-white">{selectedMember.role}</p>
+                    <p className="text-white/70">{selectedMember.department}</p>
+                  </div>
+                  <div>
+                    <h4 className="text-sm font-medium text-white/70 mb-2">Contact</h4>
+                    {selectedMember.phone && <p className="text-white">{selectedMember.phone}</p>}
+                    {selectedMember.location && <p className="text-white/70">{selectedMember.location}</p>}
+                  </div>
+                  <div>
+                    <h4 className="text-sm font-medium text-white/70 mb-2">Travel Stats</h4>
+                    <p className="text-white">Total Trips: {selectedMember.totalTrips || 0}</p>
+                    <p className="text-white/70">Budget: ${selectedMember.travelBudget?.toLocaleString() || "N/A"}</p>
+                  </div>
+                  <div>
+                    <h4 className="text-sm font-medium text-white/70 mb-2">Account</h4>
+                    <p className="text-white">Joined: {new Date(selectedMember.joinDate).toLocaleDateString()}</p>
+                    <p className="text-white/70">Last Active: {selectedMember.lastActive}</p>
+                  </div>
+                </div>
+
+                <div>
+                  <h4 className="text-sm font-medium text-white/70 mb-2">Permissions</h4>
+                  <div className="flex flex-wrap gap-2">
+                    {selectedMember.permissions.map((permission) => (
+                      <Badge key={permission} className="bg-blue-500/20 text-blue-400 border-blue-500/30">
+                        {permission.replace("_", " ")}
+                      </Badge>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </DialogContent>
+          </Dialog>
+        )}
+      </div>
+
+      <style jsx>{`
+        @keyframes fadeInUp {
+          from {
+            opacity: 0;
+            transform: translateY(20px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+      `}</style>
+    </div>
+  )
+}

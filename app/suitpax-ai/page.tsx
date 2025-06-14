@@ -7,6 +7,7 @@ import { Paperclip, Mic, MicOff, Settings, Plus, ArrowRight } from "lucide-react
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
+import { TypingEffect } from "@/components/ui/typing-effect"
 import { useSpeechRecognition } from "@/lib/hooks/use-speech-recognition"
 
 interface Message {
@@ -14,6 +15,7 @@ interface Message {
   role: "user" | "assistant"
   content: string
   timestamp: Date
+  isTyping?: boolean
 }
 
 interface Conversation {
@@ -46,6 +48,7 @@ export default function SuitpaxAIPage() {
   const [isLoading, setIsLoading] = useState(false)
   const [conversations, setConversations] = useState<Conversation[]>([])
   const [activeConversation, setActiveConversation] = useState<Conversation | null>(null)
+  const [isFocused, setIsFocused] = useState(false)
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
   const { isListening, transcript, startListening, stopListening, resetTranscript, isSupported } =
@@ -67,9 +70,9 @@ export default function SuitpaxAIPage() {
         {
           id: "welcome-msg",
           role: "assistant",
-          content:
-            "Hey, Try ask anything to Suitpax Agent. I can help you with flight bookings, hotel reservations, expense management, travel policies, and much more. What can I assist you with today?",
+          content: "Hey, bienvenido a Suitpax AI. ¿En qué puedo ayudarte?",
           timestamp: new Date(),
+          isTyping: true,
         },
       ],
       createdAt: new Date(),
@@ -137,6 +140,7 @@ export default function SuitpaxAIPage() {
         content:
           data.response || "I apologize, but I'm having trouble processing your request right now. Please try again.",
         timestamp: new Date(),
+        isTyping: true,
       }
 
       // Update conversation with assistant response
@@ -156,6 +160,7 @@ export default function SuitpaxAIPage() {
         content:
           "I'm sorry, I encountered an error while processing your request. Please try again or contact support if the issue persists.",
         timestamp: new Date(),
+        isTyping: true,
       }
 
       const errorConversation = {
@@ -178,8 +183,9 @@ export default function SuitpaxAIPage() {
         {
           id: "new-welcome",
           role: "assistant",
-          content: "Hello! I'm ready to help you with your business travel needs. What would you like to know?",
+          content: "Hey, bienvenido a Suitpax AI. ¿En qué puedo ayudarte?",
           timestamp: new Date(),
+          isTyping: true,
         },
       ],
       createdAt: new Date(),
@@ -200,15 +206,6 @@ export default function SuitpaxAIPage() {
       setInput("")
       startListening()
     }
-  }
-
-  const formatMessageContent = (content: string) => {
-    return content.split("\n").map((line, i) => (
-      <span key={i}>
-        {line}
-        {i < content.split("\n").length - 1 && <br />}
-      </span>
-    ))
   }
 
   return (
@@ -280,7 +277,18 @@ export default function SuitpaxAIPage() {
                       : "bg-white/5 text-white rounded-tl-none border border-white/10"
                   }`}
                 >
-                  <div className="text-sm leading-relaxed font-light">{formatMessageContent(message.content)}</div>
+                  <div className="text-sm leading-relaxed font-light">
+                    {message.isTyping && message.role === "assistant" ? (
+                      <TypingEffect text={message.content} speed={20} />
+                    ) : (
+                      message.content.split("\n").map((line, i) => (
+                        <span key={i}>
+                          {line}
+                          {i < message.content.split("\n").length - 1 && <br />}
+                        </span>
+                      ))
+                    )}
+                  </div>
                   <div className="mt-2 text-xs opacity-70 font-light">
                     {message.timestamp.toLocaleTimeString([], {
                       hour: "2-digit",
@@ -343,7 +351,12 @@ export default function SuitpaxAIPage() {
             <div className="relative">
               <div className="absolute left-4 top-1/2 transform -translate-y-1/2 flex items-center">
                 <div className="relative h-6 w-6 rounded-lg overflow-hidden mr-2">
-                  <Image src="/images/ai-agent-avatar.jpeg" alt="AI Assistant" fill className="object-cover" />
+                  <Image
+                    src={isFocused ? "/images/ai-assistant-avatar.png" : "/images/ai-agent-avatar.jpeg"}
+                    alt="AI Assistant"
+                    fill
+                    className="object-cover"
+                  />
                 </div>
               </div>
               <Input
@@ -351,6 +364,8 @@ export default function SuitpaxAIPage() {
                 type="text"
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
+                onFocus={() => setIsFocused(true)}
+                onBlur={() => setIsFocused(false)}
                 placeholder={isListening ? "Listening..." : "Ask your AI travel assistant anything..."}
                 disabled={isLoading}
                 className="bg-white/5 border-white/10 text-white placeholder:text-white/30 rounded-xl pl-12 pr-24 py-3 focus:ring-1 focus:ring-white/20 text-sm font-light"

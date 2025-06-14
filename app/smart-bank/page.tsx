@@ -1,411 +1,363 @@
 "use client"
 
-import type React from "react"
-
-import { useState, useEffect, useRef } from "react"
-import { Settings, ArrowRight, CreditCard, TrendingUp, DollarSign, Building2, Shield, Zap } from "lucide-react"
+import { useState, useEffect } from "react"
+import { ArrowRight, Building2, CreditCard, Shield, Zap, CheckCircle, AlertCircle, Clock } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Badge } from "@/components/ui/badge"
 import { Card, CardContent } from "@/components/ui/card"
+import { Badge } from "@/components/ui/badge"
+import AIQuickInput from "@/components/ui/ai-quick-input"
 
-interface Message {
-  id: string
-  role: "user" | "assistant"
-  content: string
-  timestamp: Date
-}
-
-interface BankAccount {
+interface BankConnection {
   id: string
   name: string
-  type: "checking" | "savings" | "credit"
-  balance: number
-  currency: string
-  bank: string
-  accountNumber: string
+  logo: string
+  status: "connected" | "pending" | "disconnected"
+  accounts?: number
+  lastSync?: string
 }
 
-interface Transaction {
-  id: string
-  description: string
-  amount: number
-  date: string
-  category: string
-  status: "completed" | "pending"
-}
-
-const suggestedQueries = [
-  "Show my account balance",
-  "Recent transactions",
-  "Transfer money",
-  "Set up automatic savings",
-  "Expense categories",
-  "Monthly spending report",
-  "Investment opportunities",
-  "Budget recommendations",
+const banks: BankConnection[] = [
+  {
+    id: "chase",
+    name: "Chase Bank",
+    logo: "/images/banks/chase.png",
+    status: "connected",
+    accounts: 3,
+    lastSync: "2 minutes ago",
+  },
+  {
+    id: "bofa",
+    name: "Bank of America",
+    logo: "/images/banks/bofa.png",
+    status: "pending",
+    accounts: 0,
+  },
+  {
+    id: "wells",
+    name: "Wells Fargo",
+    logo: "/images/banks/wells.png",
+    status: "disconnected",
+    accounts: 0,
+  },
+  {
+    id: "citi",
+    name: "Citibank",
+    logo: "/images/banks/citi.png",
+    status: "disconnected",
+    accounts: 0,
+  },
 ]
 
-const smartFeatures = [
-  { id: 1, name: "Smart Budgeting", icon: TrendingUp, description: "AI-powered budget optimization" },
-  { id: 2, name: "Expense Tracking", icon: DollarSign, description: "Automatic expense categorization" },
-  { id: 3, name: "Fraud Protection", icon: Shield, description: "Real-time fraud detection" },
-  { id: 4, name: "Investment Insights", icon: Zap, description: "Personalized investment advice" },
+const connectionSteps = [
+  {
+    step: 1,
+    title: "Select Your Bank",
+    description: "Choose from 10,000+ supported financial institutions",
+    icon: Building2,
+  },
+  {
+    step: 2,
+    title: "Secure Authentication",
+    description: "Login safely with bank-level encryption",
+    icon: Shield,
+  },
+  {
+    step: 3,
+    title: "Sync & Analyze",
+    description: "Automatically categorize and track expenses",
+    icon: Zap,
+  },
 ]
 
 export default function SmartBankPage() {
-  const [input, setInput] = useState("")
-  const [isLoading, setIsLoading] = useState(false)
-  const [messages, setMessages] = useState<Message[]>([
-    {
-      id: "welcome-msg",
-      role: "assistant",
-      content:
-        "Hey, Try ask anything to Smart Bank Agent. I can help you manage your accounts, track expenses, analyze spending patterns, and provide financial insights. What would you like to know?",
-      timestamp: new Date(),
-    },
-  ])
-  const messagesEndRef = useRef<HTMLDivElement>(null)
+  const [selectedBank, setSelectedBank] = useState<string | null>(null)
+  const [isConnecting, setIsConnecting] = useState(false)
+  const [searchTerm, setSearchTerm] = useState("")
 
-  const accounts: BankAccount[] = [
-    {
-      id: "acc1",
-      name: "Business Checking",
-      type: "checking",
-      balance: 45230.75,
-      currency: "USD",
-      bank: "Chase",
-      accountNumber: "****4567",
-    },
-    {
-      id: "acc2",
-      name: "Business Savings",
-      type: "savings",
-      balance: 125000.0,
-      currency: "USD",
-      bank: "Chase",
-      accountNumber: "****8901",
-    },
-    {
-      id: "acc3",
-      name: "Corporate Card",
-      type: "credit",
-      balance: -3240.5,
-      currency: "USD",
-      bank: "American Express",
-      accountNumber: "****3456",
-    },
-  ]
-
-  const recentTransactions: Transaction[] = [
-    {
-      id: "tx1",
-      description: "Hotel Marriott - Business Trip",
-      amount: -450.75,
-      date: "2024-12-15",
-      category: "Travel",
-      status: "completed",
-    },
-    {
-      id: "tx2",
-      description: "Client Payment - Acme Corp",
-      amount: 5000.0,
-      date: "2024-12-14",
-      category: "Income",
-      status: "completed",
-    },
-    {
-      id: "tx3",
-      description: "Office Supplies - Staples",
-      amount: -125.3,
-      date: "2024-12-13",
-      category: "Office",
-      status: "pending",
-    },
-  ]
-
-  // Auto scroll to bottom
+  // Add CSS animations
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
-  }, [messages])
+    if (typeof document !== "undefined") {
+      const style = document.createElement("style")
+      style.textContent = `
+        @keyframes fadeInUp {
+          from {
+            opacity: 0;
+            transform: translateY(20px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+        
+        @keyframes pulse {
+          0%, 100% {
+            opacity: 1;
+          }
+          50% {
+            opacity: 0.5;
+          }
+        }
+        
+        @keyframes slideIn {
+          from {
+            transform: translateX(-100%);
+            opacity: 0;
+          }
+          to {
+            transform: translateX(0);
+            opacity: 1;
+          }
+        }
+        
+        .animate-fadeInUp {
+          animation: fadeInUp 0.6s ease-out;
+        }
+        
+        .animate-pulse-custom {
+          animation: pulse 2s infinite;
+        }
+        
+        .animate-slideIn {
+          animation: slideIn 0.5s ease-out;
+        }
+      `
+      document.head.appendChild(style)
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    if (!input.trim() || isLoading) return
-
-    const userMessage: Message = {
-      id: Date.now().toString(),
-      role: "user",
-      content: input.trim(),
-      timestamp: new Date(),
+      return () => {
+        document.head.removeChild(style)
+      }
     }
+  }, [])
 
-    setMessages((prev) => [...prev, userMessage])
-    setInput("")
-    setIsLoading(true)
+  const handleConnect = async (bankId: string) => {
+    setSelectedBank(bankId)
+    setIsConnecting(true)
 
-    try {
-      // Call AI API
-      const response = await fetch("/api/chat", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          message: userMessage.content,
-          isPro: true,
-          plan: "business",
-          conversationId: "smart-bank",
-        }),
-      })
+    // Simulate connection process
+    setTimeout(() => {
+      setIsConnecting(false)
+      setSelectedBank(null)
+      // Update bank status in real app
+    }, 3000)
+  }
 
-      if (!response.ok) {
-        throw new Error("Failed to get AI response")
-      }
-
-      const data = await response.json()
-
-      const assistantMessage: Message = {
-        id: (Date.now() + 1).toString(),
-        role: "assistant",
-        content:
-          data.response || "I apologize, but I'm having trouble processing your request right now. Please try again.",
-        timestamp: new Date(),
-      }
-
-      setMessages((prev) => [...prev, assistantMessage])
-    } catch (error) {
-      console.error("Error getting AI response:", error)
-
-      const errorMessage: Message = {
-        id: (Date.now() + 1).toString(),
-        role: "assistant",
-        content:
-          "I'm sorry, I encountered an error while processing your request. Please try again or contact support if the issue persists.",
-        timestamp: new Date(),
-      }
-
-      setMessages((prev) => [...prev, errorMessage])
-    } finally {
-      setIsLoading(false)
+  const getStatusIcon = (status: string) => {
+    switch (status) {
+      case "connected":
+        return <CheckCircle className="h-5 w-5 text-green-400" />
+      case "pending":
+        return <Clock className="h-5 w-5 text-yellow-400 animate-pulse-custom" />
+      default:
+        return <AlertCircle className="h-5 w-5 text-white/30" />
     }
   }
 
-  const handleSuggestedQuery = (query: string) => {
-    setInput(query)
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case "connected":
+        return "bg-green-500/20 text-green-400 border-green-500/30"
+      case "pending":
+        return "bg-yellow-500/20 text-yellow-400 border-yellow-500/30"
+      default:
+        return "bg-white/5 text-white/50 border-white/10"
+    }
   }
 
-  const formatMessageContent = (content: string) => {
-    return content.split("\n").map((line, i) => (
-      <span key={i}>
-        {line}
-        {i < content.split("\n").length - 1 && <br />}
-      </span>
-    ))
-  }
-
-  const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat("en-US", {
-      style: "currency",
-      currency: "USD",
-    }).format(amount)
-  }
+  const filteredBanks = banks.filter((bank) => bank.name.toLowerCase().includes(searchTerm.toLowerCase()))
 
   return (
-    <div className="min-h-screen bg-black text-white">
-      <div className="max-w-6xl mx-auto h-screen flex">
-        {/* Left Panel - Banking Overview */}
-        <div className="w-1/3 border-r border-white/10 p-4 overflow-y-auto">
-          {/* Header */}
-          <div className="flex items-center justify-between mb-6">
-            <div className="flex items-center space-x-3">
-              <div className="relative h-10 w-10 rounded-xl overflow-hidden bg-green-500/20 flex items-center justify-center">
-                <Building2 className="h-6 w-6 text-green-400" />
-              </div>
-              <div>
-                <h1 className="text-xl font-light text-white tracking-tight">Smart Bank</h1>
-                <p className="text-xs text-white/60 font-light">AI Financial Assistant</p>
-              </div>
+    <div className="min-h-screen bg-black p-3 text-white">
+      <div className="max-w-7xl mx-auto space-y-4">
+        {/* Header */}
+        <header className="bg-white/5 border border-white/10 rounded-2xl p-6 md:p-8 backdrop-blur-sm animate-fadeInUp">
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div>
+              <h1 className="text-3xl md:text-4xl font-light tracking-tighter text-white mb-2">Smart Bank</h1>
+              <p className="text-white/70 font-light max-w-2xl">
+                Connect your business accounts securely and let AI manage your finances automatically. Sync with 10,000+
+                banks worldwide.
+              </p>
             </div>
-            <Button className="bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl h-9 w-9 p-0">
-              <Settings className="h-4 w-4 text-white/70" />
-            </Button>
+            <div className="flex items-center space-x-2">
+              <Badge className="bg-green-500/20 text-green-400 border-green-500/30">
+                <Shield className="h-3 w-3 mr-1" />
+                Bank-Level Security
+              </Badge>
+            </div>
           </div>
+        </header>
 
-          {/* Account Overview */}
-          <div className="space-y-4 mb-6">
-            <h2 className="text-sm font-medium text-white/90">Your Accounts</h2>
-            {accounts.map((account) => (
-              <Card key={account.id} className="bg-white/5 border-white/10 hover:bg-white/8 transition-all">
-                <CardContent className="p-4">
-                  <div className="flex items-center justify-between mb-2">
-                    <div className="flex items-center space-x-2">
-                      <CreditCard className="h-4 w-4 text-white/70" />
-                      <span className="text-sm font-medium text-white">{account.name}</span>
-                    </div>
-                    <Badge className="bg-white/10 text-white/70 text-xs">{account.type}</Badge>
-                  </div>
-                  <div className="text-lg font-semibold text-white mb-1">{formatCurrency(account.balance)}</div>
-                  <div className="text-xs text-white/50">
-                    {account.bank} • {account.accountNumber}
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
+        {/* Quick AI Input */}
+        <div className="animate-fadeInUp" style={{ animationDelay: "0.1s" }}>
+          <AIQuickInput placeholder="Ask about bank connections, expenses, or financial insights..." />
+        </div>
 
-          {/* Recent Transactions */}
-          <div className="space-y-3">
-            <h2 className="text-sm font-medium text-white/90">Recent Transactions</h2>
-            {recentTransactions.map((transaction) => (
-              <div key={transaction.id} className="bg-white/5 border border-white/10 rounded-lg p-3">
-                <div className="flex justify-between items-start mb-1">
-                  <span className="text-sm text-white font-medium">{transaction.description}</span>
-                  <span
-                    className={`text-sm font-semibold ${transaction.amount > 0 ? "text-green-400" : "text-red-400"}`}
-                  >
-                    {transaction.amount > 0 ? "+" : ""}
-                    {formatCurrency(transaction.amount)}
-                  </span>
+        {/* Connection Steps */}
+        <div className="bg-white/5 border border-white/10 rounded-2xl p-6 backdrop-blur-sm animate-fadeInUp">
+          <h2 className="text-xl font-light text-white mb-6">How It Works</h2>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {connectionSteps.map((step, index) => (
+              <div
+                key={step.step}
+                className="flex items-start space-x-4 animate-slideIn"
+                style={{ animationDelay: `${index * 0.1}s` }}
+              >
+                <div className="bg-white/10 rounded-xl p-3 flex-shrink-0">
+                  <step.icon className="h-6 w-6 text-white" />
                 </div>
-                <div className="flex justify-between items-center">
-                  <span className="text-xs text-white/50">{transaction.date}</span>
-                  <Badge
-                    className={`text-xs ${transaction.status === "completed" ? "bg-green-500/20 text-green-400" : "bg-yellow-500/20 text-yellow-400"}`}
-                  >
-                    {transaction.status}
-                  </Badge>
+                <div>
+                  <div className="flex items-center space-x-2 mb-2">
+                    <span className="bg-white/20 text-white text-xs px-2 py-1 rounded-full font-medium">
+                      Step {step.step}
+                    </span>
+                  </div>
+                  <h3 className="font-medium text-white mb-1">{step.title}</h3>
+                  <p className="text-white/60 text-sm font-light">{step.description}</p>
                 </div>
               </div>
             ))}
           </div>
         </div>
 
-        {/* Right Panel - AI Chat */}
-        <div className="flex-1 flex flex-col">
-          {/* Smart Features Row */}
-          <div className="p-4 border-b border-white/10">
-            <div className="flex items-center space-x-3 overflow-x-auto">
-              <span className="text-sm text-white/70 font-light whitespace-nowrap">Smart Features:</span>
-              {smartFeatures.map((feature) => (
-                <div
-                  key={feature.id}
-                  className="flex items-center space-x-2 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl px-3 py-2 cursor-pointer transition-all duration-200 whitespace-nowrap"
-                >
-                  <feature.icon className="h-4 w-4 text-white/70" />
-                  <div>
-                    <p className="text-xs font-light text-white">{feature.name}</p>
-                    <p className="text-[10px] text-white/50 font-light">{feature.description}</p>
-                  </div>
-                </div>
-              ))}
+        {/* Bank Search */}
+        <div className="bg-white/5 border border-white/10 rounded-2xl p-6 backdrop-blur-sm animate-fadeInUp">
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
+            <h2 className="text-xl font-light text-white">Connect Your Banks</h2>
+            <div className="relative max-w-md">
+              <Input
+                type="text"
+                placeholder="Search banks..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="bg-white/5 border-white/10 text-white placeholder:text-white/30 rounded-xl pl-4 pr-4 py-2 focus:ring-1 focus:ring-white/20 text-sm font-light"
+              />
             </div>
           </div>
 
-          {/* Messages */}
-          <div className="flex-1 overflow-y-auto p-4 space-y-6">
-            {messages.map((message) => (
-              <div key={message.id} className={`flex ${message.role === "user" ? "justify-end" : "justify-start"}`}>
-                <div className={`max-w-[80%] ${message.role === "user" ? "order-2" : "order-1"}`}>
-                  {message.role === "assistant" && (
-                    <div className="flex items-center space-x-2 mb-2">
-                      <div className="relative h-6 w-6 rounded-lg overflow-hidden bg-green-500/20 flex items-center justify-center">
-                        <Building2 className="h-4 w-4 text-green-400" />
+          {/* Banks Grid */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            {filteredBanks.map((bank, index) => (
+              <Card
+                key={bank.id}
+                className={`bg-white/5 border-white/10 hover:bg-white/8 transition-all duration-300 cursor-pointer animate-fadeInUp ${
+                  selectedBank === bank.id ? "ring-2 ring-white/20" : ""
+                }`}
+                style={{ animationDelay: `${index * 0.05}s` }}
+                onClick={() => bank.status === "disconnected" && handleConnect(bank.id)}
+              >
+                <CardContent className="p-4">
+                  <div className="flex items-center justify-between mb-3">
+                    <div className="flex items-center space-x-3">
+                      <div className="w-10 h-10 bg-white/10 rounded-lg flex items-center justify-center">
+                        <Building2 className="h-5 w-5 text-white/70" />
                       </div>
-                      <span className="text-xs text-white/50 font-light">Smart Bank AI</span>
+                      <div>
+                        <h3 className="font-medium text-white text-sm">{bank.name}</h3>
+                        {bank.accounts && bank.accounts > 0 && (
+                          <p className="text-white/50 text-xs">{bank.accounts} accounts</p>
+                        )}
+                      </div>
                     </div>
-                  )}
-                  <div
-                    className={`rounded-xl py-3 px-4 ${
-                      message.role === "user"
-                        ? "bg-white text-black rounded-tr-none"
-                        : "bg-white/5 text-white rounded-tl-none border border-white/10"
-                    }`}
-                  >
-                    <div className="text-sm leading-relaxed font-light">{formatMessageContent(message.content)}</div>
-                    <div className="mt-2 text-xs opacity-70 font-light">
-                      {message.timestamp.toLocaleTimeString([], {
-                        hour: "2-digit",
-                        minute: "2-digit",
-                      })}
-                    </div>
+                    {getStatusIcon(bank.status)}
                   </div>
-                </div>
-              </div>
+
+                  <div className="flex items-center justify-between">
+                    <Badge className={`text-xs ${getStatusColor(bank.status)}`}>
+                      {bank.status === "connected" && "Connected"}
+                      {bank.status === "pending" && "Connecting..."}
+                      {bank.status === "disconnected" && "Not Connected"}
+                    </Badge>
+
+                    {bank.status === "connected" && bank.lastSync && (
+                      <span className="text-white/40 text-xs">Synced {bank.lastSync}</span>
+                    )}
+
+                    {bank.status === "disconnected" && (
+                      <Button
+                        size="sm"
+                        className="bg-white/10 hover:bg-white/20 text-white border-white/10 h-7 px-3 text-xs"
+                        disabled={isConnecting && selectedBank === bank.id}
+                      >
+                        {isConnecting && selectedBank === bank.id ? (
+                          <div className="flex items-center space-x-1">
+                            <div className="w-3 h-3 border border-white/30 border-t-white rounded-full animate-spin" />
+                            <span>Connecting</span>
+                          </div>
+                        ) : (
+                          <>
+                            <span>Connect</span>
+                            <ArrowRight className="h-3 w-3 ml-1" />
+                          </>
+                        )}
+                      </Button>
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
             ))}
-
-            {isLoading && (
-              <div className="flex justify-start">
-                <div className="max-w-[80%]">
-                  <div className="flex items-center space-x-2 mb-2">
-                    <div className="relative h-6 w-6 rounded-lg overflow-hidden bg-green-500/20 flex items-center justify-center">
-                      <Building2 className="h-4 w-4 text-green-400" />
-                    </div>
-                    <span className="text-xs text-white/50 font-light">Smart Bank AI</span>
-                  </div>
-                  <div className="bg-white/5 rounded-xl rounded-tl-none py-3 px-4 border border-white/10">
-                    <div className="flex space-x-1">
-                      <div className="w-2 h-2 bg-white/50 rounded-full animate-bounce"></div>
-                      <div
-                        className="w-2 h-2 bg-white/50 rounded-full animate-bounce"
-                        style={{ animationDelay: "0.1s" }}
-                      ></div>
-                      <div
-                        className="w-2 h-2 bg-white/50 rounded-full animate-bounce"
-                        style={{ animationDelay: "0.2s" }}
-                      ></div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            )}
-            <div ref={messagesEndRef} />
           </div>
+        </div>
 
-          {/* Suggested Queries */}
-          {messages.length === 1 && (
-            <div className="px-4 pb-4">
+        {/* Connected Accounts Summary */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <Card className="bg-white/5 border-white/10 animate-fadeInUp">
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="font-medium text-white">Total Balance</h3>
+                <CreditCard className="h-5 w-5 text-white/50" />
+              </div>
+              <div className="space-y-2">
+                <p className="text-2xl font-light text-white">$45,230.75</p>
+                <p className="text-green-400 text-sm font-light">+$2,340 this month</p>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="bg-white/5 border-white/10 animate-fadeInUp" style={{ animationDelay: "0.1s" }}>
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="font-medium text-white">Monthly Expenses</h3>
+                <Zap className="h-5 w-5 text-white/50" />
+              </div>
+              <div className="space-y-2">
+                <p className="text-2xl font-light text-white">$8,450.20</p>
+                <p className="text-red-400 text-sm font-light">+12% from last month</p>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="bg-white/5 border-white/10 animate-fadeInUp" style={{ animationDelay: "0.2s" }}>
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="font-medium text-white">Connected Banks</h3>
+                <Building2 className="h-5 w-5 text-white/50" />
+              </div>
+              <div className="space-y-2">
+                <p className="text-2xl font-light text-white">{banks.filter((b) => b.status === "connected").length}</p>
+                <p className="text-white/50 text-sm font-light">of {banks.length} available</p>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Security Notice */}
+        <div className="bg-gradient-to-r from-blue-500/10 to-purple-500/10 border border-white/10 rounded-2xl p-6 backdrop-blur-sm animate-fadeInUp">
+          <div className="flex items-start space-x-4">
+            <Shield className="h-6 w-6 text-blue-400 flex-shrink-0 mt-1" />
+            <div>
+              <h3 className="font-medium text-white mb-2">Bank-Level Security</h3>
+              <p className="text-white/70 font-light mb-4">
+                Your financial data is protected with 256-bit encryption, the same security used by major banks. We
+                never store your banking credentials.
+              </p>
               <div className="flex flex-wrap gap-2">
-                {suggestedQueries.slice(0, 4).map((query, index) => (
-                  <Badge
-                    key={index}
-                    onClick={() => handleSuggestedQuery(query)}
-                    className="bg-white/5 hover:bg-white/10 text-white/70 border border-white/10 cursor-pointer rounded-xl text-xs px-3 py-1.5 font-light transition-all duration-200"
-                  >
-                    {query}
-                  </Badge>
-                ))}
+                <Badge className="bg-white/10 text-white/70 border-white/20">SOC 2 Certified</Badge>
+                <Badge className="bg-white/10 text-white/70 border-white/20">PCI Compliant</Badge>
+                <Badge className="bg-white/10 text-white/70 border-white/20">GDPR Ready</Badge>
               </div>
             </div>
-          )}
-
-          {/* Chat Input */}
-          <div className="p-4 border-t border-white/10">
-            <form onSubmit={handleSubmit} className="relative">
-              <div className="relative">
-                <div className="absolute left-4 top-1/2 transform -translate-y-1/2 flex items-center">
-                  <div className="relative h-6 w-6 rounded-lg overflow-hidden bg-green-500/20 flex items-center justify-center mr-2">
-                    <Building2 className="h-4 w-4 text-green-400" />
-                  </div>
-                </div>
-                <Input
-                  type="text"
-                  value={input}
-                  onChange={(e) => setInput(e.target.value)}
-                  placeholder="Ask about your finances, transactions, or get insights..."
-                  disabled={isLoading}
-                  className="bg-white/5 border-white/10 text-white placeholder:text-white/30 rounded-xl pl-12 pr-12 py-3 focus:ring-1 focus:ring-white/20 text-sm font-light"
-                />
-                <Button
-                  type="submit"
-                  disabled={!input.trim() || isLoading}
-                  size="sm"
-                  className="absolute right-3 top-1/2 -translate-y-1/2 bg-white text-black hover:bg-white/90 disabled:opacity-50 h-8 w-8 p-0 rounded-lg"
-                >
-                  <ArrowRight className="h-4 w-4" />
-                </Button>
-              </div>
-            </form>
           </div>
         </div>
       </div>

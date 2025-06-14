@@ -62,13 +62,42 @@ export default function FlightsPage() {
   // Filter state
   const [sortBy, setSortBy] = useState("price")
 
+  // Add CSS animations on client side only
+  useEffect(() => {
+    if (typeof document !== "undefined") {
+      const style = document.createElement("style")
+      style.textContent = `
+        @keyframes fadeInUp {
+          from {
+            opacity: 0;
+            transform: translateY(20px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+        .animate-fade-in-up {
+          animation: fadeInUp 0.5s ease-out forwards;
+        }
+      `
+      document.head.appendChild(style)
+
+      return () => {
+        document.head.removeChild(style)
+      }
+    }
+  }, [])
+
   useEffect(() => {
     // Check URL params for pre-filled search
-    const urlParams = new URLSearchParams(window.location.search)
-    const destination = urlParams.get("destination")
-    if (destination) {
-      setDestinationCity(destination)
-      performSearch()
+    if (typeof window !== "undefined") {
+      const urlParams = new URLSearchParams(window.location.search)
+      const destination = urlParams.get("destination")
+      if (destination) {
+        setDestinationCity(destination)
+        performSearch()
+      }
     }
   }, [])
 
@@ -262,8 +291,11 @@ export default function FlightsPage() {
             {sortedAndFilteredFlights.map((flight, index) => (
               <Card
                 key={flight.id}
-                className={`bg-white/5 border hover:bg-white/10 transition-all ${selectedFlightId === flight.id ? "border-blue-500/50 ring-2 ring-blue-500/30" : "border-white/10"}`}
-                style={{ animation: `fadeInUp 0.5s ${index * 0.05}s ease-out forwards`, opacity: 0 }}
+                className={`bg-white/5 border hover:bg-white/10 transition-all animate-fade-in-up ${selectedFlightId === flight.id ? "border-blue-500/50 ring-2 ring-blue-500/30" : "border-white/10"}`}
+                style={{
+                  animationDelay: `${index * 0.05}s`,
+                  opacity: 0,
+                }}
               >
                 <CardContent
                   className="p-4 cursor-pointer"
@@ -406,19 +438,3 @@ function InputWithIcon({ icon, ...props }: { icon: React.ReactNode } & React.Inp
     </div>
   )
 }
-
-// Add CSS for animations
-const style = document.createElement("style")
-style.textContent = `
-  @keyframes fadeInUp {
-    from {
-      opacity: 0;
-      transform: translateY(20px);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
-  }
-`
-document.head.appendChild(style)

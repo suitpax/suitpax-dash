@@ -9,8 +9,9 @@ import { Badge } from "@/components/ui/badge"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Switch } from "@/components/ui/switch"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { User, Building2, Upload, Save, Edit, Camera, Mail, Phone } from "lucide-react"
+import { User, Building2, Upload, Save, Edit, Camera, Mail, Phone, CreditCard, ArrowRight } from "lucide-react"
 import Image from "next/image"
+import Link from "next/link"
 
 interface UserProfile {
   firstName: string
@@ -35,6 +36,7 @@ interface UserProfile {
   emailNotifications: boolean
   smsNotifications: boolean
   pushNotifications: boolean
+  currentPlan: string
 }
 
 export default function ProfilePage() {
@@ -47,6 +49,33 @@ export default function ProfilePage() {
     const savedProfile = localStorage.getItem("userProfile")
     if (savedProfile) {
       setProfile(JSON.parse(savedProfile))
+    } else {
+      // Default profile
+      setProfile({
+        firstName: "John",
+        lastName: "Doe",
+        email: "john.doe@company.com",
+        phone: "+1 (555) 123-4567",
+        profileImage: null,
+        companyName: "Acme Corporation",
+        companyLogo: null,
+        jobTitle: "Senior Manager",
+        department: "Sales",
+        employeeId: "EMP001",
+        preferredAirlines: ["American Airlines", "Delta"],
+        seatPreference: "aisle",
+        mealPreference: "regular",
+        hotelChain: ["Marriott", "Hilton"],
+        roomPreference: "king",
+        travelBudgetLimit: "$5000",
+        expenseCategories: ["meals", "transportation", "accommodation"],
+        approvalRequired: true,
+        defaultCurrency: "USD",
+        emailNotifications: true,
+        smsNotifications: false,
+        pushNotifications: true,
+        currentPlan: "Professional",
+      })
     }
   }, [])
 
@@ -171,9 +200,20 @@ export default function ProfilePage() {
                 </div>
               </div>
 
-              <div className="flex items-center space-x-2">
-                <Badge className="bg-green-500/20 text-green-400 border-green-500/30 rounded-full">Active</Badge>
-                <Badge className="bg-blue-500/20 text-blue-400 border-blue-500/30 rounded-full">Business Account</Badge>
+              <div className="flex flex-col items-end space-y-2">
+                <div className="flex items-center space-x-2">
+                  <Badge className="bg-green-500/20 text-green-400 border-green-500/30 rounded-full">Active</Badge>
+                  <Badge className="bg-blue-500/20 text-blue-400 border-blue-500/30 rounded-full">
+                    {profile.currentPlan}
+                  </Badge>
+                </div>
+                <Link href="/plans">
+                  <Button variant="outline" size="sm" className="border-white/20 text-white hover:bg-white/10">
+                    <CreditCard className="h-4 w-4 mr-2" />
+                    Manage Plan
+                    <ArrowRight className="h-4 w-4 ml-2" />
+                  </Button>
+                </Link>
               </div>
             </div>
           </CardContent>

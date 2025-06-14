@@ -7,18 +7,7 @@ import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import {
-  Search,
-  MapPin,
-  Calendar,
-  Users,
-  TrainFront,
-  Clock,
-  ArrowRightLeft,
-  Ticket,
-  Sparkles,
-  CheckCircle,
-} from "lucide-react"
+import { Search, MapPin, Calendar, Users, TrainFront, Clock, ArrowRightLeft, Ticket, CheckCircle } from "lucide-react"
 import trainsData from "@/data/trains.json" // Assuming this data structure is suitable
 
 interface Train {
@@ -171,7 +160,7 @@ export default function TrainsPage() {
       <div className="max-w-7xl mx-auto space-y-4">
         {/* Header */}
         <header className="bg-white/5 border border-white/10 rounded-2xl p-6 md:p-8 backdrop-blur-sm">
-          <h1 className="text-2xl font-medium text-white">Trains</h1>
+          <h1 className="text-2xl font-light text-white tracking-tight">Trains</h1>
         </header>
 
         {/* Search Form */}
@@ -276,7 +265,8 @@ export default function TrainsPage() {
                       <img
                         src={
                           trainCompanies[train.company as keyof typeof trainCompanies]?.logo ||
-                          "/placeholder.svg?width=32&height=32&text=TR"
+                          "/placeholder.svg?width=32&height=32&text=TR" ||
+                          "/placeholder.svg"
                         }
                         alt={train.company}
                         className="h-8 w-8 rounded-md bg-white/10 p-1"
@@ -372,29 +362,42 @@ export default function TrainsPage() {
         {!loading && !destinationCity && (
           <Card className="bg-white/5 border-white/10">
             <CardContent className="p-10 text-center">
-              <Sparkles className="h-12 w-12 text-white/30 mx-auto mb-3" />
-              <h3 className="text-xl font-medium text-white">Find Your Next Journey</h3>
-              <p className="text-white/70 mt-1">Enter your origin and destination to see available trains.</p>
+              <TrainFront className="h-12 w-12 text-white/30 mx-auto mb-3" />
+              <h3 className="text-xl font-medium text-white">Find Your Perfect Train</h3>
+              <p className="text-white/70 mt-1">Search for trains to your destination.</p>
             </CardContent>
           </Card>
         )}
       </div>
-      <style jsx global>{`
-        @keyframes fadeInUp {
-          from { opacity: 0; transform: translateY(15px); }
-          to { opacity: 1; transform: translateY(0); }
-        }
-      `}</style>
     </div>
   )
 }
 
-const InputWithIcon = ({ icon, ...props }: { icon: React.ReactNode } & React.InputHTMLAttributes<HTMLInputElement>) => (
-  <div className="relative">
-    <div className="absolute left-3.5 top-1/2 transform -translate-y-1/2 pointer-events-none">{icon}</div>
-    <Input
-      {...props}
-      className="pl-10 h-11 bg-white/5 border-white/10 text-white placeholder:text-white/30 rounded-xl hover:bg-white/10 focus:bg-white/10"
-    />
-  </div>
-)
+// Helper component for inputs with icons
+function InputWithIcon({ icon, ...props }: { icon: React.ReactNode } & React.InputHTMLAttributes<HTMLInputElement>) {
+  return (
+    <div className="relative">
+      <div className="absolute left-3 top-1/2 -translate-y-1/2">{icon}</div>
+      <Input
+        {...props}
+        className="pl-10 h-11 bg-white/5 border-white/10 text-white placeholder:text-white/30 rounded-xl hover:bg-white/10 focus:ring-1 focus:ring-white/20"
+      />
+    </div>
+  )
+}
+
+// Add CSS for animations
+const style = document.createElement("style")
+style.textContent = `
+  @keyframes fadeInUp {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+`
+document.head.appendChild(style)

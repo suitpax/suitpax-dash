@@ -1,13 +1,13 @@
 "use client"
 
 import type React from "react"
-
 import { useState, useEffect, useRef } from "react"
 import Image from "next/image"
-import { Send, Paperclip, Mic, Bot, Settings, Trash2, Plus, MessageCircle } from "lucide-react"
+import { Paperclip, Mic, MicOff, Settings, Plus, ArrowRight } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
+import { useSpeechRecognition } from "@/lib/hooks/use-speech-recognition"
 
 interface Message {
   id: string
@@ -34,14 +34,29 @@ const suggestedQueries = [
   "Airport lounge access",
 ]
 
+const aiAgents = [
+  { id: 1, name: "Travel Agent", avatar: "/images/ai-agents/agent-1.jpg", specialty: "Flight & Hotel Booking" },
+  { id: 2, name: "Expense Agent", avatar: "/images/ai-agents/agent-2.jpg", specialty: "Expense Management" },
+  { id: 3, name: "Policy Agent", avatar: "/images/ai-agents/agent-3.jpg", specialty: "Travel Policies" },
+  { id: 4, name: "Support Agent", avatar: "/images/ai-agents/agent-4.jpg", specialty: "General Support" },
+]
+
 export default function SuitpaxAIPage() {
   const [input, setInput] = useState("")
   const [isLoading, setIsLoading] = useState(false)
   const [conversations, setConversations] = useState<Conversation[]>([])
   const [activeConversation, setActiveConversation] = useState<Conversation | null>(null)
-  const [showSidebar, setShowSidebar] = useState(true)
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
+  const { isListening, transcript, startListening, stopListening, resetTranscript, isSupported } =
+    useSpeechRecognition()
+
+  // Update input when transcript changes
+  useEffect(() => {
+    if (transcript) {
+      setInput(transcript)
+    }
+  }, [transcript])
 
   // Initialize with welcome conversation
   useEffect(() => {
@@ -53,7 +68,7 @@ export default function SuitpaxAIPage() {
           id: "welcome-msg",
           role: "assistant",
           content:
-            "Hello! I'm your Suitpax AI travel assistant. I can help you with flight bookings, hotel reservations, expense management, travel policies, and much more. What can I assist you with today?",
+            "Hey, Try ask anything to Suitpax Agent. I can help you with flight bookings, hotel reservations, expense management, travel policies, and much more. What can I assist you with today?",
           timestamp: new Date(),
         },
       ],
@@ -92,6 +107,7 @@ export default function SuitpaxAIPage() {
     setActiveConversation(updatedConversation)
     setConversations((prev) => prev.map((conv) => (conv.id === activeConversation.id ? updatedConversation : conv)))
     setInput("")
+    resetTranscript()
     setIsLoading(true)
 
     try {
@@ -172,21 +188,18 @@ export default function SuitpaxAIPage() {
     setActiveConversation(newConversation)
   }
 
-  const selectConversation = (conversation: Conversation) => {
-    setActiveConversation(conversation)
-  }
-
-  const deleteConversation = (id: string, e: React.MouseEvent) => {
-    e.stopPropagation()
-    setConversations((prev) => prev.filter((conv) => conv.id !== id))
-    if (activeConversation?.id === id) {
-      const remaining = conversations.filter((conv) => conv.id !== id)
-      setActiveConversation(remaining.length > 0 ? remaining[0] : null)
-    }
-  }
-
   const handleSuggestedQuery = (query: string) => {
     setInput(query)
+  }
+
+  const toggleListening = () => {
+    if (isListening) {
+      stopListening()
+    } else {
+      resetTranscript()
+      setInput("")
+      startListening()
+    }
   }
 
   const formatMessageContent = (content: string) => {
@@ -199,130 +212,76 @@ export default function SuitpaxAIPage() {
   }
 
   return (
-    <div className="h-full flex bg-black text-white">
-      {/* Sidebar */}
-      <div
-        className={`${showSidebar ? "w-80" : "w-0"} transition-all duration-300 border-r border-white/10 flex flex-col overflow-hidden`}
-      >
-        {/* Sidebar Header */}
-        <div className="p-3 border-b border-white/10">
-          <div className="flex items-center justify-between mb-4">
-            <div className="flex items-center space-x-3">
-              <div className="relative">
-                <Image
-                  src="/images/ai-agent-avatar.jpeg"
-                  alt="Suitpax AI"
-                  width={40}
-                  height={40}
-                  className="rounded-full object-cover"
-                />
-                <div className="absolute -bottom-1 -right-1 w-3 h-3 bg-green-500 rounded-full border-2 border-black"></div>
-              </div>
-              <div>
-                <h2 className="font-light text-white">Suitpax AI</h2>
-                <p className="text-xs text-white/60 font-light">Business Travel Assistant</p>
-              </div>
-            </div>
-            <Button
-              onClick={createNewConversation}
-              size="sm"
-              className="bg-white/5 hover:bg-white/10 border border-white/10 rounded-lg h-8 w-8 p-0"
-            >
-              <Plus className="h-4 w-4 text-white" />
-            </Button>
-          </div>
-        </div>
-
-        {/* Conversations List */}
-        <div className="flex-1 overflow-y-auto scrollbar-thin scrollbar-track-transparent scrollbar-thumb-white/10">
-          <div className="p-2 space-y-0.5">
-            {conversations.map((conversation) => (
-              <div
-                key={conversation.id}
-                onClick={() => selectConversation(conversation)}
-                className={`group flex items-center justify-between py-2 px-2 rounded-lg cursor-pointer transition-all ${
-                  activeConversation?.id === conversation.id ? "bg-white/10 border border-white/20" : "hover:bg-white/5"
-                }`}
-              >
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center space-x-2 mb-0.5">
-                    <MessageCircle className="h-3 w-3 text-white/50 flex-shrink-0" />
-                    <span className="text-xs font-light text-white truncate">{conversation.title}</span>
-                  </div>
-                  <p className="text-[10px] text-white/50 font-light">{conversation.messages.length} messages</p>
-                </div>
-                <Button
-                  onClick={(e) => deleteConversation(conversation.id, e)}
-                  size="sm"
-                  className="opacity-0 group-hover:opacity-100 bg-transparent hover:bg-white/10 h-6 w-6 p-0"
-                >
-                  <Trash2 className="h-3 w-3 text-white/50" />
-                </Button>
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
-
-      {/* Main Chat Area */}
-      <div className="flex-1 flex flex-col">
-        {/* Chat Header */}
-        <div className="py-2 px-2 border-b border-white/10 flex items-center justify-between">
+    <div className="min-h-screen bg-black text-white">
+      <div className="max-w-4xl mx-auto h-screen flex flex-col">
+        {/* Header */}
+        <div className="flex items-center justify-between p-4 border-b border-white/10">
           <div className="flex items-center space-x-3">
-            <Button
-              onClick={() => setShowSidebar(!showSidebar)}
-              size="sm"
-              className="lg:hidden bg-white/5 hover:bg-white/10 border border-white/10 rounded-lg h-8 w-8 p-0"
-            >
-              <Bot className="h-4 w-4 text-white" />
-            </Button>
-            <div className="flex items-center space-x-3">
-              <Image
-                src="/images/ai-agent-avatar.jpeg"
-                alt="Suitpax AI"
-                width={32}
-                height={32}
-                className="rounded-full object-cover"
-              />
-              <div>
-                <h1 className="font-light text-white">Suitpax AI Assistant</h1>
-                <p className="text-xs text-white/60 font-light">Online • Ready to help</p>
-              </div>
+            <div className="relative h-10 w-10 rounded-xl overflow-hidden">
+              <Image src="/images/ai-agent-avatar.jpeg" alt="Suitpax AI" fill className="object-cover" />
+            </div>
+            <div>
+              <h1 className="text-xl font-light text-white tracking-tight">Suitpax AI</h1>
+              <p className="text-xs text-white/60 font-light">Business Travel Assistant</p>
             </div>
           </div>
           <div className="flex items-center space-x-2">
-            <Button size="sm" className="bg-white/5 hover:bg-white/10 border border-white/10 rounded-lg h-8 w-8 p-0">
+            <Button
+              onClick={createNewConversation}
+              className="bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl h-9 px-3 font-light"
+            >
+              <Plus className="h-4 w-4 mr-2" />
+              New Chat
+            </Button>
+            <Button className="bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl h-9 w-9 p-0">
               <Settings className="h-4 w-4 text-white/70" />
             </Button>
           </div>
         </div>
 
+        {/* AI Agents Row */}
+        <div className="p-4 border-b border-white/10">
+          <div className="flex items-center space-x-3 overflow-x-auto">
+            <span className="text-sm text-white/70 font-light whitespace-nowrap">Specialized Agents:</span>
+            {aiAgents.map((agent) => (
+              <div
+                key={agent.id}
+                className="flex items-center space-x-2 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl px-3 py-2 cursor-pointer transition-all duration-200 whitespace-nowrap"
+              >
+                <div className="relative h-6 w-6 rounded-lg overflow-hidden">
+                  <Image src={agent.avatar || "/placeholder.svg"} alt={agent.name} fill className="object-cover" />
+                </div>
+                <div>
+                  <p className="text-xs font-light text-white">{agent.name}</p>
+                  <p className="text-[10px] text-white/50 font-light">{agent.specialty}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
         {/* Messages */}
-        <div className="flex-1 overflow-y-auto p-2 space-y-4">
+        <div className="flex-1 overflow-y-auto p-4 space-y-6">
           {activeConversation?.messages.map((message) => (
             <div key={message.id} className={`flex ${message.role === "user" ? "justify-end" : "justify-start"}`}>
               <div className={`max-w-[80%] ${message.role === "user" ? "order-2" : "order-1"}`}>
                 {message.role === "assistant" && (
                   <div className="flex items-center space-x-2 mb-2">
-                    <Image
-                      src="/images/ai-agent-avatar.jpeg"
-                      alt="AI"
-                      width={20}
-                      height={20}
-                      className="rounded-full"
-                    />
+                    <div className="relative h-6 w-6 rounded-lg overflow-hidden">
+                      <Image src="/images/ai-agent-avatar.jpeg" alt="AI" fill className="object-cover" />
+                    </div>
                     <span className="text-xs text-white/50 font-light">Suitpax AI</span>
                   </div>
                 )}
                 <div
-                  className={`rounded-lg py-2 px-2 ${
+                  className={`rounded-xl py-3 px-4 ${
                     message.role === "user"
                       ? "bg-white text-black rounded-tr-none"
-                      : "bg-white/5 text-white rounded-tl-none"
+                      : "bg-white/5 text-white rounded-tl-none border border-white/10"
                   }`}
                 >
-                  <div className="text-xs leading-relaxed font-light">{formatMessageContent(message.content)}</div>
-                  <div className="mt-1.5 text-[10px] opacity-70 font-light">
+                  <div className="text-sm leading-relaxed font-light">{formatMessageContent(message.content)}</div>
+                  <div className="mt-2 text-xs opacity-70 font-light">
                     {message.timestamp.toLocaleTimeString([], {
                       hour: "2-digit",
                       minute: "2-digit",
@@ -337,10 +296,12 @@ export default function SuitpaxAIPage() {
             <div className="flex justify-start">
               <div className="max-w-[80%]">
                 <div className="flex items-center space-x-2 mb-2">
-                  <Image src="/images/ai-agent-avatar.jpeg" alt="AI" width={20} height={20} className="rounded-full" />
+                  <div className="relative h-6 w-6 rounded-lg overflow-hidden">
+                    <Image src="/images/ai-agent-avatar.jpeg" alt="AI" fill className="object-cover" />
+                  </div>
                   <span className="text-xs text-white/50 font-light">Suitpax AI</span>
                 </div>
-                <div className="bg-white/5 rounded-lg rounded-tl-none py-2 px-2">
+                <div className="bg-white/5 rounded-xl rounded-tl-none py-3 px-4 border border-white/10">
                   <div className="flex space-x-1">
                     <div className="w-2 h-2 bg-white/50 rounded-full animate-bounce"></div>
                     <div
@@ -361,13 +322,13 @@ export default function SuitpaxAIPage() {
 
         {/* Suggested Queries */}
         {activeConversation?.messages.length === 1 && (
-          <div className="px-2 pb-2">
+          <div className="px-4 pb-4">
             <div className="flex flex-wrap gap-2">
               {suggestedQueries.slice(0, 4).map((query, index) => (
                 <Badge
                   key={index}
                   onClick={() => handleSuggestedQuery(query)}
-                  className="bg-white/5 hover:bg-white/10 text-white/70 border border-white/10 cursor-pointer rounded-full text-[10px] px-2.5 py-0.5 font-light"
+                  className="bg-white/5 hover:bg-white/10 text-white/70 border border-white/10 cursor-pointer rounded-xl text-xs px-3 py-1.5 font-light transition-all duration-200"
                 >
                   {query}
                 </Badge>
@@ -377,37 +338,53 @@ export default function SuitpaxAIPage() {
         )}
 
         {/* Chat Input */}
-        <div className="py-2 px-2 border-t border-white/10">
+        <div className="p-4 border-t border-white/10">
           <form onSubmit={handleSubmit} className="relative">
             <div className="relative">
+              <div className="absolute left-4 top-1/2 transform -translate-y-1/2 flex items-center">
+                <div className="relative h-6 w-6 rounded-lg overflow-hidden mr-2">
+                  <Image src="/images/ai-agent-avatar.jpeg" alt="AI Assistant" fill className="object-cover" />
+                </div>
+              </div>
               <Input
                 id="main-chat-input"
                 type="text"
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
-                placeholder="Ask your AI travel assistant anything..."
+                placeholder={isListening ? "Listening..." : "Ask your AI travel assistant anything..."}
                 disabled={isLoading}
-                className="bg-white/5 border-white/10 text-white placeholder:text-white/30 rounded-lg pl-3 pr-16 py-2 focus:ring-1 focus:ring-white/20 text-xs font-light"
+                className="bg-white/5 border-white/10 text-white placeholder:text-white/30 rounded-xl pl-12 pr-24 py-3 focus:ring-1 focus:ring-white/20 text-sm font-light"
               />
-              <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center space-x-1">
+              <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center space-x-2">
                 <Button
                   type="button"
                   onClick={() => fileInputRef.current?.click()}
                   size="sm"
-                  className="bg-transparent hover:bg-white/10 h-6 w-6 p-0 rounded-md"
+                  className="bg-transparent hover:bg-white/10 h-8 w-8 p-0 rounded-lg"
                 >
-                  <Paperclip className="h-3 w-3 text-white/50" />
+                  <Paperclip className="h-4 w-4 text-white/50" />
                 </Button>
-                <Button type="button" size="sm" className="bg-transparent hover:bg-white/10 h-6 w-6 p-0 rounded-md">
-                  <Mic className="h-3 w-3 text-white/50" />
-                </Button>
+                {isSupported && (
+                  <Button
+                    type="button"
+                    onClick={toggleListening}
+                    size="sm"
+                    className={`h-8 w-8 p-0 rounded-lg ${
+                      isListening
+                        ? "bg-red-500/20 text-red-400 hover:bg-red-500/30"
+                        : "bg-transparent hover:bg-white/10"
+                    }`}
+                  >
+                    {isListening ? <MicOff className="h-4 w-4" /> : <Mic className="h-4 w-4 text-white/50" />}
+                  </Button>
+                )}
                 <Button
                   type="submit"
                   disabled={!input.trim() || isLoading}
                   size="sm"
-                  className="bg-white text-black hover:bg-white/90 disabled:opacity-50 h-6 w-6 p-0 rounded-md"
+                  className="bg-white text-black hover:bg-white/90 disabled:opacity-50 h-8 w-8 p-0 rounded-lg"
                 >
-                  <Send className="h-3 w-3" />
+                  <ArrowRight className="h-4 w-4" />
                 </Button>
               </div>
             </div>

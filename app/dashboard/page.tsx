@@ -32,6 +32,14 @@ export default function Dashboard() {
   const today = new Date().toISOString().split("T")[0]
   const { meetings, loading: meetingsLoading } = useUserMeetings(userData?.id, today)
 
+  // Get greeting based on time
+  const getGreeting = () => {
+    const hour = new Date().getHours()
+    if (hour < 12) return "Good morning"
+    if (hour < 18) return "Good afternoon"
+    return "Good evening"
+  }
+
   if (userLoading) {
     return (
       <div className="min-h-screen bg-black flex items-center justify-center">
@@ -78,7 +86,8 @@ export default function Dashboard() {
             </div>
             <div>
               <h1 className="text-2xl lg:text-3xl font-light tracking-tighter text-white">
-                Welcome back{userData.name ? `, ${userData.name}` : ""}
+                Hey, {getGreeting()}
+                {userData.name ? `, ${userData.name}` : ""}
               </h1>
               <p className="text-white/70 text-sm font-light">Ready to plan your next business trip?</p>
             </div>
@@ -87,14 +96,14 @@ export default function Dashboard() {
           <div className="flex gap-2">
             <Link
               href="/flights"
-              className="flex items-center gap-2 px-3 py-1.5 text-xs bg-white/5 hover:bg-white/10 border border-white/10 rounded-lg transition-colors text-white/70 hover:text-white font-light"
+              className="flex items-center gap-2 px-2 py-1 text-xs bg-white/5 hover:bg-white/10 border border-white/10 rounded-full transition-colors text-white/70 hover:text-white font-light"
             >
               <Plane className="h-3 w-3" />
               Book Flight
             </Link>
             <Link
               href="/expenses"
-              className="flex items-center gap-2 px-3 py-1.5 text-xs bg-white/5 hover:bg-white/10 border border-white/10 rounded-lg transition-colors text-white/70 hover:text-white font-light"
+              className="flex items-center gap-2 px-2 py-1 text-xs bg-white/5 hover:bg-white/10 border border-white/10 rounded-full transition-colors text-white/70 hover:text-white font-light"
             >
               <Receipt className="h-3 w-3" />
               Add Expense

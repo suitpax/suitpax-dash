@@ -1,509 +1,414 @@
 "use client"
 
-import { useState } from "react"
-import Layout from "@/components/ui/layout"
-import Image from "next/image"
-import {
-  CreditCardIcon,
-  BanknotesIcon,
-  ArrowPathIcon,
-  ArrowTrendingUpIcon,
-  ArrowTrendingDownIcon,
-  PlusCircleIcon,
-  BuildingLibraryIcon,
-  ShieldCheckIcon,
-  ChartBarIcon,
-  CurrencyDollarIcon,
-  ClockIcon,
-  TagIcon,
-  ArrowRightIcon,
-  CheckIcon,
-} from "@heroicons/react/24/outline"
+import type React from "react"
+
+import { useState, useEffect, useRef } from "react"
+import { Settings, ArrowRight, CreditCard, TrendingUp, DollarSign, Building2, Shield, Zap } from "lucide-react"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Badge } from "@/components/ui/badge"
+import { Card, CardContent } from "@/components/ui/card"
+
+interface Message {
+  id: string
+  role: "user" | "assistant"
+  content: string
+  timestamp: Date
+}
+
+interface BankAccount {
+  id: string
+  name: string
+  type: "checking" | "savings" | "credit"
+  balance: number
+  currency: string
+  bank: string
+  accountNumber: string
+}
+
+interface Transaction {
+  id: string
+  description: string
+  amount: number
+  date: string
+  category: string
+  status: "completed" | "pending"
+}
+
+const suggestedQueries = [
+  "Show my account balance",
+  "Recent transactions",
+  "Transfer money",
+  "Set up automatic savings",
+  "Expense categories",
+  "Monthly spending report",
+  "Investment opportunities",
+  "Budget recommendations",
+]
+
+const smartFeatures = [
+  { id: 1, name: "Smart Budgeting", icon: TrendingUp, description: "AI-powered budget optimization" },
+  { id: 2, name: "Expense Tracking", icon: DollarSign, description: "Automatic expense categorization" },
+  { id: 3, name: "Fraud Protection", icon: Shield, description: "Real-time fraud detection" },
+  { id: 4, name: "Investment Insights", icon: Zap, description: "Personalized investment advice" },
+]
 
 export default function SmartBankPage() {
-  const [activeTab, setActiveTab] = useState("accounts")
-  const [isConnecting, setIsConnecting] = useState(false)
-  const [connectedBanks, setConnectedBanks] = useState<string[]>([])
+  const [input, setInput] = useState("")
+  const [isLoading, setIsLoading] = useState(false)
+  const [messages, setMessages] = useState<Message[]>([
+    {
+      id: "welcome-msg",
+      role: "assistant",
+      content:
+        "Hey, Try ask anything to Smart Bank Agent. I can help you manage your accounts, track expenses, analyze spending patterns, and provide financial insights. What would you like to know?",
+      timestamp: new Date(),
+    },
+  ])
+  const messagesEndRef = useRef<HTMLDivElement>(null)
 
-  // Sample data
-  const accounts = [
+  const accounts: BankAccount[] = [
     {
       id: "acc1",
       name: "Business Checking",
+      type: "checking",
+      balance: 45230.75,
+      currency: "USD",
       bank: "Chase",
       accountNumber: "****4567",
-      balance: 12450.75,
-      currency: "USD",
-      type: "checking",
     },
     {
       id: "acc2",
       name: "Business Savings",
+      type: "savings",
+      balance: 125000.0,
+      currency: "USD",
       bank: "Chase",
       accountNumber: "****8901",
-      balance: 45000.0,
-      currency: "USD",
-      type: "savings",
     },
     {
       id: "acc3",
       name: "Corporate Card",
+      type: "credit",
+      balance: -3240.5,
+      currency: "USD",
       bank: "American Express",
       accountNumber: "****3456",
-      balance: -2340.5,
-      currency: "USD",
-      type: "credit",
-      creditLimit: 10000,
     },
   ]
 
-  const transactions = [
+  const recentTransactions: Transaction[] = [
     {
       id: "tx1",
-      date: "2024-04-28",
-      description: "Hotel Marriott - New York",
+      description: "Hotel Marriott - Business Trip",
       amount: -450.75,
-      category: "Accommodation",
-      account: "Corporate Card",
-      status: "Completed",
+      date: "2024-12-15",
+      category: "Travel",
+      status: "completed",
     },
     {
       id: "tx2",
-      date: "2024-04-27",
-      description: "Uber - Airport Transfer",
-      amount: -65.2,
-      category: "Transportation",
-      account: "Corporate Card",
-      status: "Completed",
+      description: "Client Payment - Acme Corp",
+      amount: 5000.0,
+      date: "2024-12-14",
+      category: "Income",
+      status: "completed",
     },
     {
       id: "tx3",
-      date: "2024-04-26",
-      description: "Client Dinner - Morton's Steakhouse",
-      amount: -120.5,
-      category: "Meals",
-      account: "Corporate Card",
-      status: "Completed",
-    },
-    {
-      id: "tx4",
-      date: "2024-04-25",
       description: "Office Supplies - Staples",
-      amount: -85.3,
-      category: "Office Supplies",
-      account: "Business Checking",
-      status: "Completed",
-    },
-    {
-      id: "tx5",
-      date: "2024-04-24",
-      description: "Client Payment - Acme Inc",
-      amount: 5000.0,
-      category: "Income",
-      account: "Business Checking",
-      status: "Completed",
-    },
-    {
-      id: "tx6",
-      date: "2024-04-23",
-      description: "Software Subscription - Adobe",
-      amount: -52.99,
-      category: "Software",
-      account: "Business Checking",
-      status: "Completed",
-    },
-    {
-      id: "tx7",
-      date: "2024-04-22",
-      description: "Flight - British Airways",
-      amount: -750.0,
-      category: "Travel",
-      account: "Corporate Card",
-      status: "Pending",
+      amount: -125.3,
+      date: "2024-12-13",
+      category: "Office",
+      status: "pending",
     },
   ]
 
-  const banks = [
-    { id: "chase", name: "Chase", logo: "/images/user-avatar.jpg", color: "bg-blue-100" },
-    { id: "bofa", name: "Bank of America", logo: "/images/user-avatar.jpg", color: "bg-red-100" },
-    { id: "wells", name: "Wells Fargo", logo: "/images/user-avatar.jpg", color: "bg-yellow-100" },
-    { id: "citi", name: "Citibank", logo: "/images/user-avatar.jpg", color: "bg-blue-100" },
-    { id: "amex", name: "American Express", logo: "/images/user-avatar.jpg", color: "bg-gray-100" },
-    { id: "capital", name: "Capital One", logo: "/images/user-avatar.jpg", color: "bg-red-100" },
-  ]
+  // Auto scroll to bottom
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
+  }, [messages])
 
-  const handleConnectBank = (bankId: string) => {
-    setIsConnecting(true)
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!input.trim() || isLoading) return
 
-    // Simulate connection process
-    setTimeout(() => {
-      setConnectedBanks([...connectedBanks, bankId])
-      setIsConnecting(false)
-    }, 2000)
+    const userMessage: Message = {
+      id: Date.now().toString(),
+      role: "user",
+      content: input.trim(),
+      timestamp: new Date(),
+    }
+
+    setMessages((prev) => [...prev, userMessage])
+    setInput("")
+    setIsLoading(true)
+
+    try {
+      // Call AI API
+      const response = await fetch("/api/chat", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          message: userMessage.content,
+          isPro: true,
+          plan: "business",
+          conversationId: "smart-bank",
+        }),
+      })
+
+      if (!response.ok) {
+        throw new Error("Failed to get AI response")
+      }
+
+      const data = await response.json()
+
+      const assistantMessage: Message = {
+        id: (Date.now() + 1).toString(),
+        role: "assistant",
+        content:
+          data.response || "I apologize, but I'm having trouble processing your request right now. Please try again.",
+        timestamp: new Date(),
+      }
+
+      setMessages((prev) => [...prev, assistantMessage])
+    } catch (error) {
+      console.error("Error getting AI response:", error)
+
+      const errorMessage: Message = {
+        id: (Date.now() + 1).toString(),
+        role: "assistant",
+        content:
+          "I'm sorry, I encountered an error while processing your request. Please try again or contact support if the issue persists.",
+        timestamp: new Date(),
+      }
+
+      setMessages((prev) => [...prev, errorMessage])
+    } finally {
+      setIsLoading(false)
+    }
   }
 
-  const formatCurrency = (amount: number, currency = "USD") => {
+  const handleSuggestedQuery = (query: string) => {
+    setInput(query)
+  }
+
+  const formatMessageContent = (content: string) => {
+    return content.split("\n").map((line, i) => (
+      <span key={i}>
+        {line}
+        {i < content.split("\n").length - 1 && <br />}
+      </span>
+    ))
+  }
+
+  const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat("en-US", {
       style: "currency",
-      currency: currency,
+      currency: "USD",
     }).format(amount)
   }
 
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString)
-    return date.toLocaleDateString("en-US", {
-      month: "short",
-      day: "numeric",
-      year: "numeric",
-    })
-  }
-
   return (
-    <Layout>
-      <div className="max-w-5xl mx-auto">
-        <h1 className="text-2xl font-medium tracking-tighter text-black mb-6">Smart Bank</h1>
-
-        {/* Overview Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-          <div className="bg-white rounded-xl border border-black p-4 shadow-sm">
-            <div className="flex items-center justify-between mb-3">
-              <h2 className="text-sm font-medium text-gray-700">Total Balance</h2>
-              <BanknotesIcon className="h-5 w-5 text-gray-500" />
+    <div className="min-h-screen bg-black text-white">
+      <div className="max-w-6xl mx-auto h-screen flex">
+        {/* Left Panel - Banking Overview */}
+        <div className="w-1/3 border-r border-white/10 p-4 overflow-y-auto">
+          {/* Header */}
+          <div className="flex items-center justify-between mb-6">
+            <div className="flex items-center space-x-3">
+              <div className="relative h-10 w-10 rounded-xl overflow-hidden bg-green-500/20 flex items-center justify-center">
+                <Building2 className="h-6 w-6 text-green-400" />
+              </div>
+              <div>
+                <h1 className="text-xl font-light text-white tracking-tight">Smart Bank</h1>
+                <p className="text-xs text-white/60 font-light">AI Financial Assistant</p>
+              </div>
             </div>
-            <p className="text-2xl font-medium text-black mb-1">$55,110.25</p>
-            <div className="flex items-center text-xs text-emerald-600">
-              <ArrowTrendingUpIcon className="h-3.5 w-3.5 mr-1" />
-              <span>+$5,000.00 this month</span>
-            </div>
+            <Button className="bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl h-9 w-9 p-0">
+              <Settings className="h-4 w-4 text-white/70" />
+            </Button>
           </div>
 
-          <div className="bg-white rounded-xl border border-black p-4 shadow-sm">
-            <div className="flex items-center justify-between mb-3">
-              <h2 className="text-sm font-medium text-gray-700">Total Expenses</h2>
-              <CreditCardIcon className="h-5 w-5 text-gray-500" />
-            </div>
-            <p className="text-2xl font-medium text-black mb-1">$3,650.25</p>
-            <div className="flex items-center text-xs text-red-600">
-              <ArrowTrendingDownIcon className="h-3.5 w-3.5 mr-1" />
-              <span>+$850.75 from last month</span>
-            </div>
+          {/* Account Overview */}
+          <div className="space-y-4 mb-6">
+            <h2 className="text-sm font-medium text-white/90">Your Accounts</h2>
+            {accounts.map((account) => (
+              <Card key={account.id} className="bg-white/5 border-white/10 hover:bg-white/8 transition-all">
+                <CardContent className="p-4">
+                  <div className="flex items-center justify-between mb-2">
+                    <div className="flex items-center space-x-2">
+                      <CreditCard className="h-4 w-4 text-white/70" />
+                      <span className="text-sm font-medium text-white">{account.name}</span>
+                    </div>
+                    <Badge className="bg-white/10 text-white/70 text-xs">{account.type}</Badge>
+                  </div>
+                  <div className="text-lg font-semibold text-white mb-1">{formatCurrency(account.balance)}</div>
+                  <div className="text-xs text-white/50">
+                    {account.bank} • {account.accountNumber}
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
           </div>
 
-          <div className="bg-white rounded-xl border border-black p-4 shadow-sm">
-            <div className="flex items-center justify-between mb-3">
-              <h2 className="text-sm font-medium text-gray-700">Connected Accounts</h2>
-              <BuildingLibraryIcon className="h-5 w-5 text-gray-500" />
-            </div>
-            <p className="text-2xl font-medium text-black mb-1">{accounts.length}</p>
-            <div className="flex items-center text-xs text-gray-600">
-              <span>Last synced 5 minutes ago</span>
-            </div>
+          {/* Recent Transactions */}
+          <div className="space-y-3">
+            <h2 className="text-sm font-medium text-white/90">Recent Transactions</h2>
+            {recentTransactions.map((transaction) => (
+              <div key={transaction.id} className="bg-white/5 border border-white/10 rounded-lg p-3">
+                <div className="flex justify-between items-start mb-1">
+                  <span className="text-sm text-white font-medium">{transaction.description}</span>
+                  <span
+                    className={`text-sm font-semibold ${transaction.amount > 0 ? "text-green-400" : "text-red-400"}`}
+                  >
+                    {transaction.amount > 0 ? "+" : ""}
+                    {formatCurrency(transaction.amount)}
+                  </span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-xs text-white/50">{transaction.date}</span>
+                  <Badge
+                    className={`text-xs ${transaction.status === "completed" ? "bg-green-500/20 text-green-400" : "bg-yellow-500/20 text-yellow-400"}`}
+                  >
+                    {transaction.status}
+                  </Badge>
+                </div>
+              </div>
+            ))}
           </div>
         </div>
 
-        {/* Tabs */}
-        <div className="bg-white rounded-xl border border-black p-4 shadow-sm mb-6">
-          <div className="flex border-b border-gray-200 mb-4">
-            <button
-              onClick={() => setActiveTab("accounts")}
-              className={`px-4 py-2 text-sm font-medium ${
-                activeTab === "accounts" ? "text-black border-b-2 border-black" : "text-gray-500 hover:text-gray-700"
-              }`}
-            >
-              Accounts
-            </button>
-            <button
-              onClick={() => setActiveTab("transactions")}
-              className={`px-4 py-2 text-sm font-medium ${
-                activeTab === "transactions"
-                  ? "text-black border-b-2 border-black"
-                  : "text-gray-500 hover:text-gray-700"
-              }`}
-            >
-              Transactions
-            </button>
-            <button
-              onClick={() => setActiveTab("connect")}
-              className={`px-4 py-2 text-sm font-medium ${
-                activeTab === "connect" ? "text-black border-b-2 border-black" : "text-gray-500 hover:text-gray-700"
-              }`}
-            >
-              Connect Bank
-            </button>
+        {/* Right Panel - AI Chat */}
+        <div className="flex-1 flex flex-col">
+          {/* Smart Features Row */}
+          <div className="p-4 border-b border-white/10">
+            <div className="flex items-center space-x-3 overflow-x-auto">
+              <span className="text-sm text-white/70 font-light whitespace-nowrap">Smart Features:</span>
+              {smartFeatures.map((feature) => (
+                <div
+                  key={feature.id}
+                  className="flex items-center space-x-2 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl px-3 py-2 cursor-pointer transition-all duration-200 whitespace-nowrap"
+                >
+                  <feature.icon className="h-4 w-4 text-white/70" />
+                  <div>
+                    <p className="text-xs font-light text-white">{feature.name}</p>
+                    <p className="text-[10px] text-white/50 font-light">{feature.description}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
 
-          {/* Accounts Tab */}
-          {activeTab === "accounts" && (
-            <div>
-              <div className="flex justify-between items-center mb-4">
-                <h2 className="text-base font-medium text-black">Your Accounts</h2>
-                <button className="flex items-center gap-1 px-3 py-1.5 bg-black text-white rounded-xl text-xs hover:bg-gray-800">
-                  <PlusCircleIcon className="h-3.5 w-3.5" />
-                  <span>Add Account</span>
-                </button>
-              </div>
-
-              <div className="space-y-3">
-                {accounts.map((account) => (
+          {/* Messages */}
+          <div className="flex-1 overflow-y-auto p-4 space-y-6">
+            {messages.map((message) => (
+              <div key={message.id} className={`flex ${message.role === "user" ? "justify-end" : "justify-start"}`}>
+                <div className={`max-w-[80%] ${message.role === "user" ? "order-2" : "order-1"}`}>
+                  {message.role === "assistant" && (
+                    <div className="flex items-center space-x-2 mb-2">
+                      <div className="relative h-6 w-6 rounded-lg overflow-hidden bg-green-500/20 flex items-center justify-center">
+                        <Building2 className="h-4 w-4 text-green-400" />
+                      </div>
+                      <span className="text-xs text-white/50 font-light">Smart Bank AI</span>
+                    </div>
+                  )}
                   <div
-                    key={account.id}
-                    className="border border-gray-200 rounded-xl p-4 hover:border-black transition-colors"
+                    className={`rounded-xl py-3 px-4 ${
+                      message.role === "user"
+                        ? "bg-white text-black rounded-tr-none"
+                        : "bg-white/5 text-white rounded-tl-none border border-white/10"
+                    }`}
                   >
-                    <div className="flex justify-between items-center">
-                      <div className="flex items-center gap-3">
-                        <div
-                          className={`w-10 h-10 rounded-lg flex items-center justify-center ${
-                            account.type === "credit" ? "bg-red-100" : "bg-blue-100"
-                          }`}
-                        >
-                          {account.type === "credit" ? (
-                            <CreditCardIcon className="h-5 w-5 text-red-600" />
-                          ) : (
-                            <BanknotesIcon className="h-5 w-5 text-blue-600" />
-                          )}
-                        </div>
-                        <div>
-                          <h3 className="font-medium text-black">{account.name}</h3>
-                          <div className="flex items-center gap-2">
-                            <span className="text-xs text-gray-500">{account.bank}</span>
-                            <span className="text-xs text-gray-500">•</span>
-                            <span className="text-xs text-gray-500">{account.accountNumber}</span>
-                          </div>
-                        </div>
-                      </div>
-                      <div className="text-right">
-                        <p className={`font-medium ${account.balance < 0 ? "text-red-600" : "text-black"}`}>
-                          {formatCurrency(account.balance)}
-                        </p>
-                        {account.type === "credit" && (
-                          <p className="text-xs text-gray-500">Limit: {formatCurrency(account.creditLimit)}</p>
-                        )}
-                      </div>
+                    <div className="text-sm leading-relaxed font-light">{formatMessageContent(message.content)}</div>
+                    <div className="mt-2 text-xs opacity-70 font-light">
+                      {message.timestamp.toLocaleTimeString([], {
+                        hour: "2-digit",
+                        minute: "2-digit",
+                      })}
                     </div>
                   </div>
+                </div>
+              </div>
+            ))}
+
+            {isLoading && (
+              <div className="flex justify-start">
+                <div className="max-w-[80%]">
+                  <div className="flex items-center space-x-2 mb-2">
+                    <div className="relative h-6 w-6 rounded-lg overflow-hidden bg-green-500/20 flex items-center justify-center">
+                      <Building2 className="h-4 w-4 text-green-400" />
+                    </div>
+                    <span className="text-xs text-white/50 font-light">Smart Bank AI</span>
+                  </div>
+                  <div className="bg-white/5 rounded-xl rounded-tl-none py-3 px-4 border border-white/10">
+                    <div className="flex space-x-1">
+                      <div className="w-2 h-2 bg-white/50 rounded-full animate-bounce"></div>
+                      <div
+                        className="w-2 h-2 bg-white/50 rounded-full animate-bounce"
+                        style={{ animationDelay: "0.1s" }}
+                      ></div>
+                      <div
+                        className="w-2 h-2 bg-white/50 rounded-full animate-bounce"
+                        style={{ animationDelay: "0.2s" }}
+                      ></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+            <div ref={messagesEndRef} />
+          </div>
+
+          {/* Suggested Queries */}
+          {messages.length === 1 && (
+            <div className="px-4 pb-4">
+              <div className="flex flex-wrap gap-2">
+                {suggestedQueries.slice(0, 4).map((query, index) => (
+                  <Badge
+                    key={index}
+                    onClick={() => handleSuggestedQuery(query)}
+                    className="bg-white/5 hover:bg-white/10 text-white/70 border border-white/10 cursor-pointer rounded-xl text-xs px-3 py-1.5 font-light transition-all duration-200"
+                  >
+                    {query}
+                  </Badge>
                 ))}
               </div>
             </div>
           )}
 
-          {/* Transactions Tab */}
-          {activeTab === "transactions" && (
-            <div>
-              <div className="flex justify-between items-center mb-4">
-                <h2 className="text-base font-medium text-black">Recent Transactions</h2>
-                <div className="flex items-center gap-2">
-                  <button className="flex items-center gap-1 px-3 py-1.5 bg-gray-100 text-gray-700 rounded-xl text-xs hover:bg-gray-200">
-                    <ArrowPathIcon className="h-3.5 w-3.5" />
-                    <span>Sync</span>
-                  </button>
-                  <button className="flex items-center gap-1 px-3 py-1.5 bg-black text-white rounded-xl text-xs hover:bg-gray-800">
-                    <ChartBarIcon className="h-3.5 w-3.5" />
-                    <span>Reports</span>
-                  </button>
-                </div>
-              </div>
-
-              <div className="space-y-3">
-                {transactions.map((transaction) => (
-                  <div
-                    key={transaction.id}
-                    className="border border-gray-200 rounded-xl p-4 hover:border-black transition-colors"
-                  >
-                    <div className="flex justify-between items-center">
-                      <div className="flex items-center gap-3">
-                        <div
-                          className={`w-10 h-10 rounded-lg flex items-center justify-center ${
-                            transaction.amount < 0 ? "bg-red-100" : "bg-emerald-100"
-                          }`}
-                        >
-                          {transaction.amount < 0 ? (
-                            <ArrowTrendingDownIcon className="h-5 w-5 text-red-600" />
-                          ) : (
-                            <ArrowTrendingUpIcon className="h-5 w-5 text-emerald-600" />
-                          )}
-                        </div>
-                        <div>
-                          <h3 className="font-medium text-black">{transaction.description}</h3>
-                          <div className="flex items-center gap-2 mt-0.5">
-                            <div className="flex items-center">
-                              <ClockIcon className="h-3 w-3 text-gray-500 mr-1" />
-                              <span className="text-xs text-gray-500">{formatDate(transaction.date)}</span>
-                            </div>
-                            <span className="text-xs text-gray-500">•</span>
-                            <div className="flex items-center">
-                              <TagIcon className="h-3 w-3 text-gray-500 mr-1" />
-                              <span className="text-xs text-gray-500">{transaction.category}</span>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                      <div className="text-right">
-                        <p className={`font-medium ${transaction.amount < 0 ? "text-red-600" : "text-emerald-600"}`}>
-                          {transaction.amount < 0 ? "-" : "+"}
-                          {formatCurrency(Math.abs(transaction.amount))}
-                        </p>
-                        <p className="text-xs text-gray-500">{transaction.account}</p>
-                      </div>
-                    </div>
+          {/* Chat Input */}
+          <div className="p-4 border-t border-white/10">
+            <form onSubmit={handleSubmit} className="relative">
+              <div className="relative">
+                <div className="absolute left-4 top-1/2 transform -translate-y-1/2 flex items-center">
+                  <div className="relative h-6 w-6 rounded-lg overflow-hidden bg-green-500/20 flex items-center justify-center mr-2">
+                    <Building2 className="h-4 w-4 text-green-400" />
                   </div>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {/* Connect Bank Tab */}
-          {activeTab === "connect" && (
-            <div>
-              <div className="flex justify-between items-center mb-4">
-                <h2 className="text-base font-medium text-black">Connect Your Bank</h2>
-                <div className="flex items-center text-xs text-gray-500">
-                  <ShieldCheckIcon className="h-4 w-4 mr-1 text-emerald-600" />
-                  <span>Bank-level security</span>
                 </div>
+                <Input
+                  type="text"
+                  value={input}
+                  onChange={(e) => setInput(e.target.value)}
+                  placeholder="Ask about your finances, transactions, or get insights..."
+                  disabled={isLoading}
+                  className="bg-white/5 border-white/10 text-white placeholder:text-white/30 rounded-xl pl-12 pr-12 py-3 focus:ring-1 focus:ring-white/20 text-sm font-light"
+                />
+                <Button
+                  type="submit"
+                  disabled={!input.trim() || isLoading}
+                  size="sm"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 bg-white text-black hover:bg-white/90 disabled:opacity-50 h-8 w-8 p-0 rounded-lg"
+                >
+                  <ArrowRight className="h-4 w-4" />
+                </Button>
               </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-                {banks.map((bank) => (
-                  <div
-                    key={bank.id}
-                    className="border border-gray-200 rounded-xl p-4 hover:border-black transition-colors"
-                  >
-                    <div className="flex items-center gap-3 mb-3">
-                      <div className={`w-10 h-10 rounded-lg overflow-hidden flex-shrink-0 ${bank.color}`}>
-                        <Image
-                          src={bank.logo || "/placeholder.svg"}
-                          alt={bank.name}
-                          width={40}
-                          height={40}
-                          className="object-cover"
-                        />
-                      </div>
-                      <h3 className="font-medium text-black">{bank.name}</h3>
-                    </div>
-                    {connectedBanks.includes(bank.id) ? (
-                      <div className="flex items-center text-xs text-emerald-600">
-                        <CheckIcon className="h-4 w-4 mr-1" />
-                        <span>Connected</span>
-                      </div>
-                    ) : (
-                      <button
-                        onClick={() => handleConnectBank(bank.id)}
-                        disabled={isConnecting}
-                        className="w-full flex items-center justify-center gap-1 px-3 py-1.5 bg-black text-white rounded-xl text-xs hover:bg-gray-800 disabled:opacity-50"
-                      >
-                        {isConnecting ? (
-                          <>
-                            <ArrowPathIcon className="h-3.5 w-3.5 animate-spin" />
-                            <span>Connecting...</span>
-                          </>
-                        ) : (
-                          <>
-                            <PlusCircleIcon className="h-3.5 w-3.5" />
-                            <span>Connect</span>
-                          </>
-                        )}
-                      </button>
-                    )}
-                  </div>
-                ))}
-              </div>
-
-              <div className="bg-gray-100 rounded-xl p-4">
-                <h3 className="text-sm font-medium text-black mb-2">Why connect your bank?</h3>
-                <ul className="space-y-2">
-                  <li className="flex items-start">
-                    <CheckIcon className="h-4 w-4 text-emerald-600 mr-2 mt-0.5" />
-                    <span className="text-sm text-gray-700">Automatically track and categorize expenses</span>
-                  </li>
-                  <li className="flex items-start">
-                    <CheckIcon className="h-4 w-4 text-emerald-600 mr-2 mt-0.5" />
-                    <span className="text-sm text-gray-700">Simplify expense reporting and reimbursements</span>
-                  </li>
-                  <li className="flex items-start">
-                    <CheckIcon className="h-4 w-4 text-emerald-600 mr-2 mt-0.5" />
-                    <span className="text-sm text-gray-700">Get insights into your business spending patterns</span>
-                  </li>
-                  <li className="flex items-start">
-                    <CheckIcon className="h-4 w-4 text-emerald-600 mr-2 mt-0.5" />
-                    <span className="text-sm text-gray-700">Reconcile transactions with your accounting software</span>
-                  </li>
-                </ul>
-              </div>
-            </div>
-          )}
-        </div>
-
-        {/* Features Section */}
-        <div className="bg-white rounded-xl border border-black p-6 shadow-sm">
-          <h2 className="text-lg font-medium tracking-tighter text-black mb-4">Smart Bank Features</h2>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="border border-gray-200 rounded-xl p-4">
-              <div className="flex items-center mb-3">
-                <div className="p-2 rounded-lg bg-blue-100 mr-3">
-                  <CurrencyDollarIcon className="h-5 w-5 text-blue-600" />
-                </div>
-                <h3 className="font-medium text-black">Expense Tracking</h3>
-              </div>
-              <p className="text-sm text-gray-600 mb-3">
-                Automatically categorize and track all your business expenses in real-time.
-              </p>
-              <button className="text-sm font-medium text-black hover:underline flex items-center gap-1">
-                Learn more
-                <ArrowRightIcon className="h-4 w-4" />
-              </button>
-            </div>
-
-            <div className="border border-gray-200 rounded-xl p-4">
-              <div className="flex items-center mb-3">
-                <div className="p-2 rounded-lg bg-emerald-100 mr-3">
-                  <ChartBarIcon className="h-5 w-5 text-emerald-600" />
-                </div>
-                <h3 className="font-medium text-black">Financial Insights</h3>
-              </div>
-              <p className="text-sm text-gray-600 mb-3">
-                Get AI-powered insights and recommendations to optimize your business spending.
-              </p>
-              <button className="text-sm font-medium text-black hover:underline flex items-center gap-1">
-                View insights
-                <ArrowRightIcon className="h-4 w-4" />
-              </button>
-            </div>
-
-            <div className="border border-gray-200 rounded-xl p-4">
-              <div className="flex items-center mb-3">
-                <div className="p-2 rounded-lg bg-purple-100 mr-3">
-                  <CreditCardIcon className="h-5 w-5 text-purple-600" />
-                </div>
-                <h3 className="font-medium text-black">Virtual Cards</h3>
-              </div>
-              <p className="text-sm text-gray-600 mb-3">
-                Create virtual cards for your team with custom spending limits and controls.
-              </p>
-              <button className="text-sm font-medium text-black hover:underline flex items-center gap-1">
-                Create card
-                <ArrowRightIcon className="h-4 w-4" />
-              </button>
-            </div>
-
-            <div className="border border-gray-200 rounded-xl p-4">
-              <div className="flex items-center mb-3">
-                <div className="p-2 rounded-lg bg-amber-100 mr-3">
-                  <ShieldCheckIcon className="h-5 w-5 text-amber-600" />
-                </div>
-                <h3 className="font-medium text-black">Fraud Protection</h3>
-              </div>
-              <p className="text-sm text-gray-600 mb-3">
-                Advanced security features to protect your business accounts and transactions.
-              </p>
-              <button className="text-sm font-medium text-black hover:underline flex items-center gap-1">
-                Security settings
-                <ArrowRightIcon className="h-4 w-4" />
-              </button>
-            </div>
+            </form>
           </div>
         </div>
       </div>
-    </Layout>
+    </div>
   )
 }

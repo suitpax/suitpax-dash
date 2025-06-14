@@ -1,518 +1,452 @@
 "use client"
 
 import type React from "react"
-
-import { Suspense, useState, useEffect } from "react"
-import { useSearchParams } from "next/navigation"
+import { useState, useEffect, useMemo } from "react"
+import Image from "next/image"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Badge } from "@/components/ui/badge"
-import { Card, CardContent } from "@/components/ui/card"
-import AIQuickInput from "@/components/ui/ai-quick-input"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import {
   Search,
   MapPin,
   Calendar,
+  Users,
+  Building2,
   Star,
-  Heart,
   Wifi,
   Car,
   Coffee,
   Dumbbell,
-  Waves,
-  UtensilsIcon,
-  Filter,
-  ArrowUpDown,
+  ArrowRightLeft,
+  CheckCircle,
 } from "lucide-react"
+import hotelsData from "@/data/hotels.json"
 
 interface Hotel {
   id: string
   name: string
   location: string
-  price: number
+  city: string
   rating: number
-  reviews: number
+  price: number
+  originalPrice?: number
+  currency: string
   image: string
   amenities: string[]
-  description: string
-  stars: number
-  chain?: string
+  roomType: string
+  availability: number
+  travelPolicy: "Compliant" | "Non-Compliant"
+  description?: string
   distance?: string
+  checkIn?: string
+  checkOut?: string
 }
 
-function HotelsContent() {
-  const searchParams = useSearchParams()
-  const [hotels, setHotels] = useState<Hotel[]>([])
+const amenityIcons: { [key: string]: React.ReactNode } = {
+  "Free WiFi": <Wifi className="h-3 w-3" />,
+  Parking: <Car className="h-3 w-3" />,
+  Restaurant: <Coffee className="h-3 w-3" />,
+  Gym: <Dumbbell className="h-3 w-3" />,
+  Pool: <div className="h-3 w-3 rounded-full bg-blue-400" />,
+  Spa: <div className="h-3 w-3 rounded-full bg-green-400" />,
+  "Business Center": <Building2 className="h-3 w-3" />,
+}
+
+export default function HotelsPage() {
+  const [allHotels, setAllHotels] = useState<Hotel[]>(hotelsData as Hotel[])
+  const [filteredHotels, setFilteredHotels] = useState<Hotel[]>([])
   const [loading, setLoading] = useState(false)
-  const [savedHotels, setSavedHotels] = useState<string[]>([])
+  const [selectedHotelId, setSelectedHotelId] = useState<string | null>(null)
+  const [showBookingConfirmation, setShowBookingConfirmation] = useState(false)
 
   // Search form state
-  const [destination, setDestination] = useState("")
-  const [checkIn, setCheckIn] = useState("")
-  const [checkOut, setCheckOut] = useState("")
+  const [destination, setDestination] = useState("New York")
+  const [checkInDate, setCheckInDate] = useState(new Date().toISOString().split("T")[0])
+  const [checkOutDate, setCheckOutDate] = useState(
+    new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString().split("T")[0],
+  )
   const [guests, setGuests] = useState("2")
   const [rooms, setRooms] = useState("1")
 
   // Filter state
   const [sortBy, setSortBy] = useState("price")
-  const [maxPrice, setMaxPrice] = useState(500)
-  const [minRating, setMinRating] = useState(0)
-  const [selectedAmenities, setSelectedAmenities] = useState<string[]>([])
-  const [starRating, setStarRating] = useState<number[]>([])
+  const [minRating, setMinRating] = useState("0")
 
   useEffect(() => {
-    // Get URL parameters
-    const dest = searchParams.get("destination") || ""
-    const checkin = searchParams.get("checkin") || ""
-    const checkout = searchParams.get("checkout") || ""
-    const guestCount = searchParams.get("guests") || "2"
-
-    setDestination(dest)
-    setCheckIn(checkin)
-    setCheckOut(checkout)
-    setGuests(guestCount)
-
-    // Load saved hotels from localStorage
-    const saved = localStorage.getItem("savedHotels")
-    if (saved) {
-      setSavedHotels(JSON.parse(saved))
-    }
-
-    // If we have search params, perform search
-    if (dest && checkin && checkout) {
+    // Check URL params for pre-filled search
+    const urlParams = new URLSearchParams(window.location.search)
+    const dest = urlParams.get("destination")
+    if (dest) {
+      setDestination(dest)
       performSearch()
     }
-  }, [searchParams])
+  }, [])
 
   const performSearch = async () => {
     setLoading(true)
-
     // Simulate API call
-    await new Promise((resolve) => setTimeout(resolve, 1500))
+    await new Promise((resolve) => setTimeout(resolve, 1000))
 
-    // Generate realistic hotel data
-    const generatedHotels = generateHotels(destination, checkIn, checkOut)
-    setHotels(generatedHotels)
+    const results = allHotels.filter(
+      (hotel) =>
+        hotel.city.toLowerCase().includes(destination.toLowerCase()) ||
+        hotel.location.toLowerCase().includes(destination.toLowerCase()),
+    )
+    setFilteredHotels(results)
     setLoading(false)
-  }
-
-  const generateHotels = (dest: string, checkin: string, checkout: string): Hotel[] => {
-    const hotelChains = [
-      "Marriott",
-      "Hilton",
-      "Hyatt",
-      "InterContinental",
-      "Sheraton",
-      "Westin",
-      "Radisson",
-      "Holiday Inn",
-      "Novotel",
-      "Crowne Plaza",
-    ]
-
-    const hotelTypes = ["Hotel", "Suites", "Resort", "Inn", "Plaza", "Grand"]
-    const amenitiesList = [
-      "Free WiFi",
-      "Parking",
-      "Pool",
-      "Gym",
-      "Spa",
-      "Restaurant",
-      "Bar",
-      "Room Service",
-      "Business Center",
-      "Airport Shuttle",
-      "Pet Friendly",
-      "Laundry",
-      "Concierge",
-      "Breakfast",
-    ]
-
-    const hotels: Hotel[] = []
-    const numHotels = 12 + Math.floor(Math.random() * 8)
-
-    for (let i = 0; i < numHotels; i++) {
-      const chain = hotelChains[Math.floor(Math.random() * hotelChains.length)]
-      const type = hotelTypes[Math.floor(Math.random() * hotelTypes.length)]
-      const stars = 3 + Math.floor(Math.random() * 3) // 3-5 stars
-      const rating = 3.5 + Math.random() * 1.5 // 3.5-5.0 rating
-      const reviews = 50 + Math.floor(Math.random() * 500)
-      const basePrice = stars * 50 + Math.floor(Math.random() * 100)
-
-      // Select random amenities
-      const numAmenities = 4 + Math.floor(Math.random() * 6)
-      const hotelAmenities = []
-      const shuffled = [...amenitiesList].sort(() => 0.5 - Math.random())
-      for (let j = 0; j < numAmenities; j++) {
-        hotelAmenities.push(shuffled[j])
-      }
-
-      hotels.push({
-        id: `HTL${1000 + i}`,
-        name: `${chain} ${type} ${dest}`,
-        location: `${Math.floor(Math.random() * 50) + 1} ${["Main St", "Business District", "Downtown", "City Center"][Math.floor(Math.random() * 4)]}, ${dest}`,
-        price: basePrice,
-        rating: Math.round(rating * 10) / 10,
-        reviews,
-        image: `/placeholder.svg?height=200&width=300&text=${encodeURIComponent(chain + " " + dest)}`,
-        amenities: hotelAmenities,
-        description: `Experience luxury and comfort at ${chain} ${type} ${dest}. Perfect for business travelers with modern amenities and excellent service.`,
-        stars,
-        chain,
-        distance: `${(Math.random() * 5 + 0.5).toFixed(1)} km from city center`,
-      })
-    }
-
-    return hotels.sort((a, b) => {
-      if (sortBy === "price") return a.price - b.price
-      if (sortBy === "rating") return b.rating - a.rating
-      if (sortBy === "stars") return b.stars - a.stars
-      return 0
-    })
+    setSelectedHotelId(null)
   }
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault()
-    if (destination && checkIn && checkOut) {
-      performSearch()
+    performSearch()
+  }
+
+  const sortedAndFilteredHotels = useMemo(() => {
+    return [...filteredHotels]
+      .filter((hotel) => hotel.rating >= Number.parseFloat(minRating))
+      .sort((a, b) => {
+        if (sortBy === "price") return a.price - b.price
+        if (sortBy === "rating") return b.rating - a.rating
+        if (sortBy === "name") return a.name.localeCompare(b.name)
+        return 0
+      })
+  }, [filteredHotels, sortBy, minRating])
+
+  const handleBookHotel = () => {
+    if (selectedHotelId) {
+      setShowBookingConfirmation(true)
     }
   }
 
-  const toggleSaveHotel = (hotelId: string) => {
-    const updated = savedHotels.includes(hotelId)
-      ? savedHotels.filter((id) => id !== hotelId)
-      : [...savedHotels, hotelId]
+  const selectedHotelDetails = selectedHotelId ? sortedAndFilteredHotels.find((h) => h.id === selectedHotelId) : null
 
-    setSavedHotels(updated)
-    localStorage.setItem("savedHotels", JSON.stringify(updated))
-  }
-
-  const toggleAmenity = (amenity: string) => {
-    setSelectedAmenities((prev) => (prev.includes(amenity) ? prev.filter((a) => a !== amenity) : [...prev, amenity]))
-  }
-
-  const filteredHotels = hotels.filter((hotel) => {
-    if (hotel.price > maxPrice) return false
-    if (hotel.rating < minRating) return false
-    if (starRating.length > 0 && !starRating.includes(hotel.stars)) return false
-    if (selectedAmenities.length > 0 && !selectedAmenities.every((amenity) => hotel.amenities.includes(amenity)))
-      return false
-    return true
-  })
-
-  const featuredDestinations = [
-    { city: "New York", hotels: "1,200+ hotels", image: "/placeholder.svg?height=120&width=200&text=NYC" },
-    { city: "London", hotels: "800+ hotels", image: "/placeholder.svg?height=120&width=200&text=London" },
-    { city: "Paris", hotels: "600+ hotels", image: "/placeholder.svg?height=120&width=200&text=Paris" },
-    { city: "Tokyo", hotels: "900+ hotels", image: "/placeholder.svg?height=120&width=200&text=Tokyo" },
-    { city: "Dubai", hotels: "400+ hotels", image: "/placeholder.svg?height=120&width=200&text=Dubai" },
-    { city: "Singapore", hotels: "300+ hotels", image: "/placeholder.svg?height=120&width=200&text=Singapore" },
-  ]
-
-  const amenityIcons: { [key: string]: React.ReactNode } = {
-    "Free WiFi": <Wifi className="h-4 w-4" />,
-    Parking: <Car className="h-4 w-4" />,
-    Pool: <Waves className="h-4 w-4" />,
-    Gym: <Dumbbell className="h-4 w-4" />,
-    Restaurant: <UtensilsIcon className="h-4 w-4" />,
-    Breakfast: <Coffee className="h-4 w-4" />,
+  if (showBookingConfirmation && selectedHotelDetails) {
+    return (
+      <div className="min-h-screen bg-black p-3 text-white flex items-center justify-center">
+        <Card className="bg-white/5 border-white/10 w-full max-w-md backdrop-blur-sm">
+          <CardHeader className="items-center">
+            <div className="p-3 bg-green-500/20 rounded-full mb-3">
+              <CheckCircle className="h-10 w-10 text-green-400" />
+            </div>
+            <CardTitle className="text-xl font-medium text-white">Booking Confirmed!</CardTitle>
+          </CardHeader>
+          <CardContent className="text-center space-y-3">
+            <p className="text-sm text-white/70">
+              Your stay at {selectedHotelDetails.name} in {selectedHotelDetails.city} is confirmed.
+            </p>
+            <div className="text-left bg-white/5 p-3 rounded-lg border border-white/10 text-xs space-y-1">
+              <p>
+                <span className="text-white/60">Reference:</span> SPX-HTL-{selectedHotelDetails.id.slice(-4)}
+              </p>
+              <p>
+                <span className="text-white/60">Hotel:</span> {selectedHotelDetails.name}
+              </p>
+              <p>
+                <span className="text-white/60">Check-in:</span> {checkInDate}
+              </p>
+              <p>
+                <span className="text-white/60">Check-out:</span> {checkOutDate}
+              </p>
+              <p>
+                <span className="text-white/60">Price:</span> ${selectedHotelDetails.price}/night
+              </p>
+            </div>
+            <Button
+              onClick={() => {
+                setShowBookingConfirmation(false)
+                setSelectedHotelId(null)
+              }}
+              className="w-full mt-2 bg-white text-black hover:bg-white/90 rounded-full"
+            >
+              Book Another Hotel
+            </Button>
+          </CardContent>
+        </Card>
+      </div>
+    )
   }
 
   return (
-    <div className="min-h-screen bg-black p-3">
-      <div className="max-w-7xl mx-auto space-y-6">
+    <div className="min-h-screen bg-black p-3 text-white">
+      <div className="max-w-7xl mx-auto space-y-4">
         {/* Header */}
-        <div className="bg-white/5 border border-white/10 rounded-lg py-2 px-2">
-          <h1 className="text-3xl font-light text-white mb-2">Hotel Search</h1>
-          <p className="text-white/70 font-light">Find the perfect accommodation for your business stay</p>
-
-          {/* AI Quick Input */}
-          <AIQuickInput placeholder="Ask AI: 'Find hotels in Barcelona for 3 nights'" className="mt-4" />
-        </div>
+        <header className="bg-white/5 border border-white/10 rounded-2xl p-6 md:p-8 backdrop-blur-sm">
+          <h1 className="text-2xl font-light text-white tracking-tight">Hotels</h1>
+        </header>
 
         {/* Search Form */}
-        <Card className="bg-white/5 border-white/10">
-          <CardContent className="py-2 px-2">
+        <Card className="bg-white/5 border-white/10 backdrop-blur-sm">
+          <CardContent className="p-6">
             <form onSubmit={handleSearch} className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
-                <div className="space-y-2">
-                  <Label className="text-white font-light">Destination</Label>
-                  <div className="relative">
-                    <MapPin className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-white/50" />
-                    <Input
-                      placeholder="City or hotel name"
-                      value={destination}
-                      onChange={(e) => setDestination(e.target.value)}
-                      className="pl-10 bg-white/5 border-white/10 text-white placeholder:text-white/30 font-light"
-                      required
-                    />
-                  </div>
-                </div>
-
-                <div className="space-y-2">
-                  <Label className="text-white font-light">Check-in</Label>
-                  <div className="relative">
-                    <Calendar className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-white/50" />
-                    <Input
-                      type="date"
-                      value={checkIn}
-                      onChange={(e) => setCheckIn(e.target.value)}
-                      className="pl-10 bg-white/5 border-white/10 text-white font-light"
-                      required
-                    />
-                  </div>
-                </div>
-
-                <div className="space-y-2">
-                  <Label className="text-white font-light">Check-out</Label>
-                  <div className="relative">
-                    <Calendar className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-white/50" />
-                    <Input
-                      type="date"
-                      value={checkOut}
-                      onChange={(e) => setCheckOut(e.target.value)}
-                      className="pl-10 bg-white/5 border-white/10 text-white font-light"
-                      required
-                    />
-                  </div>
-                </div>
-
-                <div className="space-y-2">
-                  <Label className="text-white font-light">Guests</Label>
-                  <Select value={guests} onValueChange={setGuests}>
-                    <SelectTrigger className="bg-white/5 border-white/10 text-white font-light">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="1">1 Guest</SelectItem>
-                      <SelectItem value="2">2 Guests</SelectItem>
-                      <SelectItem value="3">3 Guests</SelectItem>
-                      <SelectItem value="4">4 Guests</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                <div className="space-y-2">
-                  <Label className="text-white font-light">Rooms</Label>
-                  <Select value={rooms} onValueChange={setRooms}>
-                    <SelectTrigger className="bg-white/5 border-white/10 text-white font-light">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="1">1 Room</SelectItem>
-                      <SelectItem value="2">2 Rooms</SelectItem>
-                      <SelectItem value="3">3 Rooms</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
+                <InputWithIcon
+                  icon={<MapPin className="h-4 w-4 text-white/50" />}
+                  placeholder="Destination (e.g. New York)"
+                  value={destination}
+                  onChange={(e) => setDestination(e.target.value)}
+                />
+                <InputWithIcon
+                  icon={<Calendar className="h-4 w-4 text-white/50" />}
+                  type="date"
+                  value={checkInDate}
+                  onChange={(e) => setCheckInDate(e.target.value)}
+                />
+                <InputWithIcon
+                  icon={<Calendar className="h-4 w-4 text-white/50" />}
+                  type="date"
+                  value={checkOutDate}
+                  onChange={(e) => setCheckOutDate(e.target.value)}
+                />
+                <Select value={guests} onValueChange={setGuests}>
+                  <SelectTrigger className="h-11 bg-white/5 border-white/10 text-white rounded-xl hover:bg-white/10">
+                    <Users className="h-4 w-4 text-white/50 mr-2" />
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {[1, 2, 3, 4].map((g) => (
+                      <SelectItem key={g} value={String(g)}>
+                        {g} Guest{g > 1 ? "s" : ""}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <Select value={rooms} onValueChange={setRooms}>
+                  <SelectTrigger className="h-11 bg-white/5 border-white/10 text-white rounded-xl hover:bg-white/10">
+                    <Building2 className="h-4 w-4 text-white/50 mr-2" />
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {[1, 2, 3, 4].map((r) => (
+                      <SelectItem key={r} value={String(r)}>
+                        {r} Room{r > 1 ? "s" : ""}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
-
               <Button
                 type="submit"
-                className="bg-white text-black hover:bg-white/90 rounded-full font-light"
+                className="w-full md:w-auto bg-white text-black hover:bg-white/90 rounded-full"
                 disabled={loading}
               >
                 {loading ? (
-                  <>
-                    <div className="h-4 w-4 border-2 border-black/30 border-t-black rounded-full animate-spin mr-2" />
-                    Searching...
-                  </>
+                  <div className="h-4 w-4 border-2 border-black/30 border-t-black rounded-full animate-spin mr-2" />
                 ) : (
-                  <>
-                    <Search className="h-4 w-4 mr-2" />
-                    Search Hotels
-                  </>
+                  <Search className="h-4 w-4 mr-2" />
                 )}
+                {loading ? "Searching..." : "Search Hotels"}
               </Button>
             </form>
           </CardContent>
         </Card>
 
-        {/* Featured Destinations */}
-        {hotels.length === 0 && !loading && (
-          <Card className="bg-white/5 border-white/10">
-            <CardContent className="py-2 px-2">
-              <h2 className="text-xl font-light text-white mb-4">Popular Business Destinations</h2>
-              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-                {featuredDestinations.map((dest) => (
-                  <div
-                    key={dest.city}
-                    className="bg-black/30 rounded-lg overflow-hidden border border-white/10 hover:border-white/20 cursor-pointer transition-all group"
-                    onClick={() => {
-                      setDestination(dest.city)
-                    }}
-                  >
-                    <div className="h-20 relative">
-                      <img
-                        src={dest.image || "/placeholder.svg"}
-                        alt={dest.city}
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform"
-                      />
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent" />
-                      <div className="absolute bottom-1 left-2 right-2">
-                        <p className="text-white font-light text-xs">{dest.city}</p>
-                        <p className="text-white/70 text-[10px] font-light">{dest.hotels}</p>
-                      </div>
-                    </div>
-                  </div>
-                ))}
+        {/* Filters and Results */}
+        {!loading && filteredHotels.length > 0 && (
+          <div className="space-y-3">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 bg-white/5 p-3 rounded-lg border border-white/10">
+              <h2 className="text-lg font-medium text-white">{sortedAndFilteredHotels.length} hotels found</h2>
+              <div className="flex gap-2">
+                <Select value={minRating} onValueChange={setMinRating}>
+                  <SelectTrigger className="bg-transparent border-none text-white/70 h-8 text-xs w-auto focus:ring-0">
+                    <Star className="h-3.5 w-3.5 mr-1.5" />
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {["0", "3", "4", "4.5"].map((rating) => (
+                      <SelectItem key={rating} value={rating} className="text-xs">
+                        {rating === "0" ? "All Ratings" : `${rating}+ Stars`}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <Select value={sortBy} onValueChange={setSortBy}>
+                  <SelectTrigger className="bg-transparent border-none text-white/70 h-8 text-xs w-auto focus:ring-0">
+                    <ArrowRightLeft className="h-3.5 w-3.5 mr-1.5" />
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {["price", "rating", "name"].map((s) => (
+                      <SelectItem key={s} value={s} className="capitalize text-xs">
+                        {s}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
-            </CardContent>
-          </Card>
-        )}
-
-        {/* Results */}
-        {hotels.length > 0 && (
-          <>
-            {/* Filters */}
-            <div className="flex flex-wrap items-center justify-between gap-4 bg-white/5 border border-white/10 rounded-lg py-2 px-2">
-              <div className="flex items-center space-x-4">
-                <div className="flex items-center space-x-2">
-                  <ArrowUpDown className="h-4 w-4 text-white/70" />
-                  <span className="text-white/70 text-sm font-light">Sort:</span>
-                  <Select value={sortBy} onValueChange={setSortBy}>
-                    <SelectTrigger className="bg-white/5 border-white/10 text-white h-8 text-xs w-[120px] font-light">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="price">Price</SelectItem>
-                      <SelectItem value="rating">Rating</SelectItem>
-                      <SelectItem value="stars">Stars</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                <div className="flex items-center space-x-2">
-                  <Filter className="h-4 w-4 text-white/70" />
-                  {["Free WiFi", "Parking", "Pool", "Gym"].map((amenity) => (
-                    <Badge
-                      key={amenity}
-                      onClick={() => toggleAmenity(amenity)}
-                      className={`cursor-pointer rounded-full flex items-center gap-1 font-light ${
-                        selectedAmenities.includes(amenity)
-                          ? "bg-white text-black"
-                          : "bg-white/10 text-white hover:bg-white/20"
-                      }`}
-                    >
-                      {amenityIcons[amenity]}
-                      {amenity}
-                    </Badge>
-                  ))}
-                </div>
-              </div>
-
-              <div className="text-white/70 text-sm font-light">{filteredHotels.length} hotels found</div>
             </div>
 
-            {/* Hotel Results */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {filteredHotels.map((hotel) => (
-                <Card
-                  key={hotel.id}
-                  className="bg-white/5 border-white/10 hover:bg-white/10 transition-colors overflow-hidden"
+            {sortedAndFilteredHotels.map((hotel, index) => (
+              <Card
+                key={hotel.id}
+                className={`bg-white/5 border hover:bg-white/10 transition-all ${selectedHotelId === hotel.id ? "border-blue-500/50 ring-2 ring-blue-500/30" : "border-white/10"}`}
+                style={{ animation: `fadeInUp 0.5s ${index * 0.05}s ease-out forwards`, opacity: 0 }}
+              >
+                <CardContent
+                  className="p-4 cursor-pointer"
+                  onClick={() => setSelectedHotelId(hotel.id === selectedHotelId ? null : hotel.id)}
                 >
-                  <div className="relative h-48">
-                    <img
-                      src={hotel.image || "/placeholder.svg"}
-                      alt={hotel.name}
-                      className="w-full h-full object-cover"
-                    />
-                    <div className="absolute top-2 right-2 bg-black/50 backdrop-blur-sm rounded-full px-2 py-1">
-                      <div className="flex items-center space-x-1">
-                        <Star className="h-3 w-3 text-yellow-400 fill-current" />
-                        <span className="text-white text-sm font-light">{hotel.rating}</span>
-                      </div>
+                  <div className="flex flex-col md:flex-row gap-4">
+                    <div className="relative w-full md:w-48 h-32 rounded-lg overflow-hidden bg-white/10">
+                      <Image src={hotel.image || "/placeholder.svg"} alt={hotel.name} fill className="object-cover" />
                     </div>
-                    <button
-                      onClick={() => toggleSaveHotel(hotel.id)}
-                      className="absolute top-2 left-2 p-1.5 bg-black/50 backdrop-blur-sm rounded-full text-white/70 hover:text-white"
-                    >
-                      <Heart
-                        className={`h-4 w-4 ${savedHotels.includes(hotel.id) ? "fill-current text-red-400" : ""}`}
-                      />
-                    </button>
-                    <div className="absolute bottom-2 left-2">
-                      <div className="flex">
-                        {Array.from({ length: hotel.stars }).map((_, i) => (
-                          <Star key={i} className="h-3 w-3 text-yellow-400 fill-current" />
-                        ))}
+                    <div className="flex-1 space-y-2">
+                      <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2">
+                        <div>
+                          <h3 className="text-lg font-medium text-white">{hotel.name}</h3>
+                          <p className="text-sm text-white/70">{hotel.location}</p>
+                          <div className="flex items-center gap-1 mt-1">
+                            {[...Array(5)].map((_, i) => (
+                              <Star
+                                key={i}
+                                className={`h-3 w-3 ${i < Math.floor(hotel.rating) ? "text-yellow-400 fill-current" : "text-white/30"}`}
+                              />
+                            ))}
+                            <span className="text-xs text-white/70 ml-1">{hotel.rating}</span>
+                          </div>
+                        </div>
+                        <div className="text-right">
+                          <div className="flex items-center gap-2">
+                            {hotel.originalPrice && (
+                              <span className="text-sm text-white/50 line-through">${hotel.originalPrice}</span>
+                            )}
+                            <span className="text-xl font-bold text-white">${hotel.price}</span>
+                          </div>
+                          <p className="text-xs text-white/50">per night</p>
+                          <Badge
+                            className={`text-xs mt-1 ${hotel.travelPolicy === "Compliant" ? "bg-green-500/20 text-green-400 border-green-500/30" : "bg-orange-500/20 text-orange-400 border-orange-500/30"}`}
+                          >
+                            {hotel.travelPolicy}
+                          </Badge>
+                        </div>
                       </div>
+                      <div className="flex flex-wrap gap-1.5">
+                        {hotel.amenities.slice(0, 6).map((amenity) => (
+                          <div
+                            key={amenity}
+                            className="flex items-center gap-1 bg-white/10 px-2 py-1 rounded-full text-xs text-white/70"
+                          >
+                            {amenityIcons[amenity] || <div className="h-3 w-3 rounded-full bg-white/50" />}
+                            <span>{amenity}</span>
+                          </div>
+                        ))}
+                        {hotel.amenities.length > 6 && (
+                          <Badge variant="secondary" className="bg-white/10 text-white/70 text-xs">
+                            +{hotel.amenities.length - 6} more
+                          </Badge>
+                        )}
+                      </div>
+                      {hotel.description && <p className="text-sm text-white/60 line-clamp-2">{hotel.description}</p>}
                     </div>
                   </div>
-
-                  <CardContent className="py-2 px-2">
-                    <h3 className="font-light text-white mb-1">{hotel.name}</h3>
-                    <p className="text-white/70 text-sm mb-2 flex items-center font-light">
-                      <MapPin className="h-3 w-3 mr-1" />
-                      {hotel.distance}
-                    </p>
-                    <p className="text-white/60 text-sm mb-3 line-clamp-2 font-light">{hotel.description}</p>
-
-                    <div className="flex flex-wrap gap-1 mb-3">
-                      {hotel.amenities.slice(0, 3).map((amenity) => (
-                        <Badge
-                          key={amenity}
-                          className="text-xs bg-white/10 text-white/70 border-white/20 rounded-full flex items-center gap-1 font-light"
-                        >
-                          {amenityIcons[amenity]}
-                          {amenity}
-                        </Badge>
-                      ))}
-                      {hotel.amenities.length > 3 && (
-                        <Badge className="text-xs bg-white/10 text-white/70 border-white/20 rounded-full font-light">
-                          +{hotel.amenities.length - 3} more
-                        </Badge>
-                      )}
-                    </div>
-
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <span className="text-2xl font-light text-white">${hotel.price}</span>
-                        <span className="text-white/50 text-sm font-light">/night</span>
-                        <div className="text-white/50 text-xs font-light">{hotel.reviews} reviews</div>
+                  {selectedHotelId === hotel.id && (
+                    <div className="mt-4 pt-4 border-t border-white/10 space-y-3">
+                      <div className="grid md:grid-cols-2 gap-4 text-sm">
+                        <div>
+                          <p className="text-white/70">
+                            <span className="font-medium text-white/90">Room Type:</span> {hotel.roomType}
+                          </p>
+                          <p className="text-white/70">
+                            <span className="font-medium text-white/90">Availability:</span> {hotel.availability} rooms
+                            left
+                          </p>
+                          {hotel.distance && (
+                            <p className="text-white/70">
+                              <span className="font-medium text-white/90">Distance:</span> {hotel.distance}
+                            </p>
+                          )}
+                        </div>
+                        <div>
+                          <p className="font-medium text-white/90 mb-1">All Amenities:</p>
+                          <div className="flex flex-wrap gap-1">
+                            {hotel.amenities.map((amenity) => (
+                              <Badge
+                                key={amenity}
+                                variant="secondary"
+                                className="bg-white/10 text-white/70 text-xs px-2 py-0.5"
+                              >
+                                {amenity}
+                              </Badge>
+                            ))}
+                          </div>
+                        </div>
                       </div>
-                      <Button className="bg-white text-black hover:bg-white/90 rounded-full font-light">
-                        Book Now
+                      <Button
+                        onClick={handleBookHotel}
+                        size="sm"
+                        className="w-full mt-3 bg-white text-black hover:bg-white/90 rounded-full"
+                      >
+                        Book This Hotel
                       </Button>
                     </div>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-          </>
+                  )}
+                </CardContent>
+              </Card>
+            ))}
+          </div>
         )}
 
         {/* Loading State */}
         {loading && (
-          <div className="flex justify-center py-12">
-            <div className="text-center">
-              <div className="h-8 w-8 border-2 border-white/50 border-t-transparent rounded-full animate-spin mx-auto mb-4" />
-              <p className="text-white/70 font-light">Finding the best hotels for you...</p>
-            </div>
+          <div className="text-center py-10">
+            <div className="h-8 w-8 border-2 border-white/30 border-t-white rounded-full animate-spin mx-auto mb-3"></div>
+            <p className="text-white/70">Searching for hotels...</p>
           </div>
+        )}
+
+        {/* No Results */}
+        {!loading && filteredHotels.length === 0 && destination && (
+          <Card className="bg-white/5 border-white/10">
+            <CardContent className="p-10 text-center">
+              <Building2 className="h-12 w-12 text-white/30 mx-auto mb-3" />
+              <h3 className="text-xl font-medium text-white">No Hotels Found</h3>
+              <p className="text-white/70 mt-1">Try different destinations or dates.</p>
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Empty State */}
+        {!loading && !destination && (
+          <Card className="bg-white/5 border-white/10">
+            <CardContent className="p-10 text-center">
+              <Building2 className="h-12 w-12 text-white/30 mx-auto mb-3" />
+              <h3 className="text-xl font-medium text-white">Find Your Perfect Stay</h3>
+              <p className="text-white/70 mt-1">Search for hotels in your destination.</p>
+            </CardContent>
+          </Card>
         )}
       </div>
     </div>
   )
 }
 
-export default function HotelsPage() {
+// Helper component for inputs with icons
+function InputWithIcon({ icon, ...props }: { icon: React.ReactNode } & React.InputHTMLAttributes<HTMLInputElement>) {
   return (
-    <Suspense
-      fallback={
-        <div className="min-h-screen bg-black p-3">
-          <div className="max-w-7xl mx-auto space-y-4">
-            <div className="bg-white/5 border border-white/10 rounded-lg py-2 px-2">
-              <div className="h-8 bg-white/10 rounded w-48 mb-4 animate-pulse" />
-              <div className="h-4 bg-white/10 rounded w-96 animate-pulse" />
-            </div>
-          </div>
-        </div>
-      }
-    >
-      <HotelsContent />
-    </Suspense>
+    <div className="relative">
+      <div className="absolute left-3 top-1/2 -translate-y-1/2">{icon}</div>
+      <Input
+        {...props}
+        className="pl-10 h-11 bg-white/5 border-white/10 text-white placeholder:text-white/30 rounded-xl hover:bg-white/10 focus:ring-1 focus:ring-white/20"
+      />
+    </div>
   )
 }
+
+// Add CSS for animations
+const style = document.createElement("style")
+style.textContent = `
+  @keyframes fadeInUp {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+`
+document.head.appendChild(style)

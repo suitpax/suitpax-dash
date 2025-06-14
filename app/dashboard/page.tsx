@@ -11,7 +11,7 @@ import {
   PaperAirplaneIcon,
   BuildingOfficeIcon,
   ArrowRightIcon,
-  TrainIcon,
+  BoltIcon,
   ChartBarIcon,
   CalendarIcon,
 } from "@heroicons/react/24/outline"
@@ -160,7 +160,7 @@ export default function DashboardPage() {
                 href="/trains"
                 className="inline-flex items-center px-3 py-1.5 bg-white/5 hover:bg-white/10 border border-white/10 rounded-full text-white/70 hover:text-white text-xs font-light transition-all duration-200"
               >
-                <TrainIcon className="h-3 w-3 mr-1.5" />
+                <BoltIcon className="h-3 w-3 mr-1.5" />
                 Trains
               </Link>
             </div>

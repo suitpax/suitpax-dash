@@ -16,8 +16,6 @@ import {
   Circle,
   AlertCircle,
   MoreHorizontal,
-  Trash2,
-  Edit,
 } from "lucide-react"
 import AIQuickInput from "@/components/ui/ai-quick-input"
 
@@ -30,22 +28,11 @@ interface Task {
   assignee: string
   dueDate: string
   category: "travel" | "expense" | "meeting" | "general"
-  createdAt: string
 }
 
 export default function TasksPage() {
   const [searchQuery, setSearchQuery] = useState("")
   const [filterStatus, setFilterStatus] = useState<string>("all")
-  const [showNewTaskForm, setShowNewTaskForm] = useState(false)
-  const [newTask, setNewTask] = useState({
-    title: "",
-    description: "",
-    priority: "medium" as const,
-    category: "general" as const,
-    dueDate: "",
-    assignee: "Alberto",
-  })
-
   const [tasks, setTasks] = useState<Task[]>([
     {
       id: "1",
@@ -56,7 +43,6 @@ export default function TasksPage() {
       assignee: "Alberto",
       dueDate: "2024-12-20",
       category: "travel",
-      createdAt: "2024-12-15",
     },
     {
       id: "2",
@@ -67,7 +53,6 @@ export default function TasksPage() {
       assignee: "Alberto",
       dueDate: "2024-12-18",
       category: "expense",
-      createdAt: "2024-12-14",
     },
     {
       id: "3",
@@ -78,7 +63,16 @@ export default function TasksPage() {
       assignee: "Sarah",
       dueDate: "2024-12-15",
       category: "meeting",
-      createdAt: "2024-12-10",
+    },
+    {
+      id: "4",
+      title: "Review hotel bookings",
+      description: "Confirm accommodations for upcoming business trips",
+      priority: "low",
+      status: "todo",
+      assignee: "Mike",
+      dueDate: "2024-12-22",
+      category: "travel",
     },
   ])
 
@@ -100,37 +94,6 @@ export default function TasksPage() {
         return task
       }),
     )
-  }
-
-  const deleteTask = (taskId: string) => {
-    setTasks(tasks.filter((task) => task.id !== taskId))
-  }
-
-  const addNewTask = () => {
-    if (!newTask.title.trim()) return
-
-    const task: Task = {
-      id: Date.now().toString(),
-      title: newTask.title,
-      description: newTask.description,
-      priority: newTask.priority,
-      status: "todo",
-      assignee: newTask.assignee,
-      dueDate: newTask.dueDate,
-      category: newTask.category,
-      createdAt: new Date().toISOString().split("T")[0],
-    }
-
-    setTasks([task, ...tasks])
-    setNewTask({
-      title: "",
-      description: "",
-      priority: "medium",
-      category: "general",
-      dueDate: "",
-      assignee: "Alberto",
-    })
-    setShowNewTaskForm(false)
   }
 
   const getPriorityColor = (priority: string) => {
@@ -176,10 +139,10 @@ export default function TasksPage() {
         {/* Header */}
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
-            <h1 className="text-2xl font-light tracking-tighter text-white">Task Management</h1>
-            <p className="text-white/70 text-sm font-light">Organize and track your travel and business tasks</p>
+            <h1 className="text-2xl font-light tracking-tighter text-white">Tasks</h1>
+            <p className="text-white/70 text-sm font-light">Manage your travel and business tasks</p>
           </div>
-          <Button onClick={() => setShowNewTaskForm(true)} className="bg-white text-black hover:bg-white/90 font-light">
+          <Button className="bg-white text-black hover:bg-white/90 font-light">
             <Plus className="h-4 w-4 mr-2" />
             New Task
           </Button>
@@ -189,96 +152,6 @@ export default function TasksPage() {
         <div className="max-w-md">
           <AIQuickInput placeholder="Ask AI: 'Create a task to book flight to Paris'" />
         </div>
-
-        {/* New Task Form */}
-        {showNewTaskForm && (
-          <Card className="bg-white/5 border-white/10">
-            <CardHeader className="py-3">
-              <CardTitle className="text-white font-light tracking-tighter text-lg">Create New Task</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <label className="text-white/70 text-sm font-light mb-2 block">Title</label>
-                  <Input
-                    value={newTask.title}
-                    onChange={(e) => setNewTask({ ...newTask, title: e.target.value })}
-                    placeholder="Task title..."
-                    className="bg-white/5 border-white/10 text-white placeholder:text-white/30 font-light"
-                  />
-                </div>
-                <div>
-                  <label className="text-white/70 text-sm font-light mb-2 block">Due Date</label>
-                  <Input
-                    type="date"
-                    value={newTask.dueDate}
-                    onChange={(e) => setNewTask({ ...newTask, dueDate: e.target.value })}
-                    className="bg-white/5 border-white/10 text-white font-light"
-                  />
-                </div>
-              </div>
-
-              <div>
-                <label className="text-white/70 text-sm font-light mb-2 block">Description</label>
-                <Input
-                  value={newTask.description}
-                  onChange={(e) => setNewTask({ ...newTask, description: e.target.value })}
-                  placeholder="Task description..."
-                  className="bg-white/5 border-white/10 text-white placeholder:text-white/30 font-light"
-                />
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div>
-                  <label className="text-white/70 text-sm font-light mb-2 block">Priority</label>
-                  <select
-                    value={newTask.priority}
-                    onChange={(e) => setNewTask({ ...newTask, priority: e.target.value as any })}
-                    className="w-full px-3 py-2 text-sm bg-white/5 border border-white/10 rounded-lg text-white font-light"
-                  >
-                    <option value="low">Low</option>
-                    <option value="medium">Medium</option>
-                    <option value="high">High</option>
-                  </select>
-                </div>
-                <div>
-                  <label className="text-white/70 text-sm font-light mb-2 block">Category</label>
-                  <select
-                    value={newTask.category}
-                    onChange={(e) => setNewTask({ ...newTask, category: e.target.value as any })}
-                    className="w-full px-3 py-2 text-sm bg-white/5 border border-white/10 rounded-lg text-white font-light"
-                  >
-                    <option value="general">General</option>
-                    <option value="travel">Travel</option>
-                    <option value="expense">Expense</option>
-                    <option value="meeting">Meeting</option>
-                  </select>
-                </div>
-                <div>
-                  <label className="text-white/70 text-sm font-light mb-2 block">Assignee</label>
-                  <Input
-                    value={newTask.assignee}
-                    onChange={(e) => setNewTask({ ...newTask, assignee: e.target.value })}
-                    className="bg-white/5 border-white/10 text-white font-light"
-                  />
-                </div>
-              </div>
-
-              <div className="flex gap-2 pt-2">
-                <Button onClick={addNewTask} className="bg-white text-black hover:bg-white/90 font-light">
-                  Create Task
-                </Button>
-                <Button
-                  onClick={() => setShowNewTaskForm(false)}
-                  variant="outline"
-                  className="border-white/20 text-white hover:bg-white/10 font-light"
-                >
-                  Cancel
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-        )}
 
         {/* Filters */}
         <Card className="bg-white/5 border-white/10">
@@ -430,30 +303,9 @@ export default function TasksPage() {
                       </div>
                     </div>
 
-                    <div className="flex items-center gap-1">
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        className="text-white/50 hover:text-white hover:bg-white/10 p-1"
-                      >
-                        <Edit className="h-4 w-4" />
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => deleteTask(task.id)}
-                        className="text-red-400/70 hover:text-red-400 hover:bg-red-500/10 p-1"
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        className="text-white/50 hover:text-white hover:bg-white/10 p-1"
-                      >
-                        <MoreHorizontal className="h-4 w-4" />
-                      </Button>
-                    </div>
+                    <Button variant="ghost" size="sm" className="text-white/50 hover:text-white hover:bg-white/10">
+                      <MoreHorizontal className="h-4 w-4" />
+                    </Button>
                   </div>
                 </div>
               ))}
@@ -463,10 +315,7 @@ export default function TasksPage() {
                   <Circle className="h-12 w-12 mx-auto text-white/30 mb-3" />
                   <h3 className="text-lg font-light text-white/70 mb-1">No tasks found</h3>
                   <p className="text-white/50 font-light mb-4">Try adjusting your search or filters</p>
-                  <Button
-                    onClick={() => setShowNewTaskForm(true)}
-                    className="bg-white text-black hover:bg-white/90 font-light"
-                  >
+                  <Button className="bg-white text-black hover:bg-white/90 font-light">
                     <Plus className="h-4 w-4 mr-2" />
                     Create New Task
                   </Button>

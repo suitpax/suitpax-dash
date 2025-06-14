@@ -7,12 +7,12 @@ import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Search, MapPin, Calendar, Users, TrainFront, Clock, ArrowRightLeft, Ticket, CheckCircle } from "lucide-react"
-import trainsData from "@/data/trains.json" // Assuming this data structure is suitable
+import { Search, MapPin, Calendar, Users, Train, Clock, ArrowRightLeft, Ticket, CheckCircle } from "lucide-react"
+import trainsData from "@/data/trains.json"
 
-interface Train {
+interface TrainRoute {
   id: string
-  company: string
+  operator: string
   trainNumber: string
   origin: string
   originCode: string
@@ -20,29 +20,21 @@ interface Train {
   destinationCode: string
   departureTime: string
   arrivalTime: string
-  departureDate: string // Keep this if your data has it, or derive
+  departureDate: string
   duration: string
-  price: number // Assuming number for easier sorting
+  price: number
   class: string
   stops: number
-  stopCity?: string
   amenities: string[]
   travelPolicy: "Compliant" | "Non-Compliant"
-  carbonEmission?: string
-  trainType?: string // e.g., High-speed, Regional
-}
-
-const trainCompanies = {
-  Renfe: { code: "RN", logo: "/placeholder.svg?width=32&height=32&text=RN" },
-  SNCF: { code: "SF", logo: "/placeholder.svg?width=32&height=32&text=SF" },
-  "Deutsche Bahn": { code: "DB", logo: "/placeholder.svg?width=32&height=32&text=DB" },
-  Eurostar: { code: "ES", logo: "/placeholder.svg?width=32&height=32&text=ES" },
-  // Add more as needed
+  trainType: string
+  wifiAvailable: boolean
+  foodService: boolean
 }
 
 export default function TrainsPage() {
-  const [allTrains, setAllTrains] = useState<Train[]>(trainsData as Train[])
-  const [filteredTrains, setFilteredTrains] = useState<Train[]>([])
+  const [allTrains, setAllTrains] = useState<TrainRoute[]>(trainsData as TrainRoute[])
+  const [filteredTrains, setFilteredTrains] = useState<TrainRoute[]>([])
   const [loading, setLoading] = useState(false)
   const [selectedTrainId, setSelectedTrainId] = useState<string | null>(null)
   const [showBookingConfirmation, setShowBookingConfirmation] = useState(false)
@@ -52,32 +44,71 @@ export default function TrainsPage() {
   const [destinationCity, setDestinationCity] = useState("")
   const [departureDate, setDepartureDate] = useState(new Date().toISOString().split("T")[0])
   const [passengers, setPassengers] = useState("1")
-  const [travelClass, setTravelClass] = useState("second")
+  const [travelClass, setTravelClass] = useState("standard")
 
   // Filter state
   const [sortBy, setSortBy] = useState("price")
 
+  // Add animations on client side only
   useEffect(() => {
-    // Initial filter or if search params change
-    if (destinationCity) {
-      // Trigger search if destination is set (e.g., from URL params)
-      performSearch()
+    if (typeof document !== "undefined") {
+      const existingStyle = document.head.querySelector("style[data-trains-animations]")
+      if (!existingStyle) {
+        const style = document.createElement("style")
+        style.setAttribute("data-trains-animations", "true")
+        style.textContent = `
+          @keyframes fadeInUp {
+            from {
+              opacity: 0;
+              transform: translateY(20px);
+            }
+            to {
+              opacity: 1;
+              transform: translateY(0);
+            }
+          }
+          .animate-fade-in-up {
+            animation: fadeInUp 0.5s ease-out forwards;
+          }
+        `
+        document.head.appendChild(style)
+
+        return () => {
+          const styleToRemove = document.head.querySelector("style[data-trains-animations]")
+          if (styleToRemove) {
+            document.head.removeChild(styleToRemove)
+          }
+        }
+      }
     }
-  }, []) // Add dependencies if you want to react to URL searchParams
+  }, [])
+
+  useEffect(() => {
+    // Check URL params for pre-filled search
+    if (typeof window !== "undefined") {
+      const urlParams = new URLSearchParams(window.location.search)
+      const destination = urlParams.get("destination")
+      if (destination) {
+        setDestinationCity(destination)
+        performSearch()
+      }
+    }
+  }, [])
 
   const performSearch = async () => {
     setLoading(true)
-    await new Promise((resolve) => setTimeout(resolve, 1000)) // Simulate API
+    // Simulate API call
+    await new Promise((resolve) => setTimeout(resolve, 1000))
 
     const results = allTrains.filter(
       (train) =>
         train.origin.toLowerCase().includes(originCity.toLowerCase()) &&
         train.destination.toLowerCase().includes(destinationCity.toLowerCase()) &&
-        new Date(train.departureDate) >= new Date(departureDate), // Basic date check
+        new Date(train.departureDate) >= new Date(departureDate),
     )
     setFilteredTrains(results)
     setLoading(false)
-    setSelectedTrainId(null) // Reset selection
+    setSelectedTrainId(null)
   }
 
   const handleSearch = (e: React.FormEvent) => {
@@ -122,14 +153,14 @@ export default function TrainsPage() {
           </CardHeader>
           <CardContent className="text-center space-y-3">
             <p className="text-sm text-white/70">
-              Your train journey from {selectedTrainDetails.origin} to {selectedTrainDetails.destination} is booked.
+              Your train from {selectedTrainDetails.origin} to {selectedTrainDetails.destination} is booked.
             </p>
             <div className="text-left bg-white/5 p-3 rounded-lg border border-white/10 text-xs space-y-1">
               <p>
-                <span className="text-white/60">Reference:</span> SPX-TRN-{selectedTrainDetails.id.slice(-4)}
+                <span className="text-white/60">Reference:</span> SPX-{selectedTrainDetails.id.slice(-4)}
               </p>
               <p>
-                <span className="text-white/60">Train:</span> {selectedTrainDetails.company}{" "}
+                <span className="text-white/60">Train:</span> {selectedTrainDetails.operator}{" "}
                 {selectedTrainDetails.trainNumber}
               </p>
               <p>
@@ -159,8 +190,9 @@ export default function TrainsPage() {
     <div className="min-h-screen bg-black p-3 text-white">
       <div className="max-w-7xl mx-auto space-y-4">
         {/* Header */}
-        <header className="bg-white/5 border border-white/10 rounded-2xl p-6 md:p-8 backdrop-blur-sm">
-          <h1 className="text-2xl font-light text-white tracking-tight">Trains</h1>
+        <header className="bg-white/5 border border-white/10 rounded-lg p-6 md:p-8 backdrop-blur-sm">
+          <h1 className="text-2xl font-light text-white tracking-tight">Train Search</h1>
+          <p className="text-white/70 text-sm font-light mt-1">Find and book your perfect train journey</p>
         </header>
 
         {/* Search Form */}
@@ -168,7 +200,6 @@ export default function TrainsPage() {
           <CardContent className="p-6">
             <form onSubmit={handleSearch} className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
-                {/* Origin, Destination, Date, Passengers, Class inputs */}
                 <InputWithIcon
                   icon={<MapPin className="h-4 w-4 text-white/50" />}
                   placeholder="Origin (e.g. Madrid)"
@@ -188,7 +219,7 @@ export default function TrainsPage() {
                   onChange={(e) => setDepartureDate(e.target.value)}
                 />
                 <Select value={passengers} onValueChange={setPassengers}>
-                  <SelectTrigger className="h-11 bg-white/5 border-white/10 text-white rounded-xl hover:bg-white/10">
+                  <SelectTrigger className="h-11 bg-white/5 border-white/10 text-white rounded-lg hover:bg-white/10">
                     <Users className="h-4 w-4 text-white/50 mr-2" />
                     <SelectValue />
                   </SelectTrigger>
@@ -201,12 +232,12 @@ export default function TrainsPage() {
                   </SelectContent>
                 </Select>
                 <Select value={travelClass} onValueChange={setTravelClass}>
-                  <SelectTrigger className="h-11 bg-white/5 border-white/10 text-white rounded-xl hover:bg-white/10">
+                  <SelectTrigger className="h-11 bg-white/5 border-white/10 text-white rounded-lg hover:bg-white/10">
                     <Ticket className="h-4 w-4 text-white/50 mr-2" />
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    {["second", "first", "business"].map((tc) => (
+                    {["standard", "first", "business"].map((tc) => (
                       <SelectItem key={tc} value={tc} className="capitalize">
                         {tc} Class
                       </SelectItem>
@@ -216,7 +247,7 @@ export default function TrainsPage() {
               </div>
               <Button
                 type="submit"
-                className="w-full md:w-auto bg-white text-black hover:bg-white/90 rounded-full"
+                className="w-full md:w-auto bg-white text-black hover:bg-white/90 rounded-full font-light"
                 disabled={loading}
               >
                 {loading ? (
@@ -234,7 +265,7 @@ export default function TrainsPage() {
         {!loading && filteredTrains.length > 0 && (
           <div className="space-y-3">
             <div className="flex justify-between items-center bg-white/5 p-3 rounded-lg border border-white/10">
-              <h2 className="text-lg font-medium text-white">{sortedAndFilteredTrains.length} trains found</h2>
+              <h2 className="text-lg font-light text-white">{sortedAndFilteredTrains.length} trains found</h2>
               <Select value={sortBy} onValueChange={setSortBy}>
                 <SelectTrigger className="bg-transparent border-none text-white/70 h-8 text-xs w-auto focus:ring-0">
                   <ArrowRightLeft className="h-3.5 w-3.5 mr-1.5" />
@@ -253,8 +284,11 @@ export default function TrainsPage() {
             {sortedAndFilteredTrains.map((train, index) => (
               <Card
                 key={train.id}
-                className={`bg-white/5 border hover:bg-white/10 transition-all ${selectedTrainId === train.id ? "border-blue-500/50 ring-2 ring-blue-500/30" : "border-white/10"}`}
-                style={{ animation: `fadeInUp 0.5s ${index * 0.05}s ease-out forwards`, opacity: 0 }}
+                className={`bg-white/5 border hover:bg-white/10 transition-all animate-fade-in-up ${selectedTrainId === train.id ? "border-blue-500/50 ring-2 ring-blue-500/30" : "border-white/10"}`}
+                style={{
+                  animationDelay: `${index * 0.05}s`,
+                  opacity: 0,
+                }}
               >
                 <CardContent
                   className="p-4 cursor-pointer"
@@ -262,67 +296,67 @@ export default function TrainsPage() {
                 >
                   <div className="flex flex-col md:flex-row gap-3">
                     <div className="flex md:flex-col items-center md:items-start md:w-1/6 gap-2">
-                      <img
-                        src={
-                          trainCompanies[train.company as keyof typeof trainCompanies]?.logo ||
-                          "/placeholder.svg?width=32&height=32&text=TR" ||
-                          "/placeholder.svg"
-                        }
-                        alt={train.company}
-                        className="h-8 w-8 rounded-md bg-white/10 p-1"
-                      />
+                      <div className="h-8 w-8 rounded-lg bg-white/10 p-1 flex items-center justify-center">
+                        <Train className="h-5 w-5 text-white/70" />
+                      </div>
                       <div>
-                        <p className="text-sm font-medium text-white">{train.company}</p>
-                        <p className="text-xs text-white/50">{train.trainNumber}</p>
+                        <p className="text-sm font-light text-white">{train.operator}</p>
+                        <p className="text-xs text-white/50 font-light">{train.trainNumber}</p>
                       </div>
                     </div>
                     <div className="flex-1 grid grid-cols-3 items-center text-center md:text-left">
                       <div>
-                        <p className="text-lg font-semibold text-white">{train.departureTime}</p>
-                        <p className="text-xs text-white/70">{train.originCode}</p>
+                        <p className="text-lg font-light text-white">{train.departureTime}</p>
+                        <p className="text-xs text-white/70 font-light">{train.originCode}</p>
                       </div>
                       <div className="px-2">
                         <Clock className="h-3.5 w-3.5 text-white/50 mx-auto mb-0.5" />
-                        <p className="text-xs text-white/70">{train.duration}</p>
+                        <p className="text-xs text-white/70 font-light">{train.duration}</p>
                         <div className="w-full h-px bg-white/20 my-0.5"></div>
-                        <p className="text-xs text-white/50">
-                          {train.stops} stop{train.stops !== 1 ? "s" : ""}
+                        <p className="text-xs text-white/50 font-light">
+                          {train.stops === 0 ? "Direct" : `${train.stops} stop${train.stops > 1 ? "s" : ""}`}
                         </p>
                       </div>
                       <div>
-                        <p className="text-lg font-semibold text-white">{train.arrivalTime}</p>
-                        <p className="text-xs text-white/70">{train.destinationCode}</p>
+                        <p className="text-lg font-light text-white">{train.arrivalTime}</p>
+                        <p className="text-xs text-white/70 font-light">{train.destinationCode}</p>
                       </div>
                     </div>
                     <div className="md:w-1/6 flex flex-col items-center md:items-end justify-center">
-                      <p className="text-xl font-bold text-white">${train.price}</p>
-                      <p className="text-xs text-white/50 capitalize">{train.class}</p>
+                      <p className="text-xl font-light text-white">${train.price}</p>
+                      <p className="text-xs text-white/50 capitalize font-light">{train.class}</p>
                     </div>
                   </div>
                   {selectedTrainId === train.id && (
                     <div className="mt-3 pt-3 border-t border-white/10 space-y-2 text-xs">
                       <div className="grid md:grid-cols-2 gap-2">
                         <div>
-                          <p className="text-white/70">
-                            <span className="font-medium text-white/90">Type:</span> {train.trainType || "Standard"}
+                          <p className="text-white/70 font-light">
+                            <span className="font-light text-white/90">Train Type:</span> {train.trainType}
                           </p>
-                          <p className="text-white/70">
-                            <span className="font-medium text-white/90">Policy:</span>{" "}
+                          <p className="text-white/70 font-light">
+                            <span className="font-light text-white/90">Policy:</span>{" "}
                             <span className={train.travelPolicy === "Compliant" ? "text-green-400" : "text-orange-400"}>
                               {train.travelPolicy}
                             </span>
                           </p>
+                          <p className="text-white/70 font-light">
+                            <span className="font-light text-white/90">WiFi:</span>{" "}
+                            <span className={train.wifiAvailable ? "text-green-400" : "text-red-400"}>
+                              {train.wifiAvailable ? "Available" : "Not Available"}
+                            </span>
+                          </p>
                         </div>
                         <div>
-                          <p className="font-medium text-white/90 mb-0.5">Amenities:</p>
+                          <p className="font-light text-white/90 mb-0.5">Amenities:</p>
                           <div className="flex flex-wrap gap-1.5">
-                            {train.amenities.map((a) => (
+                            {train.amenities.map((amenity) => (
                               <Badge
-                                key={a}
+                                key={amenity}
                                 variant="secondary"
-                                className="bg-white/10 text-white/70 text-[10px] px-1.5 py-0.5"
+                                className="bg-white/10 text-white/70 text-[10px] px-1.5 py-0.5 font-light"
                               >
-                                {a}
+                                {amenity}
                               </Badge>
                             ))}
                           </div>
@@ -331,7 +365,7 @@ export default function TrainsPage() {
                       <Button
                         onClick={handleBookTrain}
                         size="sm"
-                        className="w-full mt-2 bg-white text-black hover:bg-white/90 rounded-full"
+                        className="w-full mt-2 bg-white text-black hover:bg-white/90 rounded-full font-light"
                       >
                         Book This Train
                       </Button>
@@ -343,28 +377,32 @@ export default function TrainsPage() {
           </div>
         )}
 
-        {/* Loading or No Results */}
+        {/* Loading State */}
         {loading && (
           <div className="text-center py-10">
             <div className="h-8 w-8 border-2 border-white/30 border-t-white rounded-full animate-spin mx-auto mb-3"></div>
-            <p className="text-white/70">Searching for trains...</p>
+            <p className="text-white/70 font-light">Searching for trains...</p>
           </div>
         )}
+
+        {/* No Results */}
         {!loading && filteredTrains.length === 0 && destinationCity && (
           <Card className="bg-white/5 border-white/10">
             <CardContent className="p-10 text-center">
-              <TrainFront className="h-12 w-12 text-white/30 mx-auto mb-3" />
-              <h3 className="text-xl font-medium text-white">No Trains Found</h3>
-              <p className="text-white/70 mt-1">Try different destinations or dates.</p>
+              <Train className="h-12 w-12 text-white/30 mx-auto mb-3" />
+              <h3 className="text-xl font-light text-white">No Trains Found</h3>
+              <p className="text-white/70 mt-1 font-light">Try different destinations or dates.</p>
             </CardContent>
           </Card>
         )}
+
+        {/* Empty State */}
         {!loading && !destinationCity && (
           <Card className="bg-white/5 border-white/10">
             <CardContent className="p-10 text-center">
-              <TrainFront className="h-12 w-12 text-white/30 mx-auto mb-3" />
-              <h3 className="text-xl font-medium text-white">Find Your Perfect Train</h3>
-              <p className="text-white/70 mt-1">Search for trains to your destination.</p>
+              <Train className="h-12 w-12 text-white/30 mx-auto mb-3" />
+              <h3 className="text-xl font-light text-white">Find Your Perfect Train</h3>
+              <p className="text-white/70 mt-1 font-light">Search for trains to your destination.</p>
             </CardContent>
           </Card>
         )}
@@ -380,24 +418,8 @@ function InputWithIcon({ icon, ...props }: { icon: React.ReactNode } & React.Inp
       <div className="absolute left-3 top-1/2 -translate-y-1/2">{icon}</div>
       <Input
         {...props}
-        className="pl-10 h-11 bg-white/5 border-white/10 text-white placeholder:text-white/30 rounded-xl hover:bg-white/10 focus:ring-1 focus:ring-white/20"
+        className="pl-10 h-11 bg-white/5 border-white/10 text-white placeholder:text-white/30 rounded-lg hover:bg-white/10 focus:ring-1 focus:ring-white/20 font-light"
       />
     </div>
   )
 }
-
-// Add CSS for animations
-const style = document.createElement("style")
-style.textContent = `
-  @keyframes fadeInUp {
-    from {
-      opacity: 0;
-      transform: translateY(20px);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
-  }
-`
-document.head.appendChild(style)

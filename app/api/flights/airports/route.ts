@@ -7,11 +7,10 @@ export async function GET(request: NextRequest) {
     const query = searchParams.get("q")
 
     if (!query || query.length < 2) {
-      return NextResponse.json({
-        success: true,
-        airports: [],
-      })
+      return NextResponse.json({ airports: [] })
     }
+
+    console.log("Searching airports for:", query)
 
     const airports = await DuffelService.searchAirports(query)
 
@@ -19,14 +18,14 @@ export async function GET(request: NextRequest) {
       success: true,
       airports: airports,
       count: airports.length,
+      duffelAvailable: DuffelService.isAvailable(),
     })
   } catch (error) {
     console.error("Airport search API error:", error)
     return NextResponse.json(
       {
-        success: false,
         error: "Failed to search airports",
-        airports: [],
+        details: error instanceof Error ? error.message : "Unknown error",
       },
       { status: 500 },
     )

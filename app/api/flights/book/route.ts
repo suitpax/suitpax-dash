@@ -3,36 +3,34 @@ import { DuffelService } from "@/lib/services/duffel.service"
 
 export async function POST(request: NextRequest) {
   try {
+    console.log("Flight booking API called")
+
     const body = await request.json()
+    console.log("Booking request:", body)
+
     const { offerId, passengers } = body
 
-    if (!offerId) {
-      return NextResponse.json({ error: "Missing required parameter: offerId" }, { status: 400 })
+    if (!offerId || !passengers) {
+      return NextResponse.json({ error: "Missing required parameters: offerId, passengers" }, { status: 400 })
     }
 
-    // For demo purposes, create a mock booking
-    // In production, you'd collect passenger details and payment info
-    const mockPassengers = passengers || [
-      {
-        id: "passenger_1",
-        type: "adult",
-        title: "mr",
-        given_name: "John",
-        family_name: "Doe",
-        born_on: "1990-01-01",
-        email: "john.doe@example.com",
-        phone_number: "+1234567890",
-      },
-    ]
+    console.log("Creating booking for offer:", offerId)
 
-    const booking = await DuffelService.createBooking(offerId, mockPassengers)
+    const booking = await DuffelService.createBooking(offerId, passengers)
 
     return NextResponse.json({
       success: true,
       booking: booking,
+      message: "Booking created successfully (demo mode)",
     })
   } catch (error) {
     console.error("Flight booking API error:", error)
-    return NextResponse.json({ error: "Failed to create booking" }, { status: 500 })
+    return NextResponse.json(
+      {
+        error: "Failed to create booking",
+        details: error instanceof Error ? error.message : "Unknown error",
+      },
+      { status: 500 },
+    )
   }
 }

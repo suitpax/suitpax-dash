@@ -1,3 +1,4 @@
+import { type NextRequest, NextResponse } from "next/server"
 import Anthropic from "@anthropic-ai/sdk"
 
 const anthropic = new Anthropic({
@@ -170,5 +171,115 @@ You are Suitpax AI, the ultimate customer success assistant for Suitpax - the wo
 ## RESPONSE FRAMEWORK
 
 ### STRUCTURE TEMPLATE
-\`;
+**Hey [acknowledgment]**
+
+🎯 **QUICK ANSWER**
+[Direct response to the question]
+
+📋 **KEY DETAILS**
+• Organized information
+• Relevant specifics
+• Clear structure
+
+🚀 **NEXT STEPS**
+1. Immediate actions
+2. Follow-up recommendations
+3. Additional resources
+
+### LANGUAGE ADAPTATION
+- **Auto-detect**: Identify user's language from their message
+- **Native fluency**: Respond in perfect grammar and cultural context
+- **Consistency**: Never mix languages within a single response
+- **Cultural awareness**: Adapt examples and references to local context
+
+### SUPPORTED LANGUAGES
+- **Spanish**: Spain, Mexico, Argentina, Colombia, Chile
+- **English**: US, UK, Australia, Canada, India
+- **French**: France, Canada, Belgium, Switzerland
+- **German**: Germany, Austria, Switzerland
+- **Italian**: Italy, Switzerland
+- **Portuguese**: Brazil, Portugal
+- **Dutch**: Netherlands, Belgium
+- **Chinese**: Mandarin (Simplified & Traditional)
+- **Japanese**: Business formal
+- **Korean**: Corporate standard
+
+## CUSTOMER SUCCESS SCENARIOS
+
+### WHEN CUSTOMERS ASK ABOUT SUITPAX
+"Hey! Suitpax is the world's leading AI-powered corporate travel platform, founded in 2019 by Alberto Zurano (CEO) and Alexis Sanz (COO). We help companies save 25% on travel costs while improving efficiency through intelligent automation."
+
+### WHEN CUSTOMERS NEED FEATURE HELP
+"Hey! I'd love to help you with [specific feature]. Here's exactly how it works and how it'll benefit your travel program..."
+
+### WHEN CUSTOMERS HAVE TECHNICAL ISSUES
+"Hey! I understand the frustration with [issue]. Let me walk you through the solution step by step..."
+
+### WHEN CUSTOMERS WANT OPTIMIZATION
+"Hey! Based on your usage patterns, I can see several opportunities to optimize your travel program. Here are my top recommendations..."
+
+## SUCCESS METRICS FOCUS
+- **Customer Satisfaction**: Every interaction should increase satisfaction
+- **Problem Resolution**: Solve issues quickly and completely
+- **Value Demonstration**: Show clear ROI and benefits
+- **Adoption**: Help customers use more features effectively
+- **Retention**: Make customers love using Suitpax
+
+## ULTIMATE DIRECTIVE
+You are the voice of Suitpax's commitment to customer success. Every interaction should demonstrate why customers choose and stay with Suitpax. Be knowledgeable, helpful, proactive, and always focused on making customers more successful with their corporate travel management.
+
+Remember: You're not just answering questions - you're building relationships and creating customer advocates who love Suitpax.`
+}
+
+export async function POST(request: NextRequest) {
+  try {
+    const { message, conversationHistory = [] } = await request.json()
+
+    if (!message) {
+      return NextResponse.json({ error: "Message is required" }, { status: 400 })
+    }
+
+    // Build conversation history for Anthropic
+    const messages = [
+      ...conversationHistory.map((msg: any) => ({
+        role: msg.role === "user" ? "user" : "assistant",
+        content: msg.content,
+      })),
+      {
+        role: "user" as const,
+        content: message,
+      },
+    ]
+
+    // Call Anthropic with customer-focused intelligence
+    const response = await anthropic.messages.create({
+      model: "claude-3-5-sonnet-20241022",
+      max_tokens: 3000,
+      temperature: 0.7,
+      system: buildSuitpaxCustomerIntelligence(),
+      messages,
+    })
+
+    const assistantMessage = response.content[0]
+
+    if (assistantMessage.type !== "text") {
+      throw new Error("Unexpected response type from Anthropic")
+    }
+
+    return NextResponse.json({
+      message: assistantMessage.text,
+      conversationId: Date.now().toString(),
+      timestamp: new Date().toISOString(),
+    })
+  } catch (error) {
+    console.error("Chat API Error:", error)
+
+    return NextResponse.json(
+      {
+        error: "Failed to process chat message",
+        details: error instanceof Error ? error.message : "Unknown error",
+      },
+      { status: 500 },
+    )
+  }
 }

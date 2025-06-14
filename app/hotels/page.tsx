@@ -76,11 +76,13 @@ export default function HotelsPage() {
 
   useEffect(() => {
     // Check URL params for pre-filled search
-    const urlParams = new URLSearchParams(window.location.search)
-    const dest = urlParams.get("destination")
-    if (dest) {
-      setDestination(dest)
-      performSearch()
+    if (typeof window !== "undefined") {
+      const urlParams = new URLSearchParams(window.location.search)
+      const dest = urlParams.get("destination")
+      if (dest) {
+        setDestination(dest)
+        performSearch()
+      }
     }
   }, [])
 
@@ -436,17 +438,22 @@ function InputWithIcon({ icon, ...props }: { icon: React.ReactNode } & React.Inp
 }
 
 // Add CSS for animations
-const style = document.createElement("style")
-style.textContent = `
-  @keyframes fadeInUp {
-    from {
-      opacity: 0;
-      transform: translateY(20px);
+if (typeof document !== "undefined") {
+  const style = document.createElement("style")
+  style.textContent = `
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
     }
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
+  `
+  if (!document.head.querySelector("style[data-hotels-animations]")) {
+    style.setAttribute("data-hotels-animations", "true")
+    document.head.appendChild(style)
   }
-`
-document.head.appendChild(style)
+}

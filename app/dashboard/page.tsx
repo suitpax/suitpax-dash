@@ -108,6 +108,13 @@ export default function Dashboard() {
               <Receipt className="h-3 w-3" />
               Add Expense
             </Link>
+            <Link
+              href="/smart-bank"
+              className="flex items-center gap-2 px-2 py-1 text-xs bg-white/5 hover:bg-white/10 border border-white/10 rounded-full transition-colors text-white/70 hover:text-white font-light"
+            >
+              <CreditCard className="h-3 w-3" />
+              Connect Bank
+            </Link>
           </div>
         </div>
 

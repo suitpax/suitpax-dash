@@ -13,6 +13,7 @@
   "dependencies": {
     "@ai-sdk/anthropic": "latest",
     "@anthropic-ai/sdk": "^0.27.3",
+    "@duffel/api": "latest",
     "@emotion/is-prop-valid": "latest",
     "@heroicons/react": "latest",
     "@radix-ui/react-accordion": "^1.2.1",

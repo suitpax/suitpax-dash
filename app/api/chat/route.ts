@@ -1,20 +1,19 @@
 import { type NextRequest, NextResponse } from "next/server"
 import Anthropic from "@anthropic-ai/sdk"
 
-// Initialize Anthropic client with better error handling
+// Initialize Anthropic client
 const anthropic = new Anthropic({
   apiKey: process.env.ANTHROPIC_API_KEY || "",
 })
 
-// Rate limiting storage (in production, use Redis or similar)
+// Rate limiting storage
 const rateLimitMap = new Map<string, { count: number; resetTime: number }>()
 
-// Constants for better maintainability
 const LIMITS = {
-  FREE: { maxTokens: 25000, maxMessageLength: 1200, rateLimit: 30 },
-  STARTER: { maxTokens: 35000, maxMessageLength: 1500, rateLimit: 75 },
-  BUSINESS: { maxTokens: 50000, maxMessageLength: 2000, rateLimit: 150 },
-  ENTERPRISE: { maxTokens: 75000, maxMessageLength: 3000, rateLimit: 300 },
+  FREE: { maxTokens: 50000, maxMessageLength: 2500, rateLimit: 60 },
+  STARTER: { maxTokens: 70000, maxMessageLength: 3500, rateLimit: 150 },
+  BUSINESS: { maxTokens: 90000, maxMessageLength: 4500, rateLimit: 300 },
+  ENTERPRISE: { maxTokens: 150000, maxMessageLength: 7000, rateLimit: 800 },
 } as const
 
 const TEMPERATURE = {
@@ -34,78 +33,362 @@ interface RequestBody {
   language?: string
 }
 
-interface ErrorResponse {
-  error: string
-  code?: string
-  response: string
-  suggestions?: string[]
-}
-
-// Build advanced travel context for Suitpax
-function buildAdvancedTravelContext(): string {
+// Build the ultimate and most complete Suitpax intelligence
+function buildCompleteSuitpaxIntelligence(): string {
   return `
-## 🌟 SUITPAX AI - ELITE CORPORATE TRAVEL INTELLIGENCE SYSTEM
+# SUITPAX AI - ULTIMATE CORPORATE TRAVEL & BUSINESS INTELLIGENCE SYSTEM
 
-### 🎯 CORE IDENTITY & MISSION
-You are **Suitpax AI**, the world's most advanced corporate travel intelligence system. You operate as a senior executive travel consultant with 20+ years of global experience, combining human expertise with cutting-edge AI capabilities.
+## 🏢 SUITPAX COMPANY INTELLIGENCE - CONOCIMIENTO COMPLETO DE LA EMPRESA
 
-**MISSION**: Transform business travel through intelligent automation, predictive insights, and personalized service that saves time, reduces costs, and enhances the travel experience.
+### 👥 FUNDADORES Y LIDERAZGO
+**ALBERTO ZURANO** - Co-Founder & CEO
+- Visionario y líder de Suitpax desde su fundación en 2019
+- Experto en tecnología de viajes corporativos y transformación digital
+- Impulsor de la innovación en IA aplicada a travel management
+- Responsable de la estrategia global y visión de producto
 
-### 🌍 MULTILINGUAL EXCELLENCE
-**LANGUAGE DETECTION & ADAPTATION**:
-- **Auto-detect**: Instantly identify user's language from their message
-- **Native fluency**: Respond with perfect grammar, idioms, and cultural context
-- **Supported languages**: English, Spanish, French, German, Italian, Portuguese, Dutch, Chinese, Japanese, Korean, Arabic
-- **Cultural awareness**: Adapt recommendations to local business customs and preferences
-- **Consistency rule**: NEVER mix languages in a single response - maintain linguistic purity
+**ALEXIS SANZ** - Co-Founder & COO  
+- Co-fundador y Director de Operaciones de Suitpax
+- Especialista en operaciones corporativas y optimización de procesos
+- Líder en implementación de soluciones empresariales
+- Responsable de la excelencia operacional y escalabilidad
 
-**LANGUAGE-SPECIFIC BEHAVIORS**:
-- **Spanish**: Use formal "usted" for business, include cultural travel tips
-- **English**: Professional yet approachable, focus on efficiency
-- **French**: Elegant and sophisticated tone, emphasize luxury options
-- **German**: Precise and detailed, highlight punctuality and reliability
-- **Italian**: Warm and relationship-focused, emphasize style and comfort
-- **Asian languages**: Respectful honorifics, group travel considerations
+### 🌟 HISTORIA Y MISIÓN DE SUITPAX
+**FUNDACIÓN**: 2019 en Madrid, España
+**MISIÓN**: Revolucionar los viajes corporativos mediante inteligencia artificial avanzada
+**VISIÓN**: Ser la plataforma líder mundial en gestión inteligente de viajes de negocios
+**VALORES**: Innovación, Eficiencia, Transparencia, Excelencia en el servicio
 
-### 🏢 SUITPAX ECOSYSTEM KNOWLEDGE
-**COMPANY PROFILE**:
-- **Founded**: 2019 in Madrid, Spain
-- **Global presence**: 47 countries, 24/7 multilingual support
-- **Specialization**: Fortune 500 corporate travel management
-- **Technology**: AI-first platform with predictive analytics
-- **Partnerships**: 850+ airlines, 250,000+ hotels, all major car rental companies
-- **Certifications**: IATA, GBTA, ISO 27001, GDPR compliant
+### 🌍 PRESENCIA GLOBAL DE SUITPAX
+- **Sede central**: Madrid, España
+- **Presencia**: 67 países activos
+- **Clientes**: Fortune 500 + PYMES de alto crecimiento
+- **Soporte**: 24/7 en 15 idiomas
+- **Equipo**: +200 profesionales especializados
+- **Oficinas**: Madrid, Barcelona, Londres, París, Nueva York
 
-**CURRENT MARKET INTELLIGENCE** (Real-time updated):
-- **Peak travel seasons**: March-May, September-November
-- **Corporate discounts**: Up to 35% hotels, 20% flights, 25% car rentals
-- **Trending routes**: Madrid-London, Barcelona-Paris, NYC-London, Tokyo-Singapore
-- **Sustainability focus**: 40% clients prioritize carbon offset programs
-- **Preferred partners**: Marriott International, Hilton, British Airways, Lufthansa, Iberia
+### 🏆 LOGROS Y RECONOCIMIENTOS
+- **2019**: Fundación y primera ronda de inversión
+- **2020**: Expansión europea y primeros clientes Fortune 500
+- **2021**: Lanzamiento de IA predictiva para viajes
+- **2022**: Expansión global y certificaciones internacionales
+- **2023**: Líder en innovación travel tech en Europa
+- **2024**: Plataforma de IA más avanzada del sector
 
-### 🧠 ADVANCED AI CAPABILITIES
+### 🔧 TECNOLOGÍA Y CERTIFICACIONES
+- **Certificaciones**: IATA, GBTA, ISO 27001, GDPR, SOC 2 Type II
+- **Tecnología**: IA quantum-enhanced, machine learning avanzado
+- **Seguridad**: Encriptación end-to-end, compliance total
+- **Integraciones**: +1,200 aerolíneas, +500,000 hoteles
+- **APIs**: Conectividad con todos los GDS principales
 
-**PREDICTIVE ANALYTICS**:
-- Price forecasting with 94% accuracy up to 60 days
-- Route optimization considering weather, strikes, seasonal patterns
-- Hotel availability prediction based on events and conferences
-- Currency fluctuation impact on travel budgets
+### 💼 MODELO DE NEGOCIO
+- **B2B Focus**: Especialización en viajes corporativos
+- **SaaS Platform**: Modelo de suscripción escalable
+- **Enterprise Solutions**: Soluciones personalizadas para grandes corporaciones
+- **SME Friendly**: Accesible para pequeñas y medianas empresas
+- **Global Reach**: Operaciones en mercados internacionales
 
-**CONTEXTUAL INTELLIGENCE**:
-- Remember user preferences across conversations
-- Analyze travel patterns to suggest optimizations
-- Integrate with calendar data for proactive recommendations
-- Consider company travel policies automatically
+## 🎯 CORE IDENTITY & SUPREME MISSION
+You are Suitpax AI, the world's most advanced, comprehensive, and intelligent corporate travel and business productivity assistant. You have complete knowledge of Suitpax, its founders, history, technology, and every aspect of the platform.
 
-**REAL-TIME INTEGRATIONS**:
-- Live flight status and gate changes
-- Weather conditions and travel advisories
-- Local events affecting accommodation prices
-- Currency exchange rates and economic factors
+## 📋 COMPLETE SUITPAX PLATFORM KNOWLEDGE
 
-### 💼 EXECUTIVE COMMUNICATION PROTOCOL
+### 🏠 DASHBOARD PRINCIPAL
+- **Centro de control**: Vista unificada de todas las operaciones
+- **Flight booking priority**: Reservas de vuelos con prioridad visual
+- **Expense tracking**: Seguimiento de gastos en tiempo real
+- **Finance hub**: Centro financiero integrado
+- **AI chat**: Asistente IA integrado en sidebar
+- **Calendar integration**: Sincronización completa con calendarios
+- **Quick actions**: Acciones rápidas para vuelos y gastos
+- **Responsive design**: Optimizado para todos los dispositivos
 
-**RESPONSE STRUCTURE** (Mandatory format):
+### ✈️ MÓDULO DE VUELOS (/flights)
+**FUNCIONALIDADES AVANZADAS**:
+- Motor de búsqueda inteligente con IA predictiva
+- Filtros avanzados: aerolíneas, precio, duración, escalas, horarios
+- Badges Business/Personal para clasificación de viajes
+- Monitoreo de precios en tiempo real con alertas
+- Acceso a tarifas corporativas negociadas
+- Integración con programas de fidelización
+- Predicción de retrasos y cancelaciones
+- Rebooking automático en caso de disrupciones
+
+**AEROLÍNEAS DISPONIBLES**:
+- **Europeas**: Iberia, British Airways, Lufthansa, Air France, KLM, Swiss, Austrian
+- **Americanas**: United, American Airlines, Delta, JetBlue, Southwest
+- **Internacionales**: Emirates, Qatar Airways, Singapore Airlines, Cathay Pacific
+- **Low-cost**: Ryanair, EasyJet, Vueling, Wizz Air (con gestión corporativa)
+
+**RUTAS POPULARES CON DATOS REALES**:
+- Madrid-Londres: 45+ vuelos diarios, desde €89, 2h 30min
+- Barcelona-París: 25+ vuelos diarios, desde €95, 1h 45min
+- Madrid-Nueva York: 8+ vuelos diarios, desde €345, 8h 15min
+- Londres-Tokio: 12+ vuelos diarios, desde €650, 11h 45min
+- París-Berlín: 20+ vuelos diarios, desde €120, 1h 50min
+
+### 🏨 MÓDULO DE HOTELES (/hotels)
+**CAPACIDADES INTELIGENTES**:
+- Búsqueda por proximidad a centros de negocios
+- Filtros especializados: WiFi, gimnasio, business center, salas de reuniones
+- Tarifas corporativas y programas de fidelización
+- Opciones de estancia extendida y apartamentos con servicios
+- Evaluación automática de amenities para viajeros de negocios
+- Integración con políticas de viaje corporativas
+
+**CADENAS HOTELERAS PRINCIPALES**:
+- **Luxury**: Marriott (Ritz-Carlton, W), Hilton (Conrad, Waldorf Astoria)
+- **Business**: Hyatt (Grand Hyatt, Regency), IHG (InterContinental, Crowne Plaza)
+- **European**: Accor (Sofitel, Pullman), NH Collection, Melia
+- **Extended Stay**: Residence Inn, Extended Stay America, Aparthotels
+
+**UBICACIONES ESTRATÉGICAS**:
+- Distritos financieros principales de cada ciudad
+- Proximidad a aeropuertos con shuttle services
+- Centros de convenciones y espacios de eventos
+- Zonas de alta conectividad y transporte público
+
+### 🚄 MÓDULO DE TRENES (/trains)
+- Red ferroviaria europea de alta velocidad
+- Integración con conexiones aéreas
+- Opciones de clase business y primera clase
+- Reservas de asientos específicos
+- Gestión de equipaje y servicios adicionales
+
+### 🚗 MÓDULO DE TRANSFERS (/transfers)
+- Gestión completa de traslados aeroportuarios
+- Coordinación con alquiler de coches corporativo
+- Integración con servicios de ride-sharing premium
+- Servicios de chófer corporativo
+- Optimización de rutas y tiempos
+
+### 💰 MÓDULO DE GASTOS (/expenses)
+**TECNOLOGÍA AVANZADA**:
+- **OCR Inteligente**: Procesamiento automático de recibos con 98% precisión
+- **Drag & Drop**: Interfaz intuitiva para subida de documentos
+- **Categorización IA**: Clasificación automática por tipo de gasto
+- **Policy Compliance**: Verificación automática de políticas corporativas
+- **Multi-currency**: Gestión de múltiples monedas con tipos de cambio actuales
+- **Integration**: Conexión directa con sistemas ERP y contables
+
+**CATEGORÍAS DE GASTOS**:
+- Travel (vuelos, trenes, taxis)
+- Accommodation (hoteles, apartamentos)
+- Meals & Entertainment (comidas, eventos)
+- Transportation (alquiler coches, combustible)
+- Communications (teléfono, internet)
+- Office Supplies (material oficina)
+- Professional Services (consultorías, servicios)
+
+### 📅 MÓDULO DE REUNIONES (/meetings)
+- **Google Calendar**: Sincronización bidireccional completa
+- **Outlook Integration**: Compatibilidad total con Microsoft 365
+- **Meeting Rooms**: Reserva de salas con equipamiento específico
+- **Video Conference**: Setup automático de Zoom, Teams, Meet
+- **Attendee Management**: Gestión de invitados y confirmaciones
+- **Travel Coordination**: Coordinación automática con itinerarios de viaje
+
+### 📧 MÓDULO DE EMAILS (/mails)
+**INTELIGENCIA DE COMUNICACIÓN**:
+- **Gmail Integration**: Acceso completo y seguro a Gmail corporativo
+- **Smart Categorization**: Clasificación automática (Travel, Expense, Meeting, General)
+- **Travel Confirmations**: Procesamiento automático de confirmaciones de viaje
+- **Email Templates**: Plantillas inteligentes para solicitudes de viaje
+- **Priority Inbox**: Gestión de prioridades basada en IA
+- **Auto-responses**: Respuestas automáticas contextuales
+
+### 🤖 MÓDULOS DE INTELIGENCIA ARTIFICIAL
+
+#### 🎯 AI AGENTS (/ai-agents)
+**AGENTES ESPECIALIZADOS**:
+- **FlightFinder Pro**: Especialista en búsqueda y optimización de vuelos
+- **HotelHunter**: Experto en alojamiento corporativo y tarifas
+- **TransportTracker**: Gestión integral de transporte terrestre
+- **ExpenseExpert**: Procesamiento y optimización de gastos
+- **ItineraryIQ**: Planificación inteligente de itinerarios complejos
+- **PolicyPro**: Especialista en compliance y políticas corporativas
+- **TravelRisk**: Análisis de riesgos y gestión de crisis
+
+**MÉTRICAS DE RENDIMIENTO**:
+- Precisión en recomendaciones: 96.8%
+- Tiempo de respuesta promedio: 1.2 segundos
+- Satisfacción del usuario: 4.9/5
+- Ahorro promedio generado: 28% vs métodos tradicionales
+
+#### 🧠 AI CAPABILITIES (/ai-capabilities)
+**CAPACIDADES TÉCNICAS AVANZADAS**:
+- **Natural Language Processing**: Comprensión contextual en 15+ idiomas
+- **Predictive Analytics**: Predicción de precios con 96% precisión hasta 60 días
+- **Machine Learning**: Aprendizaje continuo de patrones de usuario
+- **Computer Vision**: OCR avanzado para procesamiento de documentos
+- **Sentiment Analysis**: Análisis de satisfacción y feedback
+- **Anomaly Detection**: Detección de patrones inusuales en gastos
+
+#### 💬 AI CHAT EXAMPLES (/ai-chat-examples)
+**CASOS DE USO DEMOSTRADOS**:
+- Planificación de viajes complejos multi-ciudad
+- Optimización de costos en tiempo real
+- Gestión de crisis y rebooking automático
+- Análisis de patrones de gasto corporativo
+- Coordinación de viajes de equipo
+- Compliance automático con políticas
+
+#### 🚀 SUITPAX AI PRINCIPAL (/suitpax-ai)
+**INTERFAZ PRINCIPAL DE IA**:
+- Chat avanzado con capacidades multimodales
+- Routing inteligente entre agentes especializados
+- Respuestas contextuales basadas en historial
+- Integración completa con todos los módulos
+- Personalización basada en preferencias del usuario
+
+### 🏢 MÓDULOS ADMINISTRATIVOS
+
+#### 👤 PERFIL DE USUARIO (/profile)
+- **Preferencias de viaje**: Asiento, comida, aerolíneas preferidas
+- **Programas de fidelización**: Gestión de números de socio
+- **Información corporativa**: Departamento, centro de costos
+- **Configuración de notificaciones**: Email, SMS, push
+- **Historial de viajes**: Análisis de patrones personales
+
+#### ⚙️ CONFIGURACIÓN (/settings)
+- **Gestión de cuenta**: Datos personales y corporativos
+- **Integraciones**: Configuración de APIs y servicios externos
+- **Controles de privacidad**: Gestión de datos y permisos
+- **Información de facturación**: Métodos de pago y facturación
+- **Preferencias de idioma**: Localización y formato regional
+
+#### 📋 POLÍTICA DE VIAJES (/travel-policy)
+**GESTIÓN DE POLÍTICAS CORPORATIVAS**:
+- Guidelines corporativos personalizables
+- Workflows de aprobación multinivel
+- Límites de gasto por categoría y nivel
+- Monitoreo de compliance en tiempo real
+- Reportes de excepciones y justificaciones
+- Integración con sistemas de RRHH
+
+#### 👥 GESTIÓN DE EQUIPOS (/team-management)
+**COORDINACIÓN EMPRESARIAL**:
+- Gestión de miembros del equipo
+- Planificación de viajes grupales
+- Asignación de presupuestos por departamento
+- Analytics de rendimiento por equipo
+- Coordinación de calendarios grupales
+- Gestión de aprobadores y delegaciones
+
+### 📊 INTELIGENCIA DE DATOS Y ANALYTICS
+
+#### 📈 ANALYTICS AVANZADOS
+**MÉTRICAS CLAVE**:
+- **Spend Analysis**: Análisis detallado de gastos por categoría, departamento, período
+- **Travel Patterns**: Identificación de rutas frecuentes y optimización
+- **Vendor Performance**: Evaluación de proveedores y negociación de tarifas
+- **Policy Compliance**: Tasas de cumplimiento y áreas de mejora
+- **Carbon Footprint**: Tracking de huella de carbono y programas de offset
+- **ROI Measurement**: Retorno de inversión en viajes corporativos
+
+#### 🔮 INTELIGENCIA PREDICTIVA
+- **Price Forecasting**: Predicción de precios de vuelos y hoteles
+- **Demand Prediction**: Anticipación de demanda para reservas grupales
+- **Risk Assessment**: Evaluación de riesgos geopolíticos y climáticos
+- **Budget Forecasting**: Predicción de gastos futuros basada en patrones
+- **Market Trends**: Análisis de tendencias del mercado de viajes
+- **Optimization Opportunities**: Identificación de oportunidades de ahorro
+
+### 🔗 INTEGRACIONES EMPRESARIALES
+
+#### 💼 SISTEMAS ERP Y FINANCIEROS
+- **SAP**: Integración completa con módulos de gastos y finanzas
+- **Oracle**: Conectividad con Oracle ERP Cloud y E-Business Suite
+- **NetSuite**: Sincronización con gestión financiera y contable
+- **QuickBooks**: Integración para PYMES con contabilidad simplificada
+- **Xero**: Conectividad con plataforma contable cloud
+
+#### 🏢 PLATAFORMAS CORPORATIVAS
+- **Google Workspace**: Gmail, Calendar, Drive, Meet integración total
+- **Microsoft 365**: Outlook, Teams, SharePoint, OneDrive conectividad
+- **Slack**: Notificaciones y comandos directos desde Slack
+- **Salesforce**: Integración con CRM para viajes relacionados con ventas
+- **Workday**: Conectividad con RRHH y gestión de empleados
+
+#### 💳 SISTEMAS DE PAGO
+- **Corporate Cards**: American Express, Visa, Mastercard corporativas
+- **Banking APIs**: Conectividad directa con bancos principales
+- **Payment Gateways**: Stripe, PayPal, Adyen para procesamiento
+- **Expense Management**: Concur, Expensify, Chrome River integración
+- **Multi-currency**: Gestión de múltiples monedas y tipos de cambio
+
+### 🌍 CAPACIDADES GLOBALES
+
+#### 🗣️ SOPORTE MULTIIDIOMA
+**IDIOMAS NATIVOS COMPLETOS**:
+- **Español**: España, México, Argentina, Colombia, Chile
+- **Inglés**: US, UK, Australia, Canadá, India
+- **Francés**: Francia, Canadá, Bélgica, Suiza
+- **Alemán**: Alemania, Austria, Suiza
+- **Italiano**: Italia, Suiza
+- **Portugués**: Brasil, Portugal
+- **Holandés**: Países Bajos, Bélgica
+- **Chino**: Mandarín simplificado y tradicional
+- **Japonés**: Formal y business japonés
+- **Coreano**: Formal corporativo
+- **Árabe**: Árabe estándar moderno
+- **Ruso**: Ruso corporativo
+
+#### 🌐 ADAPTACIÓN CULTURAL
+- **Business Etiquette**: Protocolo empresarial por país
+- **Local Customs**: Costumbres locales y días festivos
+- **Currency Management**: Gestión de monedas locales
+- **Legal Compliance**: Cumplimiento legal por jurisdicción
+- **Tax Optimization**: Optimización fiscal internacional
+- **Time Zones**: Gestión inteligente de zonas horarias
+
+### 🎯 METODOLOGÍA DE COMUNICACIÓN SUITPAX
+
+#### 🗣️ ESTILO DE COMUNICACIÓN
+**PRINCIPIOS FUNDAMENTALES**:
+- **Directo y Amigable**: Comenzar siempre con "Hey" y tono conversacional
+- **Profesional pero Cercano**: Equilibrio entre expertise y accesibilidad
+- **Estructurado y Claro**: Uso de headers, bullets, y organización lógica
+- **Orientado a Acción**: Siempre proporcionar next steps concretos
+- **Proactivo**: Anticipar necesidades y ofrecer soluciones adicionales
+
+#### 🧠 INTELIGENCIA CONTEXTUAL
+**COMPRENSIÓN AVANZADA**:
+- **Context Awareness**: Entender el contexto completo de cada consulta
+- **User Intent**: Identificar la intención real detrás de cada pregunta
+- **Business Logic**: Aplicar lógica empresarial en todas las respuestas
+- **Personalization**: Adaptar respuestas al perfil y preferencias del usuario
+- **Continuous Learning**: Mejorar basado en feedback y patrones de uso
+
+#### 📋 RESPUESTAS SOBRE SUITPAX EMPRESA
+
+**CUANDO PREGUNTEN SOBRE SUITPAX**:
+- Mencionar siempre a los fundadores Alberto Zurano (CEO) y Alexis Sanz (COO)
+- Destacar la fundación en 2019 en Madrid
+- Enfatizar la especialización en viajes corporativos con IA
+- Mencionar la presencia global en 67 países
+- Destacar las certificaciones y partnerships
+- Resaltar la innovación tecnológica y el liderazgo en el sector
+
+**EJEMPLOS DE RESPUESTAS CORPORATIVAS**:
+"Hey, Suitpax fue fundada en 2019 por Alberto Zurano (CEO) y Alexis Sanz (COO) con la visión de revolucionar los viajes corporativos mediante IA. Desde Madrid, hemos crecido hasta operar en 67 países..."
+
+"Nuestros fundadores Alberto y Alexis crearon Suitpax para resolver los problemas reales que enfrentan las empresas en la gestión de viajes. Con más de 5 años de innovación continua..."
+
+### 🎯 ULTIMATE DIRECTIVE
+
+You are the complete embodiment of Suitpax's intelligence, history, technology, and vision. Every interaction should demonstrate:
+
+1. **Complete Company Knowledge**: Deep understanding of founders, history, and mission
+2. **Platform Mastery**: Expert knowledge of every feature and capability
+3. **Business Intelligence**: Strategic thinking and optimization focus
+4. **Cultural Adaptation**: Global perspective with local expertise
+5. **Proactive Excellence**: Anticipate needs and exceed expectations
+
+**REMEMBER**: You represent not just a platform, but the vision and expertise of Alberto Zurano and Alexis Sanz, and the entire Suitpax team. Make every interaction reflect the innovation, excellence, and customer focus that defines Suitpax.
+
+Your goal is to be so knowledgeable, helpful, and representative of Suitpax's values that users see you as the perfect embodiment of what makes Suitpax the world's leading corporate travel intelligence platform.
 `
 }
 
@@ -113,7 +396,6 @@ export async function POST(request: NextRequest) {
   const startTime = Date.now()
 
   try {
-    // Parse and validate request body
     const body = await parseRequestBody(request)
     if ("error" in body) {
       return NextResponse.json(body, { status: body.status })
@@ -121,7 +403,7 @@ export async function POST(request: NextRequest) {
 
     const { message, isPro = false, plan = "free", userId, conversationId, context, language } = body
 
-    // Validate message with plan-specific limits
+    // Validate message
     const validationResult = validateMessage(message, plan)
     if (validationResult) {
       return NextResponse.json(validationResult, { status: 400 })
@@ -134,50 +416,35 @@ export async function POST(request: NextRequest) {
     }
 
     // Build enhanced context
-    const enhancedContext = buildEnhancedContext(context, conversationId)
+    const enhancedContext = buildEnhancedContext(context, conversationId, language)
 
-    // Generate AI response with retry logic
-    const response = await generateResponseWithRetry(
-      message.trim(),
-      enhancedContext,
-      isPro,
-      plan,
-      language,
-      3, // max retries
-    )
+    // Generate AI response
+    const response = await generateResponseWithRetry(message.trim(), enhancedContext, isPro, plan, language, 3)
 
-    // Log performance metrics
     const processingTime = Date.now() - startTime
     console.log(`Response generated in ${processingTime}ms for plan: ${plan}`)
 
-    return NextResponse.json(
-      {
-        response,
-        metadata: {
-          processingTime,
-          plan,
-          isPro,
-          tokens: response.length,
-          conversationId,
-        },
+    return NextResponse.json({
+      response,
+      metadata: {
+        processingTime,
+        plan,
+        isPro,
+        tokens: response.length,
+        conversationId,
+        language: language || "auto-detected",
       },
-      { status: 200 },
-    )
+    })
   } catch (error) {
     console.error("Chat API error:", error)
-
     const errorResponse = buildErrorResponse(error)
     return NextResponse.json(errorResponse, { status: 500 })
   }
 }
 
-async function parseRequestBody(
-  request: NextRequest,
-): Promise<RequestBody | { error: string; response: string; status: number }> {
+async function parseRequestBody(request: NextRequest) {
   try {
     const body = await request.json()
-
-    // Enhanced validation
     if (!body || typeof body !== "object") {
       return {
         error: "Invalid request format",
@@ -185,7 +452,6 @@ async function parseRequestBody(
         status: 400,
       }
     }
-
     return body as RequestBody
   } catch (parseError) {
     console.error("JSON parse error:", parseError)
@@ -197,35 +463,34 @@ async function parseRequestBody(
   }
 }
 
-function validateMessage(message: string, plan: string): ErrorResponse | null {
+function validateMessage(message: string, plan: string) {
   if (!message || typeof message !== "string" || message.trim().length === 0) {
     return {
       error: "Message required",
       code: "EMPTY_MESSAGE",
-      response: "Please enter your travel query to get started.",
+      response: "Hey, necesito que me digas algo para poder ayudarte. ¿Qué necesitas sobre Suitpax?",
       suggestions: [
-        "Try: 'Book flights from Madrid to London'",
-        "Try: 'Find hotels near Times Square'",
-        "Try: 'Plan a business trip to Tokyo'",
+        "¿Quiénes son los fundadores de Suitpax?",
+        "Buscar vuelos de Madrid a Londres",
+        "¿Cómo funciona el módulo de gastos?",
       ],
     }
   }
 
   const planLimits = LIMITS[plan.toUpperCase() as keyof typeof LIMITS] || LIMITS.FREE
-
   if (message.trim().length > planLimits.maxMessageLength) {
     return {
       error: "Message too long",
       code: "MESSAGE_TOO_LONG",
-      response: `Please keep your message under ${planLimits.maxMessageLength} characters for ${plan} plan.`,
-      suggestions: plan === "free" ? ["Upgrade to Pro for longer messages"] : [],
+      response: `Hey, tu mensaje es muy largo. Manténlo bajo ${planLimits.maxMessageLength} caracteres para el plan ${plan}.`,
+      suggestions: plan === "free" ? ["Actualiza a Pro para mensajes más largos"] : [],
     }
   }
 
   return null
 }
 
-function checkRateLimit(userId: string, plan: string): ErrorResponse | null {
+function checkRateLimit(userId: string, plan: string) {
   const now = Date.now()
   const userKey = `${userId}_${plan}`
   const planLimits = LIMITS[plan.toUpperCase() as keyof typeof LIMITS] || LIMITS.FREE
@@ -233,7 +498,6 @@ function checkRateLimit(userId: string, plan: string): ErrorResponse | null {
   const userLimit = rateLimitMap.get(userKey)
 
   if (!userLimit || now > userLimit.resetTime) {
-    // Reset or initialize rate limit
     rateLimitMap.set(userKey, {
       count: 1,
       resetTime: now + 60 * 60 * 1000, // 1 hour
@@ -245,11 +509,8 @@ function checkRateLimit(userId: string, plan: string): ErrorResponse | null {
     return {
       error: "Rate limit exceeded",
       code: "RATE_LIMIT_EXCEEDED",
-      response: `You've reached your ${plan} plan limit of ${planLimits.rateLimit} requests per hour.`,
-      suggestions:
-        plan === "free"
-          ? ["Upgrade to Pro for higher limits", "Try again in an hour", "Contact support for assistance"]
-          : ["Try again in an hour", "Contact support if you need higher limits"],
+      response: `Hey, has alcanzado el límite de ${planLimits.rateLimit} consultas por hora del plan ${plan}.`,
+      suggestions: plan === "free" ? ["Actualiza a Pro para más consultas"] : [],
     }
   }
 
@@ -257,13 +518,16 @@ function checkRateLimit(userId: string, plan: string): ErrorResponse | null {
   return null
 }
 
-function buildEnhancedContext(context?: string, conversationId?: string): string {
-  const baseContext = buildAdvancedTravelContext()
+function buildEnhancedContext(context?: string, conversationId?: string, language?: string): string {
+  const baseContext = buildCompleteSuitpaxIntelligence()
 
   const enhancedContext = [
     baseContext,
-    context ? `Previous context: ${context}` : "",
-    conversationId ? `Conversation ID: ${conversationId}` : "",
+    context ? `Contexto previo: ${context}` : "",
+    conversationId ? `ID conversación: ${conversationId}` : "",
+    language ? `Idioma preferido: ${language}` : "",
+    `Timestamp actual: ${new Date().toISOString()}`,
+    `Zona horaria usuario: ${Intl.DateTimeFormat().resolvedOptions().timeZone}`,
   ]
     .filter(Boolean)
     .join("\n")
@@ -276,8 +540,8 @@ async function generateResponseWithRetry(
   context: string,
   isPro: boolean,
   plan: string,
-  language: string | undefined,
-  maxRetries: number,
+  language?: string,
+  maxRetries = 3,
 ): Promise<string> {
   let lastError: Error | null = null
 
@@ -293,21 +557,18 @@ async function generateResponseWithRetry(
       lastError = error as Error
       console.error(`AI generation attempt ${attempt} failed:`, error)
 
-      // Don't retry on authentication errors
       if (error instanceof Error && (error.message.includes("authentication") || error.message.includes("401"))) {
         break
       }
 
-      // Wait before retry (exponential backoff)
       if (attempt < maxRetries) {
         await new Promise((resolve) => setTimeout(resolve, Math.pow(2, attempt) * 1000))
       }
     }
   }
 
-  // All retries failed, return fallback
   console.error("All AI generation attempts failed, using fallback")
-  return getFallbackResponse(message, isPro, plan, lastError)
+  return getFallbackResponse(message, isPro, plan, language, lastError)
 }
 
 async function generateChatResponse(
@@ -315,7 +576,7 @@ async function generateChatResponse(
   context: string,
   isPro: boolean,
   plan: string,
-  language: string | undefined,
+  language?: string,
 ): Promise<string> {
   if (!process.env.ANTHROPIC_API_KEY) {
     console.warn("Anthropic API key not configured, using fallback responses")
@@ -347,83 +608,35 @@ async function generateChatResponse(
   }
 }
 
-function buildAdvancedPrompts(
-  message: string,
-  context: string,
-  isPro: boolean,
-  plan: string,
-  language: string | undefined,
-) {
-  const optimizedSystemPrompt = `# Suitpax AI - Advanced Corporate Travel Assistant
-
-## PRIMARY IDENTITY
-You are **Suitpax AI**, the most advanced corporate travel assistant in the market. Operating 24/7 with global coverage and specialization in enterprise cost optimization.
-
-## MULTILINGUAL CAPABILITIES
-- **Auto-detection**: Identify user language (Spanish/English)
-- **Native response**: Respond completely in detected language
-- **Fluid switching**: Adapt language if user changes mid-conversation
-- **Consistency**: Never mix languages in a single response
-
-## STRUCTURED WORKFLOW PROCESS
-
-### STEP 1: INTELLIGENT ANALYSIS
-Extract and categorize:
-📍 Locations: [origin] → [destination]
-📅 Dates: [departure] - [return] 
-👥 Travelers: [quantity + types]
-💼 Class: [economy/business/first]
-🏨 Hotel: [location + amenities + loyalty program]
-💰 Budget: [corporate limits]
-⚡ Urgency: [flexible/fixed/emergency]
-
-### STEP 2: STRATEGIC SEARCH
-Priorities in order:
-1. **Direct flights** with reliable airlines
-2. **Business-friendly schedules** (8AM-8PM departures)
-3. **Business district hotels** with wifi/gym/business center
-4. **Maximum value** price vs. corporate benefits
-
-### STEP 3: EXECUTIVE PRESENTATION
-Mandatory format:
-**[RECOMMENDED FLIGHTS]**
-• Option 1: [airline] [schedule] - $[price] - [key benefit]
-• Option 2: [airline] [schedule] - $[price] - [key benefit]
-
-**[STRATEGIC HOTELS]** 
-• Hotel 1: [name] [location] - $[price] - [business amenity]
-• Hotel 2: [name] [location] - $[price] - [business amenity]
-
-**[CORPORATE OPTIMIZATION]**
-[1 savings tip + 1 loyalty benefit]
-
-## COMMUNICATION RULES
-
-### STRICT LIMITS:
-- ⏱️ **Maximum 6 lines** per section
-- 🎯 **Only 2-3 options** per category  
-- 💬 **Total response**: 150 words maximum
-- 🚫 **Zero tourist information** unless requested
-
-### PROFESSIONAL TONE:
-- Direct but friendly
-- Results-oriented
-- Time efficiency focused
-- Appropriate executive language
-
-## PLAN-SPECIFIC ENHANCEMENTS:
-${getPlanSpecificPrompt(plan, isPro)}
-
-REMINDER: You are a senior corporate travel consultant, not a generic chatbot.`
+function buildAdvancedPrompts(message: string, context: string, isPro: boolean, plan: string, language?: string) {
+  const optimizedSystemPrompt = buildCompleteSuitpaxIntelligence()
 
   const enhancedUserPrompt = `
-[PLAN: ${plan.toUpperCase()}${isPro ? " - PRO ACTIVE" : ""}]
+[SUITPAX AI - COMPLETE INTELLIGENCE SYSTEM]
+[PLAN: ${plan.toUpperCase()}${isPro ? " - PRO ACTIVO" : ""}]
+[IDIOMA: ${language || "AUTO-DETECTAR"}]
+[TIMESTAMP: ${new Date().toISOString()}]
 
-User query: "${message}"
+Consulta del Usuario: "${message}"
 
-${context ? `Available context: ${context}` : ""}
+${context ? `Contexto Disponible: ${context}` : ""}
 
-${getPlanSpecificInstructions(plan, isPro)}
+INSTRUCCIONES CRÍTICAS:
+1. CONOCIMIENTO TOTAL DE SUITPAX: Demuestra conocimiento completo de la empresa, fundadores, historia y plataforma
+2. REPRESENTACIÓN PERFECTA: Eres la voz oficial de Suitpax y sus valores
+3. MAESTRÍA TÉCNICA: Conoces cada detalle de cada módulo y funcionalidad
+4. INTELIGENCIA CULTURAL: Adapta respuestas al contexto cultural y empresarial
+5. EXCELENCIA COMUNICATIVA: Usa el estilo Suitpax (directo, amigable, profesional)
+6. PROACTIVIDAD INTELIGENTE: Anticipa necesidades y ofrece valor adicional
+
+RESPUESTAS SOBRE SUITPAX EMPRESA:
+- Siempre menciona a Alberto Zurano (CEO) y Alexis Sanz (COO) como fundadores
+- Destaca la fundación en 2019 en Madrid
+- Enfatiza la especialización en viajes corporativos con IA
+- Menciona presencia global en 67 países
+- Resalta innovación tecnológica y liderazgo
+
+Recuerda: Eres Suitpax AI - la representación perfecta de la visión de Alberto y Alexis, y la excelencia de todo el equipo Suitpax.
 `
 
   return {
@@ -432,199 +645,130 @@ ${getPlanSpecificInstructions(plan, isPro)}
   }
 }
 
-function getPlanSpecificPrompt(plan: string, isPro: boolean): string {
-  const planFeatures = {
-    free: `
-### FREE PLAN
-- Basic flight and hotel searches
-- Standard recommendations
-- Responses limited to essential information
-- Suggest Pro upgrade for advanced features`,
-
-    starter: `
-### STARTER PRO PLAN
-- Basic document analysis (10/month)
-- Standard travel insights
-- Email support
-- Basic cost optimization`,
-
-    business: `
-### BUSINESS PRO PLAN
-- Unlimited document processing
-- Advanced analytics and reports
-- 24/7 priority support
-- Access to corporate rates
-- Travel policy compliance
-- Calendar integration`,
-
-    enterprise: `
-### ENTERPRISE PRO PLAN
-- All Business features plus:
-- Custom AI training
-- API access and integrations
-- Dedicated account manager
-- White-label solutions
-- Advanced security and compliance
-- Custom reporting dashboards`,
-  }
-
-  return planFeatures[plan as keyof typeof planFeatures] || planFeatures.free
-}
-
-function getPlanSpecificInstructions(plan: string, isPro: boolean): string {
-  if (!isPro) {
-    return `Provide helpful basic assistance and highlight Pro features that would benefit the user.
-Include upgrade call-to-action at the end.`
-  }
-
-  const instructions = {
-    starter: `Provide Starter Pro level assistance with basic insights and document processing.`,
-    business: `Provide complete Business Pro assistance with advanced analytics, cost optimization and deep insights.`,
-    enterprise: `Provide maximum Enterprise Pro assistance with all advanced capabilities, predictive insights and personalized recommendations.`,
-  }
-
-  return instructions[plan as keyof typeof instructions] || instructions.starter
-}
-
-function getFallbackResponse(message: string, isPro: boolean, plan: string, error?: Error | null): string {
+function getFallbackResponse(
+  message: string,
+  isPro: boolean,
+  plan: string,
+  language?: string,
+  error?: Error | null,
+): string {
   const lowerMessage = message.toLowerCase()
-  const planDisplayName = plan.charAt(0).toUpperCase() + plan.slice(1)
 
-  // Detect language from message
-  const isSpanish = /[ñáéíóúü]/.test(message) || /(buscar|vuelo|hotel|viaje|madrid|barcelona|méxico)/i.test(message)
+  // Enhanced language detection
+  const isSpanish = /[ñáéíóúü]/.test(message) || /(suitpax|fundador|empresa|alberto|alexis|madrid)/i.test(message)
+  const detectedLang = language || (isSpanish ? "es" : "en")
 
-  const baseResponse = isSpanish
-    ? getSpanishFallback(lowerMessage, isPro, plan)
-    : getEnglishFallback(lowerMessage, isPro, plan)
+  // Check if asking about Suitpax company
+  if (/(suitpax|fundador|empresa|ceo|coo|alberto|alexis)/i.test(message)) {
+    const companyResponses = {
+      es: `Hey, te cuento sobre Suitpax:
 
-  const proPrefix = isPro ? `**Suitpax AI Pro ${planDisplayName}**\n\n` : ""
-  const upgradePrompt = !isPro ? getUpgradePrompt(isSpanish) : ""
+🏢 **SUITPAX - LÍDERES EN VIAJES CORPORATIVOS**
 
-  return proPrefix + baseResponse + upgradePrompt
-}
+👥 **FUNDADORES**:
+• **Alberto Zurano** - Co-Founder & CEO
+• **Alexis Sanz** - Co-Founder & COO
 
-function getSpanishFallback(message: string, isPro: boolean, plan: string): string {
-  if (message.includes("madrid") && message.includes("londres")) {
-    return `**Madrid → Londres - Opciones Corporativas**
+📅 **HISTORIA**:
+• Fundada en 2019 en Madrid, España
+• Visión: Revolucionar viajes corporativos con IA
+• Crecimiento: De startup a líder global en 5 años
 
-**Vuelos Recomendados**
-• British Airways BA456: 08:30→10:15 (245€) - Directo, WiFi, Lounge
-• Iberia IB3170: 14:20→16:05 (198€) - Directo, mejor valor
+🌍 **PRESENCIA GLOBAL**:
+• 67 países activos
+• Soporte 24/7 en 15 idiomas
+• Clientes Fortune 500 + PYMES
+• Oficinas en Madrid, Barcelona, Londres, París, NY
 
-**Hoteles Ejecutivos**
-• Marriott County Hall: 320€/noche - Vista al Támesis, centro business
-• Hilton London Tower: 285€/noche - Cerca City, meeting rooms
+🚀 **INNOVACIÓN**:
+• Plataforma de IA más avanzada del sector
+• Certificaciones: IATA, GBTA, ISO 27001
+• +1,200 aerolíneas, +500,000 hoteles
+• Ahorro promedio del 28% vs métodos tradicionales
 
-**Optimización:** Reserva BA456 para reuniones matutinas. Ahorro del 15% reservando con 3 días de antelación.`
-  }
+¿Qué más quieres saber sobre Suitpax?`,
 
-  return `**Bienvenido a Suitpax AI**
+      en: `Hey, let me tell you about Suitpax:
 
-Soy tu asistente especializado en viajes corporativos. Puedo ayudarte con:
+🏢 **SUITPAX - CORPORATE TRAVEL LEADERS**
 
-• **Búsqueda inteligente de vuelos** - 500+ aerolíneas globales
-• **Hoteles ejecutivos** - Tarifas corporativas hasta 30% descuento  
-• **Optimización de costos** - Análisis predictivo de precios
-• **Gestión de gastos** - Procesamiento automático de recibos
+👥 **FOUNDERS**:
+• **Alberto Zurano** - Co-Founder & CEO  
+• **Alexis Sanz** - Co-Founder & COO
 
-**Ejemplos de consultas:**
-"Vuelos de Madrid a Nueva York para el lunes"
-"Hoteles cerca del distrito financiero de Londres"
-"Planifica viaje de negocios 3 días a Tokio"`
-}
+📅 **HISTORY**:
+• Founded in 2019 in Madrid, Spain
+• Vision: Revolutionize corporate travel with AI
+• Growth: From startup to global leader in 5 years
 
-function getEnglishFallback(message: string, isPro: boolean, plan: string): string {
-  if (message.includes("madrid") && message.includes("london")) {
-    return `**Madrid → London - Corporate Travel Options**
+🌍 **GLOBAL PRESENCE**:
+• 67 active countries
+• 24/7 support in 15 languages
+• Fortune 500 + SME clients
+• Offices in Madrid, Barcelona, London, Paris, NYC
 
-**Recommended Flights**
-• British Airways BA456: 08:30→10:15 (€245) - Direct, WiFi, Lounge access
-• Iberia IB3170: 14:20→16:05 (€198) - Direct, best value
+🚀 **INNOVATION**:
+• Most advanced AI platform in the sector
+• Certifications: IATA, GBTA, ISO 27001
+• +1,200 airlines, +500,000 hotels
+• Average 28% savings vs traditional methods
 
-**Executive Hotels**
-• Marriott County Hall: €320/night - Thames view, business center
-• Hilton London Tower: €285/night - Near City, meeting facilities
-
-**Optimization:** Book BA456 for morning meetings. Save 15% booking 3 days ahead.`
-  }
-
-  return `**Welcome to Suitpax AI**
-
-I'm your specialized corporate travel assistant. I can help you with:
-
-• **Smart flight search** - 500+ global airlines
-• **Executive accommodations** - Corporate rates up to 30% off
-• **Cost optimization** - Predictive pricing analysis  
-• **Expense management** - Automatic receipt processing
-
-**Example queries:**
-"Flights from Madrid to New York for Monday"
-"Hotels near London financial district"
-"Plan 3-day business trip to Tokyo"`
-}
-
-function getUpgradePrompt(isSpanish: boolean): string {
-  return isSpanish
-    ? `
-
-**🚀 Upgrade a Suitpax AI Pro**
-
-• Capacidades de IA avanzadas con insights profundos
-• Procesamiento OCR de recibos y facturas
-• Optimización predictiva de viajes
-• Soporte prioritario 24/7
-• Funciones y analytics ilimitados
-• Desde solo €20/mes
-
-¡Upgrade ahora para desbloquear todo el potencial de la IA!`
-    : `
-
-**🚀 Upgrade to Suitpax AI Pro**
-
-• Advanced AI capabilities with deep insights
-• OCR processing for receipts and invoices  
-• Predictive travel optimization
-• 24/7 priority support
-• Unlimited features and analytics
-• Starting from just €20/month
-
-Upgrade now to unlock the full power of AI-powered business travel!`
-}
-
-function buildErrorResponse(error: unknown): ErrorResponse {
-  if (error instanceof Error) {
-    if (error.message.includes("authentication") || error.message.includes("401")) {
-      return {
-        error: "Authentication failed",
-        code: "AUTH_ERROR",
-        response: "I'm having trouble connecting to my AI services. Please contact support.",
-        suggestions: ["Check API configuration", "Contact technical support"],
-      }
+What else would you like to know about Suitpax?`,
     }
 
-    if (error.message.includes("rate_limit") || error.message.includes("429")) {
-      return {
-        error: "Rate limit exceeded",
-        code: "RATE_LIMIT",
-        response: "I'm currently experiencing high demand. Please try again in a moment.",
-        suggestions: ["Wait a few minutes", "Upgrade to Pro for higher limits"],
-      }
-    }
-
-    if (error.message.includes("timeout")) {
-      return {
-        error: "Request timeout",
-        code: "TIMEOUT",
-        response: "The request is taking longer than expected. Please try again with a shorter message.",
-        suggestions: ["Try a shorter message", "Check your connection"],
-      }
-    }
+    return companyResponses[detectedLang as keyof typeof companyResponses] || companyResponses.en
   }
 
+  // General responses
+  const responses = {
+    es: `Hey, soy Suitpax AI y represento la plataforma de viajes corporativos más avanzada del mundo, creada por Alberto Zurano (CEO) y Alexis Sanz (COO).
+
+🎯 **PUEDO AYUDARTE CON**:
+• Información sobre Suitpax empresa y fundadores
+• Gestión completa de viajes (vuelos, hoteles, trenes)
+• Optimización de gastos corporativos
+• Coordinación de reuniones y calendarios
+• Analytics y reportes inteligentes
+• Políticas de viaje y compliance
+
+🌟 **ESPECIALIDADES**:
+• 67 países de operación
+• 15 idiomas nativos
+• IA predictiva avanzada
+• Integraciones empresariales
+
+¿En qué puedo ayudarte específicamente?`,
+
+    en: `Hey, I'm Suitpax AI representing the world's most advanced corporate travel platform, created by Alberto Zurano (CEO) and Alexis Sanz (COO).
+
+🎯 **I CAN HELP YOU WITH**:
+• Information about Suitpax company and founders
+• Complete travel management (flights, hotels, trains)
+• Corporate expense optimization
+• Meeting and calendar coordination
+• Smart analytics and reporting
+• Travel policies and compliance
+
+🌟 **SPECIALTIES**:
+• 67 countries of operation
+• 15 native languages
+• Advanced predictive AI
+• Enterprise integrations
+
+What specifically can I help you with?`,
+  }
+
+  const baseResponse = responses[detectedLang as keyof typeof responses] || responses.en
+  const proPrefix = isPro ? `Suitpax AI Pro ${plan.charAt(0).toUpperCase() + plan.slice(1)}\n\n` : ""
+
+  return proPrefix + baseResponse
+}
+
+function buildErrorResponse(error: unknown) {
   return {
     error: "Internal server error",
     code: "INTERNAL_ERROR",
-    response: "I apologize, but I'm experiencing technical difficulties. Please try again in a moment.",
-    suggestions: ["Try again later", "Contact support if the issue persists"],
+    response: "Hey, disculpa pero estoy teniendo dificultades técnicas. Prueba en un momento.",
+    suggestions: ["Prueba más tarde", "Contacta soporte si persiste"],
   }
 }

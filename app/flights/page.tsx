@@ -15,24 +15,14 @@ import {
   MapPin,
   Calendar,
   Plane,
-  Star,
   Filter,
   ArrowUpDown,
   Bookmark,
   BookmarkCheck,
   Briefcase,
   User,
-  Leaf,
   Clock,
-  TrendingDown,
-  Zap,
-  Shield,
-  Wifi,
-  Coffee,
-  Headphones,
   ArrowRight,
-  Timer,
-  DollarSign,
 } from "lucide-react"
 
 interface Flight {
@@ -65,6 +55,20 @@ interface Flight {
   popularity: "high" | "medium" | "low"
   dealType?: "best-price" | "fastest" | "popular"
   refundable: boolean
+}
+
+// City images from Pexels
+const cityImages: Record<string, string> = {
+  Madrid: "https://images.pexels.com/photos/3757144/pexels-photo-3757144.jpeg?auto=compress&cs=tinysrgb&w=400",
+  Barcelona: "https://images.pexels.com/photos/1388030/pexels-photo-1388030.jpeg?auto=compress&cs=tinysrgb&w=400",
+  London: "https://images.pexels.com/photos/460672/pexels-photo-460672.jpeg?auto=compress&cs=tinysrgb&w=400",
+  Paris: "https://images.pexels.com/photos/338515/pexels-photo-338515.jpeg?auto=compress&cs=tinysrgb&w=400",
+  "New York": "https://images.pexels.com/photos/466685/pexels-photo-466685.jpeg?auto=compress&cs=tinysrgb&w=400",
+  Tokyo: "https://images.pexels.com/photos/2506923/pexels-photo-2506923.jpeg?auto=compress&cs=tinysrgb&w=400",
+  Berlin: "https://images.pexels.com/photos/109629/pexels-photo-109629.jpeg?auto=compress&cs=tinysrgb&w=400",
+  Rome: "https://images.pexels.com/photos/1797161/pexels-photo-1797161.jpeg?auto=compress&cs=tinysrgb&w=400",
+  Amsterdam: "https://images.pexels.com/photos/1388030/pexels-photo-1388030.jpeg?auto=compress&cs=tinysrgb&w=400",
+  Dubai: "https://images.pexels.com/photos/1470405/pexels-photo-1470405.jpeg?auto=compress&cs=tinysrgb&w=400",
 }
 
 function FlightsContent() {
@@ -245,45 +249,23 @@ function FlightsContent() {
     return true
   })
 
-  const getAmenityIcon = (amenity: string) => {
-    switch (amenity) {
-      case "wifi":
-        return <Wifi className="h-3 w-3" />
-      case "entertainment":
-        return <Headphones className="h-3 w-3" />
-      case "meals":
-        return <Coffee className="h-3 w-3" />
-      case "drinks":
-        return <Coffee className="h-3 w-3" />
-      case "power":
-        return <Zap className="h-3 w-3" />
-      case "comfort":
-        return <Shield className="h-3 w-3" />
-      default:
-        return null
-    }
-  }
-
   const getDealBadge = (dealType: string) => {
     switch (dealType) {
       case "best-price":
         return (
-          <Badge className="bg-green-500/20 text-green-400 border-green-500/30 text-[10px] px-2 py-0.5">
-            <DollarSign className="h-2.5 w-2.5 mr-1" />
+          <Badge className="bg-white/10 text-white/80 border-white/20 text-[10px] px-2 py-0.5 rounded-full">
             Best Price
           </Badge>
         )
       case "fastest":
         return (
-          <Badge className="bg-blue-500/20 text-blue-400 border-blue-500/30 text-[10px] px-2 py-0.5">
-            <Timer className="h-2.5 w-2.5 mr-1" />
+          <Badge className="bg-white/10 text-white/80 border-white/20 text-[10px] px-2 py-0.5 rounded-full">
             Fastest
           </Badge>
         )
       case "popular":
         return (
-          <Badge className="bg-purple-500/20 text-purple-400 border-purple-500/30 text-[10px] px-2 py-0.5">
-            <TrendingDown className="h-2.5 w-2.5 mr-1" />
+          <Badge className="bg-white/10 text-white/80 border-white/20 text-[10px] px-2 py-0.5 rounded-full">
             Popular
           </Badge>
         )
@@ -293,69 +275,57 @@ function FlightsContent() {
   }
 
   const popularDestinations = [
-    { city: "New York", code: "JFK", image: "/placeholder.svg?height=150&width=250&text=NYC_Skyline", flights: 156 },
-    // ... (otras ciudades con imágenes reales)
+    { city: "New York", code: "JFK", flights: 156 },
+    { city: "London", code: "LHR", flights: 142 },
+    { city: "Paris", code: "CDG", flights: 128 },
+    { city: "Tokyo", code: "HND", flights: 98 },
+    { city: "Dubai", code: "DXB", flights: 87 },
+    { city: "Barcelona", code: "BCN", flights: 76 },
   ]
-
-  const quickFilters = ["Direct flights", "Morning flights", "Evening flights"]
 
   return (
     <div className="min-h-screen bg-black p-3 relative overflow-hidden">
-      {/* Animated Background Elements */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-20 left-10 w-2 h-2 bg-white/10 rounded-full animate-pulse"></div>
-        <div className="absolute top-40 right-20 w-1 h-1 bg-white/20 rounded-full animate-ping"></div>
-        <div
-          className="absolute bottom-40 left-1/4 w-1.5 h-1.5 bg-white/15 rounded-full animate-pulse"
-          style={{ animationDelay: "1s" }}
-        ></div>
-        <div className="absolute top-1/3 right-1/3 w-1 h-1 bg-white/10 rounded-full animate-ping delay-500"></div>
-      </div>
-
       <div className="max-w-7xl mx-auto space-y-4 relative z-10">
-        {/* Spectacular Header with Gradient */}
-        <div className="relative bg-gradient-to-br from-white/10 via-white/5 to-transparent border border-white/10 rounded-2xl p-8 backdrop-blur-sm overflow-hidden">
-          <div className="absolute inset-0 bg-gradient-to-r from-blue-500/5 via-purple-500/5 to-pink-500/5"></div>
-          <div className="relative z-10">
-            <div className="flex items-center justify-between mb-4">
-              <div>
-                <h1 className="text-2xl font-medium text-white mb-2 tracking-tight">Flights</h1>
-              </div>
+        {/* Header */}
+        <div className="relative bg-white/5 border border-white/10 rounded-lg p-6 backdrop-blur-sm">
+          <div className="flex items-center justify-between mb-4">
+            <div>
+              <h1 className="text-2xl font-medium text-white mb-2 tracking-tight">Flights</h1>
+            </div>
 
-              {/* Travel Type Badges */}
-              <div className="flex space-x-2">
-                <Badge
-                  onClick={() => setTravelType("business")}
-                  className={`cursor-pointer px-4 py-2 rounded-full transition-all duration-300 ${
-                    travelType === "business"
-                      ? "bg-blue-500/20 text-blue-300 border-blue-500/40 shadow-lg shadow-blue-500/20"
-                      : "bg-white/5 text-white/70 border-white/20 hover:bg-white/10"
-                  }`}
-                >
-                  <Briefcase className="h-4 w-4 mr-2" />
-                  Business Travel
-                </Badge>
-                <Badge
-                  onClick={() => setTravelType("personal")}
-                  className={`cursor-pointer px-4 py-2 rounded-full transition-all duration-300 ${
-                    travelType === "personal"
-                      ? "bg-green-500/20 text-green-300 border-green-500/40 shadow-lg shadow-green-500/20"
-                      : "bg-white/5 text-white/70 border-white/20 hover:bg-white/10"
-                  }`}
-                >
-                  <User className="h-4 w-4 mr-2" />
-                  Personal Travel
-                </Badge>
-              </div>
+            {/* Travel Type Badges */}
+            <div className="flex space-x-2">
+              <Badge
+                onClick={() => setTravelType("business")}
+                className={`cursor-pointer px-4 py-2 rounded-full transition-all duration-300 ${
+                  travelType === "business"
+                    ? "bg-white/10 text-white border-white/20"
+                    : "bg-white/5 text-white/70 border-white/20 hover:bg-white/10"
+                }`}
+              >
+                <Briefcase className="h-4 w-4 mr-2 text-white/70" />
+                Business Travel
+              </Badge>
+              <Badge
+                onClick={() => setTravelType("personal")}
+                className={`cursor-pointer px-4 py-2 rounded-full transition-all duration-300 ${
+                  travelType === "personal"
+                    ? "bg-white/10 text-white border-white/20"
+                    : "bg-white/5 text-white/70 border-white/20 hover:bg-white/10"
+                }`}
+              >
+                <User className="h-4 w-4 mr-2 text-white/70" />
+                Personal Travel
+              </Badge>
             </div>
           </div>
         </div>
 
-        {/* Enhanced Search Form */}
+        {/* Search Form */}
         <Card className="bg-white/5 border-white/10 backdrop-blur-sm">
-          <CardContent className="p-8">
+          <CardContent className="p-6">
             <form onSubmit={handleSearch} className="space-y-6">
-              {/* Trip Type with Visual Enhancement */}
+              {/* Trip Type */}
               <div className="flex space-x-6 mb-6">
                 <label className="flex items-center space-x-3 cursor-pointer group">
                   <div className="relative">
@@ -369,16 +339,16 @@ function FlightsContent() {
                     <div
                       className={`w-5 h-5 rounded-full border-2 transition-all duration-200 ${
                         tripType === "round-trip"
-                          ? "border-blue-400 bg-blue-400/20"
+                          ? "border-white/50 bg-white/10"
                           : "border-white/30 group-hover:border-white/50"
                       }`}
                     >
                       {tripType === "round-trip" && (
-                        <div className="w-2 h-2 bg-blue-400 rounded-full absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2"></div>
+                        <div className="w-2 h-2 bg-white/70 rounded-full absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2"></div>
                       )}
                     </div>
                   </div>
-                  <span className="text-white font-medium">Round Trip</span>
+                  <span className="text-white font-light">Round Trip</span>
                 </label>
                 <label className="flex items-center space-x-3 cursor-pointer group">
                   <div className="relative">
@@ -392,80 +362,80 @@ function FlightsContent() {
                     <div
                       className={`w-5 h-5 rounded-full border-2 transition-all duration-200 ${
                         tripType === "one-way"
-                          ? "border-blue-400 bg-blue-400/20"
+                          ? "border-white/50 bg-white/10"
                           : "border-white/30 group-hover:border-white/50"
                       }`}
                     >
                       {tripType === "one-way" && (
-                        <div className="w-2 h-2 bg-blue-400 rounded-full absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2"></div>
+                        <div className="w-2 h-2 bg-white/70 rounded-full absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2"></div>
                       )}
                     </div>
                   </div>
-                  <span className="text-white font-medium">One Way</span>
+                  <span className="text-white font-light">One Way</span>
                 </label>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-6">
                 <div className="space-y-3">
-                  <Label className="text-white font-medium">From</Label>
+                  <Label className="text-white font-light">From</Label>
                   <div className="relative group">
                     <MapPin className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-white/50 group-hover:text-white/70 transition-colors" />
                     <Input
                       placeholder="Departure city"
                       value={fromCity}
                       onChange={(e) => setFromCity(e.target.value)}
-                      className="pl-12 h-12 bg-white/5 border-white/10 text-white placeholder:text-white/30 rounded-xl hover:bg-white/10 focus:bg-white/10 transition-all duration-200"
+                      className="pl-12 h-12 bg-white/5 border-white/10 text-white placeholder:text-white/30 rounded-lg hover:bg-white/10 focus:bg-white/10 transition-all duration-200"
                       required
                     />
                   </div>
                 </div>
 
                 <div className="space-y-3">
-                  <Label className="text-white font-medium">To</Label>
+                  <Label className="text-white font-light">To</Label>
                   <div className="relative group">
                     <MapPin className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-white/50 group-hover:text-white/70 transition-colors" />
                     <Input
                       placeholder="Destination city"
                       value={toCity}
                       onChange={(e) => setToCity(e.target.value)}
-                      className="pl-12 h-12 bg-white/5 border-white/10 text-white placeholder:text-white/30 rounded-xl hover:bg-white/10 focus:bg-white/10 transition-all duration-200"
+                      className="pl-12 h-12 bg-white/5 border-white/10 text-white placeholder:text-white/30 rounded-lg hover:bg-white/10 focus:bg-white/10 transition-all duration-200"
                       required
                     />
                   </div>
                 </div>
 
                 <div className="space-y-3">
-                  <Label className="text-white font-medium">Departure</Label>
+                  <Label className="text-white font-light">Departure</Label>
                   <div className="relative group">
                     <Calendar className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-white/50 group-hover:text-white/70 transition-colors" />
                     <Input
                       type="date"
                       value={departureDate}
                       onChange={(e) => setDepartureDate(e.target.value)}
-                      className="pl-12 h-12 bg-white/5 border-white/10 text-white rounded-xl hover:bg-white/10 focus:bg-white/10 transition-all duration-200"
+                      className="pl-12 h-12 bg-white/5 border-white/10 text-white rounded-lg hover:bg-white/10 focus:bg-white/10 transition-all duration-200"
                       required
                     />
                   </div>
                 </div>
 
                 <div className="space-y-3">
-                  <Label className="text-white font-medium">Return</Label>
+                  <Label className="text-white font-light">Return</Label>
                   <div className="relative group">
                     <Calendar className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-white/50 group-hover:text-white/70 transition-colors" />
                     <Input
                       type="date"
                       value={returnDate}
                       onChange={(e) => setReturnDate(e.target.value)}
-                      className="pl-12 h-12 bg-white/5 border-white/10 text-white rounded-xl hover:bg-white/10 focus:bg-white/10 transition-all duration-200 disabled:opacity-50"
+                      className="pl-12 h-12 bg-white/5 border-white/10 text-white rounded-lg hover:bg-white/10 focus:bg-white/10 transition-all duration-200 disabled:opacity-50"
                       disabled={tripType === "one-way"}
                     />
                   </div>
                 </div>
 
                 <div className="space-y-3">
-                  <Label className="text-white font-medium">Passengers</Label>
+                  <Label className="text-white font-light">Passengers</Label>
                   <Select value={passengers} onValueChange={setPassengers}>
-                    <SelectTrigger className="h-12 bg-white/5 border-white/10 text-white rounded-xl hover:bg-white/10 transition-all duration-200">
+                    <SelectTrigger className="h-12 bg-white/5 border-white/10 text-white rounded-lg hover:bg-white/10 transition-all duration-200">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
@@ -478,9 +448,9 @@ function FlightsContent() {
                 </div>
 
                 <div className="space-y-3">
-                  <Label className="text-white font-medium">Class</Label>
+                  <Label className="text-white font-light">Class</Label>
                   <Select value={travelClass} onValueChange={setTravelClass}>
-                    <SelectTrigger className="h-12 bg-white/5 border-white/10 text-white rounded-xl hover:bg-white/10 transition-all duration-200">
+                    <SelectTrigger className="h-12 bg-white/5 border-white/10 text-white rounded-lg hover:bg-white/10 transition-all duration-200">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
@@ -495,7 +465,7 @@ function FlightsContent() {
 
               <Button
                 type="submit"
-                className="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white font-semibold py-3 px-8 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105"
+                className="bg-white/10 hover:bg-white/15 text-white font-light py-3 px-8 rounded-lg border border-white/10 transition-all duration-300"
                 disabled={loading}
               >
                 {loading ? (
@@ -505,7 +475,7 @@ function FlightsContent() {
                   </>
                 ) : (
                   <>
-                    <Search className="h-5 w-5 mr-3" />
+                    <Search className="h-5 w-5 mr-3 text-white/70" />
                     Search Flights
                   </>
                 )}
@@ -514,35 +484,35 @@ function FlightsContent() {
           </CardContent>
         </Card>
 
-        {/* Popular Destinations with Enhanced Visuals */}
+        {/* Popular Destinations */}
         {flights.length === 0 && !loading && (
           <Card className="bg-white/5 border-white/10 backdrop-blur-sm">
             <CardContent className="p-6">
-              <h2 className="text-xl font-medium text-white mb-4">Popular Business Destinations</h2>
+              <h2 className="text-xl font-light text-white mb-4">Popular Business Destinations</h2>
               <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6">
                 {popularDestinations.map((destination) => (
                   <div
                     key={destination.code}
-                    className="bg-gradient-to-br from-white/10 to-white/5 rounded-2xl overflow-hidden border border-white/10 hover:border-white/20 cursor-pointer transition-all duration-300 group hover:scale-105 hover:shadow-2xl"
+                    className="bg-white/5 rounded-lg overflow-hidden border border-white/10 hover:border-white/20 cursor-pointer transition-all duration-300 group hover:bg-white/10"
                     onClick={() => {
                       setToCity(destination.city)
                     }}
                   >
                     <div className="h-24 relative overflow-hidden">
                       <img
-                        src={`/placeholder.svg?height=120&width=200&query=${encodeURIComponent(destination.city + " cityscape")}`}
+                        src={cityImages[destination.city] || "/placeholder.svg?height=120&width=200"}
                         alt={destination.city}
                         className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
                       />
                       <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
                       <div className="absolute top-2 right-2">
-                        <Badge className="bg-white/20 text-white text-[10px] px-2 py-1 backdrop-blur-sm">
+                        <Badge className="bg-white/20 text-white text-[10px] px-2 py-1 backdrop-blur-sm rounded-full">
                           {destination.flights} flights
                         </Badge>
                       </div>
                       <div className="absolute bottom-2 left-3 right-3">
-                        <p className="text-white font-semibold text-sm">{destination.city}</p>
-                        <p className="text-white/80 text-xs">{destination.code}</p>
+                        <p className="text-white font-light text-sm">{destination.city}</p>
+                        <p className="text-white/80 text-xs font-light">{destination.code}</p>
                       </div>
                     </div>
                   </div>
@@ -552,17 +522,17 @@ function FlightsContent() {
           </Card>
         )}
 
-        {/* Enhanced Results Section */}
+        {/* Results Section */}
         {flights.length > 0 && (
           <>
-            {/* Advanced Filters Bar */}
-            <div className="flex flex-wrap items-center justify-between gap-4 bg-white/5 border border-white/10 rounded-2xl p-6 backdrop-blur-sm">
+            {/* Filters Bar */}
+            <div className="flex flex-wrap items-center justify-between gap-4 bg-white/5 border border-white/10 rounded-lg p-6 backdrop-blur-sm">
               <div className="flex flex-wrap items-center gap-x-6 gap-y-3">
                 <div className="flex items-center space-x-3">
                   <ArrowUpDown className="h-5 w-5 text-white/70" />
-                  <span className="text-white/70 font-medium">Sort:</span>
+                  <span className="text-white/70 font-light">Sort:</span>
                   <Select value={sortBy} onValueChange={setSortBy}>
-                    <SelectTrigger className="bg-white/5 border-white/10 text-white h-10 text-sm w-[140px] rounded-xl">
+                    <SelectTrigger className="bg-white/5 border-white/10 text-white h-10 text-sm w-[140px] rounded-lg">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
@@ -579,8 +549,8 @@ function FlightsContent() {
                     onClick={() => setDirectOnly(!directOnly)}
                     className={`cursor-pointer rounded-full px-4 py-2 transition-all duration-300 ${
                       directOnly
-                        ? "bg-blue-500/20 text-blue-300 border-blue-500/40 shadow-lg shadow-blue-500/20"
-                        : "bg-white/10 text-white hover:bg-white/20"
+                        ? "bg-white/10 text-white border-white/20"
+                        : "bg-white/5 text-white/70 hover:bg-white/10"
                     }`}
                   >
                     Direct Only
@@ -589,72 +559,53 @@ function FlightsContent() {
               </div>
 
               <div className="flex items-center space-x-4">
-                <span className="text-white/70 font-medium">{filteredFlights.length} flights found</span>
-                <div className="flex space-x-2">
-                  <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
-                  <span className="text-green-400 text-sm font-medium">Live prices</span>
-                </div>
+                <span className="text-white/70 font-light">{filteredFlights.length} flights found</span>
               </div>
             </div>
 
-            {/* Spectacular Flight Results */}
-            <div className="space-y-6">
+            {/* Flight Results */}
+            <div className="space-y-4">
               {filteredFlights.map((flight, index) => (
                 <Card
                   key={flight.id}
-                  className="bg-gradient-to-br from-white/10 via-white/5 to-transparent border border-white/10 hover:border-white/20 transition-all duration-500 hover:shadow-2xl hover:shadow-white/5 group backdrop-blur-sm"
-                  style={{
-                    animationDelay: `${index * 100}ms`,
-                    animation: "fadeInUp 0.6s ease-out forwards",
-                  }}
+                  className="bg-white/5 border border-white/10 hover:border-white/20 transition-all duration-300 hover:bg-white/10 group backdrop-blur-sm"
                 >
-                  <CardContent className="p-8">
+                  <CardContent className="p-6">
                     <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
-                      <div className="flex flex-col lg:flex-row lg:items-center gap-8 flex-1">
-                        {/* Enhanced Airline Section */}
+                      <div className="flex flex-col lg:flex-row lg:items-center gap-6 flex-1">
+                        {/* Airline Section */}
                         <div className="flex items-center space-x-4">
-                          <div className="w-14 h-14 bg-gradient-to-br from-white/20 to-white/10 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
-                            <Plane className="h-7 w-7 text-white group-hover:text-blue-300 transition-colors" />
+                          <div className="w-12 h-12 bg-white/10 rounded-lg flex items-center justify-center">
+                            <Plane className="h-6 w-6 text-white/70" />
                           </div>
                           <div>
-                            <p className="text-white font-semibold text-lg">{flight.airline}</p>
-                            <p className="text-white/60 text-sm">
+                            <p className="text-white font-light text-lg">{flight.airline}</p>
+                            <p className="text-white/60 text-sm font-light">
                               {flight.flightNumber} • {flight.aircraft}
                             </p>
-                            <div className="flex items-center mt-1">
-                              <Star className="h-3 w-3 text-yellow-400 fill-current" />
-                              <span className="text-white/70 text-xs ml-1">{flight.rating.toFixed(1)}</span>
-                            </div>
                           </div>
                         </div>
 
-                        {/* Enhanced Flight Route */}
+                        {/* Flight Route */}
                         <div className="flex items-center justify-between flex-1 relative">
                           <div className="text-center">
-                            <div className="text-2xl font-bold text-white">{flight.departure.time}</div>
-                            <div className="text-white/80 font-medium">{flight.departure.airport}</div>
-                            <div className="text-white/60 text-sm">{flight.departure.city}</div>
-                            {flight.departure.terminal && (
-                              <div className="text-white/40 text-xs mt-1">Terminal {flight.departure.terminal}</div>
-                            )}
+                            <div className="text-2xl font-light text-white">{flight.departure.time}</div>
+                            <div className="text-white/80 font-light">{flight.departure.airport}</div>
+                            <div className="text-white/60 text-sm font-light">{flight.departure.city}</div>
                           </div>
 
                           <div className="flex flex-col items-center mx-8 relative">
-                            <div className="text-white/60 text-sm mb-2 font-medium">{flight.duration}</div>
-                            <div className="w-24 h-px bg-gradient-to-r from-transparent via-white/30 to-transparent relative">
+                            <div className="text-white/60 text-sm mb-2 font-light">{flight.duration}</div>
+                            <div className="w-24 h-px bg-white/20 relative">
                               <div className="absolute right-0 top-0 w-3 h-3 bg-white/60 rounded-full transform translate-x-1.5 -translate-y-1.5">
                                 <ArrowRight className="h-2 w-2 text-black absolute top-0.5 left-0.5" />
                               </div>
-                              {/* Animated plane */}
-                              <div className="absolute top-0 left-0 w-4 h-4 transform -translate-y-2 animate-pulse">
-                                <Plane className="h-3 w-3 text-blue-400 rotate-90" />
-                              </div>
                             </div>
-                            <div className="text-white/60 text-sm mt-2">
+                            <div className="text-white/60 text-sm mt-2 font-light">
                               {flight.stops === 0 ? (
-                                <span className="text-green-400 font-medium">Direct</span>
+                                <span className="text-white/80 font-light">Direct</span>
                               ) : (
-                                <span className="text-orange-400">
+                                <span className="text-white/60">
                                   {flight.stops} stop{flight.stops > 1 ? "s" : ""}
                                 </span>
                               )}
@@ -662,17 +613,25 @@ function FlightsContent() {
                           </div>
 
                           <div className="text-center">
-                            <div className="text-2xl font-bold text-white">{flight.arrival.time}</div>
-                            <div className="text-white/80 font-medium">{flight.arrival.airport}</div>
-                            <div className="text-white/60 text-sm">{flight.arrival.city}</div>
-                            {flight.arrival.terminal && (
-                              <div className="text-white/40 text-xs mt-1">Terminal {flight.arrival.terminal}</div>
-                            )}
+                            <div className="text-2xl font-light text-white">{flight.arrival.time}</div>
+                            <div className="text-white/80 font-light">{flight.arrival.airport}</div>
+                            <div className="text-white/60 text-sm font-light">{flight.arrival.city}</div>
+                          </div>
+                        </div>
+
+                        {/* Destination Image */}
+                        <div className="flex items-center space-x-4">
+                          <div className="w-16 h-12 rounded-md overflow-hidden">
+                            <img
+                              src={cityImages[flight.arrival.city] || "/placeholder.svg?height=48&width=64"}
+                              alt={flight.arrival.city}
+                              className="w-full h-full object-cover"
+                            />
                           </div>
                         </div>
                       </div>
 
-                      {/* Enhanced Price and Actions Section */}
+                      {/* Price and Actions Section */}
                       <div className="flex items-center justify-between lg:flex-col lg:items-end gap-6">
                         <div className="text-right">
                           <div className="flex items-center justify-end space-x-2 mb-2">
@@ -680,61 +639,39 @@ function FlightsContent() {
                           </div>
                           <div className="flex items-baseline space-x-2">
                             {flight.originalPrice && (
-                              <span className="text-white/50 text-lg line-through">${flight.originalPrice}</span>
+                              <span className="text-white/50 text-lg line-through font-light">
+                                ${flight.originalPrice}
+                              </span>
                             )}
-                            <div className="text-3xl font-bold text-white">${flight.price}</div>
+                            <div className="text-3xl font-light text-white">${flight.price}</div>
                           </div>
-                          <div className="text-white/60 text-sm capitalize">{flight.class}</div>
-
-                          {/* CO2 Emission Badge */}
-                          <div className="flex items-center mt-2 justify-end">
-                            <Leaf className="h-3 w-3 text-green-400 mr-1" />
-                            <span className="text-green-400 text-xs">{flight.co2Emission}kg CO₂</span>
-                          </div>
+                          <div className="text-white/60 text-sm capitalize font-light">{flight.class}</div>
                         </div>
 
                         <div className="flex flex-col space-y-3">
-                          {/* Amenities */}
-                          <div className="flex items-center space-x-2 justify-end">
-                            {flight.amenities.slice(0, 4).map((amenity, idx) => (
-                              <div
-                                key={`${flight.id}-amenity-${idx}`}
-                                className="w-6 h-6 bg-white/10 rounded-full flex items-center justify-center"
-                              >
-                                {getAmenityIcon(amenity)}
-                              </div>
-                            ))}
-                          </div>
-
                           {/* Action Buttons */}
                           <div className="flex items-center space-x-3">
                             <Button
                               onClick={() => toggleSaveFlight(flight.id)}
                               variant="outline"
                               size="sm"
-                              className="border-white/20 text-white hover:bg-white/10 rounded-xl transition-all duration-300"
+                              className="border-white/20 text-white hover:bg-white/10 rounded-lg transition-all duration-300"
                             >
                               {savedFlights.includes(flight.id) ? (
-                                <BookmarkCheck className="h-4 w-4" />
+                                <BookmarkCheck className="h-4 w-4 text-white/70" />
                               ) : (
-                                <Bookmark className="h-4 w-4" />
+                                <Bookmark className="h-4 w-4 text-white/70" />
                               )}
                             </Button>
-                            <Button className="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white font-semibold rounded-xl px-6 py-2 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105">
+                            <Button className="bg-white/10 hover:bg-white/15 text-white font-light rounded-lg px-6 py-2 border border-white/10 transition-all duration-300">
                               Select Flight
                             </Button>
                           </div>
 
                           {/* Additional Info */}
-                          <div className="flex items-center space-x-4 text-xs text-white/50">
-                            {flight.refundable && (
-                              <span className="flex items-center">
-                                <Shield className="h-3 w-3 mr-1" />
-                                Refundable
-                              </span>
-                            )}
+                          <div className="flex items-center space-x-4 text-xs text-white/50 font-light">
                             <span className="flex items-center">
-                              <Clock className="h-3 w-3 mr-1" />
+                              <Clock className="h-3 w-3 mr-1 text-white/50" />
                               {flight.popularity} demand
                             </span>
                           </div>
@@ -748,33 +685,20 @@ function FlightsContent() {
           </>
         )}
 
-        {/* Enhanced Loading State */}
+        {/* Loading State */}
         {loading && (
           <div className="flex justify-center py-16">
             <div className="text-center">
               <div className="relative">
-                <div className="h-16 w-16 border-4 border-white/20 border-t-blue-400 rounded-full animate-spin mx-auto mb-6"></div>
-                <Plane className="h-6 w-6 text-blue-400 absolute top-5 left-1/2 transform -translate-x-1/2 animate-pulse" />
+                <div className="h-16 w-16 border-4 border-white/20 border-t-white/50 rounded-full animate-spin mx-auto mb-6"></div>
+                <Plane className="h-6 w-6 text-white/70 absolute top-5 left-1/2 transform -translate-x-1/2" />
               </div>
-              <p className="text-white/70 text-lg font-medium">Searching for the best flights...</p>
-              <p className="text-white/50 text-sm mt-2">Comparing prices from 500+ airlines</p>
+              <p className="text-white/70 text-lg font-light">Searching for the best flights...</p>
+              <p className="text-white/50 text-sm mt-2 font-light">Comparing prices from 500+ airlines</p>
             </div>
           </div>
         )}
       </div>
-
-      <style jsx>{`
-    @keyframes fadeInUp {
-      from {
-        opacity: 0;
-        transform: translateY(30px);
-      }
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
-    }
-  `}</style>
     </div>
   )
 }

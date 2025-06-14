@@ -4,14 +4,13 @@ import { useState, useEffect } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { AIChat } from "@/components/ui/ai-chat"
+import { AIQuickInput } from "@/components/ui/ai-quick-input"
 import {
   Plane,
   Hotel,
   Car,
   CreditCard,
   Users,
-  BarChart3,
   Calendar,
   MapPin,
   Clock,
@@ -19,9 +18,14 @@ import {
   DollarSign,
   Leaf,
   Zap,
+  Star,
+  ArrowRight,
+  Crown,
+  Sparkles,
 } from "lucide-react"
 import { userProfileService, type UserProfile } from "@/lib/services/user-profile.service"
 import Link from "next/link"
+import Image from "next/image"
 
 export default function Dashboard() {
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null)
@@ -47,13 +51,6 @@ export default function Dashboard() {
     if (hour < 12) return `Good morning, ${name}!`
     if (hour < 18) return `Good afternoon, ${name}!`
     return `Good evening, ${name}!`
-  }
-
-  const getTimeOfDay = () => {
-    const hour = currentTime.getHours()
-    if (hour < 12) return "morning"
-    if (hour < 18) return "afternoon"
-    return "evening"
   }
 
   const quickActions = [
@@ -96,16 +93,41 @@ export default function Dashboard() {
     },
   ]
 
+  const upcomingTrips = [
+    {
+      id: 1,
+      destination: "London",
+      date: "Dec 20, 2024",
+      flight: "BA178",
+      status: "confirmed",
+      image: "/placeholder.svg?height=32&width=32&text=LDN",
+    },
+    {
+      id: 2,
+      destination: "Tokyo",
+      date: "Jan 15, 2025",
+      flight: "NH110",
+      status: "pending",
+      image: "/placeholder.svg?height=32&width=32&text=NRT",
+    },
+  ]
+
+  const recentExpenses = [
+    { id: 1, description: "Hotel - Marriott London", amount: 450, date: "Dec 18", status: "approved" },
+    { id: 2, description: "Flight - NYC to London", amount: 1200, date: "Dec 17", status: "pending" },
+    { id: 3, description: "Dinner - Client Meeting", amount: 85, date: "Dec 16", status: "approved" },
+  ]
+
   return (
-    <div className="min-h-screen bg-black text-white p-3 space-y-4">
+    <div className="min-h-screen bg-black text-white p-3 space-y-6">
       {/* Header */}
       <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
         <div>
-          <h1 className="text-2xl lg:text-3xl font-bold">{getGreeting()}</h1>
-          <p className="text-white/70 mt-1">
+          <h1 className="text-3xl lg:text-4xl font-medium tracking-tight text-white mb-2">Business Dashboard</h1>
+          <p className="text-white/70 font-light text-lg">
             {userProfile?.company
               ? `Welcome to your ${userProfile.company} travel dashboard`
-              : "Welcome to your travel dashboard"}
+              : "Manage your travel, expenses, and business operations"}
           </p>
           {userProfile?.subscription && (
             <Badge variant="outline" className="mt-2 border-white/20 text-white/80">
@@ -119,20 +141,73 @@ export default function Dashboard() {
         </div>
       </div>
 
+      {/* Quick Action Badges */}
+      <div className="flex flex-wrap justify-center items-center gap-2 mb-8">
+        <Link
+          href="/flights"
+          className="inline-flex items-center px-4 py-2 bg-white/10 hover:bg-white/20 border border-white/20 rounded-full text-white text-sm font-medium transition-all duration-200"
+        >
+          <Plane className="h-4 w-4 mr-2" />
+          Book Flight
+        </Link>
+        <Link
+          href="/hotels"
+          className="inline-flex items-center px-3 py-1.5 bg-white/5 hover:bg-white/10 border border-white/10 rounded-full text-white/70 hover:text-white text-xs font-light transition-all duration-200"
+        >
+          <Hotel className="h-3 w-3 mr-1.5" />
+          Hotels
+        </Link>
+        <Link
+          href="/trains"
+          className="inline-flex items-center px-3 py-1.5 bg-white/5 hover:bg-white/10 border border-white/10 rounded-full text-white/70 hover:text-white text-xs font-light transition-all duration-200"
+        >
+          <Zap className="h-3 w-3 mr-1.5" />
+          Trains
+        </Link>
+        <Link
+          href="/expenses"
+          className="inline-flex items-center px-3 py-1.5 bg-white/5 hover:bg-white/10 border border-white/10 rounded-full text-white/70 hover:text-white text-xs font-light transition-all duration-200"
+        >
+          <CreditCard className="h-3 w-3 mr-1.5" />
+          Add Expense
+        </Link>
+        <Link
+          href="/smart-bank"
+          className="inline-flex items-center px-3 py-1.5 bg-blue-500/10 hover:bg-blue-500/20 border border-blue-500/20 rounded-full text-blue-300 hover:text-blue-200 text-xs font-light transition-all duration-200"
+        >
+          <CreditCard className="h-3 w-3 mr-1.5" />
+          Connect Bank
+        </Link>
+        <Link
+          href="/meetings"
+          className="inline-flex items-center px-3 py-1.5 bg-white/5 hover:bg-white/10 border border-white/10 rounded-full text-white/70 hover:text-white text-xs font-light transition-all duration-200"
+        >
+          <Calendar className="h-3 w-3 mr-1.5" />
+          Calendar
+        </Link>
+        <Link
+          href="/team-management"
+          className="inline-flex items-center px-3 py-1.5 bg-white/5 hover:bg-white/10 border border-white/10 rounded-full text-white/70 hover:text-white text-xs font-light transition-all duration-200"
+        >
+          <Users className="h-3 w-3 mr-1.5" />
+          Team
+        </Link>
+      </div>
+
       {/* Stats Grid */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
         {stats.map((stat, index) => (
-          <Card key={index} className="bg-black/30 border-white/10">
-            <CardContent className="p-3">
+          <Card key={index} className="bg-white/5 border-white/10">
+            <CardContent className="p-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-white/70 text-sm">{stat.title}</p>
-                  <p className="text-xl font-bold text-white">{stat.value}</p>
+                  <p className="text-white/70 text-sm font-light">{stat.title}</p>
+                  <p className="text-xl font-medium text-white">{stat.value}</p>
                   <div className="flex items-center mt-1">
                     <span className={`text-xs ${stat.changeType === "positive" ? "text-green-400" : "text-red-400"}`}>
                       {stat.change}
                     </span>
-                    <span className="text-white/50 text-xs ml-1">vs last month</span>
+                    <span className="text-white/50 text-xs ml-1 font-light">vs last month</span>
                   </div>
                 </div>
                 <stat.icon className="h-8 w-8 text-white/50" />
@@ -142,81 +217,150 @@ export default function Dashboard() {
         ))}
       </div>
 
-      {/* Main Content Grid */}
-      <div className="grid lg:grid-cols-3 gap-4">
-        {/* Quick Actions */}
-        <Card className="bg-black/30 border-white/10">
-          <CardHeader>
-            <CardTitle className="text-white flex items-center">
-              <BarChart3 className="h-5 w-5 mr-2" />
-              Quick Actions
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-2">
-            {quickActions.map((action, index) => (
-              <Link key={index} href={action.href}>
-                <Button variant="ghost" className="w-full justify-start text-white hover:bg-white/5 p-3">
-                  <action.icon className="h-4 w-4 mr-3" />
-                  {action.label}
-                </Button>
-              </Link>
-            ))}
-          </CardContent>
-        </Card>
-
-        {/* AI Chat */}
-        <div className="lg:col-span-2">
-          <AIChat
-            className="h-full min-h-[400px]"
-            placeholder={`Ask me anything about your travel, ${userProfile?.name || "there"}...`}
-          />
-        </div>
+      {/* AI Quick Input */}
+      <div className="w-full max-w-4xl mx-auto">
+        <AIQuickInput
+          placeholder={`Ask Suitpax AI anything about your travel, ${userProfile?.name || "there"}...`}
+          className="w-full"
+        />
       </div>
 
-      {/* Recent Activity */}
-      <Card className="bg-black/30 border-white/10">
-        <CardHeader>
-          <CardTitle className="text-white flex items-center">
-            <Calendar className="h-5 w-5 mr-2" />
-            Recent Activity
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          {userProfile?.stats.totalTrips === 0 ? (
-            <div className="text-center py-8">
-              <p className="text-white/70 mb-4">No recent activity yet</p>
-              <p className="text-white/50 text-sm mb-4">Start by booking your first trip or exploring our features</p>
-              <div className="flex flex-wrap gap-2 justify-center">
-                <Link href="/flights">
-                  <Button size="sm" variant="outline" className="border-white/20 text-white hover:bg-white/5">
-                    Book Flight
-                  </Button>
-                </Link>
-                <Link href="/hotels">
-                  <Button size="sm" variant="outline" className="border-white/20 text-white hover:bg-white/5">
-                    Find Hotel
-                  </Button>
+      {/* Main Content Grid */}
+      <div className="grid lg:grid-cols-3 gap-6">
+        {/* Left Column - Main Features */}
+        <div className="lg:col-span-2 space-y-6">
+          {/* Upcoming Trips */}
+          <Card className="bg-white/5 border-white/10">
+            <CardHeader className="py-4">
+              <div className="flex items-center justify-between">
+                <CardTitle className="text-white font-medium tracking-tight text-lg">Upcoming Trips</CardTitle>
+                <Link href="/flights" className="text-xs text-white/70 hover:text-white font-light">
+                  View all <ArrowRight className="h-3 w-3 inline ml-1" />
                 </Link>
               </div>
-            </div>
-          ) : (
-            <div className="space-y-3">
-              <div className="flex items-center justify-between p-3 bg-white/5 rounded-lg">
-                <div className="flex items-center space-x-3">
-                  <Plane className="h-5 w-5 text-blue-400" />
+            </CardHeader>
+            <CardContent className="py-2 space-y-3">
+              {upcomingTrips.map((trip) => (
+                <div key={trip.id} className="p-3 bg-white/5 border border-white/10 rounded-lg">
+                  <div className="flex items-center justify-between mb-2">
+                    <div className="flex items-center gap-3">
+                      <div className="relative h-8 w-8 rounded-md overflow-hidden">
+                        <Image
+                          src={trip.image || "/placeholder.svg"}
+                          alt={trip.destination}
+                          fill
+                          className="object-cover"
+                        />
+                      </div>
+                      <div>
+                        <p className="font-medium text-white">{trip.destination}</p>
+                        <p className="text-xs text-white/60 font-light">{trip.flight}</p>
+                      </div>
+                    </div>
+                    <Badge
+                      className={`text-xs font-light ${
+                        trip.status === "confirmed"
+                          ? "bg-green-500/20 text-green-400 border-green-500/30"
+                          : "bg-yellow-500/20 text-yellow-400 border-yellow-500/30"
+                      }`}
+                    >
+                      {trip.status}
+                    </Badge>
+                  </div>
+                  <p className="text-xs text-white/50 font-light">{trip.date}</p>
+                </div>
+              ))}
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Right Column - Sidebar */}
+        <div className="space-y-6">
+          {/* Recent Expenses */}
+          <Card className="bg-white/5 border-white/10">
+            <CardHeader className="py-4">
+              <CardTitle className="text-white font-medium tracking-tight text-lg">Recent Expenses</CardTitle>
+            </CardHeader>
+            <CardContent className="py-2 space-y-3">
+              {recentExpenses.map((expense) => (
+                <div key={expense.id} className="flex items-center justify-between p-3 bg-white/5 rounded-lg">
                   <div>
-                    <p className="text-white font-medium">Flight to New York</p>
-                    <p className="text-white/70 text-sm">Booked 2 days ago</p>
+                    <p className="text-sm font-medium text-white">{expense.description}</p>
+                    <p className="text-xs text-white/50 font-light">{expense.date}</p>
+                  </div>
+                  <div className="text-right">
+                    <p className="text-sm font-medium text-white">${expense.amount}</p>
+                    <Badge
+                      className={`text-xs font-light ${
+                        expense.status === "approved"
+                          ? "bg-green-500/20 text-green-400"
+                          : "bg-yellow-500/20 text-yellow-400"
+                      }`}
+                    >
+                      {expense.status}
+                    </Badge>
                   </div>
                 </div>
-                <Badge variant="outline" className="border-green-500/50 text-green-400">
-                  Confirmed
-                </Badge>
-              </div>
+              ))}
+            </CardContent>
+          </Card>
+
+          {/* Subscription Upgrade Card */}
+          <Card
+            className="border-white/10 overflow-hidden"
+            style={{
+              background: `url('https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Syntone%20-%2024.jpg-549Tch5BQgB8ekOp1KhPWKiGALzJRT.jpeg')`,
+              backgroundSize: "cover",
+              backgroundPosition: "center",
+            }}
+          >
+            <div className="bg-gradient-to-br from-blue-900/80 via-purple-900/80 to-black/80 backdrop-blur-sm">
+              <CardHeader className="py-4">
+                <div className="flex items-center gap-2 mb-2">
+                  <Crown className="h-5 w-5 text-yellow-400" />
+                  <CardTitle className="text-white font-medium tracking-tight text-lg">Upgrade to Pro</CardTitle>
+                </div>
+              </CardHeader>
+              <CardContent className="py-2">
+                <div className="space-y-4">
+                  <p className="text-white/90 text-sm font-light">
+                    Unlock advanced features and get priority support for your business travel needs.
+                  </p>
+
+                  <div className="space-y-2">
+                    <div className="flex items-center gap-2">
+                      <Sparkles className="h-4 w-4 text-blue-400" />
+                      <span className="text-xs text-white/80 font-light">Unlimited AI assistance</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Star className="h-4 w-4 text-yellow-400" />
+                      <span className="text-xs text-white/80 font-light">Priority booking support</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <TrendingUp className="h-4 w-4 text-green-400" />
+                      <span className="text-xs text-white/80 font-light">Advanced analytics</span>
+                    </div>
+                  </div>
+
+                  <div className="pt-2">
+                    <div className="flex items-baseline gap-1 mb-3">
+                      <span className="text-2xl font-medium text-white">$29</span>
+                      <span className="text-sm text-white/70 font-light">/month</span>
+                    </div>
+
+                    <Link href="/plans">
+                      <Button className="w-full bg-white text-black hover:bg-white/90 font-medium rounded-lg transition-all duration-200">
+                        Upgrade Now
+                        <ArrowRight className="h-4 w-4 ml-2" />
+                      </Button>
+                    </Link>
+                  </div>
+                </div>
+              </CardContent>
             </div>
-          )}
-        </CardContent>
-      </Card>
+          </Card>
+        </div>
+      </div>
     </div>
   )
 }

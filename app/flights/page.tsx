@@ -21,8 +21,10 @@ import {
   Loader2,
   AlertCircle,
   Zap,
+  Star,
 } from "lucide-react"
 import flightsData from "@/data/flights.json"
+import Image from "next/image"
 
 interface Flight {
   id: string
@@ -67,6 +69,51 @@ const airlines = {
   "Turkish Airlines": { code: "TK", logo: "/placeholder.svg?width=32&height=32&text=TK" },
 }
 
+const popularDestinations = [
+  {
+    city: "London",
+    code: "LHR",
+    price: "from $450",
+    image: "/placeholder.svg?height=24&width=24&text=LDN",
+    popular: true,
+  },
+  {
+    city: "Paris",
+    code: "CDG",
+    price: "from $380",
+    image: "/placeholder.svg?height=24&width=24&text=PAR",
+    popular: true,
+  },
+  {
+    city: "Tokyo",
+    code: "NRT",
+    price: "from $1,200",
+    image: "/placeholder.svg?height=24&width=24&text=TOK",
+    business: true,
+  },
+  {
+    city: "Dubai",
+    code: "DXB",
+    price: "from $650",
+    image: "/placeholder.svg?height=24&width=24&text=DXB",
+    popular: true,
+  },
+  {
+    city: "Singapore",
+    code: "SIN",
+    price: "from $950",
+    image: "/placeholder.svg?height=24&width=24&text=SIN",
+    business: true,
+  },
+  {
+    city: "Frankfurt",
+    code: "FRA",
+    price: "from $420",
+    image: "/placeholder.svg?height=24&width=24&text=FRA",
+    business: true,
+  },
+]
+
 export default function FlightsPage() {
   const [allFlights, setAllFlights] = useState<Flight[]>(flightsData as Flight[])
   const [filteredFlights, setFilteredFlights] = useState<Flight[]>([])
@@ -74,7 +121,7 @@ export default function FlightsPage() {
   const [selectedFlightId, setSelectedFlightId] = useState<string | null>(null)
   const [showBookingConfirmation, setShowBookingConfirmation] = useState(false)
   const [bookingData, setBookingData] = useState<any>(null)
-  const [useDuffelAPI, setUseDuffelAPI] = useState(true) // Default to true for better UX
+  const [useDuffelAPI, setUseDuffelAPI] = useState(true)
   const [searchError, setSearchError] = useState<string | null>(null)
 
   // Search form state
@@ -306,7 +353,7 @@ export default function FlightsPage() {
   return (
     <div className="min-h-screen bg-black p-3 text-white">
       <div className="max-w-7xl mx-auto space-y-4">
-        {/* Header - Consistent with Transfers */}
+        {/* Header */}
         <header className="bg-white/5 border border-white/10 rounded-2xl p-6 md:p-8 backdrop-blur-sm">
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center">
             <div>
@@ -331,6 +378,42 @@ export default function FlightsPage() {
             </div>
           </div>
         </header>
+
+        {/* Popular Destinations */}
+        <Card className="bg-white/5 border-white/10">
+          <CardHeader className="py-4">
+            <CardTitle className="text-white font-medium text-lg">Popular Destinations</CardTitle>
+          </CardHeader>
+          <CardContent className="py-2">
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
+              {popularDestinations.map((dest, index) => (
+                <div
+                  key={index}
+                  onClick={() => {
+                    setDestinationCity(dest.code)
+                    performSearch()
+                  }}
+                  className="p-3 bg-white/5 hover:bg-white/10 border border-white/10 rounded-lg cursor-pointer transition-all duration-200 group"
+                >
+                  <div className="flex items-center gap-2 mb-2">
+                    <div className="relative h-6 w-6 rounded-md overflow-hidden flex-shrink-0">
+                      <Image src={dest.image || "/placeholder.svg"} alt={dest.city} fill className="object-cover" />
+                    </div>
+                    <div className="min-w-0">
+                      <p className="text-sm font-medium text-white truncate">{dest.city}</p>
+                      <p className="text-xs text-white/60 truncate">{dest.code}</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs text-white/50">{dest.price}</span>
+                    {dest.popular && <Star className="h-3 w-3 text-yellow-400" />}
+                    {dest.business && <Badge className="text-[10px] bg-blue-500/20 text-blue-400">Business</Badge>}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
 
         {/* Search Form */}
         <Card className="bg-white/5 border-white/10 backdrop-blur-sm">
@@ -468,6 +551,7 @@ export default function FlightsPage() {
                         src={
                           airlines[flight.airline as keyof typeof airlines]?.logo ||
                           "/placeholder.svg?width=32&height=32&text=FL" ||
+                          "/placeholder.svg" ||
                           "/placeholder.svg"
                         }
                         alt={flight.airline}
@@ -526,93 +610,50 @@ export default function FlightsPage() {
                             {flight.aircraftType || "Boeing 737"}
                           </p>
                           <p className="text-white/70">
-                            <span className="font-medium text-white/90">Policy:</span>{" "}
-                            <span
-                              className={flight.travelPolicy === "Compliant" ? "text-green-400" : "text-orange-400"}
-                            >
-                              {flight.travelPolicy}
-                            </span>
+                            <span className="font-medium text-white/90">Date:</span> {flight.departureDate}
                           </p>
-                          {flight.expiresAt && (
+                          {flight.carbonEmission && (
                             <p className="text-white/70">
-                              <span className="font-medium text-white/90">Expires:</span>{" "}
-                              {new Date(flight.expiresAt).toLocaleString()}
+                              <span className="font-medium text-white/90">CO₂:</span> {flight.carbonEmission}
                             </p>
                           )}
                         </div>
                         <div>
-                          <p className="font-medium text-white/90 mb-0.5">Amenities:</p>
-                          <div className="flex flex-wrap gap-1.5">
-                            {flight.amenities.map((amenity) => (
-                              <Badge
-                                key={amenity}
-                                variant="secondary"
-                                className="bg-white/10 text-white/70 text-[10px] px-1.5 py-0.5"
-                              >
-                                {amenity}
-                              </Badge>
-                            ))}
-                          </div>
+                          <p className="text-white/70">
+                            <span className="font-medium text-white/90">Policy:</span>{" "}
+                            <Badge
+                              className={`text-xs ${
+                                flight.travelPolicy === "Compliant"
+                                  ? "bg-green-500/20 text-green-400"
+                                  : "bg-red-500/20 text-red-400"
+                              }`}
+                            >
+                              {flight.travelPolicy}
+                            </Badge>
+                          </p>
+                          {flight.amenities && flight.amenities.length > 0 && (
+                            <p className="text-white/70">
+                              <span className="font-medium text-white/90">Amenities:</span>{" "}
+                              {flight.amenities.slice(0, 3).join(", ")}
+                              {flight.amenities.length > 3 && "..."}
+                            </p>
+                          )}
                         </div>
                       </div>
-
-                      {/* Flight Conditions */}
-                      {flight.conditions && (
-                        <div className="bg-white/5 p-2 rounded border border-white/10">
-                          <p className="font-medium text-white/90 mb-1 text-xs">Booking Conditions:</p>
-                          <div className="grid grid-cols-2 gap-2 text-xs">
-                            {flight.conditions.change_before_departure && (
-                              <div>
-                                <span className="text-white/70">Changes: </span>
-                                <span
-                                  className={
-                                    flight.conditions.change_before_departure.allowed
-                                      ? "text-green-400"
-                                      : "text-red-400"
-                                  }
-                                >
-                                  {flight.conditions.change_before_departure.allowed ? "Allowed" : "Not Allowed"}
-                                </span>
-                                {flight.conditions.change_before_departure.penalty_amount && (
-                                  <span className="text-white/50">
-                                    {" "}
-                                    (${flight.conditions.change_before_departure.penalty_amount})
-                                  </span>
-                                )}
-                              </div>
-                            )}
-                            {flight.conditions.cancel_before_departure && (
-                              <div>
-                                <span className="text-white/70">Cancellation: </span>
-                                <span
-                                  className={
-                                    flight.conditions.cancel_before_departure.allowed
-                                      ? "text-green-400"
-                                      : "text-red-400"
-                                  }
-                                >
-                                  {flight.conditions.cancel_before_departure.allowed ? "Allowed" : "Not Allowed"}
-                                </span>
-                                {flight.conditions.cancel_before_departure.penalty_amount && (
-                                  <span className="text-white/50">
-                                    {" "}
-                                    (${flight.conditions.cancel_before_departure.penalty_amount})
-                                  </span>
-                                )}
-                              </div>
-                            )}
-                          </div>
-                        </div>
-                      )}
-
                       <Button
-                        onClick={handleBookFlight}
-                        size="sm"
-                        className="w-full mt-2 bg-white text-black hover:bg-white/90 rounded-full"
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          handleBookFlight()
+                        }}
+                        className="w-full bg-white text-black hover:bg-white/90 rounded-full"
                         disabled={loading}
                       >
-                        {loading ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
-                        {loading ? "Booking..." : "Book This Flight"}
+                        {loading ? (
+                          <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                        ) : (
+                          <Plane className="h-4 w-4 mr-2" />
+                        )}
+                        {loading ? "Booking..." : "Book Flight"}
                       </Button>
                     </div>
                   )}
@@ -622,70 +663,46 @@ export default function FlightsPage() {
           </div>
         )}
 
-        {/* Loading State */}
-        {loading && (
-          <div className="text-center py-10">
-            <Loader2 className="h-8 w-8 animate-spin mx-auto mb-3 text-white/70" />
-            <p className="text-white/70">{useDuffelAPI ? "Searching live flights..." : "Searching for flights..."}</p>
-          </div>
-        )}
-
-        {/* No Results */}
-        {!loading && filteredFlights.length === 0 && destinationCity && (
-          <Card className="bg-white/5 border-white/10">
-            <CardContent className="p-10 text-center">
-              <Plane className="h-12 w-12 text-white/30 mx-auto mb-3" />
-              <h3 className="text-xl font-medium text-white">No Flights Found</h3>
-              <p className="text-white/70 mt-1">Try different destinations or dates.</p>
-            </CardContent>
-          </Card>
-        )}
-
-        {/* Empty State */}
-        {!loading && !destinationCity && (
-          <Card className="bg-white/5 border-white/10">
-            <CardContent className="p-10 text-center">
-              <Plane className="h-12 w-12 text-white/30 mx-auto mb-3" />
-              <h3 className="text-xl font-medium text-white">Find Your Perfect Flight</h3>
-              <p className="text-white/70 mt-1">Search for flights to your destination.</p>
-            </CardContent>
+        {!loading && filteredFlights.length === 0 && originCity && destinationCity && (
+          <Card className="bg-white/5 border-white/10 text-center p-8">
+            <Plane className="h-12 w-12 text-white/30 mx-auto mb-3" />
+            <h3 className="text-lg font-medium text-white mb-2">No flights found</h3>
+            <p className="text-white/70 text-sm">
+              Try adjusting your search criteria or check back later for more options.
+            </p>
           </Card>
         )}
       </div>
+
+      <style jsx>{`
+        @keyframes fadeInUp {
+          from {
+            opacity: 0;
+            transform: translateY(20px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+      `}</style>
     </div>
   )
 }
 
-// Helper component for inputs with icons
-function InputWithIcon({ icon, ...props }: { icon: React.ReactNode } & React.InputHTMLAttributes<HTMLInputElement>) {
+function InputWithIcon({
+  icon,
+  ...props
+}: {
+  icon: React.ReactNode
+} & React.InputHTMLAttributes<HTMLInputElement>) {
   return (
     <div className="relative">
-      <div className="absolute left-3 top-1/2 -translate-y-1/2">{icon}</div>
+      <div className="absolute left-3 top-1/2 transform -translate-y-1/2">{icon}</div>
       <Input
         {...props}
-        className="pl-10 h-11 bg-white/5 border-white/10 text-white placeholder:text-white/30 rounded-xl hover:bg-white/10 focus:ring-1 focus:ring-white/20"
+        className="pl-10 h-11 bg-white/5 border-white/10 text-white placeholder:text-white/30 rounded-xl hover:bg-white/10"
       />
     </div>
   )
-}
-
-// Add CSS for animations
-if (typeof document !== "undefined") {
-  const style = document.createElement("style")
-  style.textContent = `
-    @keyframes fadeInUp {
-      from {
-        opacity: 0;
-        transform: translateY(20px);
-      }
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
-    }
-  `
-  if (!document.head.querySelector("style[data-flights-animations]")) {
-    style.setAttribute("data-flights-animations", "true")
-    document.head.appendChild(style)
-  }
 }

@@ -5,7 +5,7 @@ import type React from "react"
 import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { SendIcon, MicIcon } from "lucide-react"
+import { ArrowUpIcon, MicIcon } from "lucide-react"
 
 interface ChatFormProps {
   onSendMessage: (message: string) => void
@@ -45,7 +45,7 @@ export default function ChatForm({
           message.trim() && !isLoading ? "bg-white text-black hover:bg-white/90" : "bg-white/10 text-white/50"
         }`}
       >
-        <SendIcon className="h-4 w-4" />
+        <ArrowUpIcon className="h-4 w-4" />
       </Button>
       <Button
         type="button"

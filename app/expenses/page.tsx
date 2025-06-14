@@ -3,500 +3,244 @@
 import type React from "react"
 
 import { useState } from "react"
-import Layout from "@/components/ui/layout"
-import { PlusCircle, Edit2, Trash2, DollarSign, Calendar, Tag, FileText, CreditCard } from "lucide-react"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { Badge } from "@/components/ui/badge"
+import { Upload, Receipt, Calendar, DollarSign, FileText, X, Check, Clock, AlertCircle } from "lucide-react"
 
-interface Expense {
+interface UploadedFile {
   id: string
-  title: string
-  amount: number
-  date: string
-  category: string
-  description: string
-  receipt?: string
-  status: "pending" | "approved" | "rejected"
+  name: string
+  size: number
+  type: string
+  status: "uploading" | "completed" | "error"
 }
 
-const CATEGORIES = [
-  "Flights",
-  "Hotels",
-  "Transportation",
-  "Meals",
-  "Entertainment",
-  "Office Supplies",
-  "Conference",
-  "Other",
-]
+export default function Expenses() {
+  const [dragActive, setDragActive] = useState(false)
+  const [uploadedFiles, setUploadedFiles] = useState<UploadedFile[]>([])
 
-export default function ExpensesPage() {
-  const [expenses, setExpenses] = useState<Expense[]>([])
-  const [isFormOpen, setIsFormOpen] = useState(false)
-  const [editingExpenseId, setEditingExpenseId] = useState<string | null>(null)
-  const [formData, setFormData] = useState<Omit<Expense, "id">>({
-    title: "",
-    amount: 0,
-    date: new Date().toISOString().split("T")[0],
-    category: "Other",
-    description: "",
-    status: "pending",
-  })
-
-  const [isDragOver, setIsDragOver] = useState(false)
-
-  const handleDragOver = (e: React.DragEvent) => {
+  const handleDrag = (e: React.DragEvent) => {
     e.preventDefault()
-    setIsDragOver(true)
-  }
-
-  const handleDragLeave = (e: React.DragEvent) => {
-    e.preventDefault()
-    setIsDragOver(false)
+    e.stopPropagation()
+    if (e.type === "dragenter" || e.type === "dragover") {
+      setDragActive(true)
+    } else if (e.type === "dragleave") {
+      setDragActive(false)
+    }
   }
 
   const handleDrop = (e: React.DragEvent) => {
     e.preventDefault()
-    setIsDragOver(false)
+    e.stopPropagation()
+    setDragActive(false)
 
-    const files = Array.from(e.dataTransfer.files)
-    const validFiles = files.filter((file) => file.type.startsWith("image/") || file.type === "application/pdf")
-
-    if (validFiles.length > 0) {
-      // Aquí puedes procesar los archivos
-      console.log("Files dropped:", validFiles)
-      // Podrías abrir automáticamente el formulario con los archivos
-      setIsFormOpen(true)
+    if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+      handleFiles(Array.from(e.dataTransfer.files))
     }
   }
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
-    const { name, value } = e.target
-    setFormData((prev) => ({
-      ...prev,
-      [name]: name === "amount" ? Number.parseFloat(value) || 0 : value,
-    }))
-  }
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
-
-    if (editingExpenseId) {
-      // Actualizar gasto existente
-      setExpenses((prev) =>
-        prev.map((expense) => (expense.id === editingExpenseId ? { ...expense, ...formData } : expense)),
-      )
-      setEditingExpenseId(null)
-    } else {
-      // Crear nuevo gasto
-      const newExpense: Expense = {
-        id: Date.now().toString(),
-        ...formData,
+  const handleFiles = (files: File[]) => {
+    files.forEach((file) => {
+      const newFile: UploadedFile = {
+        id: Math.random().toString(36).substr(2, 9),
+        name: file.name,
+        size: file.size,
+        type: file.type,
+        status: "uploading",
       }
-      setExpenses((prev) => [...prev, newExpense])
-    }
 
-    // Resetear formulario
-    setFormData({
-      title: "",
-      amount: 0,
-      date: new Date().toISOString().split("T")[0],
-      category: "Other",
-      description: "",
-      status: "pending",
+      setUploadedFiles((prev) => [...prev, newFile])
+
+      // Simulate upload
+      setTimeout(() => {
+        setUploadedFiles((prev) => prev.map((f) => (f.id === newFile.id ? { ...f, status: "completed" } : f)))
+      }, 2000)
     })
-    setIsFormOpen(false)
   }
 
-  const handleEdit = (expense: Expense) => {
-    setFormData({
-      title: expense.title,
-      amount: expense.amount,
-      date: expense.date,
-      category: expense.category,
-      description: expense.description,
-      receipt: expense.receipt,
-      status: expense.status,
-    })
-    setEditingExpenseId(expense.id)
-    setIsFormOpen(true)
+  const removeFile = (id: string) => {
+    setUploadedFiles((prev) => prev.filter((f) => f.id !== id))
   }
 
-  const handleDelete = (id: string) => {
-    setExpenses((prev) => prev.filter((expense) => expense.id !== id))
+  const formatFileSize = (bytes: number) => {
+    if (bytes === 0) return "0 Bytes"
+    const k = 1024
+    const sizes = ["Bytes", "KB", "MB", "GB"]
+    const i = Math.floor(Math.log(bytes) / Math.log(k))
+    return Number.parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + " " + sizes[i]
   }
-
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case "approved":
-        return "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400"
-      case "rejected":
-        return "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400"
-      default:
-        return "bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400"
-    }
-  }
-
-  const totalExpenses = expenses.reduce((sum, expense) => sum + expense.amount, 0)
 
   return (
-    <Layout>
-      <div className="max-w-5xl mx-auto">
-        <div className="flex justify-between items-center mb-6">
-          <h1 className="text-2xl font-medium tracking-tighter text-black">Expense Management</h1>
-          <button
-            onClick={() => {
-              setIsFormOpen(true)
-              setEditingExpenseId(null)
-              setFormData({
-                title: "",
-                amount: 0,
-                date: new Date().toISOString().split("T")[0],
-                category: "Other",
-                description: "",
-                status: "pending",
-              })
-            }}
-            className="px-3 py-1.5 rounded-xl bg-black text-white hover:bg-gray-800 flex items-center gap-2"
-          >
-            <PlusCircle size={14} />
-            <span className="text-xs">New Expense</span>
-          </button>
+    <div className="min-h-screen bg-black text-white p-3">
+      <div className="max-w-4xl mx-auto space-y-6">
+        {/* Header */}
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-2xl font-medium tracking-tighter text-white">Expense Management</h1>
+            <p className="text-white/70 text-sm">Upload and manage your business expenses</p>
+          </div>
+          <Badge className="bg-white/10 text-white/70 border-white/20">{uploadedFiles.length} files uploaded</Badge>
         </div>
 
-        <div className="bg-white rounded-xl border border-black p-6 shadow-sm mb-6">
-          <div className="flex justify-between items-center mb-4">
-            <h2 className="text-lg font-medium tracking-tighter text-black">Finance Management</h2>
-            <button className="px-3 py-1.5 rounded-xl bg-black text-white hover:bg-gray-800 flex items-center gap-2">
-              <PlusCircle size={14} />
-              <span className="text-xs">Connect Bank</span>
-            </button>
-          </div>
-
-          {/* Drag and Drop Zone */}
-          <div
-            className={`border-2 border-dashed rounded-lg p-8 text-center mb-6 transition-colors ${
-              isDragOver ? "border-blue-400 bg-blue-50" : "border-gray-300 hover:border-gray-400"
-            }`}
-            onDragOver={handleDragOver}
-            onDragLeave={handleDragLeave}
-            onDrop={handleDrop}
-          >
-            <div className="flex flex-col items-center">
-              <div className="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center mb-4">
-                <FileText className="h-6 w-6 text-gray-500" />
-              </div>
-              <h3 className="text-lg font-medium text-black mb-2">Drop your receipts here</h3>
-              <p className="text-gray-600 mb-4">Drag and drop your expense receipts, or click to browse</p>
-              <input
+        {/* Upload Area */}
+        <Card className="bg-white/5 border-white/10">
+          <CardHeader>
+            <CardTitle className="text-white font-medium tracking-tighter">Upload Receipts & Invoices</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div
+              className={`border-2 border-dashed rounded-lg p-8 text-center transition-all duration-200 ${
+                dragActive
+                  ? "border-white/40 bg-white/10 scale-[1.02]"
+                  : "border-white/20 bg-white/5 hover:border-white/30 hover:bg-white/8"
+              }`}
+              onDragEnter={handleDrag}
+              onDragLeave={handleDrag}
+              onDragOver={handleDrag}
+              onDrop={handleDrop}
+            >
+              <Upload
+                className={`h-12 w-12 mx-auto mb-4 transition-colors ${dragActive ? "text-white" : "text-white/50"}`}
+              />
+              <h3 className="font-medium text-white mb-2">
+                {dragActive ? "Drop files here" : "Drag and drop your files here"}
+              </h3>
+              <p className="text-sm text-white/70 mb-4">or click to browse your computer</p>
+              <p className="text-xs text-white/50 mb-4">Supports JPG, PNG, PDF up to 10MB each</p>
+              <Input
                 type="file"
                 multiple
-                accept="image/*,.pdf"
+                accept=".jpg,.jpeg,.png,.pdf"
                 className="hidden"
-                id="bulk-receipt-upload"
+                id="file-upload"
                 onChange={(e) => {
-                  const files = Array.from(e.target.files || [])
-                  if (files.length > 0) {
-                    console.log("Files selected:", files)
-                    setIsFormOpen(true)
+                  if (e.target.files) {
+                    handleFiles(Array.from(e.target.files))
                   }
                 }}
               />
-              <label
-                htmlFor="bulk-receipt-upload"
-                className="px-4 py-2 bg-black text-white rounded-lg hover:bg-gray-800 cursor-pointer text-sm"
+              <Button
+                variant="outline"
+                className="bg-transparent border-white/20 text-white/70 hover:bg-white/10 hover:text-white"
+                onClick={() => document.getElementById("file-upload")?.click()}
               >
                 Choose Files
-              </label>
-              <p className="text-xs text-gray-500 mt-2">Supports JPG, PNG, PDF up to 10MB each</p>
+              </Button>
             </div>
-          </div>
+          </CardContent>
+        </Card>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div className="border border-gray-200 rounded-lg p-4 flex items-center">
-              <div className="w-10 h-10 bg-blue-100 rounded-md flex items-center justify-center mr-3">
-                <CreditCard className="h-5 w-5 text-blue-600" />
-              </div>
-              <div>
-                <h3 className="text-sm font-medium">Chase Bank</h3>
-                <p className="text-xs text-gray-500">Connect your Chase accounts</p>
-              </div>
-            </div>
-
-            <div className="border border-gray-200 rounded-lg p-4 flex items-center">
-              <div className="w-10 h-10 bg-red-100 rounded-md flex items-center justify-center mr-3">
-                <CreditCard className="h-5 w-5 text-red-600" />
-              </div>
-              <div>
-                <h3 className="text-sm font-medium">Bank of America</h3>
-                <p className="text-xs text-gray-500">Connect your BoA accounts</p>
-              </div>
-            </div>
-
-            <div className="border border-gray-200 rounded-lg p-4 flex items-center">
-              <div className="w-10 h-10 bg-green-100 rounded-md flex items-center justify-center mr-3">
-                <CreditCard className="h-5 w-5 text-green-600" />
-              </div>
-              <div>
-                <h3 className="text-sm font-medium">Wells Fargo</h3>
-                <p className="text-xs text-gray-500">Connect your Wells Fargo accounts</p>
-              </div>
-            </div>
-          </div>
-
-          <p className="text-xs text-gray-500 mt-4">
-            Connecting your bank account allows automatic expense tracking and categorization. Your financial data is
-            encrypted and secure.
-          </p>
-        </div>
-
-        {isFormOpen && (
-          <div className="bg-white rounded-xl border border-black p-6 shadow-sm mb-6">
-            <h2 className="text-lg font-medium tracking-tighter text-black mb-4">
-              {editingExpenseId ? "Edit Expense" : "Create New Expense"}
-            </h2>
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <div>
-                <label htmlFor="title" className="block text-sm font-medium text-gray-700 mb-1">
-                  Title
-                </label>
-                <input
-                  type="text"
-                  id="title"
-                  name="title"
-                  value={formData.title}
-                  onChange={handleInputChange}
-                  required
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-200"
-                  placeholder="Expense title"
-                />
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div>
-                  <label htmlFor="amount" className="block text-sm font-medium text-gray-700 mb-1">
-                    Amount
-                  </label>
-                  <div className="relative">
-                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                      <DollarSign className="h-4 w-4 text-gray-500" />
+        {/* Uploaded Files */}
+        {uploadedFiles.length > 0 && (
+          <Card className="bg-white/5 border-white/10">
+            <CardHeader>
+              <CardTitle className="text-white font-medium tracking-tighter">Uploaded Files</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-3">
+                {uploadedFiles.map((file) => (
+                  <div
+                    key={file.id}
+                    className="flex items-center gap-3 p-3 bg-white/5 rounded-lg border border-white/10"
+                  >
+                    <div className="h-10 w-10 rounded-lg bg-white/10 flex items-center justify-center">
+                      <FileText className="h-5 w-5 text-white/70" />
                     </div>
-                    <input
-                      type="number"
-                      id="amount"
-                      name="amount"
-                      value={formData.amount}
-                      onChange={handleInputChange}
-                      min="0"
-                      step="0.01"
-                      required
-                      className="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-200"
-                      placeholder="0.00"
-                    />
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-medium text-white truncate">{file.name}</p>
+                      <p className="text-xs text-white/50">{formatFileSize(file.size)}</p>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      {file.status === "uploading" && (
+                        <div className="flex items-center gap-2">
+                          <Clock className="h-4 w-4 text-white/50 animate-spin" />
+                          <span className="text-xs text-white/50">Uploading...</span>
+                        </div>
+                      )}
+                      {file.status === "completed" && (
+                        <div className="flex items-center gap-2">
+                          <Check className="h-4 w-4 text-green-500" />
+                          <span className="text-xs text-green-500">Completed</span>
+                        </div>
+                      )}
+                      {file.status === "error" && (
+                        <div className="flex items-center gap-2">
+                          <AlertCircle className="h-4 w-4 text-red-500" />
+                          <span className="text-xs text-red-500">Error</span>
+                        </div>
+                      )}
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        className="h-8 w-8 p-0 text-white/50 hover:text-white hover:bg-white/10"
+                        onClick={() => removeFile(file.id)}
+                      >
+                        <X className="h-4 w-4" />
+                      </Button>
+                    </div>
                   </div>
-                </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        )}
 
-                <div>
-                  <label htmlFor="date" className="block text-sm font-medium text-gray-700 mb-1">
-                    Date
-                  </label>
-                  <input
-                    type="date"
-                    id="date"
-                    name="date"
-                    value={formData.date}
-                    onChange={handleInputChange}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-200"
+        {/* Expense Form */}
+        <Card className="bg-white/5 border-white/10">
+          <CardHeader>
+            <CardTitle className="text-white font-medium tracking-tighter">Expense Details</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="amount" className="text-white/70">
+                  Amount
+                </Label>
+                <div className="relative">
+                  <DollarSign className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-white/50" />
+                  <Input
+                    id="amount"
+                    type="number"
+                    placeholder="0.00"
+                    className="pl-10 bg-white/5 border-white/10 text-white placeholder:text-white/30"
                   />
                 </div>
-
-                <div>
-                  <label htmlFor="category" className="block text-sm font-medium text-gray-700 mb-1">
-                    Category
-                  </label>
-                  <select
-                    id="category"
-                    name="category"
-                    value={formData.category}
-                    onChange={handleInputChange}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-200"
-                  >
-                    {CATEGORIES.map((category) => (
-                      <option key={category} value={category}>
-                        {category}
-                      </option>
-                    ))}
-                  </select>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="date" className="text-white/70">
+                  Date
+                </Label>
+                <div className="relative">
+                  <Calendar className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-white/50" />
+                  <Input id="date" type="date" className="pl-10 bg-white/5 border-white/10 text-white" />
                 </div>
               </div>
-
-              <div>
-                <label htmlFor="description" className="block text-sm font-medium text-gray-700 mb-1">
-                  Description
-                </label>
-                <textarea
-                  id="description"
-                  name="description"
-                  value={formData.description}
-                  onChange={handleInputChange}
-                  rows={3}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-200"
-                  placeholder="Expense description"
-                />
-              </div>
-
-              <div>
-                <label htmlFor="receipt" className="block text-sm font-medium text-gray-700 mb-1">
-                  Receipt (optional)
-                </label>
-                <input
-                  type="file"
-                  id="receipt"
-                  name="receipt"
-                  accept="image/*,.pdf"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-200"
-                />
-                <p className="text-xs text-gray-500 mt-1">Upload a photo or PDF of your receipt</p>
-              </div>
-
-              <div>
-                <label htmlFor="status" className="block text-sm font-medium text-gray-700 mb-1">
-                  Status
-                </label>
-                <select
-                  id="status"
-                  name="status"
-                  value={formData.status}
-                  onChange={handleInputChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-200"
-                >
-                  <option value="pending">Pending</option>
-                  <option value="approved">Approved</option>
-                  <option value="rejected">Rejected</option>
-                </select>
-              </div>
-
-              <div className="flex justify-end gap-2 pt-2">
-                <button
-                  type="button"
-                  onClick={() => setIsFormOpen(false)}
-                  className="px-3 py-1.5 rounded-xl border border-gray-300 text-gray-700 hover:bg-gray-50"
-                >
-                  <span className="text-xs">Cancel</span>
-                </button>
-                <button type="submit" className="px-3 py-1.5 rounded-xl bg-black text-white hover:bg-gray-800">
-                  <span className="text-xs">{editingExpenseId ? "Update Expense" : "Create Expense"}</span>
-                </button>
-              </div>
-            </form>
-          </div>
-        )}
-
-        {expenses.length > 0 && (
-          <div className="bg-white rounded-xl border border-black p-4 shadow-sm mb-6">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div className="p-4 bg-gray-100 rounded-lg">
-                <h3 className="text-sm font-medium text-gray-700 mb-1">Total Expenses</h3>
-                <p className="text-2xl font-medium text-black">${totalExpenses.toFixed(2)}</p>
-              </div>
-              <div className="p-4 bg-gray-100 rounded-lg">
-                <h3 className="text-sm font-medium text-gray-700 mb-1">Pending Approval</h3>
-                <p className="text-2xl font-medium text-black">
-                  $
-                  {expenses
-                    .filter((e) => e.status === "pending")
-                    .reduce((sum, e) => sum + e.amount, 0)
-                    .toFixed(2)}
-                </p>
-              </div>
-              <div className="p-4 bg-gray-100 rounded-lg">
-                <h3 className="text-sm font-medium text-gray-700 mb-1">Approved</h3>
-                <p className="text-2xl font-medium text-black">
-                  $
-                  {expenses
-                    .filter((e) => e.status === "approved")
-                    .reduce((sum, e) => sum + e.amount, 0)
-                    .toFixed(2)}
-                </p>
-              </div>
             </div>
-          </div>
-        )}
-
-        {expenses.length === 0 ? (
-          <div className="bg-white rounded-xl border border-black p-8 text-center">
-            <div className="flex justify-center mb-4">
-              <div className="p-4 bg-gray-100 rounded-full">
-                <FileText className="h-8 w-8 text-gray-500" />
-              </div>
+            <div className="space-y-2">
+              <Label htmlFor="description" className="text-white/70">
+                Description
+              </Label>
+              <Input
+                id="description"
+                placeholder="Business lunch, taxi fare, hotel..."
+                className="bg-white/5 border-white/10 text-white placeholder:text-white/30"
+              />
             </div>
-            <h2 className="text-xl font-medium tracking-tighter text-black mb-2">No expenses yet</h2>
-            <p className="text-gray-700 mb-6 max-w-md mx-auto">
-              Start tracking your business travel expenses by adding your first expense.
-            </p>
-            <button
-              onClick={() => setIsFormOpen(true)}
-              className="px-3 py-1.5 rounded-xl bg-black text-white hover:bg-gray-800 inline-flex items-center gap-2"
-            >
-              <PlusCircle size={14} />
-              <span className="text-xs">Add Your First Expense</span>
-            </button>
-          </div>
-        ) : (
-          <div className="space-y-4">
-            {expenses.map((expense) => (
-              <div
-                key={expense.id}
-                className="bg-white rounded-xl border border-gray-200 p-4 shadow-sm hover:border-black transition-colors"
-              >
-                <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-                  <div className="flex items-start gap-3">
-                    <div className="p-2 rounded-lg bg-gray-100 flex-shrink-0">
-                      <DollarSign className="h-5 w-5 text-gray-700" />
-                    </div>
-                    <div>
-                      <h3 className="font-medium text-black">{expense.title}</h3>
-                      {expense.description && <p className="text-sm text-gray-600 mt-1">{expense.description}</p>}
-                      <div className="flex flex-wrap gap-2 mt-2">
-                        <span className="inline-flex items-center rounded-xl bg-gray-100 px-2.5 py-0.5 text-[10px] font-medium text-gray-700">
-                          <Tag className="mr-1 h-3 w-3" />
-                          {expense.category}
-                        </span>
-                        <span className="inline-flex items-center rounded-xl bg-gray-100 px-2.5 py-0.5 text-[10px] font-medium text-gray-700">
-                          <Calendar className="mr-1 h-3 w-3" />
-                          {new Date(expense.date).toLocaleDateString()}
-                        </span>
-                        <span
-                          className={`inline-flex items-center rounded-xl px-2.5 py-0.5 text-[10px] font-medium ${getStatusColor(expense.status)}`}
-                        >
-                          {expense.status.charAt(0).toUpperCase() + expense.status.slice(1)}
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                  <div className="flex items-center justify-between md:justify-end gap-4">
-                    <div className="text-right">
-                      <p className="text-lg font-medium text-black">${expense.amount.toFixed(2)}</p>
-                    </div>
-                    <div className="flex gap-2">
-                      <button
-                        onClick={() => handleEdit(expense)}
-                        className="p-1.5 text-gray-500 hover:text-black transition-colors"
-                      >
-                        <Edit2 className="h-4 w-4" />
-                      </button>
-                      <button
-                        onClick={() => handleDelete(expense.id)}
-                        className="p-1.5 text-gray-500 hover:text-red-500 transition-colors"
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
+            <div className="flex gap-3">
+              <Button className="bg-white text-black hover:bg-white/90">
+                <Receipt className="h-4 w-4 mr-2" />
+                Submit Expense
+              </Button>
+              <Button variant="outline" className="bg-transparent border-white/20 text-white/70 hover:bg-white/10">
+                Save Draft
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
       </div>
-    </Layout>
+    </div>
   )
 }

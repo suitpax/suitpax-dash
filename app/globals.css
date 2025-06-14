@@ -64,8 +64,58 @@
     @apply border-border;
   }
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background text-foreground transition-colors duration-300;
   }
+}
+
+/* Light theme specific styles */
+.light {
+  --background: 0 0% 100%;
+  --foreground: 222.2 84% 4.9%;
+}
+
+.light .bg-black {
+  @apply bg-white;
+}
+
+.light .text-white {
+  @apply text-black;
+}
+
+.light .text-white\/70 {
+  @apply text-black/70;
+}
+
+.light .text-white\/50 {
+  @apply text-black/50;
+}
+
+.light .text-white\/30 {
+  @apply text-black/30;
+}
+
+.light .border-white\/10 {
+  @apply border-black/10;
+}
+
+.light .border-white\/20 {
+  @apply border-black/20;
+}
+
+.light .bg-white\/5 {
+  @apply bg-black/5;
+}
+
+.light .bg-white\/10 {
+  @apply bg-black/10;
+}
+
+.light .hover\:bg-white\/5:hover {
+  @apply hover:bg-black/5;
+}
+
+.light .hover\:bg-white\/10:hover {
+  @apply hover:bg-black/10;
 }
 
 /* Custom scrollbar styles */

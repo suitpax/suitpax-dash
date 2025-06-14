@@ -98,7 +98,7 @@ export default function OnboardingPage() {
               <div className="space-y-4">
                 <div className="flex justify-center mb-4">
                   <div className="relative">
-                    <div className="w-20 h-20 rounded-full bg-white/5 border-2 border-dashed border-white/30 flex items-center justify-center overflow-hidden">
+                    <div className="w-20 h-20 rounded-md bg-white/5 border-2 border-dashed border-white/30 flex items-center justify-center overflow-hidden">
                       {formData.profileImage ? (
                         <Image
                           src={formData.profileImage || "/placeholder.svg"}
@@ -166,6 +166,46 @@ export default function OnboardingPage() {
                     className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg focus:outline-none focus:ring-2 focus:ring-white/20 text-white placeholder:text-white/30"
                     placeholder="your.email@company.com"
                   />
+                </div>
+                {/* AI Agent Quick Setup */}
+                <div className="mt-6 pt-4 border-t border-white/10">
+                  <div className="bg-white/5 rounded-lg border border-white/10 p-3">
+                    <div className="flex items-center mb-2">
+                      <div className="relative h-5 w-5 rounded-full overflow-hidden mr-2">
+                        <Image src="/images/ai-agent-avatar.jpeg" alt="AI Assistant" fill className="object-cover" />
+                      </div>
+                      <span className="text-xs font-medium text-white">Suitpax AI</span>
+                    </div>
+                    <form
+                      onSubmit={(e) => {
+                        e.preventDefault()
+                        const input = e.currentTarget.querySelector("input") as HTMLInputElement
+                        if (input?.value.trim()) {
+                          // Here you would integrate with AI to auto-fill form
+                          console.log("AI Setup:", input.value)
+                          input.value = ""
+                        }
+                      }}
+                    >
+                      <div className="relative">
+                        <input
+                          type="text"
+                          placeholder="Tell me about your role at Suitpax and travel needs..."
+                          className="w-full pl-3 pr-8 py-2 text-xs bg-white/5 border border-white/10 rounded-full focus:outline-none focus:ring-1 focus:ring-white/20 text-white placeholder:text-white/30"
+                        />
+                        <button
+                          type="submit"
+                          className="absolute right-2 top-1/2 transform -translate-y-1/2 text-white/50 hover:text-white"
+                        >
+                          <ArrowRight className="h-3 w-3" />
+                        </button>
+                      </div>
+                    </form>
+                    <p className="text-[10px] text-white/50 mt-2">
+                      Example: "I'm Sarah, VP of Sales at Suitpax, travel weekly for client presentations, prefer
+                      business class, budget up to $5000"
+                    </p>
+                  </div>
                 </div>
               </div>
             )}

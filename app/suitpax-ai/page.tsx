@@ -1,7 +1,9 @@
 "use client"
 
+import type React from "react"
+
 import { useState, useEffect, useRef, useCallback } from "react"
-import { Plane, Building2 } from "lucide-react"
+import { Plane, Building2, ArrowUpIcon } from "lucide-react"
 
 type Message = {
   id: string
@@ -260,3 +262,176 @@ What specific analytics would you like to see?`,
       query: "Show me hotels in Barcelona for a 3-night business trip",
     },
     {
+      icon: Building2,
+      title: "Book Hotels",
+      query: "Show me hotels in Barcelona for a 3-night business trip",
+    },
+  ]
+
+  return (
+    <div className="bg-gray-900 min-h-screen text-white">
+      <div className="container mx-auto px-4 py-12">
+        <div className="text-center mb-8">
+          <h1 className="text-4xl md:text-6xl font-bold text-white mb-4 tracking-tight">Suitpax AI</h1>
+          <p className="text-xl md:text-2xl text-white/80 max-w-3xl mx-auto leading-relaxed">
+            Your intelligent business travel companion powered by advanced AI
+          </p>
+        </div>
+
+        <div className="flex flex-col md:flex-row">
+          {/* Agent Selection Sidebar */}
+          <div className="md:w-1/4 p-4">
+            <div className="bg-gray-800 rounded-lg shadow-md p-4">
+              <h2 className="text-lg font-semibold mb-2">Select an Agent</h2>
+              <ul>
+                {aiAgents.map((agent) => (
+                  <li
+                    key={agent.id}
+                    className={`flex items-center space-x-3 py-2 px-3 rounded-md hover:bg-gray-700 cursor-pointer ${
+                      selectedAgent.id === agent.id ? "bg-gray-700" : ""
+                    }`}
+                    onClick={() => setSelectedAgent(agent)}
+                  >
+                    <img src={agent.avatar || "/placeholder.svg"} alt={agent.name} className="w-8 h-8 rounded-full" />
+                    <span>{agent.name}</span>
+                    {agent.status === "online" && <span className="ml-auto text-green-500">Online</span>}
+                    {agent.status === "busy" && <span className="ml-auto text-yellow-500">Busy</span>}
+                    {agent.status === "offline" && <span className="ml-auto text-gray-500">Offline</span>}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </div>
+
+          {/* Chat Interface */}
+          <div className="md:w-3/4 p-4">
+            <div className="bg-gray-800 rounded-lg shadow-md p-6">
+              {/* Chat Messages */}
+              <div className="mb-4">
+                {messages.map((message) => (
+                  <div
+                    key={message.id}
+                    className={`mb-3 p-3 rounded-lg ${
+                      message.role === "user"
+                        ? "bg-blue-700 text-white ml-auto w-fit max-w-2/3"
+                        : "bg-gray-700 mr-auto w-fit max-w-2/3"
+                    }`}
+                  >
+                    <div className="flex items-center mb-1">
+                      <span className="text-sm font-semibold">
+                        {message.role === "user" ? "You" : selectedAgent.name}
+                      </span>
+                      <span className="text-xs text-gray-400 ml-2">{message.timestamp}</span>
+                    </div>
+                    <p className="text-base whitespace-pre-wrap leading-relaxed">{message.content}</p>
+                    {message.isThinking && (
+                      <div className="flex items-center">
+                        <div className="spinner mr-2"></div>
+                        <span className="text-sm text-gray-400">Thinking...</span>
+                      </div>
+                    )}
+                    {message.sources && message.sources.length > 0 && (
+                      <div className="mt-2">
+                        <h4 className="text-sm font-semibold mb-1">Sources:</h4>
+                        <ul>
+                          {message.sources.map((source, index) => (
+                            <li key={index} className="text-sm">
+                              <a
+                                href={source.url}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="text-blue-500 hover:underline"
+                              >
+                                {source.title} ({source.type})
+                              </a>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+                    {message.suggestions && message.suggestions.length > 0 && (
+                      <div className="mt-2">
+                        <h4 className="text-sm font-semibold mb-1">Suggestions:</h4>
+                        <div className="flex flex-wrap">
+                          {message.suggestions.map((suggestion, index) => (
+                            <button
+                              key={index}
+                              className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mr-2 mb-2"
+                              onClick={() => handleSubmit(suggestion)}
+                            >
+                              {suggestion}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                ))}
+                <div ref={messagesEndRef} />
+              </div>
+
+              {/* Chat Form */}
+              <ChatForm
+                onSubmit={handleSubmit}
+                inputValue={inputValue}
+                setInputValue={setInputValue}
+                isLoading={isLoading}
+              />
+
+              {/* Quick Suggestions */}
+              <div>
+                <div className="text-lg font-medium text-white mb-3">Quick Actions</div>
+                <div className="flex space-x-4">
+                  {quickSuggestions.map((suggestion, index) => (
+                    <button
+                      key={index}
+                      className="bg-gray-700 hover:bg-gray-600 text-white font-semibold py-2 px-4 rounded flex items-center space-x-2"
+                      onClick={() => handleSubmit(suggestion.query)}
+                    >
+                      <suggestion.icon className="h-5 w-5" />
+                      <span>{suggestion.title}</span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+type ChatFormProps = {
+  onSubmit: (message: string) => void
+  inputValue: string
+  setInputValue: (value: string) => void
+  isLoading: boolean
+}
+
+const ChatForm: React.FC<ChatFormProps> = ({ onSubmit, inputValue, setInputValue, isLoading }) => {
+  const handleSubmit = (event: React.FormEvent) => {
+    event.preventDefault()
+    onSubmit(inputValue)
+  }
+
+  return (
+    <form onSubmit={handleSubmit} className="flex items-center">
+      <input
+        type="text"
+        placeholder="Type your message..."
+        className="flex-grow bg-gray-700 text-white rounded-l-md py-2 px-4 focus:outline-none"
+        value={inputValue}
+        onChange={(e) => setInputValue(e.target.value)}
+        disabled={isLoading}
+      />
+      <button
+        type="submit"
+        className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-r-md focus:outline-none disabled:opacity-50"
+        disabled={isLoading}
+      >
+        <ArrowUpIcon className="h-4 w-4" />
+      </button>
+    </form>
+  )
+}

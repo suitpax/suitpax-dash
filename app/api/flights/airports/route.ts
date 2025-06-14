@@ -7,25 +7,28 @@ export async function GET(request: NextRequest) {
     const query = searchParams.get("q")
 
     if (!query || query.length < 2) {
-      return NextResponse.json(
-        { error: 'Query parameter "q" is required and must be at least 2 characters' },
-        { status: 400 },
-      )
+      return NextResponse.json({
+        success: true,
+        airports: [],
+      })
     }
 
     const airports = await DuffelService.searchAirports(query)
 
     return NextResponse.json({
       success: true,
-      data: airports.map((airport) => ({
-        iata_code: airport.iata_code,
-        name: airport.name,
-        city_name: airport.city?.name || "",
-        country_name: airport.city?.country?.name || "",
-      })),
+      airports: airports,
+      count: airports.length,
     })
   } catch (error) {
     console.error("Airport search API error:", error)
-    return NextResponse.json({ error: "Failed to search airports" }, { status: 500 })
+    return NextResponse.json(
+      {
+        success: false,
+        error: "Failed to search airports",
+        airports: [],
+      },
+      { status: 500 },
+    )
   }
 }

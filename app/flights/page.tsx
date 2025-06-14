@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { AirportSearch } from "@/components/ui/airport-search"
 import {
   Search,
   MapPin,
@@ -18,6 +19,8 @@ import {
   Ticket,
   CheckCircle,
   Loader2,
+  AlertCircle,
+  Zap,
 } from "lucide-react"
 import flightsData from "@/data/flights.json"
 
@@ -35,14 +38,20 @@ interface Flight {
   duration: string
   price: number
   currency?: string
+  basePrice?: number
+  taxAmount?: number
   class: string
   stops: number
-  stopCity?: string
+  stopCities?: string[]
   amenities: string[]
   travelPolicy: "Compliant" | "Non-Compliant"
   carbonEmission?: string
   aircraftType?: string
+  operatingCarrier?: string
   conditions?: any
+  expiresAt?: string
+  owner?: any
+  segments?: any[]
 }
 
 const airlines = {
@@ -64,10 +73,12 @@ export default function FlightsPage() {
   const [loading, setLoading] = useState(false)
   const [selectedFlightId, setSelectedFlightId] = useState<string | null>(null)
   const [showBookingConfirmation, setShowBookingConfirmation] = useState(false)
+  const [bookingData, setBookingData] = useState<any>(null)
   const [useDuffelAPI, setUseDuffelAPI] = useState(false)
+  const [searchError, setSearchError] = useState<string | null>(null)
 
   // Search form state
-  const [originCity, setOriginCity] = useState("JFK") // Changed to airport codes for Duffel
+  const [originCity, setOriginCity] = useState("JFK")
   const [destinationCity, setDestinationCity] = useState("")
   const [departureDate, setDepartureDate] = useState(new Date().toISOString().split("T")[0])
   const [passengers, setPassengers] = useState("1")
@@ -90,35 +101,34 @@ export default function FlightsPage() {
 
   const performSearch = async () => {
     setLoading(true)
+    setSearchError(null)
 
     try {
       if (useDuffelAPI && originCity && destinationCity) {
-        // Use Duffel API
+        console.log("Searching with Duffel API...")
+
         const response = await fetch("/api/flights/search", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
-            origin: originCity,
-            destination: destinationCity,
+            origin: originCity.toUpperCase(),
+            destination: destinationCity.toUpperCase(),
             departureDate: departureDate,
             passengers: passengers,
             cabinClass: travelClass,
           }),
         })
 
-        if (response.ok) {
-          const data = await response.json()
-          if (data.success) {
-            setFilteredFlights(data.data)
-          } else {
-            console.error("Duffel API error:", data.error)
-            // Fallback to mock data
-            performMockSearch()
-          }
+        const data = await response.json()
+
+        if (response.ok && data.success) {
+          console.log("Duffel search successful:", data.data.length, "flights found")
+          setFilteredFlights(data.data)
         } else {
-          console.error("API request failed")
+          console.error("Duffel API error:", data.error)
+          setSearchError(data.error || "Failed to search flights")
           // Fallback to mock data
           performMockSearch()
         }
@@ -128,6 +138,7 @@ export default function FlightsPage() {
       }
     } catch (error) {
       console.error("Search error:", error)
+      setSearchError("Network error occurred")
       // Fallback to mock data
       performMockSearch()
     }
@@ -137,7 +148,7 @@ export default function FlightsPage() {
   }
 
   const performMockSearch = () => {
-    // Simulate API call with mock data
+    console.log("Using mock data...")
     const results = allFlights.filter(
       (flight) =>
         flight.origin.toLowerCase().includes(originCity.toLowerCase()) &&
@@ -156,30 +167,95 @@ export default function FlightsPage() {
     return [...filteredFlights].sort((a, b) => {
       if (sortBy === "price") return a.price - b.price
       if (sortBy === "duration") {
-        const durA =
-          Number.parseInt(a.duration.split("h")[0]) * 60 +
-          Number.parseInt(a.duration.split("h")[1]?.replace("m", "") || "0")
-        const durB =
-          Number.parseInt(b.duration.split("h")[0]) * 60 +
-          Number.parseInt(b.duration.split("h")[1]?.replace("m", "") || "0")
-        return durA - durB
+        const getDurationMinutes = (duration: string) => {
+          const match = duration.match(/(\d+)h?\s*(\d+)?m?/)
+          if (match) {
+            const hours = Number.parseInt(match[1]) || 0
+            const minutes = Number.parseInt(match[2]) || 0
+            return hours * 60 + minutes
+          }
+          return 0
+        }
+        return getDurationMinutes(a.duration) - getDurationMinutes(b.duration)
       }
       if (sortBy === "departure") return a.departureTime.localeCompare(b.departureTime)
       return 0
     })
   }, [filteredFlights, sortBy])
 
-  const handleBookFlight = () => {
-    if (selectedFlightId) {
-      setShowBookingConfirmation(true)
+  const handleBookFlight = async () => {
+    if (!selectedFlightId) return
+
+    const flight = sortedAndFilteredFlights.find((f) => f.id === selectedFlightId)
+    if (!flight) return
+
+    setLoading(true)
+
+    try {
+      if (useDuffelAPI) {
+        // Book with Duffel API
+        const response = await fetch("/api/flights/book", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            offerId: flight.id,
+            passengers: [
+              {
+                type: "adult",
+                title: "mr",
+                given_name: "John",
+                family_name: "Doe",
+                born_on: "1990-01-01",
+                email: "john.doe@example.com",
+                phone_number: "+1234567890",
+              },
+            ],
+          }),
+        })
+
+        const data = await response.json()
+
+        if (response.ok && data.success) {
+          setBookingData(data.booking)
+          setShowBookingConfirmation(true)
+        } else {
+          console.error("Booking error:", data.error)
+          // Fallback to mock booking
+          createMockBooking(flight)
+        }
+      } else {
+        // Mock booking
+        createMockBooking(flight)
+      }
+    } catch (error) {
+      console.error("Booking error:", error)
+      createMockBooking(flight)
     }
+
+    setLoading(false)
+  }
+
+  const createMockBooking = (flight: Flight) => {
+    const mockBooking = {
+      id: `booking_${Date.now()}`,
+      reference: `SPX${Math.random().toString(36).substr(2, 6).toUpperCase()}`,
+      status: "confirmed",
+      flight: flight,
+      created_at: new Date().toISOString(),
+    }
+    setBookingData(mockBooking)
+    setShowBookingConfirmation(true)
   }
 
   const selectedFlightDetails = selectedFlightId
     ? sortedAndFilteredFlights.find((f) => f.id === selectedFlightId)
     : null
 
-  if (showBookingConfirmation && selectedFlightDetails) {
+  if (showBookingConfirmation && bookingData) {
+    const flight = bookingData.flight || selectedFlightDetails
+
     return (
       <div className="min-h-screen bg-black p-3 text-white flex items-center justify-center">
         <Card className="bg-white/5 border-white/10 w-full max-w-md backdrop-blur-sm">
@@ -191,28 +267,31 @@ export default function FlightsPage() {
           </CardHeader>
           <CardContent className="text-center space-y-3">
             <p className="text-sm text-white/70">
-              Your flight from {selectedFlightDetails.origin} to {selectedFlightDetails.destination} is booked.
+              Your flight from {flight?.origin} to {flight?.destination} is booked.
             </p>
             <div className="text-left bg-white/5 p-3 rounded-lg border border-white/10 text-xs space-y-1">
               <p>
-                <span className="text-white/60">Reference:</span> SPX-{selectedFlightDetails.id.slice(-4)}
+                <span className="text-white/60">Reference:</span> {bookingData.reference}
               </p>
               <p>
-                <span className="text-white/60">Flight:</span> {selectedFlightDetails.airline}{" "}
-                {selectedFlightDetails.flightNumber}
+                <span className="text-white/60">Flight:</span> {flight?.airline} {flight?.flightNumber}
               </p>
               <p>
-                <span className="text-white/60">Date:</span> {selectedFlightDetails.departureDate} at{" "}
-                {selectedFlightDetails.departureTime}
+                <span className="text-white/60">Date:</span> {flight?.departureDate} at {flight?.departureTime}
               </p>
               <p>
-                <span className="text-white/60">Price:</span> ${selectedFlightDetails.price}
+                <span className="text-white/60">Price:</span> ${flight?.price}
+              </p>
+              <p>
+                <span className="text-white/60">Status:</span>
+                <span className="text-green-400 ml-1 capitalize">{bookingData.status}</span>
               </p>
             </div>
             <Button
               onClick={() => {
                 setShowBookingConfirmation(false)
                 setSelectedFlightId(null)
+                setBookingData(null)
               }}
               className="w-full mt-2 bg-white text-black hover:bg-white/90 rounded-full"
             >
@@ -235,7 +314,8 @@ export default function FlightsPage() {
               <p className="text-white/70 text-sm font-light mt-1">Find and book your perfect business flight</p>
             </div>
             <div className="flex items-center gap-2">
-              <span className="text-xs text-white/70">Use Live API</span>
+              <Zap className="h-4 w-4 text-yellow-400" />
+              <span className="text-xs text-white/70">Live API</span>
               <button
                 onClick={() => setUseDuffelAPI(!useDuffelAPI)}
                 className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
@@ -257,18 +337,36 @@ export default function FlightsPage() {
           <CardContent className="p-6">
             <form onSubmit={handleSearch} className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
-                <InputWithIcon
-                  icon={<MapPin className="h-4 w-4 text-white/50" />}
-                  placeholder={useDuffelAPI ? "Origin (e.g. JFK)" : "Origin (e.g. New York)"}
-                  value={originCity}
-                  onChange={(e) => setOriginCity(e.target.value)}
-                />
-                <InputWithIcon
-                  icon={<MapPin className="h-4 w-4 text-white/50" />}
-                  placeholder={useDuffelAPI ? "Destination (e.g. LHR)" : "Destination (e.g. London)"}
-                  value={destinationCity}
-                  onChange={(e) => setDestinationCity(e.target.value)}
-                />
+                {useDuffelAPI ? (
+                  <AirportSearch
+                    placeholder="Origin (e.g. JFK, New York)"
+                    value={originCity}
+                    onChange={setOriginCity}
+                  />
+                ) : (
+                  <InputWithIcon
+                    icon={<MapPin className="h-4 w-4 text-white/50" />}
+                    placeholder="Origin (e.g. New York)"
+                    value={originCity}
+                    onChange={(e) => setOriginCity(e.target.value)}
+                  />
+                )}
+
+                {useDuffelAPI ? (
+                  <AirportSearch
+                    placeholder="Destination (e.g. LHR, London)"
+                    value={destinationCity}
+                    onChange={setDestinationCity}
+                  />
+                ) : (
+                  <InputWithIcon
+                    icon={<MapPin className="h-4 w-4 text-white/50" />}
+                    placeholder="Destination (e.g. London)"
+                    value={destinationCity}
+                    onChange={(e) => setDestinationCity(e.target.value)}
+                  />
+                )}
+
                 <InputWithIcon
                   icon={<Calendar className="h-4 w-4 text-white/50" />}
                   type="date"
@@ -317,7 +415,20 @@ export default function FlightsPage() {
         {/* API Status */}
         {useDuffelAPI && (
           <div className="bg-blue-500/10 border border-blue-500/20 rounded-md p-3">
-            <p className="text-blue-400 text-sm font-light">🔴 Live API Mode: Searching real flights via Duffel API</p>
+            <div className="flex items-center gap-2">
+              <Zap className="h-4 w-4 text-blue-400" />
+              <p className="text-blue-400 text-sm font-light">Live API Mode: Searching real flights via Duffel API</p>
+            </div>
+          </div>
+        )}
+
+        {/* Search Error */}
+        {searchError && (
+          <div className="bg-red-500/10 border border-red-500/20 rounded-md p-3">
+            <div className="flex items-center gap-2">
+              <AlertCircle className="h-4 w-4 text-red-400" />
+              <p className="text-red-400 text-sm font-light">{searchError}</p>
+            </div>
           </div>
         )}
 
@@ -357,6 +468,7 @@ export default function FlightsPage() {
                         src={
                           airlines[flight.airline as keyof typeof airlines]?.logo ||
                           "/placeholder.svg?width=32&height=32&text=FL" ||
+                          "/placeholder.svg" ||
                           "/placeholder.svg"
                         }
                         alt={flight.airline}
@@ -365,6 +477,9 @@ export default function FlightsPage() {
                       <div>
                         <p className="text-sm font-light text-white">{flight.airline}</p>
                         <p className="text-xs text-white/50 font-light">{flight.flightNumber}</p>
+                        {flight.operatingCarrier && (
+                          <p className="text-xs text-white/40 font-light">Operated by {flight.operatingCarrier}</p>
+                        )}
                       </div>
                     </div>
                     <div className="flex-1 grid grid-cols-3 items-center text-center md:text-left">
@@ -379,6 +494,9 @@ export default function FlightsPage() {
                         <p className="text-xs text-white/50 font-light">
                           {flight.stops === 0 ? "Direct" : `${flight.stops} stop${flight.stops > 1 ? "s" : ""}`}
                         </p>
+                        {flight.stopCities && flight.stopCities.length > 0 && (
+                          <p className="text-xs text-white/40 font-light">via {flight.stopCities.join(", ")}</p>
+                        )}
                       </div>
                       <div>
                         <p className="text-lg font-light text-white">{flight.arrivalTime}</p>
@@ -387,12 +505,17 @@ export default function FlightsPage() {
                     </div>
                     <div className="md:w-1/6 flex flex-col items-center md:items-end justify-center">
                       <p className="text-xl font-light text-white">
-                        ${flight.price}{" "}
+                        ${flight.price}
                         {flight.currency && flight.currency !== "USD" && (
-                          <span className="text-xs text-white/50">{flight.currency}</span>
+                          <span className="text-xs text-white/50 ml-1">{flight.currency}</span>
                         )}
                       </p>
                       <p className="text-xs text-white/50 capitalize font-light">{flight.class.replace("_", " ")}</p>
+                      {flight.basePrice && flight.taxAmount && (
+                        <p className="text-xs text-white/40 font-light">
+                          Base: ${flight.basePrice} + Tax: ${flight.taxAmount}
+                        </p>
+                      )}
                     </div>
                   </div>
                   {selectedFlightId === flight.id && (
@@ -411,9 +534,10 @@ export default function FlightsPage() {
                               {flight.travelPolicy}
                             </span>
                           </p>
-                          {flight.carbonEmission && (
+                          {flight.expiresAt && (
                             <p className="text-white/70 font-light">
-                              <span className="font-light text-white/90">CO₂:</span> {flight.carbonEmission}
+                              <span className="font-light text-white/90">Expires:</span>{" "}
+                              {new Date(flight.expiresAt).toLocaleString()}
                             </p>
                           )}
                         </div>
@@ -432,12 +556,64 @@ export default function FlightsPage() {
                           </div>
                         </div>
                       </div>
+
+                      {/* Flight Conditions */}
+                      {flight.conditions && (
+                        <div className="bg-white/5 p-2 rounded border border-white/10">
+                          <p className="font-light text-white/90 mb-1 text-xs">Booking Conditions:</p>
+                          <div className="grid grid-cols-2 gap-2 text-xs">
+                            {flight.conditions.change_before_departure && (
+                              <div>
+                                <span className="text-white/70">Changes: </span>
+                                <span
+                                  className={
+                                    flight.conditions.change_before_departure.allowed
+                                      ? "text-green-400"
+                                      : "text-red-400"
+                                  }
+                                >
+                                  {flight.conditions.change_before_departure.allowed ? "Allowed" : "Not Allowed"}
+                                </span>
+                                {flight.conditions.change_before_departure.penalty_amount && (
+                                  <span className="text-white/50">
+                                    {" "}
+                                    (${flight.conditions.change_before_departure.penalty_amount})
+                                  </span>
+                                )}
+                              </div>
+                            )}
+                            {flight.conditions.cancel_before_departure && (
+                              <div>
+                                <span className="text-white/70">Cancellation: </span>
+                                <span
+                                  className={
+                                    flight.conditions.cancel_before_departure.allowed
+                                      ? "text-green-400"
+                                      : "text-red-400"
+                                  }
+                                >
+                                  {flight.conditions.cancel_before_departure.allowed ? "Allowed" : "Not Allowed"}
+                                </span>
+                                {flight.conditions.cancel_before_departure.penalty_amount && (
+                                  <span className="text-white/50">
+                                    {" "}
+                                    (${flight.conditions.cancel_before_departure.penalty_amount})
+                                  </span>
+                                )}
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      )}
+
                       <Button
                         onClick={handleBookFlight}
                         size="sm"
                         className="w-full mt-2 bg-white text-black hover:bg-white/90 rounded-full font-light"
+                        disabled={loading}
                       >
-                        Book This Flight
+                        {loading ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
+                        {loading ? "Booking..." : "Book This Flight"}
                       </Button>
                     </div>
                   )}

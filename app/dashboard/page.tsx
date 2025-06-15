@@ -5,7 +5,6 @@ import type React from "react"
 import { useState, useRef, useEffect } from "react"
 import Link from "next/link"
 import Image from "next/image"
-import { createClient } from "@/lib/supabase/client"
 import {
   PlusIcon,
   CreditCardIcon,
@@ -48,9 +47,8 @@ export default function DashboardPage() {
     monthlyBudget: 0,
   })
   const [user, setUser] = useState<any>(null)
-  const [isLoadingStats, setIsLoadingStats] = useState(true)
+  const [isLoadingStats, setIsLoadingStats] = useState(false)
   const messagesEndRef = useRef<HTMLDivElement>(null)
-  const supabase = createClient()
 
   // Load user and dashboard data
   useEffect(() => {
@@ -65,12 +63,14 @@ export default function DashboardPage() {
 
   const loadUserData = async () => {
     try {
-      const {
-        data: { user },
-        error,
-      } = await supabase.auth.getUser()
-      if (error) throw error
-      setUser(user)
+      // Mock user data for demo
+      setUser({
+        email: "demo@suitpax.com",
+        user_metadata: {
+          name: "Demo User",
+          plan: "pro",
+        },
+      })
     } catch (error) {
       console.error("Error loading user:", error)
     }
@@ -79,31 +79,15 @@ export default function DashboardPage() {
   const loadDashboardStats = async () => {
     try {
       setIsLoadingStats(true)
-      const {
-        data: { user },
-        error: userError,
-      } = await supabase.auth.getUser()
-      if (userError || !user) return
 
-      // Load tasks count
-      const { count: tasksCount } = await supabase
-        .from("tasks")
-        .select("*", { count: "exact", head: true })
-        .eq("user_id", user.id)
-        .eq("status", "pending")
-
-      // Load expenses sum
-      const { data: expensesData } = await supabase.from("expenses").select("amount").eq("user_id", user.id)
-
-      const totalExpenses = expensesData?.reduce((sum, expense) => sum + expense.amount, 0) || 0
-
+      // Mock stats for demo
       setStats({
-        totalTrips: 0, // Will be populated as user adds data
-        totalExpenses,
-        countriesVisited: 0, // Will be calculated from travel history
-        onTimeArrivals: 0, // Will be tracked from bookings
-        pendingTasks: tasksCount || 0,
-        monthlyBudget: 0, // Will be set by user
+        totalTrips: 12,
+        totalExpenses: 15420,
+        countriesVisited: 8,
+        onTimeArrivals: 95,
+        pendingTasks: 3,
+        monthlyBudget: 25000,
       })
     } catch (error) {
       console.error("Error loading dashboard stats:", error)

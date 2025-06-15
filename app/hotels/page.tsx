@@ -2,6 +2,7 @@
 
 import type React from "react"
 import { useState, useEffect, useMemo } from "react"
+import Image from "next/image"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
@@ -12,15 +13,14 @@ import {
   MapPin,
   Calendar,
   Users,
+  Building2,
   Star,
   Wifi,
   Car,
   Coffee,
   Dumbbell,
   ArrowRightLeft,
-  Building2,
   CheckCircle,
-  Loader2,
 } from "lucide-react"
 import hotelsData from "@/data/hotels.json"
 
@@ -29,30 +29,28 @@ interface Hotel {
   name: string
   location: string
   city: string
-  country: string
   rating: number
   price: number
+  originalPrice?: number
   currency: string
   image: string
   amenities: string[]
-  description: string
-  checkIn: string
-  checkOut: string
   roomType: string
   availability: number
   travelPolicy: "Compliant" | "Non-Compliant"
+  description?: string
   distance?: string
-  reviews?: {
-    count: number
-    score: number
-  }
+  checkIn?: string
+  checkOut?: string
 }
 
 const amenityIcons: { [key: string]: React.ReactNode } = {
   "Free WiFi": <Wifi className="h-3 w-3" />,
   Parking: <Car className="h-3 w-3" />,
   Restaurant: <Coffee className="h-3 w-3" />,
-  "Fitness Center": <Dumbbell className="h-3 w-3" />,
+  Gym: <Dumbbell className="h-3 w-3" />,
+  Pool: <div className="h-3 w-3 rounded-full bg-blue-400" />,
+  Spa: <div className="h-3 w-3 rounded-full bg-green-400" />,
   "Business Center": <Building2 className="h-3 w-3" />,
 }
 
@@ -62,20 +60,19 @@ export default function HotelsPage() {
   const [loading, setLoading] = useState(false)
   const [selectedHotelId, setSelectedHotelId] = useState<string | null>(null)
   const [showBookingConfirmation, setShowBookingConfirmation] = useState(false)
-  const [bookingData, setBookingData] = useState<any>(null)
 
   // Search form state
-  const [destination, setDestination] = useState("")
+  const [destination, setDestination] = useState("New York")
   const [checkInDate, setCheckInDate] = useState(new Date().toISOString().split("T")[0])
   const [checkOutDate, setCheckOutDate] = useState(
     new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString().split("T")[0],
   )
-  const [guests, setGuests] = useState("1")
+  const [guests, setGuests] = useState("2")
+  const [rooms, setRooms] = useState("1")
 
   // Filter state
   const [sortBy, setSortBy] = useState("price")
-  const [maxPrice, setMaxPrice] = useState("")
-  const [minRating, setMinRating] = useState("")
+  const [minRating, setMinRating] = useState("0")
 
   useEffect(() => {
     // Check URL params for pre-filled search
@@ -91,17 +88,14 @@ export default function HotelsPage() {
 
   const performSearch = async () => {
     setLoading(true)
-
-    // Simulate API call delay
+    // Simulate API call
     await new Promise((resolve) => setTimeout(resolve, 1000))
 
     const results = allHotels.filter(
       (hotel) =>
         hotel.city.toLowerCase().includes(destination.toLowerCase()) ||
-        hotel.location.toLowerCase().includes(destination.toLowerCase()) ||
-        hotel.country.toLowerCase().includes(destination.toLowerCase()),
+        hotel.location.toLowerCase().includes(destination.toLowerCase()),
     )
-
     setFilteredHotels(results)
     setLoading(false)
     setSelectedHotelId(null)
@@ -113,57 +107,25 @@ export default function HotelsPage() {
   }
 
   const sortedAndFilteredHotels = useMemo(() => {
-    let results = [...filteredHotels]
+    return [...filteredHotels]
+      .filter((hotel) => hotel.rating >= Number.parseFloat(minRating))
+      .sort((a, b) => {
+        if (sortBy === "price") return a.price - b.price
+        if (sortBy === "rating") return b.rating - a.rating
+        if (sortBy === "name") return a.name.localeCompare(b.name)
+        return 0
+      })
+  }, [filteredHotels, sortBy, minRating])
 
-    // Apply filters
-    if (maxPrice) {
-      results = results.filter((hotel) => hotel.price <= Number.parseInt(maxPrice))
+  const handleBookHotel = () => {
+    if (selectedHotelId) {
+      setShowBookingConfirmation(true)
     }
-    if (minRating) {
-      results = results.filter((hotel) => hotel.rating >= Number.parseFloat(minRating))
-    }
-
-    // Apply sorting
-    return results.sort((a, b) => {
-      if (sortBy === "price") return a.price - b.price
-      if (sortBy === "rating") return b.rating - a.rating
-      if (sortBy === "name") return a.name.localeCompare(b.name)
-      return 0
-    })
-  }, [filteredHotels, sortBy, maxPrice, minRating])
-
-  const handleBookHotel = async () => {
-    if (!selectedHotelId) return
-
-    const hotel = sortedAndFilteredHotels.find((h) => h.id === selectedHotelId)
-    if (!hotel) return
-
-    setLoading(true)
-
-    // Simulate booking API call
-    await new Promise((resolve) => setTimeout(resolve, 2000))
-
-    const mockBooking = {
-      id: `booking_${Date.now()}`,
-      reference: `SPX${Math.random().toString(36).substr(2, 6).toUpperCase()}`,
-      status: "confirmed",
-      hotel: hotel,
-      checkIn: checkInDate,
-      checkOut: checkOutDate,
-      guests: guests,
-      created_at: new Date().toISOString(),
-    }
-
-    setBookingData(mockBooking)
-    setShowBookingConfirmation(true)
-    setLoading(false)
   }
 
   const selectedHotelDetails = selectedHotelId ? sortedAndFilteredHotels.find((h) => h.id === selectedHotelId) : null
 
-  if (showBookingConfirmation && bookingData) {
-    const hotel = bookingData.hotel
-
+  if (showBookingConfirmation && selectedHotelDetails) {
     return (
       <div className="min-h-screen bg-black p-3 text-white flex items-center justify-center">
         <Card className="bg-white/5 border-white/10 w-full max-w-md backdrop-blur-sm">
@@ -175,37 +137,29 @@ export default function HotelsPage() {
           </CardHeader>
           <CardContent className="text-center space-y-3">
             <p className="text-sm text-white/70">
-              Your stay at {hotel?.name} in {hotel?.city} is confirmed.
+              Your stay at {selectedHotelDetails.name} in {selectedHotelDetails.city} is confirmed.
             </p>
             <div className="text-left bg-white/5 p-3 rounded-lg border border-white/10 text-xs space-y-1">
               <p>
-                <span className="text-white/60">Reference:</span> {bookingData.reference}
+                <span className="text-white/60">Reference:</span> SPX-HTL-{selectedHotelDetails.id.slice(-4)}
               </p>
               <p>
-                <span className="text-white/60">Hotel:</span> {hotel?.name}
+                <span className="text-white/60">Hotel:</span> {selectedHotelDetails.name}
               </p>
               <p>
-                <span className="text-white/60">Check-in:</span> {bookingData.checkIn}
+                <span className="text-white/60">Check-in:</span> {checkInDate}
               </p>
               <p>
-                <span className="text-white/60">Check-out:</span> {bookingData.checkOut}
+                <span className="text-white/60">Check-out:</span> {checkOutDate}
               </p>
               <p>
-                <span className="text-white/60">Guests:</span> {bookingData.guests}
-              </p>
-              <p>
-                <span className="text-white/60">Price:</span> ${hotel?.price}/night
-              </p>
-              <p>
-                <span className="text-white/60">Status:</span>
-                <span className="text-green-400 ml-1 capitalize">{bookingData.status}</span>
+                <span className="text-white/60">Price:</span> ${selectedHotelDetails.price}/night
               </p>
             </div>
             <Button
               onClick={() => {
                 setShowBookingConfirmation(false)
                 setSelectedHotelId(null)
-                setBookingData(null)
               }}
               className="w-full mt-2 bg-white text-black hover:bg-white/90 rounded-full"
             >
@@ -220,30 +174,19 @@ export default function HotelsPage() {
   return (
     <div className="min-h-screen bg-black p-3 text-white">
       <div className="max-w-7xl mx-auto space-y-4">
-        {/* Header - Consistent with Transfers */}
+        {/* Header */}
         <header className="bg-white/5 border border-white/10 rounded-2xl p-6 md:p-8 backdrop-blur-sm">
-          <div className="flex flex-col md:flex-row justify-between items-start md:items-center">
-            <div>
-              <h1 className="text-2xl font-medium text-white">Hotels</h1>
-              <p className="text-sm text-white/70 mt-1">
-                Find and book the perfect accommodation for your business trip.
-              </p>
-            </div>
-            <div className="flex items-center gap-2 mt-3 md:mt-0">
-              <Building2 className="h-4 w-4 text-blue-400" />
-              <span className="text-xs text-white/70">Global Inventory</span>
-            </div>
-          </div>
+          <h1 className="text-2xl font-light text-white tracking-tight">Hotels</h1>
         </header>
 
         {/* Search Form */}
         <Card className="bg-white/5 border-white/10 backdrop-blur-sm">
           <CardContent className="p-6">
             <form onSubmit={handleSearch} className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
                 <InputWithIcon
                   icon={<MapPin className="h-4 w-4 text-white/50" />}
-                  placeholder="Destination (e.g. New York, London)"
+                  placeholder="Destination (e.g. New York)"
                   value={destination}
                   onChange={(e) => setDestination(e.target.value)}
                 />
@@ -272,79 +215,69 @@ export default function HotelsPage() {
                     ))}
                   </SelectContent>
                 </Select>
+                <Select value={rooms} onValueChange={setRooms}>
+                  <SelectTrigger className="h-11 bg-white/5 border-white/10 text-white rounded-xl hover:bg-white/10">
+                    <Building2 className="h-4 w-4 text-white/50 mr-2" />
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {[1, 2, 3, 4].map((r) => (
+                      <SelectItem key={r} value={String(r)}>
+                        {r} Room{r > 1 ? "s" : ""}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
               <Button
                 type="submit"
                 className="w-full md:w-auto bg-white text-black hover:bg-white/90 rounded-full"
                 disabled={loading}
               >
-                {loading ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Search className="h-4 w-4 mr-2" />}
+                {loading ? (
+                  <div className="h-4 w-4 border-2 border-black/30 border-t-black rounded-full animate-spin mr-2" />
+                ) : (
+                  <Search className="h-4 w-4 mr-2" />
+                )}
                 {loading ? "Searching..." : "Search Hotels"}
               </Button>
             </form>
           </CardContent>
         </Card>
 
-        {/* Filters */}
-        {filteredHotels.length > 0 && (
-          <Card className="bg-white/5 border-white/10 backdrop-blur-sm">
-            <CardContent className="p-4">
-              <div className="flex flex-wrap gap-4 items-center">
+        {/* Filters and Results */}
+        {!loading && filteredHotels.length > 0 && (
+          <div className="space-y-3">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 bg-white/5 p-3 rounded-lg border border-white/10">
+              <h2 className="text-lg font-medium text-white">{sortedAndFilteredHotels.length} hotels found</h2>
+              <div className="flex gap-2">
+                <Select value={minRating} onValueChange={setMinRating}>
+                  <SelectTrigger className="bg-transparent border-none text-white/70 h-8 text-xs w-auto focus:ring-0">
+                    <Star className="h-3.5 w-3.5 mr-1.5" />
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {["0", "3", "4", "4.5"].map((rating) => (
+                      <SelectItem key={rating} value={rating} className="text-xs">
+                        {rating === "0" ? "All Ratings" : `${rating}+ Stars`}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
                 <Select value={sortBy} onValueChange={setSortBy}>
-                  <SelectTrigger className="bg-transparent border-white/10 text-white h-9 text-sm w-auto">
+                  <SelectTrigger className="bg-transparent border-none text-white/70 h-8 text-xs w-auto focus:ring-0">
                     <ArrowRightLeft className="h-3.5 w-3.5 mr-1.5" />
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
                     {["price", "rating", "name"].map((s) => (
-                      <SelectItem key={s} value={s} className="capitalize text-sm">
-                        Sort by {s}
+                      <SelectItem key={s} value={s} className="capitalize text-xs">
+                        {s}
                       </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
-                <Input
-                  placeholder="Max price"
-                  value={maxPrice}
-                  onChange={(e) => setMaxPrice(e.target.value)}
-                  className="h-9 w-24 bg-white/5 border-white/10 text-white text-sm rounded-lg"
-                />
-                <Select value={minRating} onValueChange={setMinRating}>
-                  <SelectTrigger className="bg-white/5 border-white/10 text-white h-9 text-sm w-auto">
-                    <Star className="h-3.5 w-3.5 mr-1.5" />
-                    <SelectValue placeholder="Min rating" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {[3, 3.5, 4, 4.5, 5].map((r) => (
-                      <SelectItem key={r} value={String(r)}>
-                        {r}+ Stars
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                {(maxPrice || minRating) && (
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => {
-                      setMaxPrice("")
-                      setMinRating("")
-                    }}
-                    className="text-white/70 hover:text-white h-9 text-sm"
-                  >
-                    Clear filters
-                  </Button>
-                )}
               </div>
-            </CardContent>
-          </Card>
-        )}
-
-        {/* Results */}
-        {!loading && sortedAndFilteredHotels.length > 0 && (
-          <div className="space-y-3">
-            <div className="flex justify-between items-center bg-white/5 p-3 rounded-xl border border-white/10">
-              <h2 className="text-lg font-medium text-white">{sortedAndFilteredHotels.length} hotels found</h2>
             </div>
 
             {sortedAndFilteredHotels.map((hotel, index) => (
@@ -358,82 +291,87 @@ export default function HotelsPage() {
                   onClick={() => setSelectedHotelId(hotel.id === selectedHotelId ? null : hotel.id)}
                 >
                   <div className="flex flex-col md:flex-row gap-4">
-                    <div className="md:w-1/4">
-                      <img
-                        src={hotel.image || "/placeholder.svg"}
-                        alt={hotel.name}
-                        className="w-full h-48 md:h-32 object-cover rounded-lg bg-white/10"
-                      />
+                    <div className="relative w-full md:w-48 h-32 rounded-lg overflow-hidden bg-white/10">
+                      <Image src={hotel.image || "/placeholder.svg"} alt={hotel.name} fill className="object-cover" />
                     </div>
                     <div className="flex-1 space-y-2">
-                      <div className="flex justify-between items-start">
+                      <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2">
                         <div>
                           <h3 className="text-lg font-medium text-white">{hotel.name}</h3>
                           <p className="text-sm text-white/70">{hotel.location}</p>
-                          <div className="flex items-center gap-2 mt-1">
-                            <div className="flex items-center">
-                              {[...Array(5)].map((_, i) => (
-                                <Star
-                                  key={i}
-                                  className={`h-3 w-3 ${i < Math.floor(hotel.rating) ? "text-yellow-400 fill-current" : "text-white/30"}`}
-                                />
-                              ))}
-                              <span className="text-xs text-white/70 ml-1">{hotel.rating}</span>
-                            </div>
-                            {hotel.reviews && (
-                              <span className="text-xs text-white/50">({hotel.reviews.count} reviews)</span>
-                            )}
+                          <div className="flex items-center gap-1 mt-1">
+                            {[...Array(5)].map((_, i) => (
+                              <Star
+                                key={i}
+                                className={`h-3 w-3 ${i < Math.floor(hotel.rating) ? "text-yellow-400 fill-current" : "text-white/30"}`}
+                              />
+                            ))}
+                            <span className="text-xs text-white/70 ml-1">{hotel.rating}</span>
                           </div>
                         </div>
                         <div className="text-right">
-                          <p className="text-xl font-medium text-white">
-                            ${hotel.price}
-                            <span className="text-sm text-white/70">/night</span>
-                          </p>
-                          <p className="text-xs text-white/50">{hotel.roomType}</p>
+                          <div className="flex items-center gap-2">
+                            {hotel.originalPrice && (
+                              <span className="text-sm text-white/50 line-through">${hotel.originalPrice}</span>
+                            )}
+                            <span className="text-xl font-bold text-white">${hotel.price}</span>
+                          </div>
+                          <p className="text-xs text-white/50">per night</p>
                           <Badge
-                            variant={hotel.travelPolicy === "Compliant" ? "default" : "secondary"}
-                            className={`mt-1 text-xs ${hotel.travelPolicy === "Compliant" ? "bg-green-500/20 text-green-400" : "bg-orange-500/20 text-orange-400"}`}
+                            className={`text-xs mt-1 ${hotel.travelPolicy === "Compliant" ? "bg-green-500/20 text-green-400 border-green-500/30" : "bg-orange-500/20 text-orange-400 border-orange-500/30"}`}
                           >
                             {hotel.travelPolicy}
                           </Badge>
                         </div>
                       </div>
-                      <p className="text-sm text-white/70 line-clamp-2">{hotel.description}</p>
-                      <div className="flex flex-wrap gap-2">
-                        {hotel.amenities.slice(0, 4).map((amenity) => (
-                          <div key={amenity} className="flex items-center gap-1 text-xs text-white/60">
-                            {amenityIcons[amenity] || <div className="h-3 w-3 rounded-full bg-white/20" />}
+                      <div className="flex flex-wrap gap-1.5">
+                        {hotel.amenities.slice(0, 6).map((amenity) => (
+                          <div
+                            key={amenity}
+                            className="flex items-center gap-1 bg-white/10 px-2 py-1 rounded-full text-xs text-white/70"
+                          >
+                            {amenityIcons[amenity] || <div className="h-3 w-3 rounded-full bg-white/50" />}
                             <span>{amenity}</span>
                           </div>
                         ))}
-                        {hotel.amenities.length > 4 && (
-                          <span className="text-xs text-white/50">+{hotel.amenities.length - 4} more</span>
+                        {hotel.amenities.length > 6 && (
+                          <Badge variant="secondary" className="bg-white/10 text-white/70 text-xs">
+                            +{hotel.amenities.length - 6} more
+                          </Badge>
                         )}
                       </div>
+                      {hotel.description && <p className="text-sm text-white/60 line-clamp-2">{hotel.description}</p>}
                     </div>
                   </div>
                   {selectedHotelId === hotel.id && (
                     <div className="mt-4 pt-4 border-t border-white/10 space-y-3">
                       <div className="grid md:grid-cols-2 gap-4 text-sm">
                         <div>
-                          <p className="text-white/90 font-medium mb-2">All Amenities:</p>
-                          <div className="flex flex-wrap gap-2">
+                          <p className="text-white/70">
+                            <span className="font-medium text-white/90">Room Type:</span> {hotel.roomType}
+                          </p>
+                          <p className="text-white/70">
+                            <span className="font-medium text-white/90">Availability:</span> {hotel.availability} rooms
+                            left
+                          </p>
+                          {hotel.distance && (
+                            <p className="text-white/70">
+                              <span className="font-medium text-white/90">Distance:</span> {hotel.distance}
+                            </p>
+                          )}
+                        </div>
+                        <div>
+                          <p className="font-medium text-white/90 mb-1">All Amenities:</p>
+                          <div className="flex flex-wrap gap-1">
                             {hotel.amenities.map((amenity) => (
-                              <Badge key={amenity} variant="secondary" className="bg-white/10 text-white/70 text-xs">
+                              <Badge
+                                key={amenity}
+                                variant="secondary"
+                                className="bg-white/10 text-white/70 text-xs px-2 py-0.5"
+                              >
                                 {amenity}
                               </Badge>
                             ))}
-                          </div>
-                        </div>
-                        <div>
-                          <p className="text-white/90 font-medium mb-2">Booking Details:</p>
-                          <div className="space-y-1 text-xs text-white/70">
-                            <p>Check-in: {checkInDate}</p>
-                            <p>Check-out: {checkOutDate}</p>
-                            <p>Guests: {guests}</p>
-                            <p>Availability: {hotel.availability} rooms</p>
-                            {hotel.distance && <p>Distance: {hotel.distance}</p>}
                           </div>
                         </div>
                       </div>
@@ -441,10 +379,8 @@ export default function HotelsPage() {
                         onClick={handleBookHotel}
                         size="sm"
                         className="w-full mt-3 bg-white text-black hover:bg-white/90 rounded-full"
-                        disabled={loading}
                       >
-                        {loading ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
-                        {loading ? "Booking..." : "Book This Hotel"}
+                        Book This Hotel
                       </Button>
                     </div>
                   )}
@@ -457,7 +393,7 @@ export default function HotelsPage() {
         {/* Loading State */}
         {loading && (
           <div className="text-center py-10">
-            <Loader2 className="h-8 w-8 animate-spin mx-auto mb-3 text-white/70" />
+            <div className="h-8 w-8 border-2 border-white/30 border-t-white rounded-full animate-spin mx-auto mb-3"></div>
             <p className="text-white/70">Searching for hotels...</p>
           </div>
         )}
@@ -468,7 +404,7 @@ export default function HotelsPage() {
             <CardContent className="p-10 text-center">
               <Building2 className="h-12 w-12 text-white/30 mx-auto mb-3" />
               <h3 className="text-xl font-medium text-white">No Hotels Found</h3>
-              <p className="text-white/70 mt-1">Try different destinations or adjust your filters.</p>
+              <p className="text-white/70 mt-1">Try different destinations or dates.</p>
             </CardContent>
           </Card>
         )}
@@ -514,12 +450,6 @@ if (typeof document !== "undefined") {
         opacity: 1;
         transform: translateY(0);
       }
-    }
-    .line-clamp-2 {
-      display: -webkit-box;
-      -webkit-line-clamp: 2;
-      -webkit-box-orient: vertical;
-      overflow: hidden;
     }
   `
   if (!document.head.querySelector("style[data-hotels-animations]")) {

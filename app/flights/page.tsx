@@ -8,23 +8,23 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { AirportSearch } from "@/components/ui/airport-search"
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import {
-  Search,
-  MapPin,
-  Calendar,
-  Users,
-  Plane,
-  Clock,
-  ArrowRightLeft,
-  Ticket,
-  CheckCircle,
-  Loader2,
-  AlertCircle,
-  Zap,
-  Star,
-} from "lucide-react"
+  MagnifyingGlassIcon,
+  MapPinIcon,
+  CalendarIcon,
+  UserGroupIcon,
+  PaperAirplaneIcon,
+  ClockIcon,
+  ArrowsRightLeftIcon,
+  TicketIcon,
+  CheckCircleIcon,
+  ExclamationTriangleIcon,
+  BoltIcon,
+  PlusIcon,
+  XMarkIcon,
+} from "@heroicons/react/24/outline"
 import flightsData from "@/data/flights.json"
-import Image from "next/image"
 
 interface Flight {
   id: string
@@ -56,6 +56,14 @@ interface Flight {
   segments?: any[]
 }
 
+interface FlightSegment {
+  id: string
+  origin: string
+  destination: string
+  departureDate: string
+  returnDate?: string
+}
+
 const airlines = {
   "American Airlines": { code: "AA", logo: "/placeholder.svg?width=32&height=32&text=AA" },
   "Delta Air Lines": { code: "DL", logo: "/placeholder.svg?width=32&height=32&text=DL" },
@@ -69,51 +77,6 @@ const airlines = {
   "Turkish Airlines": { code: "TK", logo: "/placeholder.svg?width=32&height=32&text=TK" },
 }
 
-const popularDestinations = [
-  {
-    city: "London",
-    code: "LHR",
-    price: "from $450",
-    image: "/placeholder.svg?height=24&width=24&text=LDN",
-    popular: true,
-  },
-  {
-    city: "Paris",
-    code: "CDG",
-    price: "from $380",
-    image: "/placeholder.svg?height=24&width=24&text=PAR",
-    popular: true,
-  },
-  {
-    city: "Tokyo",
-    code: "NRT",
-    price: "from $1,200",
-    image: "/placeholder.svg?height=24&width=24&text=TOK",
-    business: true,
-  },
-  {
-    city: "Dubai",
-    code: "DXB",
-    price: "from $650",
-    image: "/placeholder.svg?height=24&width=24&text=DXB",
-    popular: true,
-  },
-  {
-    city: "Singapore",
-    code: "SIN",
-    price: "from $950",
-    image: "/placeholder.svg?height=24&width=24&text=SIN",
-    business: true,
-  },
-  {
-    city: "Frankfurt",
-    code: "FRA",
-    price: "from $420",
-    image: "/placeholder.svg?height=24&width=24&text=FRA",
-    business: true,
-  },
-]
-
 export default function FlightsPage() {
   const [allFlights, setAllFlights] = useState<Flight[]>(flightsData as Flight[])
   const [filteredFlights, setFilteredFlights] = useState<Flight[]>([])
@@ -121,18 +84,38 @@ export default function FlightsPage() {
   const [selectedFlightId, setSelectedFlightId] = useState<string | null>(null)
   const [showBookingConfirmation, setShowBookingConfirmation] = useState(false)
   const [bookingData, setBookingData] = useState<any>(null)
-  const [useDuffelAPI, setUseDuffelAPI] = useState(true)
+  const [useDuffelAPI, setUseDuffelAPI] = useState(false)
   const [searchError, setSearchError] = useState<string | null>(null)
+  const [tripType, setTripType] = useState<"one-way" | "round-trip" | "multi-city">("round-trip")
+  const [flightSegments, setFlightSegments] = useState<FlightSegment[]>([
+    {
+      id: "1",
+      origin: "JFK",
+      destination: "",
+      departureDate: new Date().toISOString().split("T")[0],
+      returnDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split("T")[0],
+    },
+  ])
 
-  // Search form state
-  const [originCity, setOriginCity] = useState("JFK")
-  const [destinationCity, setDestinationCity] = useState("")
-  const [departureDate, setDepartureDate] = useState(new Date().toISOString().split("T")[0])
-  const [passengers, setPassengers] = useState("1")
+  // Enhanced search form state
+  const [passengers, setPassengers] = useState({
+    adults: 1,
+    children: 0,
+    infants: 0,
+  })
   const [travelClass, setTravelClass] = useState("economy")
+  const [flexibleDates, setFlexibleDates] = useState(false)
+  const [directFlightsOnly, setDirectFlightsOnly] = useState(false)
+  const [preferredAirlines, setPreferredAirlines] = useState<string[]>([])
 
   // Filter state
   const [sortBy, setSortBy] = useState("price")
+  const [filters, setFilters] = useState({
+    maxPrice: 5000,
+    maxStops: 3,
+    departureTime: "any",
+    airlines: [] as string[],
+  })
 
   useEffect(() => {
     // Check URL params for pre-filled search
@@ -140,32 +123,61 @@ export default function FlightsPage() {
       const urlParams = new URLSearchParams(window.location.search)
       const destination = urlParams.get("destination")
       if (destination) {
-        setDestinationCity(destination)
+        setFlightSegments((prev) => [{ ...prev[0], destination }])
         performSearch()
       }
     }
   }, [])
+
+  const addFlightSegment = () => {
+    const newSegment: FlightSegment = {
+      id: Date.now().toString(),
+      origin: flightSegments[flightSegments.length - 1]?.destination || "",
+      destination: "",
+      departureDate: new Date().toISOString().split("T")[0],
+    }
+    setFlightSegments([...flightSegments, newSegment])
+  }
+
+  const removeFlightSegment = (id: string) => {
+    if (flightSegments.length > 1) {
+      setFlightSegments(flightSegments.filter((segment) => segment.id !== id))
+    }
+  }
+
+  const updateFlightSegment = (id: string, updates: Partial<FlightSegment>) => {
+    setFlightSegments(flightSegments.map((segment) => (segment.id === id ? { ...segment, ...updates } : segment)))
+  }
 
   const performSearch = async () => {
     setLoading(true)
     setSearchError(null)
 
     try {
-      if (useDuffelAPI && originCity && destinationCity) {
+      if (useDuffelAPI && flightSegments[0].origin && flightSegments[0].destination) {
         console.log("Searching with Duffel API...")
+
+        const searchPayload = {
+          segments: flightSegments.map((segment) => ({
+            origin: segment.origin.toUpperCase(),
+            destination: segment.destination.toUpperCase(),
+            departure_date: segment.departureDate,
+          })),
+          passengers: [
+            ...Array(passengers.adults).fill({ type: "adult" }),
+            ...Array(passengers.children).fill({ type: "child" }),
+            ...Array(passengers.infants).fill({ type: "infant_without_seat" }),
+          ],
+          cabin_class: travelClass,
+          return_date: tripType === "round-trip" ? flightSegments[0].returnDate : undefined,
+        }
 
         const response = await fetch("/api/flights/search", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
           },
-          body: JSON.stringify({
-            origin: originCity.toUpperCase(),
-            destination: destinationCity.toUpperCase(),
-            departureDate: departureDate,
-            passengers: passengers,
-            cabinClass: travelClass,
-          }),
+          body: JSON.stringify(searchPayload),
         })
 
         const data = await response.json()
@@ -198,9 +210,9 @@ export default function FlightsPage() {
     console.log("Using mock data...")
     const results = allFlights.filter(
       (flight) =>
-        flight.origin.toLowerCase().includes(originCity.toLowerCase()) &&
-        flight.destination.toLowerCase().includes(destinationCity.toLowerCase()) &&
-        new Date(flight.departureDate) >= new Date(departureDate),
+        flight.origin.toLowerCase().includes(flightSegments[0].origin.toLowerCase()) &&
+        flight.destination.toLowerCase().includes(flightSegments[0].destination.toLowerCase()) &&
+        new Date(flight.departureDate) >= new Date(flightSegments[0].departureDate),
     )
     setFilteredFlights(results)
   }
@@ -211,7 +223,24 @@ export default function FlightsPage() {
   }
 
   const sortedAndFilteredFlights = useMemo(() => {
-    return [...filteredFlights].sort((a, b) => {
+    let filtered = [...filteredFlights]
+
+    // Apply filters
+    if (filters.maxPrice < 5000) {
+      filtered = filtered.filter((flight) => flight.price <= filters.maxPrice)
+    }
+    if (filters.maxStops < 3) {
+      filtered = filtered.filter((flight) => flight.stops <= filters.maxStops)
+    }
+    if (directFlightsOnly) {
+      filtered = filtered.filter((flight) => flight.stops === 0)
+    }
+    if (filters.airlines.length > 0) {
+      filtered = filtered.filter((flight) => filters.airlines.includes(flight.airline))
+    }
+
+    // Sort results
+    return filtered.sort((a, b) => {
       if (sortBy === "price") return a.price - b.price
       if (sortBy === "duration") {
         const getDurationMinutes = (duration: string) => {
@@ -228,7 +257,7 @@ export default function FlightsPage() {
       if (sortBy === "departure") return a.departureTime.localeCompare(b.departureTime)
       return 0
     })
-  }, [filteredFlights, sortBy])
+  }, [filteredFlights, sortBy, filters, directFlightsOnly])
 
   const handleBookFlight = async () => {
     if (!selectedFlightId) return
@@ -300,6 +329,8 @@ export default function FlightsPage() {
     ? sortedAndFilteredFlights.find((f) => f.id === selectedFlightId)
     : null
 
+  const totalPassengers = passengers.adults + passengers.children + passengers.infants
+
   if (showBookingConfirmation && bookingData) {
     const flight = bookingData.flight || selectedFlightDetails
 
@@ -308,7 +339,7 @@ export default function FlightsPage() {
         <Card className="bg-white/5 border-white/10 w-full max-w-md backdrop-blur-sm">
           <CardHeader className="items-center">
             <div className="p-3 bg-green-500/20 rounded-full mb-3">
-              <CheckCircle className="h-10 w-10 text-green-400" />
+              <CheckCircleIcon className="h-10 w-10 text-green-400" />
             </div>
             <CardTitle className="text-xl font-medium text-white">Booking Confirmed!</CardTitle>
           </CardHeader>
@@ -340,7 +371,7 @@ export default function FlightsPage() {
                 setSelectedFlightId(null)
                 setBookingData(null)
               }}
-              className="w-full mt-2 bg-white text-black hover:bg-white/90 rounded-full"
+              className="w-full mt-2 bg-white text-black hover:bg-white/90 rounded-lg"
             >
               Book Another Flight
             </Button>
@@ -354,14 +385,14 @@ export default function FlightsPage() {
     <div className="min-h-screen bg-black p-3 text-white">
       <div className="max-w-7xl mx-auto space-y-4">
         {/* Header */}
-        <header className="bg-white/5 border border-white/10 rounded-2xl p-6 md:p-8 backdrop-blur-sm">
-          <div className="flex flex-col md:flex-row justify-between items-start md:items-center">
+        <div className="bg-white/5 border border-white/10 rounded-lg p-6 backdrop-blur-sm">
+          <div className="flex justify-between items-start">
             <div>
-              <h1 className="text-2xl font-medium text-white">Flights</h1>
-              <p className="text-sm text-white/70 mt-1">Find and book your perfect business flight.</p>
+              <h1 className="text-2xl font-medium text-white tracking-tight">Flight Search</h1>
+              <p className="text-white/70 text-sm mt-1">Find and book your perfect business flight</p>
             </div>
-            <div className="flex items-center gap-2 mt-3 md:mt-0">
-              <Zap className="h-4 w-4 text-yellow-400" />
+            <div className="flex items-center gap-2">
+              <BoltIcon className="h-4 w-4 text-yellow-400" />
               <span className="text-xs text-white/70">Live API</span>
               <button
                 onClick={() => setUseDuffelAPI(!useDuffelAPI)}
@@ -377,101 +408,141 @@ export default function FlightsPage() {
               </button>
             </div>
           </div>
-        </header>
+        </div>
 
-        {/* Popular Destinations */}
-        <Card className="bg-white/5 border-white/10">
-          <CardHeader className="py-4">
-            <CardTitle className="text-white font-medium text-lg">Popular Destinations</CardTitle>
-          </CardHeader>
-          <CardContent className="py-2">
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
-              {popularDestinations.map((dest, index) => (
-                <div
-                  key={index}
-                  onClick={() => {
-                    setDestinationCity(dest.code)
-                    performSearch()
-                  }}
-                  className="p-3 bg-white/5 hover:bg-white/10 border border-white/10 rounded-lg cursor-pointer transition-all duration-200 group"
-                >
-                  <div className="flex items-center gap-2 mb-2">
-                    <div className="relative h-6 w-6 rounded-md overflow-hidden flex-shrink-0">
-                      <Image src={dest.image || "/placeholder.svg"} alt={dest.city} fill className="object-cover" />
-                    </div>
-                    <div className="min-w-0">
-                      <p className="text-sm font-medium text-white truncate">{dest.city}</p>
-                      <p className="text-xs text-white/60 truncate">{dest.code}</p>
-                    </div>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-xs text-white/50">{dest.price}</span>
-                    {dest.popular && <Star className="h-3 w-3 text-yellow-400" />}
-                    {dest.business && <Badge className="text-[10px] bg-blue-500/20 text-blue-400">Business</Badge>}
-                  </div>
-                </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Search Form */}
+        {/* Enhanced Search Form */}
         <Card className="bg-white/5 border-white/10 backdrop-blur-sm">
           <CardContent className="p-6">
-            <form onSubmit={handleSearch} className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
-                {useDuffelAPI ? (
-                  <AirportSearch
-                    placeholder="Origin (e.g. JFK, New York)"
-                    value={originCity}
-                    onChange={setOriginCity}
-                  />
-                ) : (
-                  <InputWithIcon
-                    icon={<MapPin className="h-4 w-4 text-white/50" />}
-                    placeholder="Origin (e.g. New York)"
-                    value={originCity}
-                    onChange={(e) => setOriginCity(e.target.value)}
-                  />
-                )}
+            {/* Trip Type Selector */}
+            <Tabs value={tripType} onValueChange={(value) => setTripType(value as any)} className="mb-6">
+              <TabsList className="bg-white/5 border border-white/10">
+                <TabsTrigger value="round-trip" className="text-white/70 data-[state=active]:text-white">
+                  Round Trip
+                </TabsTrigger>
+                <TabsTrigger value="one-way" className="text-white/70 data-[state=active]:text-white">
+                  One Way
+                </TabsTrigger>
+                <TabsTrigger value="multi-city" className="text-white/70 data-[state=active]:text-white">
+                  Multi-City
+                </TabsTrigger>
+              </TabsList>
+            </Tabs>
 
-                {useDuffelAPI ? (
-                  <AirportSearch
-                    placeholder="Destination (e.g. LHR, London)"
-                    value={destinationCity}
-                    onChange={setDestinationCity}
-                  />
-                ) : (
-                  <InputWithIcon
-                    icon={<MapPin className="h-4 w-4 text-white/50" />}
-                    placeholder="Destination (e.g. London)"
-                    value={destinationCity}
-                    onChange={(e) => setDestinationCity(e.target.value)}
-                  />
-                )}
+            <form onSubmit={handleSearch} className="space-y-6">
+              {/* Flight Segments */}
+              <div className="space-y-4">
+                {flightSegments.map((segment, index) => (
+                  <div key={segment.id} className="space-y-4">
+                    <div className="flex items-center justify-between">
+                      <h3 className="text-sm font-medium text-white">
+                        {tripType === "multi-city" ? `Flight ${index + 1}` : "Flight Details"}
+                      </h3>
+                      {tripType === "multi-city" && flightSegments.length > 1 && (
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => removeFlightSegment(segment.id)}
+                          className="text-red-400 hover:text-red-300"
+                        >
+                          <XMarkIcon className="h-4 w-4" />
+                        </Button>
+                      )}
+                    </div>
 
-                <InputWithIcon
-                  icon={<Calendar className="h-4 w-4 text-white/50" />}
-                  type="date"
-                  value={departureDate}
-                  onChange={(e) => setDepartureDate(e.target.value)}
-                />
-                <Select value={passengers} onValueChange={setPassengers}>
-                  <SelectTrigger className="h-11 bg-white/5 border-white/10 text-white rounded-xl hover:bg-white/10">
-                    <Users className="h-4 w-4 text-white/50 mr-2" />
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {[1, 2, 3, 4].map((p) => (
-                      <SelectItem key={p} value={String(p)}>
-                        {p} Passenger{p > 1 ? "s" : ""}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                    <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                      {useDuffelAPI ? (
+                        <AirportSearch
+                          placeholder="From (e.g. JFK, New York)"
+                          value={segment.origin}
+                          onChange={(value) => updateFlightSegment(segment.id, { origin: value })}
+                        />
+                      ) : (
+                        <InputWithIcon
+                          icon={<MapPinIcon className="h-4 w-4 text-white/50" />}
+                          placeholder="From (e.g. New York)"
+                          value={segment.origin}
+                          onChange={(e) => updateFlightSegment(segment.id, { origin: e.target.value })}
+                        />
+                      )}
+
+                      {useDuffelAPI ? (
+                        <AirportSearch
+                          placeholder="To (e.g. LHR, London)"
+                          value={segment.destination}
+                          onChange={(value) => updateFlightSegment(segment.id, { destination: value })}
+                        />
+                      ) : (
+                        <InputWithIcon
+                          icon={<MapPinIcon className="h-4 w-4 text-white/50" />}
+                          placeholder="To (e.g. London)"
+                          value={segment.destination}
+                          onChange={(e) => updateFlightSegment(segment.id, { destination: e.target.value })}
+                        />
+                      )}
+
+                      <InputWithIcon
+                        icon={<CalendarIcon className="h-4 w-4 text-white/50" />}
+                        type="date"
+                        value={segment.departureDate}
+                        onChange={(e) => updateFlightSegment(segment.id, { departureDate: e.target.value })}
+                      />
+
+                      {tripType === "round-trip" && index === 0 && (
+                        <InputWithIcon
+                          icon={<CalendarIcon className="h-4 w-4 text-white/50" />}
+                          type="date"
+                          value={segment.returnDate || ""}
+                          onChange={(e) => updateFlightSegment(segment.id, { returnDate: e.target.value })}
+                        />
+                      )}
+                    </div>
+                  </div>
+                ))}
+
+                {tripType === "multi-city" && (
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={addFlightSegment}
+                    className="bg-transparent border-white/20 text-white/70 hover:bg-white/10"
+                  >
+                    <PlusIcon className="h-4 w-4 mr-2" />
+                    Add Another Flight
+                  </Button>
+                )}
+              </div>
+
+              {/* Passengers and Class */}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="space-y-2">
+                  <label className="text-sm text-white/70">Passengers</label>
+                  <div className="flex items-center gap-2">
+                    <Select
+                      value={passengers.adults.toString()}
+                      onValueChange={(value) => setPassengers({ ...passengers, adults: Number.parseInt(value) })}
+                    >
+                      <SelectTrigger className="bg-white/5 border-white/10 text-white">
+                        <UserGroupIcon className="h-4 w-4 text-white/50 mr-2" />
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {[1, 2, 3, 4, 5, 6].map((num) => (
+                          <SelectItem key={num} value={num.toString()}>
+                            {num} Adult{num > 1 ? "s" : ""}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    {passengers.children > 0 && (
+                      <Badge className="bg-blue-500/20 text-blue-300">{passengers.children} Child</Badge>
+                    )}
+                  </div>
+                </div>
+
                 <Select value={travelClass} onValueChange={setTravelClass}>
-                  <SelectTrigger className="h-11 bg-white/5 border-white/10 text-white rounded-xl hover:bg-white/10">
-                    <Ticket className="h-4 w-4 text-white/50 mr-2" />
+                  <SelectTrigger className="bg-white/5 border-white/10 text-white">
+                    <TicketIcon className="h-4 w-4 text-white/50 mr-2" />
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -482,13 +553,39 @@ export default function FlightsPage() {
                     ))}
                   </SelectContent>
                 </Select>
+
+                <div className="flex items-center gap-4">
+                  <label className="flex items-center gap-2 text-sm text-white/70">
+                    <input
+                      type="checkbox"
+                      checked={directFlightsOnly}
+                      onChange={(e) => setDirectFlightsOnly(e.target.checked)}
+                      className="rounded border-white/20 bg-white/5"
+                    />
+                    Direct flights only
+                  </label>
+                  <label className="flex items-center gap-2 text-sm text-white/70">
+                    <input
+                      type="checkbox"
+                      checked={flexibleDates}
+                      onChange={(e) => setFlexibleDates(e.target.checked)}
+                      className="rounded border-white/20 bg-white/5"
+                    />
+                    Flexible dates
+                  </label>
+                </div>
               </div>
+
               <Button
                 type="submit"
-                className="w-full md:w-auto bg-white text-black hover:bg-white/90 rounded-full"
+                className="w-full md:w-auto bg-white text-black hover:bg-white/90 rounded-lg"
                 disabled={loading}
               >
-                {loading ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Search className="h-4 w-4 mr-2" />}
+                {loading ? (
+                  <ClockIcon className="h-4 w-4 animate-spin mr-2" />
+                ) : (
+                  <MagnifyingGlassIcon className="h-4 w-4 mr-2" />
+                )}
                 {loading ? "Searching..." : useDuffelAPI ? "Search Live Flights" : "Search Flights"}
               </Button>
             </form>
@@ -497,9 +594,9 @@ export default function FlightsPage() {
 
         {/* API Status */}
         {useDuffelAPI && (
-          <div className="bg-blue-500/10 border border-blue-500/20 rounded-xl p-3">
+          <div className="bg-blue-500/10 border border-blue-500/20 rounded-lg p-3">
             <div className="flex items-center gap-2">
-              <Zap className="h-4 w-4 text-blue-400" />
+              <BoltIcon className="h-4 w-4 text-blue-400" />
               <p className="text-blue-400 text-sm">Live API Mode: Searching real flights via Duffel API</p>
             </div>
           </div>
@@ -507,9 +604,9 @@ export default function FlightsPage() {
 
         {/* Search Error */}
         {searchError && (
-          <div className="bg-red-500/10 border border-red-500/20 rounded-xl p-3">
+          <div className="bg-red-500/10 border border-red-500/20 rounded-lg p-3">
             <div className="flex items-center gap-2">
-              <AlertCircle className="h-4 w-4 text-red-400" />
+              <ExclamationTriangleIcon className="h-4 w-4 text-red-400" />
               <p className="text-red-400 text-sm">{searchError}</p>
             </div>
           </div>
@@ -517,28 +614,32 @@ export default function FlightsPage() {
 
         {/* Results */}
         {!loading && filteredFlights.length > 0 && (
-          <div className="space-y-3">
-            <div className="flex justify-between items-center bg-white/5 p-3 rounded-xl border border-white/10">
+          <div className="space-y-4">
+            <div className="flex justify-between items-center bg-white/5 p-3 rounded-lg border border-white/10">
               <h2 className="text-lg font-medium text-white">{sortedAndFilteredFlights.length} flights found</h2>
-              <Select value={sortBy} onValueChange={setSortBy}>
-                <SelectTrigger className="bg-transparent border-none text-white/70 h-8 text-xs w-auto focus:ring-0">
-                  <ArrowRightLeft className="h-3.5 w-3.5 mr-1.5" />
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {["price", "duration", "departure"].map((s) => (
-                    <SelectItem key={s} value={s} className="capitalize text-xs">
-                      {s}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <div className="flex items-center gap-2">
+                <Select value={sortBy} onValueChange={setSortBy}>
+                  <SelectTrigger className="bg-transparent border-none text-white/70 h-8 text-xs w-auto focus:ring-0">
+                    <ArrowsRightLeftIcon className="h-3.5 w-3.5 mr-1.5" />
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {["price", "duration", "departure"].map((s) => (
+                      <SelectItem key={s} value={s} className="capitalize text-xs">
+                        {s}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
 
             {sortedAndFilteredFlights.map((flight, index) => (
               <Card
                 key={flight.id}
-                className={`bg-white/5 border hover:bg-white/10 transition-all ${selectedFlightId === flight.id ? "border-blue-500/50 ring-2 ring-blue-500/30" : "border-white/10"}`}
+                className={`bg-white/5 border hover:bg-white/10 transition-all ${
+                  selectedFlightId === flight.id ? "border-blue-500/50 ring-2 ring-blue-500/30" : "border-white/10"
+                }`}
                 style={{ animation: `fadeInUp 0.5s ${index * 0.05}s ease-out forwards`, opacity: 0 }}
               >
                 <CardContent
@@ -551,7 +652,6 @@ export default function FlightsPage() {
                         src={
                           airlines[flight.airline as keyof typeof airlines]?.logo ||
                           "/placeholder.svg?width=32&height=32&text=FL" ||
-                          "/placeholder.svg" ||
                           "/placeholder.svg"
                         }
                         alt={flight.airline}
@@ -571,7 +671,7 @@ export default function FlightsPage() {
                         <p className="text-xs text-white/70">{flight.originCode}</p>
                       </div>
                       <div className="px-2">
-                        <Clock className="h-3.5 w-3.5 text-white/50 mx-auto mb-0.5" />
+                        <ClockIcon className="h-3.5 w-3.5 text-white/50 mx-auto mb-0.5" />
                         <p className="text-xs text-white/70">{flight.duration}</p>
                         <div className="w-full h-px bg-white/20 my-0.5"></div>
                         <p className="text-xs text-white/50">
@@ -606,54 +706,96 @@ export default function FlightsPage() {
                       <div className="grid md:grid-cols-2 gap-2">
                         <div>
                           <p className="text-white/70">
-                            <span className="font-medium text-white/90">Aircraft:</span>{" "}
-                            {flight.aircraftType || "Boeing 737"}
+                            <span className="text-white/90">Aircraft:</span> {flight.aircraftType || "Boeing 737"}
                           </p>
                           <p className="text-white/70">
-                            <span className="font-medium text-white/90">Date:</span> {flight.departureDate}
+                            <span className="text-white/90">Policy:</span>{" "}
+                            <span
+                              className={flight.travelPolicy === "Compliant" ? "text-green-400" : "text-orange-400"}
+                            >
+                              {flight.travelPolicy}
+                            </span>
                           </p>
-                          {flight.carbonEmission && (
+                          {flight.expiresAt && (
                             <p className="text-white/70">
-                              <span className="font-medium text-white/90">CO₂:</span> {flight.carbonEmission}
+                              <span className="text-white/90">Expires:</span>{" "}
+                              {new Date(flight.expiresAt).toLocaleString()}
                             </p>
                           )}
                         </div>
                         <div>
-                          <p className="text-white/70">
-                            <span className="font-medium text-white/90">Policy:</span>{" "}
-                            <Badge
-                              className={`text-xs ${
-                                flight.travelPolicy === "Compliant"
-                                  ? "bg-green-500/20 text-green-400"
-                                  : "bg-red-500/20 text-red-400"
-                              }`}
-                            >
-                              {flight.travelPolicy}
-                            </Badge>
-                          </p>
-                          {flight.amenities && flight.amenities.length > 0 && (
-                            <p className="text-white/70">
-                              <span className="font-medium text-white/90">Amenities:</span>{" "}
-                              {flight.amenities.slice(0, 3).join(", ")}
-                              {flight.amenities.length > 3 && "..."}
-                            </p>
-                          )}
+                          <p className="text-white/90 mb-0.5">Amenities:</p>
+                          <div className="flex flex-wrap gap-1.5">
+                            {flight.amenities.map((amenity) => (
+                              <Badge
+                                key={amenity}
+                                variant="secondary"
+                                className="bg-white/10 text-white/70 text-[10px] px-1.5 py-0.5"
+                              >
+                                {amenity}
+                              </Badge>
+                            ))}
+                          </div>
                         </div>
                       </div>
+
+                      {/* Flight Conditions */}
+                      {flight.conditions && (
+                        <div className="bg-white/5 p-2 rounded border border-white/10">
+                          <p className="text-white/90 mb-1 text-xs">Booking Conditions:</p>
+                          <div className="grid grid-cols-2 gap-2 text-xs">
+                            {flight.conditions.change_before_departure && (
+                              <div>
+                                <span className="text-white/70">Changes: </span>
+                                <span
+                                  className={
+                                    flight.conditions.change_before_departure.allowed
+                                      ? "text-green-400"
+                                      : "text-red-400"
+                                  }
+                                >
+                                  {flight.conditions.change_before_departure.allowed ? "Allowed" : "Not Allowed"}
+                                </span>
+                                {flight.conditions.change_before_departure.penalty_amount && (
+                                  <span className="text-white/50">
+                                    {" "}
+                                    (${flight.conditions.change_before_departure.penalty_amount})
+                                  </span>
+                                )}
+                              </div>
+                            )}
+                            {flight.conditions.cancel_before_departure && (
+                              <div>
+                                <span className="text-white/70">Cancellation: </span>
+                                <span
+                                  className={
+                                    flight.conditions.cancel_before_departure.allowed
+                                      ? "text-green-400"
+                                      : "text-red-400"
+                                  }
+                                >
+                                  {flight.conditions.cancel_before_departure.allowed ? "Allowed" : "Not Allowed"}
+                                </span>
+                                {flight.conditions.cancel_before_departure.penalty_amount && (
+                                  <span className="text-white/50">
+                                    {" "}
+                                    (${flight.conditions.cancel_before_departure.penalty_amount})
+                                  </span>
+                                )}
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      )}
+
                       <Button
-                        onClick={(e) => {
-                          e.stopPropagation()
-                          handleBookFlight()
-                        }}
-                        className="w-full bg-white text-black hover:bg-white/90 rounded-full"
+                        onClick={handleBookFlight}
+                        size="sm"
+                        className="w-full mt-2 bg-white text-black hover:bg-white/90 rounded-lg"
                         disabled={loading}
                       >
-                        {loading ? (
-                          <Loader2 className="h-4 w-4 animate-spin mr-2" />
-                        ) : (
-                          <Plane className="h-4 w-4 mr-2" />
-                        )}
-                        {loading ? "Booking..." : "Book Flight"}
+                        {loading ? <ClockIcon className="h-4 w-4 animate-spin mr-2" /> : null}
+                        {loading ? "Booking..." : "Book This Flight"}
                       </Button>
                     </div>
                   )}
@@ -663,46 +805,70 @@ export default function FlightsPage() {
           </div>
         )}
 
-        {!loading && filteredFlights.length === 0 && originCity && destinationCity && (
-          <Card className="bg-white/5 border-white/10 text-center p-8">
-            <Plane className="h-12 w-12 text-white/30 mx-auto mb-3" />
-            <h3 className="text-lg font-medium text-white mb-2">No flights found</h3>
-            <p className="text-white/70 text-sm">
-              Try adjusting your search criteria or check back later for more options.
-            </p>
+        {/* Loading State */}
+        {loading && (
+          <div className="text-center py-10">
+            <ClockIcon className="h-8 w-8 animate-spin mx-auto mb-3 text-white/70" />
+            <p className="text-white/70">{useDuffelAPI ? "Searching live flights..." : "Searching for flights..."}</p>
+          </div>
+        )}
+
+        {/* No Results */}
+        {!loading && filteredFlights.length === 0 && flightSegments[0].destination && (
+          <Card className="bg-white/5 border-white/10">
+            <CardContent className="p-10 text-center">
+              <PaperAirplaneIcon className="h-12 w-12 text-white/30 mx-auto mb-3" />
+              <h3 className="text-xl font-medium text-white">No Flights Found</h3>
+              <p className="text-white/70 mt-1">Try different destinations or dates.</p>
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Empty State */}
+        {!loading && !flightSegments[0].destination && (
+          <Card className="bg-white/5 border-white/10">
+            <CardContent className="p-10 text-center">
+              <PaperAirplaneIcon className="h-12 w-12 text-white/30 mx-auto mb-3" />
+              <h3 className="text-xl font-medium text-white">Find Your Perfect Flight</h3>
+              <p className="text-white/70 mt-1">Search for flights to your destination.</p>
+            </CardContent>
           </Card>
         )}
       </div>
-
-      <style jsx>{`
-        @keyframes fadeInUp {
-          from {
-            opacity: 0;
-            transform: translateY(20px);
-          }
-          to {
-            opacity: 1;
-            transform: translateY(0);
-          }
-        }
-      `}</style>
     </div>
   )
 }
 
-function InputWithIcon({
-  icon,
-  ...props
-}: {
-  icon: React.ReactNode
-} & React.InputHTMLAttributes<HTMLInputElement>) {
+// Helper component for inputs with icons
+function InputWithIcon({ icon, ...props }: { icon: React.ReactNode } & React.InputHTMLAttributes<HTMLInputElement>) {
   return (
     <div className="relative">
-      <div className="absolute left-3 top-1/2 transform -translate-y-1/2">{icon}</div>
+      <div className="absolute left-3 top-1/2 -translate-y-1/2">{icon}</div>
       <Input
         {...props}
-        className="pl-10 h-11 bg-white/5 border-white/10 text-white placeholder:text-white/30 rounded-xl hover:bg-white/10"
+        className="pl-10 h-11 bg-white/5 border-white/10 text-white placeholder:text-white/30 rounded-lg hover:bg-white/10 focus:ring-1 focus:ring-white/20"
       />
     </div>
   )
+}
+
+// Add CSS for animations
+if (typeof document !== "undefined") {
+  const style = document.createElement("style")
+  style.textContent = `
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+  `
+  if (!document.head.querySelector("style[data-flights-animations]")) {
+    style.setAttribute("data-flights-animations", "true")
+    document.head.appendChild(style)
+  }
 }

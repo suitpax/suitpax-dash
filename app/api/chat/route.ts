@@ -1,152 +1,248 @@
 import { type NextRequest, NextResponse } from "next/server"
-import { Anthropic } from "@anthropic-ai/sdk"
-import { suitpaxKnowledge, getPersonalizedGreeting, getContextualResponse } from "@/data/suitpax-knowledge"
+import { generateText } from "ai"
+import { anthropic } from "@ai-sdk/anthropic"
 
-const anthropic = new Anthropic({
-  apiKey: process.env.ANTHROPIC_API_KEY!,
-})
+// REAL Suitpax system prompt - ONLY actual project features
+const SUITPAX_SYSTEM_PROMPT = `You are Suitpax AI, the intelligent travel assistant for the Suitpax platform created by Alberto and Alexis.
+
+LANGUAGE DETECTION & RESPONSE:
+- Automatically detect the user's language from their message
+- Respond in the same language the user is using
+- Default to English if language is unclear
+- Supported languages: English, Spanish, French, German, Italian, Portuguese
+
+IMPORTANT: You ONLY know about features that actually exist in this Suitpax project. Never invent or assume functionality.
+
+REAL AVAILABLE PAGES & FEATURES:
+✅ Dashboard - Main overview with stats and quick actions
+✅ Flights - Flight search page (uses Duffel API integration)
+✅ Hotels - Hotel booking page with search functionality  
+✅ Trains - Train booking interface
+✅ Transfers - Ground transportation booking
+✅ Expenses - Expense tracking and management
+✅ Tasks - Task management system (starts empty)
+✅ Team Management - Team member management (starts empty)
+✅ Mails - Email integration with Nylas
+✅ Meetings - Calendar and meeting management
+✅ Events - Event planning and management
+✅ Analytics - Travel analytics and reporting (starts with no data)
+✅ Reports - Report generation system (starts empty)
+✅ Vendors - Vendor management (starts empty)
+✅ Budgets - Budget tracking (starts at 0)
+✅ Forecasting - Travel forecasting tools
+✅ Goals - Goal setting and tracking
+✅ Compliance - Travel policy compliance
+✅ Sustainability - Carbon footprint tracking
+✅ Smart Bank - Financial intelligence
+✅ Suitpax AI - This chat interface
+✅ AI Agents - Specialized AI assistants
+✅ AI Chat Examples - Example conversations
+✅ Plans - Subscription plans page
+✅ Profile - User profile management
+✅ Settings - Account settings
+✅ Onboarding - User setup process
+✅ Travel Policy - Company travel policies
+
+REAL INTEGRATIONS:
+✅ Duffel API - For real flight data and booking
+✅ Nylas API - For email and calendar integration
+✅ Google Maps - For location services
+✅ Anthropic Claude - For AI responses (this conversation)
+✅ Neon Database - For data storage
+✅ Supabase - For additional data services
+
+REAL PRICING PLANS (Updated):
+✅ Free: €0/month - 5,000 AI tokens/month, 10 AI travel searches, up to 5 team members, basic features
+✅ Basic: €49/month (€39 annually) - 15,000 AI tokens/month, 30 AI travel searches, up to 15 team members, priority support
+✅ Pro: €89/month (€71 annually) - 25,000 AI tokens/month, 50 AI travel searches, up to 25 team members, advanced features
+✅ Enterprise: Custom pricing - Unlimited AI tokens, unlimited searches, unlimited team members, full feature suite
+
+WHAT I CANNOT DO:
+❌ Provide fake flight prices or schedules
+❌ Invent hotel availability or rates
+❌ Create fake booking confirmations
+❌ Give incorrect company information
+❌ Pretend features exist that don't
+❌ Provide mock travel data
+❌ Make actual bookings (direct users to appropriate pages)
+
+WHAT I CAN DO:
+✅ Guide users to the correct pages
+✅ Explain how to use existing features
+✅ Help with navigation and onboarding
+✅ Answer questions about real functionality
+✅ Assist with account setup
+✅ Explain pricing plans accurately
+✅ Direct to appropriate integrations
+✅ Help with expense management
+✅ Assist with team management
+✅ Provide travel policy guidance
+
+RESPONSE STYLE:
+- Detect and respond in user's language
+- Be honest about current capabilities
+- Direct users to real features
+- Keep responses concise and helpful
+- If something doesn't exist yet, say so clearly
+- Focus on what actually works
+- Mention Alberto and Alexis when relevant
+- Professional but friendly tone
+
+THINKING MODE:
+When thinking mode is enabled, show reasoning process using <Thinking> tags before final response.
+
+Remember: Only provide information about features that actually exist in this Suitpax project. Never create fake data or examples.`
+
+// Language detection helper
+function detectLanguage(text: string): string {
+  const lowerText = text.toLowerCase()
+
+  // Spanish indicators
+  if (
+    lowerText.includes("hola") ||
+    lowerText.includes("gracias") ||
+    lowerText.includes("por favor") ||
+    lowerText.includes("¿") ||
+    lowerText.includes("¡") ||
+    lowerText.includes("español")
+  ) {
+    return "Spanish"
+  }
+
+  // French indicators
+  if (
+    lowerText.includes("bonjour") ||
+    lowerText.includes("merci") ||
+    lowerText.includes("s'il vous plaît") ||
+    lowerText.includes("français") ||
+    lowerText.includes("où") ||
+    lowerText.includes("être")
+  ) {
+    return "French"
+  }
+
+  // German indicators
+  if (
+    lowerText.includes("hallo") ||
+    lowerText.includes("danke") ||
+    lowerText.includes("bitte") ||
+    lowerText.includes("deutsch") ||
+    lowerText.includes("wie") ||
+    lowerText.includes("ist")
+  ) {
+    return "German"
+  }
+
+  // Italian indicators
+  if (
+    lowerText.includes("ciao") ||
+    lowerText.includes("grazie") ||
+    lowerText.includes("prego") ||
+    lowerText.includes("italiano") ||
+    lowerText.includes("dove") ||
+    lowerText.includes("essere")
+  ) {
+    return "Italian"
+  }
+
+  // Portuguese indicators
+  if (
+    lowerText.includes("olá") ||
+    lowerText.includes("obrigado") ||
+    lowerText.includes("por favor") ||
+    lowerText.includes("português") ||
+    lowerText.includes("onde") ||
+    lowerText.includes("ser")
+  ) {
+    return "Portuguese"
+  }
+
+  // Default to English
+  return "English"
+}
 
 export async function POST(request: NextRequest) {
   try {
-    const { message, conversationHistory = [], userProfile } = await request.json()
+    const { message, thinkingMode = false, conversationId, userProfile, plan = "free" } = await request.json()
 
     if (!message) {
       return NextResponse.json({ error: "Message is required" }, { status: 400 })
     }
 
-    // Get contextual information for response style
-    const context = getContextualResponse(message, conversationHistory, userProfile)
+    // Detect user language
+    const detectedLanguage = detectLanguage(message)
 
-    // Build comprehensive system prompt with Suitpax knowledge
-    const systemPrompt = `You are the Suitpax AI Agent, an intelligent assistant for the Suitpax business travel platform.
+    let enhancedPrompt = message
 
-COMPANY INFORMATION:
-- Name: ${suitpaxKnowledge.company.name}
-- Mission: ${suitpaxKnowledge.company.mission}
-- Website: ${suitpaxKnowledge.company.website}
-
-CONTACT INFORMATION:
-- AI Support: ${suitpaxKnowledge.contact.emails.ai}
-- General Contact: ${suitpaxKnowledge.contact.emails.general}
-- Social Media: ${Object.entries(suitpaxKnowledge.contact.socialMedia)
-      .map(([platform, handle]) => `${platform}: ${handle}`)
-      .join(", ")}
-
-PRICING PLANS:
-${Object.entries(suitpaxKnowledge.pricing)
-  .map(([key, plan]) => `- ${plan.name}: ${plan.price} ${plan.billing} - ${plan.description}`)
-  .join("\n")}
-
-USER CONTEXT:
-${
-  userProfile
-    ? `
-- Name: ${userProfile.name || "Not provided"}
-- Company: ${userProfile.company || "Not provided"}
-- Role: ${userProfile.role || "traveler"}
-- Plan: ${userProfile.subscription?.plan || "free"}
-- Department: ${userProfile.department || "Not specified"}
-`
-    : "User not registered yet"
-}
-
-PLATFORM FEATURES:
-${Object.entries(suitpaxKnowledge.features)
-  .map(([key, feature]) => `- ${feature.name}: ${feature.description}`)
-  .join("\n")}
-
-RESPONSE GUIDELINES:
-- ${
-      context.personalizeGreeting && userProfile?.name
-        ? `Address the user by name (${userProfile.name}) and reference their company (${userProfile.company}) when relevant`
-        : "Use a friendly, professional tone"
-    }
-- Be concise and helpful (2-3 sentences max unless complex explanation needed)
-- ${context.shouldIntroduce ? "Introduce yourself as the Suitpax AI Agent" : "Continue the conversation naturally"}
-- Provide personalized recommendations based on user role and company
-- Reference specific Suitpax features when relevant
-- When discussing pricing, use the exact prices: Free ($0), Starter ($29/month), Pro ($74/month or $51/month annually), Enterprise (custom pricing)
-- For support, direct users to ai@suitpax.com or hello@suitpax.com
-- Mention social media handles when relevant
-
-PERSONALITY:
-- Professional business travel expert with personal touch
-- Knowledgeable about all Suitpax features and pricing
-- Remembers user details and provides personalized service
-- Helpful and solution-oriented
-- Adaptive communication style based on user role
-
-USER ROLE SPECIFIC GUIDANCE:
-${userProfile?.role === "manager" ? "- Focus on team management features, analytics, and approval workflows" : ""}
-${userProfile?.role === "admin" ? "- Emphasize administrative features, user management, and integrations" : ""}
-${userProfile?.role === "finance" ? "- Highlight expense management, reporting, and budget control features" : ""}
-
-Remember: You represent Suitpax and should demonstrate deep knowledge of the platform while providing personalized, helpful service based on the user's profile and needs.`
-
-    // Generate personalized greeting if needed
-    let personalizedGreeting = ""
-    if (context.personalizeGreeting && userProfile) {
-      const timeOfDay = new Date().getHours() < 12 ? "morning" : new Date().getHours() < 18 ? "afternoon" : "evening"
-      personalizedGreeting = getPersonalizedGreeting(userProfile.name, userProfile.company, timeOfDay)
+    // Add user context if available
+    if (userProfile && userProfile.name) {
+      enhancedPrompt = `User ${userProfile.name} (${plan} plan) asks: ${message}`
+    } else {
+      enhancedPrompt = `User (${plan} plan) asks: ${message}`
     }
 
-    // Prepare conversation history for Claude
-    const messages = [
-      ...conversationHistory.map((msg: any) => ({
-        role: msg.role,
-        content: msg.content,
-      })),
-      {
-        role: "user",
-        content: message,
-      },
-    ]
+    // Add language context
+    enhancedPrompt += `\n\nDetected language: ${detectedLanguage}. Please respond in ${detectedLanguage}.`
 
-    const response = await anthropic.messages.create({
-      model: "claude-3-5-sonnet-20241022",
-      max_tokens: 400,
-      temperature: 0.7,
-      system: systemPrompt,
-      messages: messages,
+    // Add thinking mode instruction
+    if (thinkingMode) {
+      enhancedPrompt += `\n\nTHINKING MODE: Show your reasoning process using <Thinking> tags before your final response.`
+    }
+
+    // Generate response with Claude 3.7 (using the latest available model)
+    const { text } = await generateText({
+      model: anthropic("claude-3-7-sonnet-20250219"), // Updated to Claude 3.7
+      system: SUITPAX_SYSTEM_PROMPT,
+      prompt: enhancedPrompt,
+      temperature: thinkingMode ? 0.3 : 0.7,
+      maxTokens: thinkingMode ? 800 : 500,
     })
 
-    const assistantMessage = response.content[0]
-    if (assistantMessage.type !== "text") {
-      throw new Error("Unexpected response type from Claude")
+    // Extract thinking process if present
+    let thinking = ""
+    let response = text
+
+    if (thinkingMode && text.includes("<Thinking>")) {
+      const thinkingMatch = text.match(/<Thinking>(.*?)<\/Thinking>/s)
+      if (thinkingMatch) {
+        thinking = thinkingMatch[1].trim()
+        response = text.replace(/<Thinking>.*?<\/Thinking>/s, "").trim()
+      }
     }
 
-    // Use personalized greeting for first interaction or fallback to AI response
-    const finalMessage =
-      context.personalizeGreeting && personalizedGreeting ? personalizedGreeting : assistantMessage.text
+    // Calculate tokens
+    const tokens = Math.ceil(text.length / 4)
 
     return NextResponse.json({
-      success: true,
-      message: finalMessage,
-      conversationId: Date.now().toString(),
-      userRecognized: !!userProfile?.name,
+      response: response,
+      thinking: thinking || undefined,
+      tokens,
+      conversationId,
+      timestamp: new Date().toISOString(),
+      model: "claude-3-7-sonnet-20250219", // Updated model name
+      detectedLanguage,
+      plan,
+      accuracy: "real-features-only",
     })
   } catch (error) {
-    console.error("Chat API Error:", error)
+    console.error("Error in chat API:", error)
 
-    // Personalized fallback response
-    const { userProfile } = (await request.json()) || {}
-    const fallbackResponses = userProfile?.name
-      ? [
-          `Hello ${userProfile.name}! I'm your Suitpax AI Agent. I'm experiencing some technical difficulties, but I'm here to help with your business travel needs.`,
-          `Hi ${userProfile.name}! I'm the Suitpax AI Agent for ${userProfile.company || "your company"}. How can I assist you today?`,
-        ]
-      : [
-          "I'm the Suitpax AI Agent, here to help with your business travel needs. What can I assist you with today?",
-          "Welcome to Suitpax! I'm your AI assistant, ready to help streamline your business travel.",
-        ]
+    // Error response in multiple languages
+    const errorResponses = {
+      English: "I'm having a technical issue. Please try again in a moment!",
+      Spanish: "Estoy teniendo un problema técnico. ¡Por favor intenta de nuevo en un momento!",
+      French: "J'ai un problème technique. Veuillez réessayer dans un moment!",
+      German: "Ich habe ein technisches Problem. Bitte versuchen Sie es in einem Moment noch einmal!",
+      Italian: "Ho un problema tecnico. Per favore riprova tra un momento!",
+      Portuguese: "Estou tendo um problema técnico. Por favor, tente novamente em um momento!",
+    }
 
-    const fallbackMessage = fallbackResponses[Math.floor(Math.random() * fallbackResponses.length)]
-
-    return NextResponse.json({
-      success: true,
-      message: fallbackMessage,
-      conversationId: Date.now().toString(),
-      fallback: true,
-    })
+    return NextResponse.json(
+      {
+        error: errorResponses.English,
+        errorTranslations: errorResponses,
+      },
+      { status: 500 },
+    )
   }
 }

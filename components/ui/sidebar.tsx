@@ -35,6 +35,7 @@ import {
   BarChart3,
   TrendingUp,
   FileText,
+  Crown,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 
@@ -106,9 +107,8 @@ function Sidebar({ isOpen, onClose }: SidebarProps) {
         },
         body: JSON.stringify({
           message: userMessage,
-          isPro: false, // You can make this dynamic based on user plan
-          plan: "free",
-          userId: "sidebar-user", // You can make this dynamic
+          plan: "pro",
+          userId: "sidebar-user",
           conversationId: `sidebar-${Date.now()}`,
         }),
       })
@@ -187,7 +187,9 @@ function Sidebar({ isOpen, onClose }: SidebarProps) {
           )}
         </div>
         {badge && !isCollapsed && (
-          <span className="ml-2 px-2 py-0.5 text-[10px] font-medium bg-white/10 rounded-full">{badge}</span>
+          <span className="ml-2 px-2 py-0.5 text-[10px] font-medium bg-gradient-to-r from-blue-500/20 to-purple-500/20 text-blue-300 border border-blue-500/30 rounded-full">
+            {badge}
+          </span>
         )}
       </Link>
     )
@@ -207,7 +209,7 @@ function Sidebar({ isOpen, onClose }: SidebarProps) {
     return (
       <button
         onClick={onToggle}
-        className="w-full flex items-center justify-between px-3 py-2 text-xs font-medium text-white/50 hover:text-white/70 rounded-md transition-colors"
+        className="w-full flex items-center justify-between px-3 py-2 text-xs font-medium text-white/50 hover:text-white/70 rounded-lg transition-colors"
       >
         <div className="flex items-center">
           {Icon && <Icon className={`h-4 w-4 ${isCollapsed ? "" : "mr-3"}`} />}
@@ -235,7 +237,7 @@ function Sidebar({ isOpen, onClose }: SidebarProps) {
             <div className="flex items-center">
               {!isCollapsed && (
                 <div className="flex items-center">
-                  <div className="relative h-8 w-8 mr-3 bg-white/10 rounded-md overflow-hidden flex items-center justify-center">
+                  <div className="relative h-8 w-8 mr-3 bg-white/10 rounded-lg overflow-hidden flex items-center justify-center">
                     <Image
                       src="/images/suitpax-cloud-logo.webp"
                       alt="Suitpax Logo"
@@ -246,12 +248,17 @@ function Sidebar({ isOpen, onClose }: SidebarProps) {
                   </div>
                   <div>
                     <h2 className="text-sm font-medium text-white">{userProfile?.companyName || "Suitpax"}</h2>
-                    <p className="text-[10px] text-white/50">{userProfile?.currentPlan || "Free Plan"}</p>
+                    <div className="flex items-center space-x-1">
+                      <Crown className="h-3 w-3 text-yellow-400" />
+                      <p className="text-[10px] text-yellow-300 font-medium">
+                        {userProfile?.currentPlan || "Pro Plan"}
+                      </p>
+                    </div>
                   </div>
                 </div>
               )}
               {isCollapsed && (
-                <div className="relative h-8 w-8 mx-auto rounded-md overflow-hidden flex items-center justify-center">
+                <div className="relative h-8 w-8 mx-auto rounded-lg overflow-hidden flex items-center justify-center">
                   <Image
                     src="/images/suitpax-cloud-logo.webp"
                     alt="Suitpax Logo"
@@ -264,7 +271,7 @@ function Sidebar({ isOpen, onClose }: SidebarProps) {
             </div>
             <button
               onClick={() => setIsCollapsed(!isCollapsed)}
-              className="p-1.5 rounded-md hover:bg-white/5 transition-colors text-white/70 hover:text-white"
+              className="p-1.5 rounded-lg hover:bg-white/5 transition-colors text-white/70 hover:text-white"
               aria-label={isCollapsed ? "Expand sidebar" : "Collapse sidebar"}
             >
               {isCollapsed ? <PanelLeftOpen className="h-4 w-4" /> : <PanelLeftClose className="h-4 w-4" />}
@@ -282,7 +289,7 @@ function Sidebar({ isOpen, onClose }: SidebarProps) {
                     <input
                       type="text"
                       placeholder="Quick actions..."
-                      className="w-full pl-10 pr-4 py-2 text-xs bg-white/5 border border-white/10 rounded-md focus:outline-none focus:ring-1 focus:ring-white/20 text-white placeholder:text-white/30"
+                      className="w-full pl-10 pr-4 py-2 text-xs bg-white/5 border border-white/10 rounded-xl focus:outline-none focus:ring-1 focus:ring-white/20 text-white placeholder:text-white/30"
                     />
                   </div>
                 </div>
@@ -441,13 +448,16 @@ function Sidebar({ isOpen, onClose }: SidebarProps) {
             {!isCollapsed ? (
               <div className="space-y-3">
                 {/* AI Agent Quick Input */}
-                <div className="bg-white/5 rounded-lg border border-white/10 overflow-hidden">
+                <div className="bg-white/5 rounded-xl border border-white/10 overflow-hidden">
                   <div className="p-2 bg-white/5 border-b border-white/10 flex items-center justify-between">
                     <div className="flex items-center">
                       <div className="relative h-6 w-6 rounded-full overflow-hidden mr-2">
                         <Image src="/images/ai-agent-avatar.jpeg" alt="AI Assistant" fill className="object-cover" />
                       </div>
                       <span className="text-xs font-medium text-white">AI Agent</span>
+                      <div className="ml-2 px-2 py-0.5 text-[9px] font-medium bg-gradient-to-r from-green-500/20 to-emerald-500/20 text-green-300 border border-green-500/30 rounded-full">
+                        Pro
+                      </div>
                     </div>
                     <button
                       className="p-1 rounded-full hover:bg-white/10 text-white/50 hover:text-white"
@@ -463,10 +473,10 @@ function Sidebar({ isOpen, onClose }: SidebarProps) {
                         {chatMessages.map((msg, index) => (
                           <div key={index} className={`mb-3 flex ${msg.isUser ? "justify-end" : "justify-start"}`}>
                             <div
-                              className={`max-w-[90%] p-2.5 rounded-lg text-[10px] leading-relaxed ${
+                              className={`max-w-[90%] p-2.5 rounded-xl text-[10px] leading-relaxed ${
                                 msg.isUser
                                   ? "bg-white/15 text-white rounded-tr-none"
-                                  : "bg-white/8 text-white/95 rounded-tl-none border border-white/10"
+                                  : "bg-white/8 text-white rounded-tl-none border border-white/10"
                               }`}
                             >
                               <div className="whitespace-pre-wrap">{msg.text}</div>
@@ -481,7 +491,7 @@ function Sidebar({ isOpen, onClose }: SidebarProps) {
                         ))}
                         {isTyping && (
                           <div className="flex justify-start mb-2">
-                            <div className="bg-white/5 p-2 rounded-md rounded-tl-none">
+                            <div className="bg-white/5 p-2 rounded-lg rounded-tl-none">
                               <div className="flex space-x-1">
                                 <div className="w-1 h-1 bg-white/50 rounded-full animate-bounce"></div>
                                 <div
@@ -527,7 +537,7 @@ function Sidebar({ isOpen, onClose }: SidebarProps) {
                 </div>
 
                 {/* Quick AI Input - Always visible */}
-                <div className="bg-white/5 rounded-lg border border-white/10 p-2">
+                <div className="bg-white/5 rounded-xl border border-white/10 p-2">
                   <form onSubmit={handleChatSubmit}>
                     <div className="relative">
                       <input

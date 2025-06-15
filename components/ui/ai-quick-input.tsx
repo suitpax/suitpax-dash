@@ -3,7 +3,7 @@
 import type React from "react"
 import { useState, useEffect } from "react"
 import Image from "next/image"
-import { ArrowRightIcon, Mic, MicOff } from "lucide-react"
+import { ArrowRightIcon, Mic, MicOff, Crown } from "lucide-react"
 import { useSpeechRecognition } from "@/lib/hooks/use-speech-recognition"
 
 interface AIQuickInputProps {
@@ -46,8 +46,7 @@ function AIQuickInput({ placeholder = "Ask Suitpax AI anything...", onSubmit, cl
           },
           body: JSON.stringify({
             message,
-            isPro: false,
-            plan: "free",
+            plan: "pro",
             userId: "quick-input-user",
             conversationId: `quick-${Date.now()}`,
           }),
@@ -79,44 +78,47 @@ function AIQuickInput({ placeholder = "Ask Suitpax AI anything...", onSubmit, cl
 
   return (
     <div className={`bg-black border border-white/10 rounded-xl p-3 backdrop-blur-sm ${className}`}>
+      <div className="flex items-center space-x-2 mb-2">
+        <div className="relative h-5 w-5 rounded-md overflow-hidden">
+          <Image src="/images/ai-agent-avatar.jpeg" alt="AI Assistant" fill className="object-cover" />
+        </div>
+        <span className="text-xs font-medium text-white">Suitpax AI</span>
+        <div className="px-2 py-0.5 text-[9px] font-medium bg-gradient-to-r from-green-500/20 to-emerald-500/20 text-green-300 border border-green-500/30 rounded-full flex items-center">
+          <Crown className="h-2.5 w-2.5 mr-1" />
+          Pro
+        </div>
+      </div>
       <form onSubmit={handleSubmit}>
         <div className="relative">
-          <div className="absolute left-3 top-1/2 transform -translate-y-1/2 flex items-center">
-            <div className="relative h-6 w-6 rounded-md overflow-hidden mr-2">
-              <Image src="/images/ai-agent-avatar.jpeg" alt="AI Assistant" fill className="object-cover" />
-            </div>
-          </div>
           <input
             type="text"
             value={input}
             onChange={(e) => setInput(e.target.value)}
             placeholder={isListening ? "Listening..." : placeholder}
             disabled={isLoading}
-            className="w-full pl-12 pr-20 py-2.5 text-sm bg-black border border-white/10 rounded-xl focus:outline-none focus:ring-1 focus:ring-white/20 text-white placeholder:text-white/30 disabled:opacity-50 font-light"
+            className="w-full pl-3 pr-20 py-2.5 text-sm bg-black border border-white/10 rounded-xl focus:outline-none focus:ring-1 focus:ring-white/20 text-white placeholder:text-white/30 disabled:opacity-50 font-light"
           />
           <div className="absolute right-3 top-1/2 transform -translate-y-1/2 flex items-center space-x-1">
             {isSupported && (
               <button
                 type="button"
                 onClick={toggleListening}
-                className={`p-1.5 rounded-lg transition-colors ${
-                  isListening
-                    ? "bg-red-500/20 text-red-400 hover:bg-red-500/30"
-                    : "text-white/50 hover:text-white hover:bg-white/5"
+                className={`p-1.5 rounded-lg transition-all hover:scale-105 ${
+                  isListening ? "bg-red-500 text-white hover:bg-red-600" : "bg-white text-black hover:bg-white/90"
                 }`}
               >
-                {isListening ? <MicOff className="h-4 w-4" /> : <Mic className="h-4 w-4" />}
+                {isListening ? <MicOff className="h-3 w-3" /> : <Mic className="h-3 w-3" />}
               </button>
             )}
             <button
               type="submit"
-              className="p-1.5 text-white/50 hover:text-white disabled:opacity-50 transition-colors rounded-lg hover:bg-white/5"
+              className="p-1.5 bg-white text-black hover:bg-white/90 disabled:opacity-50 transition-all rounded-lg hover:scale-105 disabled:hover:scale-100"
               disabled={!input.trim() || isLoading}
             >
               {isLoading ? (
-                <div className="w-4 h-4 border border-white/30 border-t-white/70 rounded-full animate-spin" />
+                <div className="w-3 h-3 border border-black/30 border-t-black/70 rounded-full animate-spin" />
               ) : (
-                <ArrowRightIcon className="h-4 w-4" />
+                <ArrowRightIcon className="h-3 w-3" />
               )}
             </button>
           </div>

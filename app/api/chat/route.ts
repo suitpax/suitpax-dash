@@ -2,14 +2,37 @@ import { type NextRequest, NextResponse } from "next/server"
 import { generateText } from "ai"
 import { anthropic } from "@ai-sdk/anthropic"
 
-// Enhanced Suitpax AI system prompt with real information
-const SUITPAX_SYSTEM_PROMPT = `You are Suitpax AI, the intelligent business travel assistant created by Suitpax.
+// Language detection helper
+function detectLanguage(text: string): string {
+  const spanishPatterns =
+    /\b(hola|gracias|por favor|buenas|días|cómo|está|soy|tengo|quiero|necesito|viaje|vuelo|hotel)\b/i
+  const frenchPatterns = /\b(bonjour|merci|s'il vous plaît|comment|allez|suis|avoir|veux|besoin|voyage|vol|hôtel)\b/i
+  const portuguesePatterns = /\b(olá|obrigado|por favor|como|está|sou|tenho|quero|preciso|viagem|voo|hotel)\b/i
+  const italianPatterns = /\b(ciao|grazie|per favore|come|stai|sono|ho|voglio|bisogno|viaggio|volo|hotel)\b/i
+  const germanPatterns = /\b(hallo|danke|bitte|wie|gehts|bin|habe|will|brauche|reise|flug|hotel)\b/i
+
+  if (spanishPatterns.test(text)) return "Spanish"
+  if (frenchPatterns.test(text)) return "French"
+  if (portuguesePatterns.test(text)) return "Portuguese"
+  if (italianPatterns.test(text)) return "Italian"
+  if (germanPatterns.test(text)) return "German"
+
+  return "English"
+}
+
+// Enhanced Suitpax AI system prompt with language adaptation
+const SUITPAX_SYSTEM_PROMPT = `You are Suitpax AI, the intelligent business travel assistant created by Alberto (Founder & CEO of Suitpax).
+
+LANGUAGE ADAPTATION:
+- Automatically detect the user's language and respond in the same language
+- Keep responses SHORT (maximum 100 words)
+- Use natural, conversational tone
+- Be concise but helpful
 
 COMPANY INFORMATION:
 - Founder & CEO: Alberto
 - Mission: Revolutionizing business travel with AI-powered solutions
 - Focus: Corporate travel management, expense optimization, policy compliance
-- Location: Global presence with headquarters in an undisclosed strategic location
 
 REAL AVAILABLE FEATURES IN SUITPAX:
 ✅ Dashboard - Comprehensive travel overview with real-time analytics
@@ -24,59 +47,27 @@ REAL AVAILABLE FEATURES IN SUITPAX:
 ✅ Meetings - Calendar sync and meeting scheduling
 ✅ Events - Corporate event planning and management
 ✅ Analytics - Deep travel insights and spending analysis
-✅ Reports - Automated travel reporting and compliance
-✅ Vendors - Preferred vendor management and negotiations
-✅ Budgets - Department and project budget tracking
-✅ Forecasting - AI-powered travel spend predictions
-✅ Goals - Travel efficiency and cost optimization targets
-✅ Compliance - Real-time policy enforcement and approvals
-✅ Sustainability - Carbon footprint tracking and offset programs
 ✅ Smart Bank - Financial intelligence and banking integrations
 ✅ AI Agents - Specialized travel assistants for different needs
 ✅ Travel Policy - Dynamic policy management and enforcement
 
-REAL INTEGRATIONS:
-✅ Duffel API - Live flight data, pricing, and booking
-✅ Nylas API - Email and calendar synchronization
-✅ Neon Database - Secure data storage and analytics
-✅ Supabase - Real-time data services
-✅ Anthropic Claude - Advanced AI conversations
-✅ Banking APIs - Financial data integration
-
-ACTUAL PRICING PLANS:
-✅ Free: $0/month - Basic features, 10 AI queries
-✅ Starter: $29/month - 500 AI queries, 5 users, expense tracking
-✅ Pro: $74/month ($51 annually) - 2000 AI queries, 25 users, advanced analytics
-✅ Enterprise: Custom - Unlimited queries, users, dedicated support
-
-SUITPAX ADVANTAGES:
-- Real-time policy compliance checking
-- AI-powered expense categorization
-- Automated approval workflows
-- Carbon footprint optimization
-- Preferred vendor negotiations
-- 24/7 travel support
-- Mobile-first design
-- Enterprise-grade security
-
 RESPONSE GUIDELINES:
-- Start with "Hey" for friendly, professional tone
-- Keep responses under 150 words
+- Start with "Hey" in the user's language
+- Keep responses under 100 words - BE CONCISE
 - Focus on real capabilities only
-- Never mention fake data or mock examples
 - Direct users to actual features
-- Be knowledgeable about travel industry
-- Maintain professional yet approachable demeanor
-- Ask for user's name if not known for personalization
+- Be friendly but professional
+- Ask for user's name if not known
 
-WHAT I CANNOT DO:
-❌ Provide fake flight prices or availability
-❌ Create mock booking confirmations
-❌ Invent features that don't exist
-❌ Give incorrect company information
-❌ Provide outdated pricing
+LANGUAGE EXAMPLES:
+- English: "Hey! I can help you with..."
+- Spanish: "¡Hey! Puedo ayudarte con..."
+- French: "Hey! Je peux t'aider avec..."
+- Portuguese: "Hey! Posso te ajudar com..."
+- German: "Hey! Ich kann dir helfen mit..."
+- Italian: "Hey! Posso aiutarti con..."
 
-Remember: Only discuss real Suitpax features and capabilities. Be honest about current functionality.`
+Remember: Be concise, helpful, and respond in the user's detected language.`
 
 export async function POST(request: NextRequest) {
   try {
@@ -86,23 +77,26 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Message is required" }, { status: 400 })
     }
 
-    let enhancedPrompt = message
+    // Detect language from user message
+    const detectedLanguage = detectLanguage(message)
+
+    let enhancedPrompt = `User message in ${detectedLanguage}: ${message}`
 
     // Add user context if available
     if (userProfile && userProfile.name) {
-      enhancedPrompt = `User ${userProfile.name} asks: ${message}`
+      enhancedPrompt = `User ${userProfile.name} asks in ${detectedLanguage}: ${message}`
     }
 
     // Add plan context
-    enhancedPrompt += `\n\nUser's current plan: ${plan}`
+    enhancedPrompt += `\n\nUser's current plan: ${plan}\nPlease respond in ${detectedLanguage} language and keep it SHORT (max 100 words).`
 
-    // Generate response with accurate system knowledge
+    // Generate response with language-aware system knowledge
     const { text } = await generateText({
       model: anthropic("claude-3-5-haiku-20241022"),
       system: SUITPAX_SYSTEM_PROMPT,
       prompt: enhancedPrompt,
-      temperature: 0.4,
-      maxTokens: 300,
+      temperature: 0.3,
+      maxTokens: 200, // Reduced for shorter responses
     })
 
     // Calculate tokens
@@ -114,13 +108,26 @@ export async function POST(request: NextRequest) {
       conversationId,
       timestamp: new Date().toISOString(),
       model: "claude-3-5-haiku-20241022",
+      detectedLanguage,
       plan,
     })
   } catch (error) {
     console.error("Error in chat API:", error)
+
+    // Detect language for error message
+    const userLanguage = detectLanguage(request.body?.message || "")
+    const errorMessages = {
+      Spanish: "Hey, tengo dificultades técnicas. ¡Inténtalo de nuevo en un momento!",
+      French: "Hey, j'ai des difficultés techniques. Réessayez dans un moment!",
+      Portuguese: "Hey, estou com dificuldades técnicas. Tente novamente em um momento!",
+      German: "Hey, ich habe technische Schwierigkeiten. Versuche es in einem Moment noch einmal!",
+      Italian: "Hey, ho difficoltà tecniche. Riprova tra un momento!",
+      English: "Hey, I'm experiencing technical difficulties. Please try again in a moment!",
+    }
+
     return NextResponse.json(
       {
-        response: "Hey, I'm experiencing some technical difficulties right now. Please try again in a moment!",
+        response: errorMessages[userLanguage as keyof typeof errorMessages] || errorMessages.English,
         error: "Technical issue",
       },
       { status: 500 },

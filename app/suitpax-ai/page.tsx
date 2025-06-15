@@ -2,12 +2,16 @@
 
 import type React from "react"
 import { useState, useRef, useEffect } from "react"
-import { Bot, Settings, Trash2, Plus, MessageCircle, Brain, Zap, CheckCircle, Sparkles } from "lucide-react"
+import { Bot, Settings, Trash2, Plus, MessageCircle, Brain, CheckCircle, Sparkles, Crown, Menu } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Switch } from "@/components/ui/switch"
-import { TypingEffect } from "@/components/ui/typing-effect"
 import { MCPStatusIndicator } from "@/components/ui/mcp-status-indicator"
+import { AnimatedChatInput } from "@/components/ui/animated-chat-input"
+import { EnhancedChatMessage } from "@/components/ui/enhanced-chat-message"
+import { SmartSuggestions } from "@/components/ui/smart-suggestions"
+import { QuickActions } from "@/components/ui/quick-actions"
+import { ProFeaturesBanner } from "@/components/ui/pro-features-banner"
 
 interface AIAgent {
   id: string
@@ -17,6 +21,7 @@ interface AIAgent {
   description: string
   capabilities: string[]
   status: "online" | "busy" | "offline"
+  color: string
 }
 
 interface Message {
@@ -30,6 +35,7 @@ interface Message {
   thinkingMode?: boolean
   actionExecuted?: boolean
   actionResult?: any
+  attachments?: string[]
 }
 
 interface Conversation {
@@ -48,6 +54,7 @@ const AI_AGENTS: AIAgent[] = [
     description: "Specialized in finding the best travel deals and managing bookings",
     capabilities: ["Flight Search", "Hotel Booking", "Travel Optimization"],
     status: "online",
+    color: "from-blue-500 to-cyan-500",
   },
   {
     id: "expense-manager",
@@ -57,6 +64,7 @@ const AI_AGENTS: AIAgent[] = [
     description: "Expert in expense tracking and financial reporting",
     capabilities: ["Expense Tracking", "Receipt Processing", "Budget Analysis"],
     status: "online",
+    color: "from-green-500 to-emerald-500",
   },
   {
     id: "policy-advisor",
@@ -66,6 +74,7 @@ const AI_AGENTS: AIAgent[] = [
     description: "Ensures all travel complies with company policies",
     capabilities: ["Policy Compliance", "Approval Workflows", "Risk Assessment"],
     status: "online",
+    color: "from-purple-500 to-violet-500",
   },
   {
     id: "data-analyst",
@@ -75,6 +84,17 @@ const AI_AGENTS: AIAgent[] = [
     description: "Provides insights and analytics on travel patterns",
     capabilities: ["Data Analysis", "Reporting", "Trend Insights"],
     status: "online",
+    color: "from-orange-500 to-red-500",
+  },
+  {
+    id: "master-ai",
+    name: "Suitpax Master AI",
+    specialty: "Universal Intelligence",
+    avatar: "/images/ai-agent-avatar.png",
+    description: "Advanced AI with access to all capabilities and MCP functions",
+    capabilities: ["All Functions", "MCP Integration", "Advanced Analysis"],
+    status: "online",
+    color: "from-pink-500 via-purple-500 to-indigo-500",
   },
 ]
 
@@ -85,9 +105,12 @@ export default function SuitpaxAIPage() {
   const [activeConversation, setActiveConversation] = useState<Conversation | null>(null)
   const [showSidebar, setShowSidebar] = useState(true)
   const [thinkingMode, setThinkingMode] = useState(false)
-  const [selectedAgent, setSelectedAgent] = useState<AIAgent | null>(null)
+  const [selectedAgent, setSelectedAgent] = useState<AIAgent>(AI_AGENTS[4]) // Default to Master AI
+  const [currentPlan, setCurrentPlan] = useState<"free" | "pro">("pro")
   const [isFocused, setIsFocused] = useState(false)
   const messagesEndRef = useRef<HTMLDivElement>(null)
+
+  const isPro = currentPlan === "pro"
 
   // Initialize with welcome conversation
   useEffect(() => {
@@ -99,31 +122,31 @@ export default function SuitpaxAIPage() {
           id: "welcome-msg",
           role: "assistant",
           content:
-            "Hey! I'm your AI travel assistant. I can help you book flights, manage expenses, ensure policy compliance, and provide travel insights. What would you like to do today?",
+            "Hey! I'm your AI travel assistant powered by MCP. I can help you book flights, manage expenses, ensure policy compliance, create tasks automatically, and provide travel insights. What would you like to do today?",
           timestamp: new Date(),
-          agent: AI_AGENTS[0],
+          agent: selectedAgent,
         },
       ],
       createdAt: new Date(),
     }
     setConversations([welcomeConversation])
     setActiveConversation(welcomeConversation)
-  }, [])
+  }, [selectedAgent])
 
   // Auto scroll to bottom
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
   }, [activeConversation?.messages])
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    if (!input.trim() || !activeConversation || isLoading) return
+  const handleSubmit = async (message: string, attachments?: string[]) => {
+    if (!message.trim() || !activeConversation || isLoading) return
 
     const userMessage: Message = {
       id: Date.now().toString(),
       role: "user",
-      content: input.trim(),
+      content: message.trim(),
       timestamp: new Date(),
+      attachments,
     }
 
     // Update conversation with user message
@@ -132,13 +155,12 @@ export default function SuitpaxAIPage() {
       messages: [...activeConversation.messages, userMessage],
       title:
         activeConversation.title === "Suitpax AI"
-          ? input.trim().substring(0, 35) + (input.trim().length > 35 ? "..." : "")
+          ? message.trim().substring(0, 35) + (message.trim().length > 35 ? "..." : "")
           : activeConversation.title,
     }
 
     setActiveConversation(updatedConversation)
     setConversations((prev) => prev.map((conv) => (conv.id === activeConversation.id ? updatedConversation : conv)))
-    setInput("")
     setIsLoading(true)
 
     try {
@@ -151,10 +173,11 @@ export default function SuitpaxAIPage() {
           message: userMessage.content,
           conversationId: activeConversation.id,
           thinkingMode,
-          selectedAgent: selectedAgent?.id,
+          selectedAgent: selectedAgent.id,
+          attachments,
           userProfile: {
             name: "Business Traveler",
-            plan: "pro",
+            plan: currentPlan,
           },
         }),
       })
@@ -170,7 +193,7 @@ export default function SuitpaxAIPage() {
         role: "assistant",
         content: data.response || "I'm having trouble processing your request. Please try again.",
         timestamp: new Date(),
-        agent: data.selectedAgent || selectedAgent || AI_AGENTS[0],
+        agent: selectedAgent,
         tokens: data.tokens,
         cost: data.cost,
         thinkingMode: data.thinkingMode,
@@ -194,7 +217,7 @@ export default function SuitpaxAIPage() {
         role: "assistant",
         content: "I'm experiencing technical difficulties. Please try again or contact support.",
         timestamp: new Date(),
-        agent: AI_AGENTS[0],
+        agent: selectedAgent,
       }
 
       const errorConversation = {
@@ -219,7 +242,7 @@ export default function SuitpaxAIPage() {
           role: "assistant",
           content: "Hey! I'm ready to help with your business travel needs. What can I do for you?",
           timestamp: new Date(),
-          agent: AI_AGENTS[0],
+          agent: selectedAgent,
         },
       ],
       createdAt: new Date(),
@@ -241,15 +264,6 @@ export default function SuitpaxAIPage() {
     }
   }
 
-  const formatMessageContent = (content: string) => {
-    return content.split("\n").map((line, i) => (
-      <span key={i}>
-        {line}
-        {i < content.split("\n").length - 1 && <br />}
-      </span>
-    ))
-  }
-
   return (
     <div className="h-full flex bg-black text-white">
       {/* Enhanced Sidebar */}
@@ -261,7 +275,9 @@ export default function SuitpaxAIPage() {
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center space-x-3">
               <div className="relative">
-                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 via-purple-600 to-pink-500 flex items-center justify-center shadow-lg">
+                <div
+                  className={`w-10 h-10 rounded-full bg-gradient-to-br ${selectedAgent.color} flex items-center justify-center shadow-lg`}
+                >
                   <Bot className="h-5 w-5 text-white" />
                 </div>
                 <div className="absolute -bottom-1 -right-1 w-3 h-3 bg-green-500 rounded-full border-2 border-black animate-pulse"></div>
@@ -311,10 +327,10 @@ export default function SuitpaxAIPage() {
             {AI_AGENTS.map((agent) => (
               <div
                 key={agent.id}
-                onClick={() => setSelectedAgent(selectedAgent?.id === agent.id ? null : agent)}
+                onClick={() => setSelectedAgent(agent)}
                 className={`p-2 rounded-lg cursor-pointer transition-all duration-200 ${
-                  selectedAgent?.id === agent.id
-                    ? "bg-gradient-to-r from-purple-500/20 to-blue-500/20 border border-purple-500/30"
+                  selectedAgent.id === agent.id
+                    ? `bg-gradient-to-r ${agent.color.replace("from-", "from-").replace("to-", "to-")}/20 border border-white/30`
                     : "bg-white/5 hover:bg-white/10 border border-white/10"
                 }`}
               >
@@ -339,7 +355,7 @@ export default function SuitpaxAIPage() {
                     <p className="text-sm font-medium text-white truncate">{agent.name}</p>
                     <p className="text-xs text-white/60 truncate">{agent.specialty}</p>
                   </div>
-                  {selectedAgent?.id === agent.id && <CheckCircle className="h-4 w-4 text-purple-400" />}
+                  {selectedAgent.id === agent.id && <CheckCircle className="h-4 w-4 text-green-400" />}
                 </div>
               </div>
             ))}
@@ -382,7 +398,7 @@ export default function SuitpaxAIPage() {
 
       {/* Main Chat Area */}
       <div className="flex-1 flex flex-col">
-        {/* Chat Header */}
+        {/* Enhanced Chat Header */}
         <div className="p-4 border-b border-white/10 bg-gradient-to-r from-black to-black/90 backdrop-blur-sm">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-3">
@@ -391,10 +407,12 @@ export default function SuitpaxAIPage() {
                 size="sm"
                 className="lg:hidden bg-white/10 hover:bg-white/20 border border-white/20 rounded-lg h-8 w-8 p-0"
               >
-                <Bot className="h-4 w-4 text-white" />
+                <Menu className="h-4 w-4 text-white" />
               </Button>
               <div className="flex items-center space-x-3">
-                <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 via-purple-600 to-pink-500 flex items-center justify-center">
+                <div
+                  className={`w-8 h-8 rounded-full bg-gradient-to-br ${selectedAgent.color} flex items-center justify-center`}
+                >
                   <Bot className="h-4 w-4 text-white" />
                 </div>
                 <div>
@@ -402,9 +420,7 @@ export default function SuitpaxAIPage() {
                   <div className="flex items-center space-x-2">
                     <div className="flex items-center space-x-1">
                       <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-                      <p className="text-xs text-white/60">
-                        {selectedAgent ? `${selectedAgent.name} Active` : "Multi-Agent System"}
-                      </p>
+                      <p className="text-xs text-white/60">{selectedAgent.name} Active</p>
                     </div>
                     {thinkingMode && (
                       <Badge className="bg-blue-500/20 text-blue-300 text-xs px-2 py-0.5 rounded-full">
@@ -418,7 +434,7 @@ export default function SuitpaxAIPage() {
             </div>
             <div className="flex items-center space-x-2">
               <Badge className="bg-gradient-to-r from-green-500/20 to-emerald-500/20 text-green-300 text-xs px-3 py-1 rounded-full border border-green-500/30">
-                <Zap className="h-3 w-3 mr-1" />
+                <Crown className="h-3 w-3 mr-1" />
                 Pro Plan
               </Badge>
               <Button
@@ -433,67 +449,16 @@ export default function SuitpaxAIPage() {
 
         {/* Messages */}
         <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-gradient-to-b from-transparent to-black/20">
-          {activeConversation?.messages.map((message) => (
-            <div key={message.id} className={`flex ${message.role === "user" ? "justify-end" : "justify-start"}`}>
-              <div className={`max-w-[80%] ${message.role === "user" ? "order-2" : "order-1"}`}>
-                {message.role === "assistant" && (
-                  <div className="flex items-center space-x-2 mb-2">
-                    <img
-                      src={message.agent?.avatar || "/images/ai-agent-avatar.png"}
-                      alt={message.agent?.name || "AI"}
-                      className="w-5 h-5 rounded-full object-cover"
-                    />
-                    <span className="text-xs text-white/60">
-                      {message.agent?.name || "Suitpax AI"}
-                      {message.agent?.specialty && <span className="text-white/40"> • {message.agent.specialty}</span>}
-                    </span>
-                    {message.tokens && (
-                      <Badge className="bg-white/10 text-white/50 text-xs px-2 py-0.5 rounded-full border border-white/20">
-                        {message.tokens}t
-                      </Badge>
-                    )}
-                    {message.actionExecuted && (
-                      <Badge className="bg-green-500/20 text-green-300 text-xs px-2 py-0.5 rounded-full">
-                        <CheckCircle className="h-3 w-3 mr-1" />
-                        Action
-                      </Badge>
-                    )}
-                  </div>
-                )}
-                <div
-                  className={`rounded-lg p-4 backdrop-blur-sm transition-all duration-200 ${
-                    message.role === "user"
-                      ? "bg-gradient-to-br from-white to-white/90 text-black rounded-tr-none shadow-lg"
-                      : "bg-gradient-to-br from-white/10 to-white/5 text-white rounded-tl-none border border-white/10"
-                  }`}
-                >
-                  <div className="text-sm leading-relaxed">
-                    {message.role === "assistant" ? (
-                      <TypingEffect text={message.content} speed={35} />
-                    ) : (
-                      formatMessageContent(message.content)
-                    )}
-                  </div>
-                  <div className="mt-2 text-xs opacity-70 flex items-center justify-between">
-                    <span>
-                      {message.timestamp.toLocaleTimeString([], {
-                        hour: "2-digit",
-                        minute: "2-digit",
-                      })}
-                    </span>
-                    <div className="flex items-center space-x-2">
-                      {message.cost && <span className="text-green-400">€{message.cost}</span>}
-                      {message.actionResult && (
-                        <span className="text-green-400 text-xs">
-                          <CheckCircle className="h-3 w-3 inline mr-1" />
-                          {message.actionResult.message}
-                        </span>
-                      )}
-                    </div>
-                  </div>
-                </div>
-              </div>
+          {activeConversation?.messages.length === 1 && (
+            <div className="space-y-6">
+              <QuickActions onActionClick={handleSubmit} isPro={isPro} />
+              <SmartSuggestions isPro={isPro} onSuggestionClick={handleSubmit} userLocation="Madrid" />
+              <ProFeaturesBanner isPro={isPro} onUpgradeClick={() => {}} />
             </div>
+          )}
+
+          {activeConversation?.messages.map((message) => (
+            <EnhancedChatMessage key={message.id} message={message} />
           ))}
 
           {isLoading && (
@@ -501,11 +466,11 @@ export default function SuitpaxAIPage() {
               <div className="max-w-[80%]">
                 <div className="flex items-center space-x-2 mb-2">
                   <img
-                    src={selectedAgent?.avatar || "/images/ai-agent-avatar.png"}
-                    alt="AI"
+                    src={selectedAgent.avatar || "/images/ai-agent-avatar.png"}
+                    alt={selectedAgent.name}
                     className="w-5 h-5 rounded-full object-cover"
                   />
-                  <span className="text-xs text-white/60">{selectedAgent?.name || "Suitpax AI"}</span>
+                  <span className="text-xs text-white/60">{selectedAgent.name}</span>
                   {thinkingMode && (
                     <Badge className="bg-blue-500/20 text-blue-300 text-xs px-2 py-0.5 rounded-full">
                       <Brain className="h-3 w-3 mr-1" />
@@ -532,34 +497,14 @@ export default function SuitpaxAIPage() {
           <div ref={messagesEndRef} />
         </div>
 
-        {/* Chat Input */}
+        {/* Enhanced Chat Input */}
         <div className="p-4 border-t border-white/10 bg-gradient-to-r from-black/50 to-black/30 backdrop-blur-sm">
-          <form onSubmit={handleSubmit} className="relative">
-            <div className="relative">
-              <input
-                type="text"
-                value={input}
-                onChange={(e) => setInput(e.target.value)}
-                onFocus={() => setIsFocused(true)}
-                onBlur={() => setIsFocused(false)}
-                placeholder={`Ask ${selectedAgent?.name || "Suitpax AI"} to help with your business travel...`}
-                disabled={isLoading}
-                className={`w-full bg-white/10 border border-white/20 text-white placeholder:text-white/40 rounded-lg pl-4 pr-16 py-3 focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 transition-all backdrop-blur-sm ${
-                  isFocused ? "bg-white/15 border-white/30 shadow-lg" : ""
-                }`}
-              />
-              <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center space-x-1">
-                <Button
-                  type="submit"
-                  disabled={!input.trim() || isLoading}
-                  size="sm"
-                  className="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 disabled:opacity-50 h-8 w-8 p-0 rounded-lg transition-all hover:scale-105 shadow-lg"
-                >
-                  <Zap className="h-4 w-4 text-white" />
-                </Button>
-              </div>
-            </div>
-          </form>
+          <AnimatedChatInput
+            onSubmit={handleSubmit}
+            isLoading={isLoading}
+            placeholder={`Ask ${selectedAgent.name} to help with your business travel...`}
+            selectedAgent={selectedAgent}
+          />
         </div>
       </div>
     </div>

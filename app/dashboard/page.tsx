@@ -6,8 +6,6 @@ import { useState, useRef, useEffect } from "react"
 import Link from "next/link"
 import Image from "next/image"
 import {
-  PlusIcon,
-  CreditCardIcon,
   PaperAirplaneIcon,
   BuildingOfficeIcon,
   ChartBarIcon,
@@ -15,6 +13,7 @@ import {
   BanknotesIcon,
 } from "@heroicons/react/24/outline"
 import { TypingEffect } from "@/components/ui/typing-effect"
+import DashboardHeader from "@/components/ui/dashboard-header"
 
 interface Message {
   id: string
@@ -24,77 +23,17 @@ interface Message {
   isTyping?: boolean
 }
 
-interface DashboardStats {
-  totalTrips: number
-  totalExpenses: number
-  countriesVisited: number
-  onTimeArrivals: number
-  pendingTasks: number
-  monthlyBudget: number
-}
-
 export default function DashboardPage() {
   const [chatInput, setChatInput] = useState("")
   const [messages, setMessages] = useState<Message[]>([])
   const [isLoading, setIsLoading] = useState(false)
   const [isChatExpanded, setIsChatExpanded] = useState(false)
-  const [stats, setStats] = useState<DashboardStats>({
-    totalTrips: 0,
-    totalExpenses: 0,
-    countriesVisited: 0,
-    onTimeArrivals: 0,
-    pendingTasks: 0,
-    monthlyBudget: 0,
-  })
-  const [user, setUser] = useState<any>(null)
-  const [isLoadingStats, setIsLoadingStats] = useState(false)
   const messagesEndRef = useRef<HTMLDivElement>(null)
-
-  // Load user and dashboard data
-  useEffect(() => {
-    loadUserData()
-    loadDashboardStats()
-  }, [])
 
   // Auto scroll to bottom
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
   }, [messages])
-
-  const loadUserData = async () => {
-    try {
-      // Mock user data for demo
-      setUser({
-        email: "demo@suitpax.com",
-        user_metadata: {
-          name: "Demo User",
-          plan: "pro",
-        },
-      })
-    } catch (error) {
-      console.error("Error loading user:", error)
-    }
-  }
-
-  const loadDashboardStats = async () => {
-    try {
-      setIsLoadingStats(true)
-
-      // Mock stats for demo
-      setStats({
-        totalTrips: 12,
-        totalExpenses: 15420,
-        countriesVisited: 8,
-        onTimeArrivals: 95,
-        pendingTasks: 3,
-        monthlyBudget: 25000,
-      })
-    } catch (error) {
-      console.error("Error loading dashboard stats:", error)
-    } finally {
-      setIsLoadingStats(false)
-    }
-  }
 
   const handleChatSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -120,12 +59,9 @@ export default function DashboardPage() {
         },
         body: JSON.stringify({
           message: userMessage.content,
-          plan: user?.user_metadata?.plan || "free",
+          isPro: true,
+          plan: "business",
           conversationId: "dashboard-chat",
-          userProfile: {
-            name: user?.user_metadata?.name,
-            email: user?.email,
-          },
         }),
       })
 
@@ -144,13 +80,6 @@ export default function DashboardPage() {
       }
 
       setMessages((prev) => [...prev, assistantMessage])
-
-      // If an action was executed, refresh stats
-      if (data.actionExecuted) {
-        setTimeout(() => {
-          loadDashboardStats()
-        }, 1000)
-      }
     } catch (error) {
       console.error("Error getting AI response:", error)
 
@@ -181,44 +110,8 @@ export default function DashboardPage() {
   return (
     <div className="min-h-screen bg-black p-3 text-white">
       <div className="max-w-7xl mx-auto space-y-4">
-        {/* Header */}
-        <header className="bg-white/5 border border-white/10 rounded-2xl p-6 md:p-8 backdrop-blur-sm">
-          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-            <div>
-              <h1 className="text-3xl md:text-4xl font-light tracking-tighter text-white mb-2">
-                {user?.user_metadata?.name ? `Welcome back, ${user.user_metadata.name}` : "Dashboard"}
-              </h1>
-              <p className="text-white/70 font-light">
-                {stats.totalTrips === 0 && stats.totalExpenses === 0
-                  ? "Let's get started with your business travel management."
-                  : "Here's what's happening with your business travel."}
-              </p>
-            </div>
-            <div className="flex items-center space-x-3">
-              <Link
-                href="/expenses"
-                className="inline-flex items-center px-4 py-2 bg-white/10 hover:bg-white/20 border border-white/20 rounded-xl text-white text-sm font-light transition-all duration-200"
-              >
-                <PlusIcon className="h-4 w-4 mr-2" />
-                Add Expense
-              </Link>
-              <Link
-                href="/smart-bank"
-                className="inline-flex items-center px-4 py-2 bg-blue-500/20 hover:bg-blue-500/30 border border-blue-500/30 rounded-xl text-blue-300 text-sm font-light transition-all duration-200"
-              >
-                <CreditCardIcon className="h-4 w-4 mr-2" />
-                Connect Bank
-              </Link>
-              <Link
-                href="/flights"
-                className="inline-flex items-center px-4 py-2 bg-white text-black hover:bg-white/90 rounded-xl text-sm font-medium transition-all duration-200"
-              >
-                <PaperAirplaneIcon className="h-4 w-4 mr-2" />
-                Book Flight
-              </Link>
-            </div>
-          </div>
-        </header>
+        {/* Enhanced Header */}
+        <DashboardHeader />
 
         {/* AI Chat Section */}
         <div
@@ -233,7 +126,7 @@ export default function DashboardPage() {
               </div>
               <div>
                 <h2 className="text-lg font-light text-white">Suitpax AI Assistant</h2>
-                <p className="text-xs text-white/60 font-light">Hey, I'm Suitpax AI. What's your next trip?</p>
+                <p className="text-xs text-white/60 font-light">Ask me anything about your travel needs</p>
               </div>
             </div>
           </div>
@@ -253,10 +146,10 @@ export default function DashboardPage() {
                       </div>
                     )}
                     <div
-                      className={`rounded-full py-3 px-4 ${
+                      className={`rounded-xl py-2 px-3 ${
                         message.role === "user"
-                          ? "bg-white text-black rounded-tr-lg"
-                          : "bg-white/5 text-white rounded-tl-lg border border-white/10"
+                          ? "bg-white text-black rounded-tr-none"
+                          : "bg-white/5 text-white rounded-tl-none border border-white/10"
                       }`}
                     >
                       <div className="text-sm leading-relaxed font-light">
@@ -279,7 +172,7 @@ export default function DashboardPage() {
                       </div>
                       <span className="text-xs text-white/50 font-light">Suitpax AI</span>
                     </div>
-                    <div className="bg-white/5 rounded-full rounded-tl-lg py-3 px-4 border border-white/10">
+                    <div className="bg-white/5 rounded-xl rounded-tl-none py-2 px-3 border border-white/10">
                       <div className="flex space-x-1">
                         <div className="w-2 h-2 bg-white/50 rounded-full animate-bounce"></div>
                         <div
@@ -302,22 +195,25 @@ export default function DashboardPage() {
           {/* Chat Input */}
           <form onSubmit={handleChatSubmit} className="relative">
             <div className="relative">
-              {!isChatExpanded && (
-                <div className="absolute left-4 top-1/2 transform -translate-y-1/2 flex items-center">
-                  <div className="relative h-6 w-6 rounded-lg overflow-hidden mr-2">
-                    <Image src="/images/ai-agent-avatar.jpeg" alt="AI Assistant" fill className="object-cover" />
-                  </div>
+              <div className="absolute left-4 top-1/2 transform -translate-y-1/2 flex items-center">
+                <div className="relative h-6 w-6 rounded-lg overflow-hidden mr-2">
+                  <Image
+                    src={isChatExpanded ? "/images/ai-assistant-avatar.png" : "/images/ai-agent-avatar.jpeg"}
+                    alt="AI Assistant"
+                    fill
+                    className="object-cover"
+                  />
                 </div>
-              )}
+              </div>
               <input
                 type="text"
                 value={chatInput}
                 onChange={(e) => setChatInput(e.target.value)}
                 onFocus={handleInputFocus}
                 onBlur={handleInputBlur}
-                placeholder="Hey, I'm Suitpax AI. What's your next trip?"
+                placeholder="Ask Suitpax AI anything about your travel needs..."
                 disabled={isLoading}
-                className={`w-full ${isChatExpanded ? "pl-4" : "pl-12"} pr-12 py-3 text-sm bg-white/5 border border-white/10 rounded-xl focus:outline-none focus:ring-1 focus:ring-white/20 text-white placeholder:text-white/30 disabled:opacity-50 font-light`}
+                className="w-full pl-12 pr-12 py-3 text-sm bg-white/5 border border-white/10 rounded-xl focus:outline-none focus:ring-1 focus:ring-white/20 text-white placeholder:text-white/30 disabled:opacity-50 font-light"
               />
               <button
                 type="submit"
@@ -381,62 +277,54 @@ export default function DashboardPage() {
           </Link>
         </div>
 
-        {/* Dashboard Stats */}
+        {/* Recent Activity */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
           <div className="bg-white/5 border border-white/10 rounded-2xl p-6 backdrop-blur-sm">
-            <h2 className="text-lg font-light text-white mb-4">Recent Activity</h2>
-            {stats.totalTrips === 0 && stats.totalExpenses === 0 ? (
-              <div className="text-center py-8">
-                <p className="text-white/60 text-sm mb-4">No activity yet</p>
-                <p className="text-white/40 text-xs">Start by booking a flight or adding an expense</p>
-              </div>
-            ) : (
-              <div className="space-y-3">
-                <div className="flex items-center justify-between p-3 bg-white/5 rounded-xl">
-                  <div className="flex items-center space-x-3">
-                    <PaperAirplaneIcon className="h-5 w-5 text-blue-400" />
-                    <div>
-                      <p className="text-white font-medium text-sm">Recent Bookings</p>
-                      <p className="text-white/60 text-xs">Check your travel history</p>
-                    </div>
+            <h2 className="text-lg font-light text-white mb-4">Recent Bookings</h2>
+            <div className="space-y-3">
+              <div className="flex items-center justify-between p-3 bg-white/5 rounded-xl">
+                <div className="flex items-center space-x-3">
+                  <PaperAirplaneIcon className="h-5 w-5 text-blue-400" />
+                  <div>
+                    <p className="text-white font-medium text-sm">NYC → London</p>
+                    <p className="text-white/60 text-xs">British Airways • Dec 20</p>
                   </div>
-                  <span className="text-white/70 text-sm">{stats.totalTrips}</span>
                 </div>
+                <span className="text-white/70 text-sm">$1,250</span>
               </div>
-            )}
+              <div className="flex items-center justify-between p-3 bg-white/5 rounded-xl">
+                <div className="flex items-center space-x-3">
+                  <BuildingOfficeIcon className="h-5 w-5 text-green-400" />
+                  <div>
+                    <p className="text-white font-medium text-sm">Marriott London</p>
+                    <p className="text-white/60 text-xs">3 nights • Dec 20-23</p>
+                  </div>
+                </div>
+                <span className="text-white/70 text-sm">$450</span>
+              </div>
+            </div>
           </div>
 
           <div className="bg-white/5 border border-white/10 rounded-2xl p-6 backdrop-blur-sm">
             <h2 className="text-lg font-light text-white mb-4">Quick Stats</h2>
-            {isLoadingStats ? (
-              <div className="grid grid-cols-2 gap-4">
-                {[...Array(4)].map((_, i) => (
-                  <div key={i} className="text-center">
-                    <div className="h-6 bg-white/10 rounded animate-pulse mb-2"></div>
-                    <div className="h-4 bg-white/5 rounded animate-pulse"></div>
-                  </div>
-                ))}
+            <div className="grid grid-cols-2 gap-4">
+              <div className="text-center">
+                <p className="text-2xl font-light text-white">12</p>
+                <p className="text-white/60 text-sm font-light">Trips this year</p>
               </div>
-            ) : (
-              <div className="grid grid-cols-2 gap-4">
-                <div className="text-center">
-                  <p className="text-2xl font-light text-white">{stats.totalTrips}</p>
-                  <p className="text-white/60 text-sm font-light">Trips this year</p>
-                </div>
-                <div className="text-center">
-                  <p className="text-2xl font-light text-white">€{stats.totalExpenses.toFixed(0)}</p>
-                  <p className="text-white/60 text-sm font-light">Total expenses</p>
-                </div>
-                <div className="text-center">
-                  <p className="text-2xl font-light text-white">{stats.pendingTasks}</p>
-                  <p className="text-white/60 text-sm font-light">Pending tasks</p>
-                </div>
-                <div className="text-center">
-                  <p className="text-2xl font-light text-white">{stats.countriesVisited}</p>
-                  <p className="text-white/60 text-sm font-light">Countries visited</p>
-                </div>
+              <div className="text-center">
+                <p className="text-2xl font-light text-white">$8,450</p>
+                <p className="text-white/60 text-sm font-light">Total expenses</p>
               </div>
-            )}
+              <div className="text-center">
+                <p className="text-2xl font-light text-white">5</p>
+                <p className="text-white/60 text-sm font-light">Countries visited</p>
+              </div>
+              <div className="text-center">
+                <p className="text-2xl font-light text-white">98%</p>
+                <p className="text-white/60 text-sm font-light">On-time arrivals</p>
+              </div>
+            </div>
           </div>
         </div>
       </div>

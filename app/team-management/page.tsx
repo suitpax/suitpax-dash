@@ -203,12 +203,7 @@ export default function TeamManagementPage() {
 
   return (
     <div className="min-h-screen bg-black p-3 text-white">
-      <div className="max-w-7xl mx-auto space-y-4">
-        {/* Header */}
-        <header className="bg-white/5 border border-white/10 rounded-2xl p-6 md:p-8 backdrop-blur-sm">
-          <h1 className="text-2xl font-light text-white tracking-tight">Team Management</h1>
-        </header>
-
+      <div className="max-w-7xl mx-auto space-y-3">
         {/* Search and Filters */}
         <Card className="bg-white/5 border-white/10 backdrop-blur-sm">
           <CardContent className="p-6">

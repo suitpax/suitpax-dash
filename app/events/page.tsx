@@ -1,16 +1,95 @@
-import EventCard from "@/components/EventCard"
-import { getAllEvents } from "@/lib/data"
+"use client"
 
-export default async function EventsPage() {
-  const events = await getAllEvents()
+import { CalendarDays, MapPin, Users, Ticket } from "lucide-react"
+
+export default function EventsPage() {
+  const events = [
+    {
+      id: 1,
+      name: "Tech Summit 2024",
+      date: "March 20-22, 2024",
+      location: "San Francisco, CA",
+      type: "Conference",
+      attendees: 2500,
+      status: "registered",
+      ticketType: "VIP Pass",
+    },
+    {
+      id: 2,
+      name: "Business Networking Dinner",
+      date: "March 25, 2024",
+      location: "New York, NY",
+      type: "Networking",
+      attendees: 150,
+      status: "pending",
+      ticketType: "Standard",
+    },
+  ]
 
   return (
-    <div className="container mx-auto py-10">
-      <h1 className="text-3xl font-bold mb-5">Events</h1>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {events.map((event) => (
-          <EventCard key={event.id} event={event} />
-        ))}
+    <div className="min-h-screen bg-background text-foreground p-3">
+      <div className="max-w-7xl mx-auto space-y-6">
+        <div className="mb-4">
+          <h1 className="text-2xl font-bold mb-2">Events</h1>
+          <p className="text-muted-foreground text-sm">Discover and register for business events</p>
+        </div>
+
+        <div className="grid gap-3">
+          {events.map((event) => (
+            <div key={event.id} className="bg-card rounded-lg border p-4">
+              <div className="flex items-start justify-between mb-3">
+                <div>
+                  <h3 className="font-medium text-lg">{event.name}</h3>
+                  <span className="text-xs text-muted-foreground bg-muted px-2 py-0.5 rounded-full">{event.type}</span>
+                </div>
+                <span
+                  className={`text-xs px-2 py-1 rounded-full ${
+                    event.status === "registered"
+                      ? "bg-green-500/20 text-green-600"
+                      : "bg-yellow-500/20 text-yellow-600"
+                  }`}
+                >
+                  {event.status}
+                </span>
+              </div>
+
+              <div className="space-y-2 mb-3">
+                <div className="flex items-center text-sm text-muted-foreground">
+                  <CalendarDays className="h-4 w-4 mr-2" />
+                  {event.date}
+                </div>
+                <div className="flex items-center text-sm text-muted-foreground">
+                  <MapPin className="h-4 w-4 mr-2" />
+                  {event.location}
+                </div>
+                <div className="flex items-center text-sm text-muted-foreground">
+                  <Users className="h-4 w-4 mr-2" />
+                  {event.attendees} expected attendees
+                </div>
+                <div className="flex items-center text-sm text-muted-foreground">
+                  <Ticket className="h-4 w-4 mr-2" />
+                  {event.ticketType}
+                </div>
+              </div>
+
+              <div className="flex gap-2">
+                <button className="flex-1 py-1.5 bg-muted text-foreground text-xs rounded-lg hover:bg-muted/80 transition-colors">
+                  View Details
+                </button>
+                {event.status === "pending" && (
+                  <button className="flex-1 py-1.5 bg-muted text-foreground text-xs rounded-lg hover:bg-muted/80 transition-colors">
+                    Complete Registration
+                  </button>
+                )}
+              </div>
+            </div>
+          ))}
+        </div>
+
+        <button className="mt-4 w-full py-2 bg-muted text-foreground rounded-lg hover:bg-muted/80 transition-colors flex items-center justify-center">
+          <CalendarDays className="h-4 w-4 mr-2" />
+          Browse More Events
+        </button>
       </div>
     </div>
   )

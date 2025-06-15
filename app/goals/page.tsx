@@ -4,8 +4,7 @@ import { useState } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { Input } from "@/components/ui/input"
-import { PiTarget, PiTrendUp, PiCheckCircle, PiClock, PiWarning, PiPlus, PiCalendar } from "react-icons/pi"
+import { PiTarget, PiTrendUp, PiCheckCircle, PiClock, PiWarning, PiPlus } from "react-icons/pi"
 
 export default function GoalsPage() {
   const [showNewGoalForm, setShowNewGoalForm] = useState(false)
@@ -151,171 +150,34 @@ export default function GoalsPage() {
   const overallProgress = Math.round(goals.reduce((sum, goal) => sum + goal.progress, 0) / goals.length)
 
   return (
-    <div className="min-h-screen bg-black text-white p-3">
+    <div className="min-h-screen bg-background text-foreground p-3">
       <div className="max-w-7xl mx-auto space-y-6">
         {/* Header */}
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
-            <h1 className="text-2xl font-light tracking-tighter text-white">Goals & Objectives</h1>
-            <p className="text-white/70 text-sm font-light">Track progress towards travel management goals</p>
+            <h1 className="text-2xl font-light tracking-tighter">Travel Goals</h1>
+            <p className="text-muted-foreground text-sm font-light">Set and track travel objectives</p>
           </div>
-          <Button onClick={() => setShowNewGoalForm(true)} className="bg-white text-black hover:bg-white/90 font-light">
+          <Button className="font-light">
             <PiPlus className="h-4 w-4 mr-2" />
-            New Goal
+            Create Goal
           </Button>
         </div>
 
-        {/* Overall Progress */}
-        <Card className="bg-white/5 border-white/10">
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between mb-4">
-              <div>
-                <h2 className="text-xl font-light text-white mb-1">Overall Progress</h2>
-                <p className="text-white/70 text-sm font-light">Average completion across all goals</p>
-              </div>
-              <div className="text-right">
-                <p className="text-3xl font-light text-white">{overallProgress}%</p>
-                <p className="text-sm text-white/70 font-light">{goals.length} active goals</p>
-              </div>
-            </div>
-            <div className="w-full bg-white/10 rounded-full h-3">
-              <div
-                className="bg-gradient-to-r from-blue-400 to-purple-400 h-3 rounded-full transition-all duration-500"
-                style={{ width: `${overallProgress}%` }}
-              />
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* New Goal Form */}
-        {showNewGoalForm && (
-          <Card className="bg-white/5 border-white/10">
-            <CardHeader className="py-3">
-              <CardTitle className="text-white font-light tracking-tighter text-lg">Create New Goal</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <label className="text-white/70 text-sm font-light mb-2 block">Goal Title</label>
-                  <Input
-                    value={newGoal.title}
-                    onChange={(e) => setNewGoal({ ...newGoal, title: e.target.value })}
-                    placeholder="Enter goal title..."
-                    className="bg-white/5 border-white/10 text-white placeholder:text-white/30 font-light"
-                  />
-                </div>
-                <div>
-                  <label className="text-white/70 text-sm font-light mb-2 block">Target</label>
-                  <Input
-                    value={newGoal.target}
-                    onChange={(e) => setNewGoal({ ...newGoal, target: e.target.value })}
-                    placeholder="e.g., 15%, $50K, 90%"
-                    className="bg-white/5 border-white/10 text-white placeholder:text-white/30 font-light"
-                  />
-                </div>
-              </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <label className="text-white/70 text-sm font-light mb-2 block">Category</label>
-                  <select
-                    value={newGoal.category}
-                    onChange={(e) => setNewGoal({ ...newGoal, category: e.target.value })}
-                    className="w-full px-3 py-2 text-sm bg-white/5 border border-white/10 rounded-lg text-white font-light"
-                  >
-                    <option value="cost-reduction">Cost Reduction</option>
-                    <option value="compliance">Compliance</option>
-                    <option value="sustainability">Sustainability</option>
-                    <option value="efficiency">Efficiency</option>
-                    <option value="operations">Operations</option>
-                  </select>
-                </div>
-                <div>
-                  <label className="text-white/70 text-sm font-light mb-2 block">Deadline</label>
-                  <Input
-                    type="date"
-                    value={newGoal.deadline}
-                    onChange={(e) => setNewGoal({ ...newGoal, deadline: e.target.value })}
-                    className="bg-white/5 border-white/10 text-white font-light"
-                  />
-                </div>
-              </div>
-              <div className="flex gap-2 pt-2">
-                <Button onClick={addNewGoal} className="bg-white text-black hover:bg-white/90 font-light">
-                  Create Goal
-                </Button>
-                <Button
-                  onClick={() => setShowNewGoalForm(false)}
-                  variant="outline"
-                  className="border-white/20 text-white hover:bg-white/10 font-light"
-                >
-                  Cancel
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-        )}
-
-        {/* Goals List */}
-        <Card className="bg-white/5 border-white/10">
+        {/* Empty State */}
+        <Card>
           <CardHeader className="py-3">
-            <CardTitle className="text-white font-light tracking-tighter text-lg">Active Goals</CardTitle>
+            <CardTitle className="font-light tracking-tighter text-lg">Your Goals</CardTitle>
           </CardHeader>
-          <CardContent className="py-2">
-            <div className="space-y-4">
-              {goals.map((goal) => (
-                <div
-                  key={goal.id}
-                  className="p-4 bg-white/5 border border-white/10 rounded-lg hover:bg-white/8 transition-colors"
-                >
-                  <div className="flex items-start justify-between mb-3">
-                    <div className="flex items-start gap-3 flex-1">
-                      <div className="w-10 h-10 bg-white/10 rounded-lg flex items-center justify-center">
-                        <PiTarget className="h-5 w-5 text-white/70" />
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-2 mb-1">
-                          <h3 className="font-light text-white">{goal.title}</h3>
-                          {getStatusBadge(goal.status)}
-                        </div>
-                        <p className="text-sm text-white/70 font-light mb-2">{goal.description}</p>
-                        <div className="flex items-center gap-4 text-xs text-white/50">
-                          <Badge className={`text-xs font-light ${getCategoryColor(goal.category)}`}>
-                            {goal.category}
-                          </Badge>
-                          <div className="flex items-center gap-1">
-                            <PiCalendar className="h-3 w-3" />
-                            <span className="font-light">Due: {goal.deadline}</span>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                    <div className="text-right">
-                      <p className="text-lg font-light text-white">{goal.current}</p>
-                      <p className="text-xs text-white/50 font-light">of {goal.target}</p>
-                    </div>
-                  </div>
-                  <div className="space-y-2">
-                    <div className="flex items-center justify-between text-xs text-white/70">
-                      <span className="font-light">Progress</span>
-                      <span className="font-light">{goal.progress}%</span>
-                    </div>
-                    <div className="w-full bg-white/10 rounded-full h-2">
-                      <div
-                        className={`h-2 rounded-full transition-all duration-500 ${
-                          goal.progress >= 90
-                            ? "bg-green-400"
-                            : goal.progress >= 70
-                              ? "bg-blue-400"
-                              : goal.progress >= 50
-                                ? "bg-yellow-400"
-                                : "bg-red-400"
-                        }`}
-                        style={{ width: `${goal.progress}%` }}
-                      />
-                    </div>
-                  </div>
-                </div>
-              ))}
+          <CardContent className="py-8">
+            <div className="text-center">
+              <PiTarget className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
+              <h3 className="text-lg font-medium mb-2">No goals set yet</h3>
+              <p className="text-muted-foreground mb-4">Create your first goal to start tracking travel objectives.</p>
+              <Button>
+                <PiPlus className="h-4 w-4 mr-2" />
+                Set Goal
+              </Button>
             </div>
           </CardContent>
         </Card>

@@ -30,7 +30,7 @@ const defaultProfile = {
   subscription: "Business Premium",
 } satisfies Required<ProfileMenuProps>
 
-export default function ProfileMenu({
+function ProfileMenu({
   name = defaultProfile.name,
   role = defaultProfile.role,
   company = defaultProfile.company,
@@ -255,3 +255,6 @@ export default function ProfileMenu({
     </div>
   )
 }
+
+export { ProfileMenu }
+export default ProfileMenu

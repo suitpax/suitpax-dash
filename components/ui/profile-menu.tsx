@@ -58,7 +58,7 @@ export default function ProfileMenu({
   const menuItems: MenuItem[] = [
     {
       label: "Profile",
-      href: "#",
+      href: "/profile",
       icon: (
         <svg
           xmlns="http://www.w3.org/2000/svg"
@@ -78,8 +78,8 @@ export default function ProfileMenu({
     },
     {
       label: "Company",
-      value: company,
-      href: "#",
+      value: profileData.company,
+      href: "/team-management",
       icon: (
         <svg
           xmlns="http://www.w3.org/2000/svg"
@@ -98,8 +98,8 @@ export default function ProfileMenu({
     },
     {
       label: "Subscription",
-      value: subscription,
-      href: "#",
+      value: profileData.subscription,
+      href: "/plans",
       icon: (
         <svg
           xmlns="http://www.w3.org/2000/svg"
@@ -119,7 +119,7 @@ export default function ProfileMenu({
     },
     {
       label: "Settings",
-      href: "#",
+      href: "/settings",
       icon: (
         <svg
           xmlns="http://www.w3.org/2000/svg"
@@ -138,7 +138,7 @@ export default function ProfileMenu({
     },
     {
       label: "Terms & Policies",
-      href: "#",
+      href: "/travel-policy",
       icon: (
         <svg
           xmlns="http://www.w3.org/2000/svg"
@@ -157,7 +157,7 @@ export default function ProfileMenu({
           <polyline points="10 9 9 9 8 9" />
         </svg>
       ),
-      external: true,
+      external: false,
     },
   ]
 
@@ -176,7 +176,7 @@ export default function ProfileMenu({
                 className="rounded-md ring-2 ring-white/10 object-cover w-[56px] h-[56px]"
                 priority
               />
-              <div className="absolute bottom-0 right-0 w-3 h-3 rounded-full bg-green-500 ring-2 ring-black" />
+              <div className="absolute bottom-0 right-0 w-2.5 h-2.5 rounded-full bg-green-500 ring-2 ring-black" />
             </div>
 
             {/* Profile Info - Más compacto */}

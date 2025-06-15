@@ -27,88 +27,8 @@ interface TeamMember {
   permissions: string[]
 }
 
-const mockTeamMembers: TeamMember[] = [
-  {
-    id: "1",
-    name: "Sarah Johnson",
-    email: "sarah.johnson@company.com",
-    role: "Travel Manager",
-    department: "Operations",
-    avatar: "/images/team/genevieve-mclean.jpeg",
-    status: "Active",
-    joinDate: "2023-01-15",
-    lastActive: "2024-01-15",
-    phone: "+1 (555) 123-4567",
-    location: "New York, NY",
-    travelBudget: 15000,
-    totalTrips: 24,
-    permissions: ["manage_bookings", "approve_expenses", "view_reports"],
-  },
-  {
-    id: "2",
-    name: "Michael Chen",
-    email: "michael.chen@company.com",
-    role: "Senior Executive",
-    department: "Sales",
-    avatar: "/images/team/lyle-kauffman.jpeg",
-    status: "Active",
-    joinDate: "2022-08-20",
-    lastActive: "2024-01-14",
-    phone: "+1 (555) 234-5678",
-    location: "San Francisco, CA",
-    travelBudget: 25000,
-    totalTrips: 42,
-    permissions: ["book_travel", "submit_expenses"],
-  },
-  {
-    id: "3",
-    name: "Emily Rodriguez",
-    email: "emily.rodriguez@company.com",
-    role: "Team Member",
-    department: "Marketing",
-    avatar: "/images/team/isla-allison.jpeg",
-    status: "Active",
-    joinDate: "2023-03-10",
-    lastActive: "2024-01-13",
-    phone: "+1 (555) 345-6789",
-    location: "Chicago, IL",
-    travelBudget: 8000,
-    totalTrips: 12,
-    permissions: ["book_travel", "submit_expenses"],
-  },
-  {
-    id: "4",
-    name: "David Park",
-    email: "david.park@company.com",
-    role: "Admin",
-    department: "IT",
-    avatar: "/images/team/orlando-diggs.jpeg",
-    status: "Active",
-    joinDate: "2021-11-05",
-    lastActive: "2024-01-15",
-    phone: "+1 (555) 456-7890",
-    location: "Austin, TX",
-    travelBudget: 12000,
-    totalTrips: 18,
-    permissions: ["manage_users", "system_admin", "view_reports"],
-  },
-  {
-    id: "5",
-    name: "Lisa Thompson",
-    email: "lisa.thompson@company.com",
-    role: "Team Member",
-    department: "Finance",
-    avatar: "/images/team/isobel-fuller.jpeg",
-    status: "Pending",
-    joinDate: "2024-01-10",
-    lastActive: "Never",
-    phone: "+1 (555) 567-8901",
-    location: "Boston, MA",
-    travelBudget: 10000,
-    totalTrips: 0,
-    permissions: ["book_travel", "submit_expenses"],
-  },
-]
+// Empty initial state - users will add their own team members
+const mockTeamMembers: TeamMember[] = []
 
 const roles = ["Travel Manager", "Senior Executive", "Team Member", "Admin"]
 const departments = ["Operations", "Sales", "Marketing", "IT", "Finance", "HR", "Legal"]
@@ -207,6 +127,7 @@ export default function TeamManagementPage() {
         {/* Header */}
         <header className="bg-white/5 border border-white/10 rounded-2xl p-6 md:p-8 backdrop-blur-sm">
           <h1 className="text-2xl font-light text-white tracking-tight">Team Management</h1>
+          <p className="text-white/70 text-sm font-light mt-2">Manage your team members and their travel permissions</p>
         </header>
 
         {/* Search and Filters */}
@@ -416,97 +337,112 @@ export default function TeamManagementPage() {
           </div>
         </div>
 
+        {/* Empty State */}
+        {filteredMembers.length === 0 && (
+          <Card className="bg-white/5 border-white/10">
+            <CardContent className="p-12 text-center">
+              <div className="max-w-md mx-auto">
+                <UserPlus className="h-16 w-16 mx-auto text-white/30 mb-4" />
+                <h3 className="text-xl font-light text-white mb-2">No team members yet</h3>
+                <p className="text-white/50 text-sm mb-6">
+                  Start building your team by inviting members to join your travel management platform.
+                </p>
+                <Button
+                  onClick={() => setShowInviteDialog(true)}
+                  className="bg-white text-black hover:bg-white/90 rounded-xl"
+                >
+                  <UserPlus className="h-4 w-4 mr-2" />
+                  Invite Your First Member
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
         {/* Team Members Grid */}
-        <div className="space-y-3">
-          {filteredMembers.map((member, index) => (
-            <Card
-              key={member.id}
-              className="bg-white/5 border-white/10 hover:bg-white/10 transition-all"
-              style={{ animation: `fadeInUp 0.5s ${index * 0.05}s ease-out forwards`, opacity: 0 }}
-            >
-              <CardContent className="p-4">
-                <div className="flex flex-col lg:flex-row gap-4">
-                  <div className="flex items-center gap-4 flex-1">
-                    <div className="relative h-12 w-12 rounded-full overflow-hidden bg-white/10">
-                      <Image
-                        src={member.avatar || "/placeholder.svg"}
-                        alt={member.name}
-                        fill
-                        className="object-cover"
-                      />
-                    </div>
-                    <div className="flex-1">
-                      <div className="flex items-center gap-2 mb-1">
-                        <h3 className="text-lg font-medium text-white">{member.name}</h3>
-                        <Badge className={`text-xs ${getStatusColor(member.status)}`}>{member.status}</Badge>
+        {filteredMembers.length > 0 && (
+          <div className="space-y-3">
+            {filteredMembers.map((member, index) => (
+              <Card
+                key={member.id}
+                className="bg-white/5 border-white/10 hover:bg-white/10 transition-all"
+                style={{ animation: `fadeInUp 0.5s ${index * 0.05}s ease-out forwards`, opacity: 0 }}
+              >
+                <CardContent className="p-4">
+                  <div className="flex flex-col lg:flex-row gap-4">
+                    <div className="flex items-center gap-4 flex-1">
+                      <div className="relative h-12 w-12 rounded-full overflow-hidden bg-white/10">
+                        <Image
+                          src={member.avatar || "/placeholder.svg"}
+                          alt={member.name}
+                          fill
+                          className="object-cover"
+                        />
                       </div>
-                      <p className="text-sm text-white/70">{member.email}</p>
-                      <div className="flex items-center gap-4 mt-2 text-xs text-white/50">
-                        <span>
-                          {member.role} • {member.department}
-                        </span>
-                        {member.location && (
+                      <div className="flex-1">
+                        <div className="flex items-center gap-2 mb-1">
+                          <h3 className="text-lg font-medium text-white">{member.name}</h3>
+                          <Badge className={`text-xs ${getStatusColor(member.status)}`}>{member.status}</Badge>
+                        </div>
+                        <p className="text-sm text-white/70">{member.email}</p>
+                        <div className="flex items-center gap-4 mt-2 text-xs text-white/50">
+                          <span>
+                            {member.role} • {member.department}
+                          </span>
+                          {member.location && (
+                            <>
+                              <span>•</span>
+                              <div className="flex items-center gap-1">
+                                <MapPin className="h-3 w-3" />
+                                <span>{member.location}</span>
+                              </div>
+                            </>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                    <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
+                      <div className="flex flex-col sm:flex-row gap-2 text-sm text-white/50">
+                        <span>Joined {new Date(member.joinDate).toLocaleDateString()}</span>
+                        <span className="hidden sm:inline">•</span>
+                        <span>Last active {member.lastActive}</span>
+                        {member.totalTrips !== undefined && (
                           <>
-                            <span>•</span>
-                            <div className="flex items-center gap-1">
-                              <MapPin className="h-3 w-3" />
-                              <span>{member.location}</span>
-                            </div>
+                            <span className="hidden sm:inline">•</span>
+                            <span>{member.totalTrips} trips</span>
+                          </>
+                        )}
+                        {member.travelBudget && (
+                          <>
+                            <span className="hidden sm:inline">•</span>
+                            <span>Budget: ${member.travelBudget.toLocaleString()}</span>
                           </>
                         )}
                       </div>
+                      <div className="flex gap-2">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => setSelectedMember(member)}
+                          className="bg-white/5 hover:bg-white/10 border-white/10 text-white rounded-lg h-8 px-3 text-xs"
+                        >
+                          View Details
+                        </Button>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => handleRemoveMember(member.id)}
+                          className="bg-red-500/10 hover:bg-red-500/20 border-red-500/20 text-red-400 rounded-lg h-8 px-3 text-xs"
+                        >
+                          Remove
+                        </Button>
+                      </div>
                     </div>
                   </div>
-                  <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
-                    <div className="flex flex-col sm:flex-row gap-2 text-sm text-white/50">
-                      <span>Joined {new Date(member.joinDate).toLocaleDateString()}</span>
-                      <span className="hidden sm:inline">•</span>
-                      <span>Last active {member.lastActive}</span>
-                      {member.totalTrips !== undefined && (
-                        <>
-                          <span className="hidden sm:inline">•</span>
-                          <span>{member.totalTrips} trips</span>
-                        </>
-                      )}
-                      {member.travelBudget && (
-                        <>
-                          <span className="hidden sm:inline">•</span>
-                          <span>Budget: ${member.travelBudget.toLocaleString()}</span>
-                        </>
-                      )}
-                    </div>
-                    <div className="flex gap-2">
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => setSelectedMember(member)}
-                        className="bg-white/5 hover:bg-white/10 border-white/10 text-white rounded-lg h-8 px-3 text-xs"
-                      >
-                        View Details
-                      </Button>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => handleRemoveMember(member.id)}
-                        className="bg-red-500/10 hover:bg-red-500/20 border-red-500/20 text-red-400 rounded-lg h-8 px-3 text-xs"
-                      >
-                        Remove
-                      </Button>
-                    </div>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-
-        {filteredMembers.length === 0 && (
-          <Card className="bg-white/5 border-white/10">
-            <CardContent className="p-8 text-center">
-              <div className="text-white/50 mb-2">No team members found</div>
-              <div className="text-sm text-white/30">Try adjusting your search or filters</div>
-            </CardContent>
-          </Card>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
         )}
 
         {/* Member Details Dialog */}

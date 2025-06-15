@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
 import { TypingEffect } from "@/components/ui/typing-effect"
 import { useSpeechRecognition } from "@/lib/hooks/use-speech-recognition"
+import { userProfileService } from "@/lib/services/user-profile.service"
 import { PiPaperclip, PiMicrophone, PiMicrophoneSlash, PiGear, PiPlus, PiArrowRight, PiStop } from "react-icons/pi"
 
 interface Message {
@@ -28,14 +29,14 @@ interface Conversation {
 }
 
 const suggestedQueries = [
-  "Find flights to London",
-  "Hotel recommendations in Tokyo",
-  "Calculate travel expenses",
-  "Best time to visit Paris",
-  "Create travel itinerary",
-  "Expense policy guidelines",
-  "Airport lounge access",
-  "Currency exchange rates",
+  "Search flights to London",
+  "Find hotels in Tokyo",
+  "Check my travel budget",
+  "What's my carbon footprint?",
+  "Show expense reports",
+  "Book a meeting room",
+  "Currency rates EUR to USD",
+  "Travel policy guidelines",
 ]
 
 const aiAgents = [
@@ -45,131 +46,6 @@ const aiAgents = [
   { id: 4, name: "Support Agent", avatar: "/images/ai-agents/agent-4.jpg", specialty: "General Support" },
 ]
 
-// Enhanced AI response system
-const generateEnhancedResponse = (userInput: string, conversationHistory: Message[]): string => {
-  const input = userInput.toLowerCase()
-
-  // Check if asking for a list
-  if (input.includes("list") || input.includes("show me") || input.includes("give me")) {
-    if (input.includes("flight") || input.includes("airline")) {
-      return `Here are the top airlines for business travel:
-
-1. **Emirates** - Premium service, excellent lounges
-2. **Singapore Airlines** - Award-winning service, modern fleet  
-3. **Qatar Airways** - Luxury experience, global network
-4. **Lufthansa** - Reliable European carrier, good business class
-5. **American Airlines** - Extensive US network, solid rewards program
-
-Would you like me to search for specific routes or compare prices?`
-    }
-
-    if (input.includes("hotel") || input.includes("accommodation")) {
-      return `Top business hotel chains worldwide:
-
-1. **Marriott International** - Extensive global presence, excellent rewards
-2. **Hilton Hotels** - Premium locations, consistent quality
-3. **Hyatt Hotels** - Boutique experience, personalized service
-4. **InterContinental** - Luxury properties, business amenities
-5. **Accor Hotels** - European focus, diverse portfolio
-
-Need help finding hotels in a specific city?`
-    }
-  }
-
-  // Expense calculations
-  if (input.includes("calculate") || input.includes("cost") || input.includes("price")) {
-    return `I can help you calculate travel expenses! Here's what I can analyze:
-
-• **Flight costs** - Compare airlines and routes
-• **Hotel rates** - Find best deals by location  
-• **Per diem calculations** - Based on destination
-• **Currency conversions** - Real-time exchange rates
-• **Total trip budget** - Comprehensive cost breakdown
-
-What specific calculation do you need?`
-  }
-
-  // Travel recommendations
-  if (input.includes("recommend") || input.includes("suggest") || input.includes("best")) {
-    if (input.includes("destination") || input.includes("place") || input.includes("city")) {
-      return `Based on current business travel trends, here are top destinations:
-
-**Europe:** London, Paris, Frankfurt, Amsterdam, Zurich
-**Asia:** Singapore, Tokyo, Hong Kong, Seoul, Dubai  
-**Americas:** New York, San Francisco, Toronto, São Paulo
-
-Each offers excellent business infrastructure, connectivity, and professional services. What type of business are you traveling for?`
-    }
-  }
-
-  // Funny responses
-  if (input.includes("joke") || input.includes("funny") || input.includes("laugh")) {
-    return `Why did the business traveler bring a ladder to the airport? Because they heard the prices were through the roof! 😄
-
-But seriously, at Suitpax - the next gen traveltech startup - we're working to bring those prices back down to earth with smart booking algorithms and AI-powered deals.`
-  }
-
-  // Singing about Suitpax
-  if (input.includes("sing") || input.includes("song") || input.includes("music")) {
-    return `🎵 *Suitpax, Suitpax, the future is here,*
-*Next gen traveltech, crystal clear,*
-*Book your flights with AI so smart,*
-*Business travel reimagined from the start!* 🎵
-
-That's our unofficial anthem! Suitpax is revolutionizing how companies manage business travel through intelligent automation.`
-  }
-
-  // Code requests
-  if (
-    input.includes("code") ||
-    input.includes("typescript") ||
-    input.includes("javascript") ||
-    input.includes("react")
-  ) {
-    return `I can help with frontend code! Here's a TypeScript React component example:
-
-\`\`\`typescript
-interface TravelBookingProps {
-  destination: string;
-  dates: {
-    departure: Date;
-    return: Date;
-  };
-}
-
-const TravelBooking: React.FC<TravelBookingProps> = ({ destination, dates }) => {
-  const [isLoading, setIsLoading] = useState(false);
-  
-  const handleBooking = async () => {
-    setIsLoading(true);
-    // Booking logic here
-    setIsLoading(false);
-  };
-  
-  return (
-    <div className="bg-black text-white p-4 rounded-lg">
-      <h2>Book Travel to {destination}</h2>
-      <button 
-        onClick={handleBooking}
-        disabled={isLoading}
-        className="bg-white/10 hover:bg-white/20 px-4 py-2 rounded"
-      >
-        {isLoading ? 'Booking...' : 'Book Now'}
-      </button>
-    </div>
-  );
-};
-\`\`\`
-
-Need help with a specific implementation?`
-  }
-
-  // Default enhanced response
-  return `I'm here to help with your business travel needs! As part of Suitpax, the next gen traveltech startup, I can assist with flight bookings, hotel reservations, expense calculations, travel policy guidance, and much more.
-
-What would you like to explore today?`
-}
-
 export default function SuitpaxAIPage() {
   const [input, setInput] = useState("")
   const [isLoading, setIsLoading] = useState(false)
@@ -178,11 +54,18 @@ export default function SuitpaxAIPage() {
   const [isFocused, setIsFocused] = useState(false)
   const [isTypingResponse, setIsTypingResponse] = useState(false)
   const [tokenCount, setTokenCount] = useState(0)
-  const [tokenLimit] = useState(2000) // Based on Pro plan
+  const [tokenLimit] = useState(2000)
+  const [userProfile, setUserProfile] = useState<any>(null)
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
   const { isListening, transcript, startListening, stopListening, resetTranscript, isSupported } =
     useSpeechRecognition()
+
+  // Get user profile on mount
+  useEffect(() => {
+    const profile = userProfileService.getUserProfile()
+    setUserProfile(profile)
+  }, [])
 
   // Update input when transcript changes
   useEffect(() => {
@@ -191,7 +74,7 @@ export default function SuitpaxAIPage() {
     }
   }, [transcript])
 
-  // Initialize with empty conversation (no greeting)
+  // Initialize with empty conversation
   useEffect(() => {
     const newConversation: Conversation = {
       id: "initial",
@@ -223,7 +106,7 @@ export default function SuitpaxAIPage() {
       role: "user",
       content: input.trim(),
       timestamp: new Date(),
-      tokens: Math.ceil(input.trim().length / 4), // Rough token estimation
+      tokens: Math.ceil(input.trim().length / 4),
     }
 
     // Update conversation with user message
@@ -247,21 +130,35 @@ export default function SuitpaxAIPage() {
     setTokenCount((prev) => prev + userMessage.tokens!)
 
     try {
-      // Generate enhanced response
-      const responseContent = generateEnhancedResponse(userMessage.content, activeConversation.messages)
+      // Call real API instead of mock responses
+      const response = await fetch("/api/chat", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          message: userMessage.content,
+          conversationId: activeConversation.id,
+          userProfile: userProfile,
+          conversationHistory: activeConversation.messages,
+        }),
+      })
 
-      // Simulate processing time
-      await new Promise((resolve) => setTimeout(resolve, 1000 + Math.random() * 2000))
+      if (!response.ok) {
+        throw new Error("Failed to get AI response")
+      }
+
+      const data = await response.json()
 
       if (!isTypingResponse) return // User stopped the response
 
       const assistantMessage: Message = {
         id: (Date.now() + 1).toString(),
         role: "assistant",
-        content: responseContent,
+        content: data.response,
         timestamp: new Date(),
         isTyping: true,
-        tokens: Math.ceil(responseContent.length / 4),
+        tokens: data.tokens,
       }
 
       // Update conversation with assistant response
@@ -282,10 +179,10 @@ export default function SuitpaxAIPage() {
       const errorMessage: Message = {
         id: (Date.now() + 1).toString(),
         role: "assistant",
-        content: "I apologize, but I encountered an error. Please try again or contact our support team.",
+        content: "I'm having trouble connecting right now. Please try again in a moment!",
         timestamp: new Date(),
         isTyping: true,
-        tokens: 20,
+        tokens: 15,
       }
 
       const errorConversation = {
@@ -338,7 +235,7 @@ export default function SuitpaxAIPage() {
             </div>
             <div>
               <h1 className="text-xl font-medium text-white tracking-tight">Suitpax AI</h1>
-              <p className="text-xs text-white/60 font-light">Next Gen Travel Assistant</p>
+              <p className="text-xs text-white/60 font-light">Your Travel Assistant</p>
             </div>
           </div>
           <div className="flex items-center space-x-2">
@@ -359,21 +256,21 @@ export default function SuitpaxAIPage() {
         </div>
 
         {/* AI Agents Row */}
-        <div className="p-4 border-b border-white/10">
-          <div className="flex items-center space-x-2 overflow-x-auto pb-2">
-            <span className="text-sm text-white/50 font-light whitespace-nowrap mr-2">Specialized Agents:</span>
+        <div className="p-3 border-b border-white/10">
+          <div className="flex items-center space-x-3 overflow-x-auto pb-2">
+            <span className="text-xs text-white/40 font-light whitespace-nowrap">Specialized Agents:</span>
             <div className="flex space-x-2">
               {aiAgents.map((agent) => (
                 <div
                   key={agent.id}
-                  className="flex items-center space-x-2 bg-white/5 border border-white/10 hover:border-white/20 hover:bg-white/10 rounded-lg px-3 py-2 cursor-pointer transition-all duration-200 whitespace-nowrap min-w-fit"
+                  className="flex items-center space-x-2 bg-white/5 border border-white/10 hover:border-white/20 hover:bg-white/10 rounded-xl px-3 py-2 cursor-pointer transition-all duration-200 whitespace-nowrap min-w-fit"
                 >
-                  <div className="relative h-5 w-5 rounded-full overflow-hidden flex-shrink-0">
+                  <div className="relative h-4 w-4 rounded-full overflow-hidden flex-shrink-0">
                     <Image src={agent.avatar || "/placeholder.svg"} alt={agent.name} fill className="object-cover" />
                   </div>
                   <div className="min-w-0">
                     <p className="text-xs font-medium text-white truncate">{agent.name}</p>
-                    <p className="text-[10px] text-white/50 font-light truncate">{agent.specialty}</p>
+                    <p className="text-[9px] text-white/40 font-light truncate">{agent.specialty}</p>
                   </div>
                 </div>
               ))}
@@ -387,7 +284,9 @@ export default function SuitpaxAIPage() {
           {(!activeConversation?.messages || activeConversation.messages.length === 0) && (
             <div className="flex items-center justify-center h-full">
               <div className="text-center">
-                <h2 className="text-2xl font-serif tracking-tighter text-white/80 mb-4">Try Suitpax AI</h2>
+                <h2 className="text-2xl font-serif tracking-tighter text-white/80 mb-4">
+                  {userProfile?.name ? `Hi ${userProfile.name}!` : "Welcome to Suitpax AI"}
+                </h2>
                 <p className="text-white/50 text-sm">Ask me anything about business travel, expenses, or bookings</p>
               </div>
             </div>
@@ -402,6 +301,16 @@ export default function SuitpaxAIPage() {
                       <Image src="/images/ai-agent-avatar.jpeg" alt="AI" fill className="object-cover" />
                     </div>
                     <Badge className="bg-white/10 text-white/70 text-xs rounded-full border-white/20">Suitpax AI</Badge>
+                  </div>
+                )}
+                {message.role === "user" && userProfile?.avatar && (
+                  <div className="flex items-center space-x-2 mb-2 justify-end">
+                    <Badge className="bg-blue-500/20 text-blue-400 text-xs rounded-full border-blue-500/30">
+                      {userProfile.name || "You"}
+                    </Badge>
+                    <div className="relative h-6 w-6 rounded-full overflow-hidden bg-white/10 flex items-center justify-center">
+                      <Image src={userProfile.avatar || "/placeholder.svg"} alt="User" fill className="object-cover" />
+                    </div>
                   </div>
                 )}
                 <div
@@ -475,13 +384,13 @@ export default function SuitpaxAIPage() {
 
         {/* Suggested Queries */}
         {(!activeConversation?.messages || activeConversation.messages.length === 0) && (
-          <div className="px-4 pb-4">
+          <div className="px-3 pb-3">
             <div className="flex flex-wrap gap-2">
               {suggestedQueries.slice(0, 4).map((query, index) => (
                 <Badge
                   key={index}
                   onClick={() => handleSuggestedQuery(query)}
-                  className="bg-white/5 border border-white/10 text-white/70 hover:bg-white/10 hover:text-white cursor-pointer rounded-full text-xs px-3 py-1.5 font-light transition-all duration-200"
+                  className="bg-white/5 border border-white/10 text-white/60 hover:bg-white/10 hover:text-white cursor-pointer rounded-xl text-xs px-3 py-1 font-light transition-all duration-200"
                 >
                   {query}
                 </Badge>
@@ -491,7 +400,7 @@ export default function SuitpaxAIPage() {
         )}
 
         {/* Chat Input */}
-        <div className="p-4 border-t border-white/10">
+        <div className="p-3 border-t border-white/10">
           <form onSubmit={handleSubmit} className="relative">
             <div className="relative">
               <Input
@@ -501,40 +410,40 @@ export default function SuitpaxAIPage() {
                 onChange={(e) => setInput(e.target.value)}
                 onFocus={() => setIsFocused(true)}
                 onBlur={() => setIsFocused(false)}
-                placeholder={isListening ? "Listening..." : "Try ask anything..."}
+                placeholder={isListening ? "Listening..." : "Ask me anything..."}
                 disabled={isLoading}
-                className="bg-white/5 border-white/10 text-white placeholder:text-white/30 rounded-xl pl-4 pr-24 py-4 h-14 focus:ring-1 focus:ring-white/20 text-sm font-light transition-all duration-200 hover:bg-white/10 sm:placeholder:text-sm placeholder:text-xs"
+                className="bg-white/5 border-white/10 text-white placeholder:text-white/30 rounded-2xl pl-4 pr-20 py-3 h-12 focus:ring-1 focus:ring-white/20 text-sm font-light transition-all duration-200 hover:bg-white/10"
               />
-              <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center space-x-2">
+              <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center space-x-1">
                 <Button
                   type="button"
                   onClick={() => fileInputRef.current?.click()}
                   size="sm"
-                  className="bg-white/5 hover:bg-white/15 border border-white/10 h-8 w-8 p-0 rounded-full transition-all duration-200"
+                  className="bg-white/5 hover:bg-white/15 border border-white/10 h-7 w-7 p-0 rounded-xl transition-all duration-200"
                 >
-                  <PiPaperclip className="h-4 w-4 text-white/70" />
+                  <PiPaperclip className="h-3 w-3 text-white/70" />
                 </Button>
                 {isSupported && (
                   <Button
                     type="button"
                     onClick={toggleListening}
                     size="sm"
-                    className={`h-8 w-8 p-0 rounded-full transition-all duration-200 border ${
+                    className={`h-7 w-7 p-0 rounded-xl transition-all duration-200 border ${
                       isListening
                         ? "bg-red-500/20 text-red-400 hover:bg-red-500/30 border-red-500/30"
                         : "bg-white/5 hover:bg-white/15 border-white/10 text-white/70"
                     }`}
                   >
-                    {isListening ? <PiMicrophoneSlash className="h-4 w-4" /> : <PiMicrophone className="h-4 w-4" />}
+                    {isListening ? <PiMicrophoneSlash className="h-3 w-3" /> : <PiMicrophone className="h-3 w-3" />}
                   </Button>
                 )}
                 <Button
                   type="submit"
                   disabled={!input.trim() || isLoading}
                   size="sm"
-                  className="bg-white/10 text-white hover:bg-white/20 disabled:opacity-50 h-8 w-8 p-0 rounded-full transition-all duration-200 border border-white/20"
+                  className="bg-white/10 text-white hover:bg-white/20 disabled:opacity-50 h-7 w-7 p-0 rounded-xl transition-all duration-200 border border-white/20"
                 >
-                  <PiArrowRight className="h-4 w-4" />
+                  <PiArrowRight className="h-3 w-3" />
                 </Button>
               </div>
             </div>

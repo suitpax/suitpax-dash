@@ -68,74 +68,54 @@
   }
 }
 
-/* Enhanced Light theme specific styles */
+/* Light theme specific styles */
 .light {
-  --background: 0 0% 98%;
+  --background: 0 0% 100%;
   --foreground: 222.2 84% 4.9%;
-  --card: 0 0% 100%;
-  --card-foreground: 222.2 84% 4.9%;
-  --border: 214.3 31.8% 88%;
-  --muted: 210 40% 94%;
-  --muted-foreground: 215.4 16.3% 46.9%;
 }
 
-/* Light theme overrides for dark-specific classes */
 .light .bg-black {
-  @apply bg-white shadow-light-card;
+  @apply bg-white;
 }
 
 .light .text-white {
-  @apply text-gray-900;
+  @apply text-black;
 }
 
 .light .text-white\/70 {
-  @apply text-gray-600;
+  @apply text-black/70;
 }
 
 .light .text-white\/50 {
-  @apply text-gray-500;
+  @apply text-black/50;
 }
 
 .light .text-white\/30 {
-  @apply text-gray-400;
+  @apply text-black/30;
 }
 
 .light .border-white\/10 {
-  @apply border-gray-200;
+  @apply border-black/10;
 }
 
 .light .border-white\/20 {
-  @apply border-gray-300;
+  @apply border-black/20;
 }
 
 .light .bg-white\/5 {
-  @apply bg-gray-50;
+  @apply bg-black/5;
 }
 
 .light .bg-white\/10 {
-  @apply bg-gray-100;
+  @apply bg-black/10;
 }
 
 .light .hover\:bg-white\/5:hover {
-  @apply hover:bg-gray-50;
+  @apply hover:bg-black/5;
 }
 
 .light .hover\:bg-white\/10:hover {
-  @apply hover:bg-gray-100;
-}
-
-/* Enhanced card styles for light theme */
-.light .bg-black {
-  @apply bg-white border border-gray-200 shadow-sm;
-}
-
-.light .bg-black:hover {
-  @apply shadow-light-card-hover;
-}
-
-/* Better contrast for light theme cards */
-.light [class*="bg-black"] {
-  @apply bg-white border-gray-200;
+  @apply hover:bg-black/10;
 }
 
 /* Custom scrollbar styles */
@@ -206,17 +186,4 @@
 
 .light .chat-scroll::-webkit-scrollbar-thumb:hover {
   background-color: rgba(0, 0, 0, 0.15);
-}
-
-/* Light theme specific improvements */
-.light .bg-gradient-to-br {
-  @apply from-gray-50 to-gray-100;
-}
-
-.light .shadow-lg {
-  @apply shadow-light-card;
-}
-
-.light .ring-white\/10 {
-  @apply ring-gray-200;
 }

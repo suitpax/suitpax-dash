@@ -693,5 +693,5 @@ esac
 - Integración con APIs externas (Duffel, Nylas, etc.)
 \`\`\`
 
-\`\`\`typescriptreact file="lib/supabase/client.ts" isDeleted="true"
+```typescriptreact file="lib/supabase/client.ts" isDeleted="true"
 ...deleted...

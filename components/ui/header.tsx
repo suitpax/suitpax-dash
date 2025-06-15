@@ -6,6 +6,7 @@ import { Menu, Search, Bell, ChevronDown } from "lucide-react"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { ThemeToggle } from "@/components/ui/theme-toggle"
 import ProfileMenu from "./profile-menu"
+import { MCPStatusIndicator } from "./mcp-status-indicator"
 
 interface HeaderProps {
   onMenuClick: () => void
@@ -72,6 +73,9 @@ function Header({ onMenuClick, isSidebarOpen }: HeaderProps) {
 
       {/* Right section */}
       <div className="flex items-center gap-3">
+        {/* MCP Status Indicator */}
+        <MCPStatusIndicator />
+
         {/* Theme Toggle */}
         <ThemeToggle />
 

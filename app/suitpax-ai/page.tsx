@@ -7,7 +7,6 @@ import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Switch } from "@/components/ui/switch"
 import { TypingEffect } from "@/components/ui/typing-effect"
-import { MCPStatusIndicator } from "@/components/ui/mcp-status-indicator"
 
 interface Message {
   id: string
@@ -236,7 +235,7 @@ export default function SuitpaxAIPage() {
               </div>
               <div>
                 <h2 className="font-medium text-white">Suitpax AI</h2>
-                <p className="text-xs text-white/60">MCP Powered Intelligence</p>
+                <p className="text-xs text-white/60">Advanced Travel Intelligence</p>
               </div>
             </div>
             <Button
@@ -250,7 +249,15 @@ export default function SuitpaxAIPage() {
 
           {/* MCP Status Indicator */}
           <div className="mb-4">
-            <MCPStatusIndicator />
+            <div className="flex items-center justify-between p-2 rounded-lg bg-white/5 border border-white/10">
+              <div className="flex items-center space-x-2">
+                <div className="w-2 h-2 bg-red-500 rounded-full"></div>
+                <span className="text-sm text-white/80">MCP Status</span>
+              </div>
+              <Badge className="bg-red-500/20 text-red-300 text-xs px-2 py-0.5 rounded-full border border-red-500/30">
+                Offline
+              </Badge>
+            </div>
           </div>
 
           {/* AI Controls */}
@@ -328,7 +335,7 @@ export default function SuitpaxAIPage() {
                   <Bot className="h-4 w-4 text-white" />
                 </div>
                 <div>
-                  <h1 className="font-medium text-white">Suitpax AI - MCP Powered</h1>
+                  <h1 className="font-medium text-white">Suitpax AI</h1>
                   <div className="flex items-center space-x-2">
                     <div className="flex items-center space-x-1">
                       <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>

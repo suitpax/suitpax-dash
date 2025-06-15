@@ -17,7 +17,8 @@
       "language": "English",
       "description": "The largest city in the United States, known for its iconic skyline, Broadway shows, and cultural diversity.",
       "popularAttractions": ["Times Square", "Central Park", "Empire State Building", "Statue of Liberty"],
-      "bestTimeToVisit": "April to June and September to November"
+      "bestTimeToVisit": "April to June and September to November",
+      "image": "/images/cities/new-york.jpg"
     },
     {
       "id": "lax",
@@ -36,7 +37,8 @@
       "language": "English",
       "description": "The entertainment capital of the world, home to Hollywood, beautiful beaches, and year-round sunshine.",
       "popularAttractions": ["Hollywood Walk of Fame", "Universal Studios", "Venice Beach", "Griffith Observatory"],
-      "bestTimeToVisit": "March to May and September to November"
+      "bestTimeToVisit": "March to May and September to November",
+      "image": "/images/cities/los-angeles.jpg"
     },
     {
       "id": "chi",
@@ -55,7 +57,8 @@
       "language": "English",
       "description": "Known for its bold architecture, world-class museums, and vibrant food scene.",
       "popularAttractions": ["Millennium Park", "Art Institute of Chicago", "Navy Pier", "Willis Tower"],
-      "bestTimeToVisit": "April to May and September to October"
+      "bestTimeToVisit": "April to May and September to October",
+      "image": "/images/cities/chicago.jpg"
     },
     {
       "id": "sfo",
@@ -74,7 +77,8 @@
       "language": "English",
       "description": "Famous for the Golden Gate Bridge, cable cars, and a vibrant tech scene.",
       "popularAttractions": ["Golden Gate Bridge", "Alcatraz Island", "Fisherman's Wharf", "Chinatown"],
-      "bestTimeToVisit": "September to November"
+      "bestTimeToVisit": "September to November",
+      "image": "/images/cities/san-francisco.jpg"
     },
     {
       "id": "mia",
@@ -93,7 +97,8 @@
       "language": "English, Spanish",
       "description": "A vibrant city known for its beaches, nightlife, and Latin American influences.",
       "popularAttractions": ["South Beach", "Art Deco Historic District", "Wynwood Walls", "Little Havana"],
-      "bestTimeToVisit": "November to April"
+      "bestTimeToVisit": "November to April",
+      "image": "/images/cities/miami.jpg"
     },
     {
       "id": "sea",
@@ -112,7 +117,8 @@
       "language": "English",
       "description": "Known for its coffee culture, tech industry, and stunning natural surroundings.",
       "popularAttractions": ["Space Needle", "Pike Place Market", "Museum of Pop Culture", "Chihuly Garden and Glass"],
-      "bestTimeToVisit": "July to September"
+      "bestTimeToVisit": "July to September",
+      "image": "/images/cities/seattle.jpg"
     },
     {
       "id": "bos",
@@ -131,7 +137,8 @@
       "language": "English",
       "description": "One of America's oldest cities, known for its history, universities, and sports teams.",
       "popularAttractions": ["Freedom Trail", "Fenway Park", "Harvard University", "Boston Common"],
-      "bestTimeToVisit": "June to October"
+      "bestTimeToVisit": "June to October",
+      "image": "/images/cities/boston.jpg"
     },
     {
       "id": "was",
@@ -150,7 +157,8 @@
       "language": "English",
       "description": "The capital of the United States, home to iconic monuments and free museums.",
       "popularAttractions": ["National Mall", "Smithsonian Museums", "White House", "U.S. Capitol"],
-      "bestTimeToVisit": "March to May and September to November"
+      "bestTimeToVisit": "March to May and September to November",
+      "image": "/images/cities/washington-dc.jpg"
     },
     {
       "id": "las",
@@ -169,7 +177,8 @@
       "language": "English",
       "description": "Famous for its casinos, entertainment, and vibrant nightlife.",
       "popularAttractions": ["The Strip", "Bellagio Fountains", "Fremont Street", "Grand Canyon (day trip)"],
-      "bestTimeToVisit": "March to May and September to November"
+      "bestTimeToVisit": "March to May and September to November",
+      "image": "/images/cities/las-vegas.jpg"
     },
     {
       "id": "nola",
@@ -188,7 +197,8 @@
       "language": "English",
       "description": "Known for its distinct music, Creole cuisine, and annual Mardi Gras celebration.",
       "popularAttractions": ["French Quarter", "Bourbon Street", "Garden District", "Jackson Square"],
-      "bestTimeToVisit": "February to May"
+      "bestTimeToVisit": "February to May",
+      "image": "/images/cities/new-orleans.jpg"
     },
     {
       "id": "lon",
@@ -207,7 +217,8 @@
       "language": "English",
       "description": "A global city with a rich history, diverse culture, and iconic landmarks.",
       "popularAttractions": ["Big Ben", "Tower of London", "Buckingham Palace", "British Museum"],
-      "bestTimeToVisit": "May to September"
+      "bestTimeToVisit": "May to September",
+      "image": "/images/cities/london.jpg"
     },
     {
       "id": "par",
@@ -226,7 +237,8 @@
       "language": "French",
       "description": "Known as the City of Light, famous for its art, fashion, gastronomy, and culture.",
       "popularAttractions": ["Eiffel Tower", "Louvre Museum", "Notre-Dame Cathedral", "Montmartre"],
-      "bestTimeToVisit": "April to June and October to November"
+      "bestTimeToVisit": "April to June and October to November",
+      "image": "/images/cities/paris.jpg"
     },
     {
       "id": "rom",
@@ -245,7 +257,8 @@
       "language": "Italian",
       "description": "The Eternal City, with thousands of years of history, art, and culture.",
       "popularAttractions": ["Colosseum", "Vatican City", "Roman Forum", "Trevi Fountain"],
-      "bestTimeToVisit": "April to May and September to October"
+      "bestTimeToVisit": "April to May and September to October",
+      "image": "/images/cities/rome.jpg"
     },
     {
       "id": "bcn",
@@ -264,7 +277,8 @@
       "language": "Spanish, Catalan",
       "description": "Known for its unique architecture, vibrant culture, and beautiful beaches.",
       "popularAttractions": ["Sagrada Familia", "Park Güell", "La Rambla", "Gothic Quarter"],
-      "bestTimeToVisit": "May to June and September to October"
+      "bestTimeToVisit": "May to June and September to October",
+      "image": "/images/cities/barcelona.jpg"
     },
     {
       "id": "ams",
@@ -283,7 +297,8 @@
       "language": "Dutch",
       "description": "Famous for its canals, cycling culture, museums, and historic buildings.",
       "popularAttractions": ["Anne Frank House", "Van Gogh Museum", "Rijksmuseum", "Canal Belt"],
-      "bestTimeToVisit": "April to May and September to November"
+      "bestTimeToVisit": "April to May and September to November",
+      "image": "/images/cities/amsterdam.jpg"
     },
     {
       "id": "ber",
@@ -302,7 +317,8 @@
       "language": "German",
       "description": "A city with a complex history and vibrant contemporary culture.",
       "popularAttractions": ["Brandenburg Gate", "Berlin Wall Memorial", "Museum Island", "Reichstag Building"],
-      "bestTimeToVisit": "May to September"
+      "bestTimeToVisit": "May to September",
+      "image": "/images/cities/berlin.jpg"
     },
     {
       "id": "vie",
@@ -321,7 +337,8 @@
       "language": "German",
       "description": "Known for its imperial palaces, classical music heritage, and coffee house culture.",
       "popularAttractions": ["Schönbrunn Palace", "St. Stephen's Cathedral", "Vienna State Opera", "Belvedere Palace"],
-      "bestTimeToVisit": "April to May and September to October"
+      "bestTimeToVisit": "April to May and September to October",
+      "image": "/images/cities/vienna.jpg"
     },
     {
       "id": "prg",
@@ -340,7 +357,8 @@
       "language": "Czech",
       "description": "A city of stunning architecture, from Gothic to Art Nouveau, with a rich cultural heritage.",
       "popularAttractions": ["Prague Castle", "Charles Bridge", "Old Town Square", "Astronomical Clock"],
-      "bestTimeToVisit": "March to May and September to November"
+      "bestTimeToVisit": "March to May and September to November",
+      "image": "/images/cities/prague.jpg"
     },
     {
       "id": "bud",
@@ -359,7 +377,8 @@
       "language": "Hungarian",
       "description": "Known for its thermal baths, stunning architecture, and vibrant nightlife.",
       "popularAttractions": ["Parliament Building", "Buda Castle", "Fisherman's Bastion", "Széchenyi Thermal Bath"],
-      "bestTimeToVisit": "March to May and September to November"
+      "bestTimeToVisit": "March to May and September to November",
+      "image": "/images/cities/budapest.jpg"
     },
     {
       "id": "ath",
@@ -378,7 +397,8 @@
       "language": "Greek",
       "description": "The cradle of Western civilization, home to iconic ancient ruins and vibrant modern life.",
       "popularAttractions": ["Acropolis", "Parthenon", "Ancient Agora", "National Archaeological Museum"],
-      "bestTimeToVisit": "April to June and September to October"
+      "bestTimeToVisit": "April to June and September to October",
+      "image": "/images/cities/athens.jpg"
     },
     {
       "id": "ist",
@@ -397,7 +417,8 @@
       "language": "Turkish",
       "description": "A transcontinental city straddling Europe and Asia, with a rich history as Constantinople and Byzantium.",
       "popularAttractions": ["Hagia Sophia", "Blue Mosque", "Topkapi Palace", "Grand Bazaar"],
-      "bestTimeToVisit": "April to May and September to November"
+      "bestTimeToVisit": "April to May and September to November",
+      "image": "/images/cities/istanbul.jpg"
     },
     {
       "id": "tyo",
@@ -416,7 +437,8 @@
       "language": "Japanese",
       "description": "A dynamic metropolis that blends ultramodern and traditional, from neon-lit skyscrapers to historic temples.",
       "popularAttractions": ["Tokyo Skytree", "Meiji Shrine", "Senso-ji Temple", "Shibuya Crossing"],
-      "bestTimeToVisit": "March to May and September to November"
+      "bestTimeToVisit": "March to May and September to November",
+      "image": "/images/cities/tokyo.jpg"
     },
     {
       "id": "kyo",
@@ -440,7 +462,8 @@
         "Arashiyama Bamboo Grove",
         "Gion District"
       ],
-      "bestTimeToVisit": "March to May and October to November"
+      "bestTimeToVisit": "March to May and October to November",
+      "image": "/images/cities/kyoto.jpg"
     },
     {
       "id": "sel",
@@ -459,7 +482,8 @@
       "language": "Korean",
       "description": "A dynamic city where modern skyscrapers, high-tech subways, and pop culture meet Buddhist temples, palaces, and street markets.",
       "popularAttractions": ["Gyeongbokgung Palace", "N Seoul Tower", "Bukchon Hanok Village", "Myeongdong"],
-      "bestTimeToVisit": "March to May and September to November"
+      "bestTimeToVisit": "March to May and September to November",
+      "image": "/images/cities/seoul.jpg"
     },
     {
       "id": "bkk",
@@ -478,7 +502,8 @@
       "language": "Thai",
       "description": "Thailand's capital, known for ornate shrines, vibrant street life, and a blend of traditional and modern influences.",
       "popularAttractions": ["Grand Palace", "Wat Arun", "Chatuchak Weekend Market", "Khao San Road"],
-      "bestTimeToVisit": "November to February"
+      "bestTimeToVisit": "November to February",
+      "image": "/images/cities/bangkok.jpg"
     },
     {
       "id": "sin",
@@ -497,7 +522,8 @@
       "language": "English, Mandarin, Malay, Tamil",
       "description": "A global financial center with a tropical climate and multicultural population, known for its modern architecture and gardens.",
       "popularAttractions": ["Gardens by the Bay", "Marina Bay Sands", "Singapore Zoo", "Sentosa Island"],
-      "bestTimeToVisit": "February to April"
+      "bestTimeToVisit": "February to April",
+      "image": "/images/cities/singapore.jpg"
     },
     {
       "id": "hkg",
@@ -516,7 +542,8 @@
       "language": "Cantonese, English",
       "description": "A bustling harbor city with a skyline of skyscrapers, a vibrant food scene, and a blend of Eastern and Western influences.",
       "popularAttractions": ["Victoria Peak", "Hong Kong Disneyland", "Tsim Sha Tsui Promenade", "Tian Tan Buddha"],
-      "bestTimeToVisit": "October to December"
+      "bestTimeToVisit": "October to December",
+      "image": "/images/cities/hong-kong.jpg"
     },
     {
       "id": "sha",
@@ -535,7 +562,8 @@
       "language": "Mandarin",
       "description": "China's largest city, a global financial hub with the world's second-tallest tower and a mix of modern and traditional architecture.",
       "popularAttractions": ["The Bund", "Yu Garden", "Shanghai Tower", "Nanjing Road"],
-      "bestTimeToVisit": "March to May and September to November"
+      "bestTimeToVisit": "March to May and September to November",
+      "image": "/images/cities/shanghai.jpg"
     },
     {
       "id": "bjs",
@@ -554,7 +582,8 @@
       "language": "Mandarin",
       "description": "China's capital, known for its ancient sites such as the Forbidden City and modern architecture like the Bird's Nest.",
       "popularAttractions": ["Great Wall of China", "Forbidden City", "Temple of Heaven", "Summer Palace"],
-      "bestTimeToVisit": "March to May and September to October"
+      "bestTimeToVisit": "March to May and September to October",
+      "image": "/images/cities/beijing.jpg"
     },
     {
       "id": "del",
@@ -573,7 +602,8 @@
       "language": "Hindi, English",
       "description": "India's capital territory, a massive metropolitan area with a rich history spanning thousands of years.",
       "popularAttractions": ["Red Fort", "Humayun's Tomb", "Qutub Minar", "India Gate"],
-      "bestTimeToVisit": "October to March"
+      "bestTimeToVisit": "October to March",
+      "image": "/images/cities/delhi.jpg"
     },
     {
       "id": "mum",
@@ -592,7 +622,8 @@
       "language": "Marathi, Hindi, English",
       "description": "India's financial center and largest city, known for its colonial architecture, bustling markets, and Bollywood film industry.",
       "popularAttractions": ["Gateway of India", "Marine Drive", "Elephanta Caves", "Chhatrapati Shivaji Terminus"],
-      "bestTimeToVisit": "November to February"
+      "bestTimeToVisit": "November to February",
+      "image": "/images/cities/mumbai.jpg"
     },
     {
       "id": "dxb",
@@ -611,7 +642,8 @@
       "language": "Arabic, English",
       "description": "A city of superlatives, known for luxury shopping, ultramodern architecture, and a lively nightlife scene.",
       "popularAttractions": ["Burj Khalifa", "Dubai Mall", "Palm Jumeirah", "Dubai Marina"],
-      "bestTimeToVisit": "November to April"
+      "bestTimeToVisit": "November to April",
+      "image": "/images/cities/dubai.jpg"
     },
     {
       "id": "syd",
@@ -630,7 +662,108 @@
       "language": "English",
       "description": "Australia's largest city, known for its harbourfront Opera House, Harbour Bridge, and beautiful beaches.",
       "popularAttractions": ["Sydney Opera House", "Sydney Harbour Bridge", "Bondi Beach", "Royal Botanic Garden"],
-      "bestTimeToVisit": "September to November and March to May"
+      "bestTimeToVisit": "September to November and March to May",
+      "image": "/images/cities/sydney.jpg"
+    },
+    {
+      "id": "mel",
+      "name": "Melbourne",
+      "country": "Australia",
+      "countryCode": "AU",
+      "continent": "Oceania",
+      "airportCode": "MEL",
+      "alternateAirports": [],
+      "coordinates": {
+        "latitude": -37.8136,
+        "longitude": 144.9631
+      },
+      "timezone": "Australia/Melbourne",
+      "currency": "AUD",
+      "language": "English",
+      "description": "Known for its coffee culture, street art, and vibrant arts scene.",
+      "popularAttractions": ["Federation Square", "Royal Botanic Gardens", "Queen Victoria Market", "St. Kilda Beach"],
+      "bestTimeToVisit": "March to May and September to November",
+      "image": "/images/cities/melbourne.jpg"
+    },
+    {
+      "id": "cpt",
+      "name": "Cape Town",
+      "country": "South Africa",
+      "countryCode": "ZA",
+      "continent": "Africa",
+      "airportCode": "CPT",
+      "alternateAirports": [],
+      "coordinates": {
+        "latitude": -33.9249,
+        "longitude": 18.4241
+      },
+      "timezone": "Africa/Johannesburg",
+      "currency": "ZAR",
+      "language": "English, Afrikaans",
+      "description": "A stunning coastal city known for Table Mountain, wine regions, and rich history.",
+      "popularAttractions": ["Table Mountain", "V&A Waterfront", "Robben Island", "Cape Point"],
+      "bestTimeToVisit": "November to March",
+      "image": "/images/cities/cape-town.jpg"
+    },
+    {
+      "id": "cai",
+      "name": "Cairo",
+      "country": "Egypt",
+      "countryCode": "EG",
+      "continent": "Africa",
+      "airportCode": "CAI",
+      "alternateAirports": [],
+      "coordinates": {
+        "latitude": 30.0444,
+        "longitude": 31.2357
+      },
+      "timezone": "Africa/Cairo",
+      "currency": "EGP",
+      "language": "Arabic",
+      "description": "Home to ancient pyramids and the Sphinx, with a rich Islamic heritage.",
+      "popularAttractions": ["Pyramids of Giza", "Egyptian Museum", "Islamic Cairo", "Khan el-Khalili"],
+      "bestTimeToVisit": "October to April",
+      "image": "/images/cities/cairo.jpg"
+    },
+    {
+      "id": "mex",
+      "name": "Mexico City",
+      "country": "Mexico",
+      "countryCode": "MX",
+      "continent": "North America",
+      "airportCode": "MEX",
+      "alternateAirports": [],
+      "coordinates": {
+        "latitude": 19.4326,
+        "longitude": -99.1332
+      },
+      "timezone": "America/Mexico_City",
+      "currency": "MXN",
+      "language": "Spanish",
+      "description": "A vibrant capital with rich Aztec and colonial history, world-class museums, and incredible cuisine.",
+      "popularAttractions": ["Zócalo", "Frida Kahlo Museum", "Teotihuacan", "Chapultepec Castle"],
+      "bestTimeToVisit": "March to May",
+      "image": "/images/cities/mexico-city.jpg"
+    },
+    {
+      "id": "gru",
+      "name": "São Paulo",
+      "country": "Brazil",
+      "countryCode": "BR",
+      "continent": "South America",
+      "airportCode": "GRU",
+      "alternateAirports": ["CGH"],
+      "coordinates": {
+        "latitude": -23.5505,
+        "longitude": -46.6333
+      },
+      "timezone": "America/Sao_Paulo",
+      "currency": "BRL",
+      "language": "Portuguese",
+      "description": "Brazil's largest city and financial center, known for its cultural diversity and vibrant nightlife.",
+      "popularAttractions": ["São Paulo Museum of Art", "Ibirapuera Park", "Municipal Market", "Vila Madalena"],
+      "bestTimeToVisit": "April to May and September to November",
+      "image": "/images/cities/sao-paulo.jpg"
     }
   ]
 }

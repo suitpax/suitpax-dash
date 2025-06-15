@@ -2,12 +2,14 @@
 
 import type React from "react"
 import { useState, useEffect, useMemo } from "react"
+import Image from "next/image"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { AirportSearch } from "@/components/ui/airport-search"
+import { AIQuickInput } from "@/components/ui/ai-quick-input"
 import {
   Search,
   MapPin,
@@ -23,6 +25,7 @@ import {
   Zap,
 } from "lucide-react"
 import flightsData from "@/data/flights.json"
+import citiesData from "@/data/cities.json"
 
 interface Flight {
   id: string
@@ -153,7 +156,7 @@ export default function FlightsPage() {
       (flight) =>
         flight.origin.toLowerCase().includes(originCity.toLowerCase()) &&
         flight.destination.toLowerCase().includes(destinationCity.toLowerCase()) &&
-        new Date(flight.departureDate) >= new Date(departureDate),
+        new Date(flight.departureDate) >= new Date(),
     )
     setFilteredFlights(results)
   }
@@ -332,6 +335,9 @@ export default function FlightsPage() {
           </div>
         </header>
 
+        {/* AI Quick Input */}
+        <AIQuickInput placeholder="Ask about flights, destinations, or travel tips..." className="mb-4" />
+
         {/* Search Form */}
         <Card className="bg-white/5 border-white/10 backdrop-blur-sm">
           <CardContent className="p-6">
@@ -468,7 +474,6 @@ export default function FlightsPage() {
                         src={
                           airlines[flight.airline as keyof typeof airlines]?.logo ||
                           "/placeholder.svg?width=32&height=32&text=FL" ||
-                          "/placeholder.svg" ||
                           "/placeholder.svg"
                         }
                         alt={flight.airline}
@@ -654,6 +659,36 @@ export default function FlightsPage() {
             </CardContent>
           </Card>
         )}
+
+        {/* Popular Destinations */}
+        <div className="mt-8">
+          <h3 className="text-xl font-light text-white mb-4">Popular Destinations</h3>
+          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-3">
+            {citiesData.cities.slice(0, 12).map((city) => (
+              <div
+                key={city.id}
+                onClick={() => {
+                  setDestinationCity(city.airportCode)
+                  performSearch()
+                }}
+                className="bg-white/5 border border-white/10 rounded-md p-3 cursor-pointer hover:bg-white/10 transition-all group"
+              >
+                <div className="relative h-20 w-full rounded-md overflow-hidden mb-2">
+                  <Image
+                    src={city.image || `/placeholder.svg?height=80&width=120&text=${city.name}`}
+                    alt={city.name}
+                    fill
+                    className="object-cover group-hover:scale-105 transition-transform duration-300"
+                  />
+                </div>
+                <div className="text-center">
+                  <p className="text-sm font-light text-white">{city.name}</p>
+                  <p className="text-xs text-white/50 font-light">{city.airportCode}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
       </div>
     </div>
   )

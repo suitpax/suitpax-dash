@@ -70,7 +70,7 @@ export default function SuitpaxAIPage() {
         {
           id: "welcome-msg",
           role: "assistant",
-          content: "Hey, bienvenido a Suitpax AI. ¿En qué puedo ayudarte?",
+          content: "Hey, I'm Suitpax AI, your intelligent business travel assistant. What can I help you with today?",
           timestamp: new Date(),
           isTyping: true,
         },
@@ -122,7 +122,6 @@ export default function SuitpaxAIPage() {
         },
         body: JSON.stringify({
           message: userMessage.content,
-          isPro: true,
           plan: "business",
           conversationId: activeConversation.id,
         }),
@@ -137,8 +136,7 @@ export default function SuitpaxAIPage() {
       const assistantMessage: Message = {
         id: (Date.now() + 1).toString(),
         role: "assistant",
-        content:
-          data.response || "I apologize, but I'm having trouble processing your request right now. Please try again.",
+        content: data.response || "Hey, I'm experiencing some technical difficulties. Please try again in a moment!",
         timestamp: new Date(),
         isTyping: true,
       }
@@ -158,7 +156,7 @@ export default function SuitpaxAIPage() {
         id: (Date.now() + 1).toString(),
         role: "assistant",
         content:
-          "I'm sorry, I encountered an error while processing your request. Please try again or contact support if the issue persists.",
+          "Hey, I'm having trouble connecting right now. Please try again or contact our support team if this continues.",
         timestamp: new Date(),
         isTyping: true,
       }
@@ -183,7 +181,7 @@ export default function SuitpaxAIPage() {
         {
           id: "new-welcome",
           role: "assistant",
-          content: "Hey, bienvenido a Suitpax AI. ¿En qué puedo ayudarte?",
+          content: "Hey, I'm ready to help with your business travel needs. What would you like to know?",
           timestamp: new Date(),
           isTyping: true,
         },
@@ -279,7 +277,7 @@ export default function SuitpaxAIPage() {
                 >
                   <div className="text-sm leading-relaxed font-light">
                     {message.isTyping && message.role === "assistant" ? (
-                      <TypingEffect text={message.content} speed={20} />
+                      <TypingEffect text={message.content} speed={25} />
                     ) : (
                       message.content.split("\n").map((line, i) => (
                         <span key={i}>
@@ -352,7 +350,7 @@ export default function SuitpaxAIPage() {
               <div className="absolute left-4 top-1/2 transform -translate-y-1/2 flex items-center">
                 <div className="relative h-6 w-6 rounded-lg overflow-hidden mr-2">
                   <Image
-                    src={isFocused ? "/images/ai-assistant-avatar.png" : "/images/ai-agent-avatar.jpeg"}
+                    src={isFocused ? "/images/confident-professional.png" : "/images/ai-agent-avatar.jpeg"}
                     alt="AI Assistant"
                     fill
                     className="object-cover"

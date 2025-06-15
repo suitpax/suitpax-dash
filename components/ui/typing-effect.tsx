@@ -5,13 +5,14 @@ import { useState, useEffect } from "react"
 interface TypingEffectProps {
   text: string
   speed?: number
-  onComplete?: () => void
   className?: string
+  onComplete?: () => void
 }
 
-export function TypingEffect({ text, speed = 30, onComplete, className = "" }: TypingEffectProps) {
+export function TypingEffect({ text, speed = 30, className = "", onComplete }: TypingEffectProps) {
   const [displayedText, setDisplayedText] = useState("")
   const [currentIndex, setCurrentIndex] = useState(0)
+  const [showCursor, setShowCursor] = useState(true)
 
   useEffect(() => {
     if (currentIndex < text.length) {
@@ -21,15 +22,36 @@ export function TypingEffect({ text, speed = 30, onComplete, className = "" }: T
       }, speed)
 
       return () => clearTimeout(timer)
-    } else if (onComplete) {
-      onComplete()
+    } else {
+      onComplete?.()
+      // Hide cursor after typing is complete
+      const cursorTimer = setTimeout(() => {
+        setShowCursor(false)
+      }, 1000)
+      return () => clearTimeout(cursorTimer)
     }
   }, [currentIndex, text, speed, onComplete])
+
+  useEffect(() => {
+    // Cursor blinking effect
+    const cursorInterval = setInterval(() => {
+      setShowCursor((prev) => !prev)
+    }, 500)
+
+    return () => clearInterval(cursorInterval)
+  }, [])
+
+  // Reset when text changes
+  useEffect(() => {
+    setDisplayedText("")
+    setCurrentIndex(0)
+    setShowCursor(true)
+  }, [text])
 
   return (
     <span className={className}>
       {displayedText}
-      {currentIndex < text.length && <span className="animate-pulse">|</span>}
+      {showCursor && currentIndex <= text.length && <span className="animate-pulse text-white/70">|</span>}
     </span>
   )
 }

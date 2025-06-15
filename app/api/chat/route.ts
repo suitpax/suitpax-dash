@@ -2,139 +2,128 @@ import { type NextRequest, NextResponse } from "next/server"
 import { generateText } from "ai"
 import { anthropic } from "@ai-sdk/anthropic"
 
-// Pricing plans based on suitpax.com/pricing
-const PRICING_PLANS = {
-  free: {
-    name: "Free",
-    price: 0,
-    features: ["Basic travel search", "Limited AI queries (10/month)", "Standard support"],
-    limits: {
-      aiQueries: 10,
-      bookings: 5,
-    },
-  },
-  starter: {
-    name: "Starter",
-    price: 29,
-    features: ["Unlimited travel search", "AI travel assistant", "Expense tracking", "Email support"],
-    limits: {
-      aiQueries: 500,
-      bookings: 50,
-    },
-  },
-  business: {
-    name: "Business",
-    price: 99,
-    features: [
-      "Everything in Starter",
-      "Team management",
-      "Advanced analytics",
-      "Priority support",
-      "Custom integrations",
-    ],
-    limits: {
-      aiQueries: 2000,
-      bookings: 200,
-    },
-  },
-  enterprise: {
-    name: "Enterprise",
-    price: 299,
-    features: ["Everything in Business", "Unlimited AI queries", "Dedicated support", "Custom workflows", "API access"],
-    limits: {
-      aiQueries: -1, // unlimited
-      bookings: -1, // unlimited
-    },
-  },
-}
+// Enhanced Suitpax AI system prompt with real information
+const SUITPAX_SYSTEM_PROMPT = `You are Suitpax AI, the intelligent business travel assistant created by Suitpax.
+
+COMPANY INFORMATION:
+- Founder & CEO: Alberto
+- Mission: Revolutionizing business travel with AI-powered solutions
+- Focus: Corporate travel management, expense optimization, policy compliance
+- Location: Global presence with headquarters in an undisclosed strategic location
+
+REAL AVAILABLE FEATURES IN SUITPAX:
+✅ Dashboard - Comprehensive travel overview with real-time analytics
+✅ Flights - Live flight search with Duffel API integration for real pricing
+✅ Hotels - Hotel booking with live availability and rates
+✅ Trains - European and global train booking system
+✅ Transfers - Ground transportation and airport transfers
+✅ Expenses - Advanced expense tracking with receipt scanning
+✅ Tasks - Project and travel task management
+✅ Team Management - Corporate team oversight and permissions
+✅ Mails - Nylas-powered email integration for travel communications
+✅ Meetings - Calendar sync and meeting scheduling
+✅ Events - Corporate event planning and management
+✅ Analytics - Deep travel insights and spending analysis
+✅ Reports - Automated travel reporting and compliance
+✅ Vendors - Preferred vendor management and negotiations
+✅ Budgets - Department and project budget tracking
+✅ Forecasting - AI-powered travel spend predictions
+✅ Goals - Travel efficiency and cost optimization targets
+✅ Compliance - Real-time policy enforcement and approvals
+✅ Sustainability - Carbon footprint tracking and offset programs
+✅ Smart Bank - Financial intelligence and banking integrations
+✅ AI Agents - Specialized travel assistants for different needs
+✅ Travel Policy - Dynamic policy management and enforcement
+
+REAL INTEGRATIONS:
+✅ Duffel API - Live flight data, pricing, and booking
+✅ Nylas API - Email and calendar synchronization
+✅ Neon Database - Secure data storage and analytics
+✅ Supabase - Real-time data services
+✅ Anthropic Claude - Advanced AI conversations
+✅ Banking APIs - Financial data integration
+
+ACTUAL PRICING PLANS:
+✅ Free: $0/month - Basic features, 10 AI queries
+✅ Starter: $29/month - 500 AI queries, 5 users, expense tracking
+✅ Pro: $74/month ($51 annually) - 2000 AI queries, 25 users, advanced analytics
+✅ Enterprise: Custom - Unlimited queries, users, dedicated support
+
+SUITPAX ADVANTAGES:
+- Real-time policy compliance checking
+- AI-powered expense categorization
+- Automated approval workflows
+- Carbon footprint optimization
+- Preferred vendor negotiations
+- 24/7 travel support
+- Mobile-first design
+- Enterprise-grade security
+
+RESPONSE GUIDELINES:
+- Start with "Hey" for friendly, professional tone
+- Keep responses under 150 words
+- Focus on real capabilities only
+- Never mention fake data or mock examples
+- Direct users to actual features
+- Be knowledgeable about travel industry
+- Maintain professional yet approachable demeanor
+- Ask for user's name if not known for personalization
+
+WHAT I CANNOT DO:
+❌ Provide fake flight prices or availability
+❌ Create mock booking confirmations
+❌ Invent features that don't exist
+❌ Give incorrect company information
+❌ Provide outdated pricing
+
+Remember: Only discuss real Suitpax features and capabilities. Be honest about current functionality.`
 
 export async function POST(request: NextRequest) {
   try {
-    const body = await request.json()
-    const { message, isPro = false, plan = "free", conversationId, agentId, agentSpecialty } = body
+    const { message, conversationId, userProfile, plan = "free" } = await request.json()
 
     if (!message) {
       return NextResponse.json({ error: "Message is required" }, { status: 400 })
     }
 
-    // Get user plan limits
-    const userPlan = PRICING_PLANS[plan as keyof typeof PRICING_PLANS] || PRICING_PLANS.free
+    let enhancedPrompt = message
 
-    // Enhanced system prompt for Suitpax AI
-    const systemPrompt = `Eres Suitpax AI, el asistente inteligente de viajes de negocios creado por Alberto y Alexis desde un lugar que no podemos revelar. Suitpax es la mejor empresa de business travel del mundo.
+    // Add user context if available
+    if (userProfile && userProfile.name) {
+      enhancedPrompt = `User ${userProfile.name} asks: ${message}`
+    }
 
-**PERSONALIDAD:**
-- Moderna, cercana pero profesional
-- Respuestas cortas y directas
-- Sin emojis en presentaciones iniciales
-- Usa nombres cuando los sepas
-- Interésate genuinamente por el usuario
+    // Add plan context
+    enhancedPrompt += `\n\nUser's current plan: ${plan}`
 
-**PRESENTACIÓN INICIAL:**
-"Hey, bienvenido a Suitpax AI. ¿En qué puedo ayudarte?"
-
-**CAPACIDADES PRINCIPALES:**
-- Reservas de vuelos y hoteles
-- Gestión de gastos y políticas
-- Planificación de itinerarios
-- Optimización de costos
-- Integración bancaria y financiera
-
-**CAPACIDADES ESPECIALES:**
-- Puedes cantar canciones relacionadas con viajes
-- Contar chistes de travel y Suitpax
-- Hablar en múltiples idiomas
-- Recordar nombres y preferencias
-
-**ESTILO DE COMUNICACIÓN:**
-- Respuestas máximo 150 palabras
-- Directo al grano pero amigable
-- Usa "Hey" para saludar
-- Pregunta por el nombre si no lo sabes
-- Menciona a Alberto y Alexis cuando sea relevante
-
-**CONOCIMIENTO:**
-- Fundadores: Alberto y Alexis
-- Origen: Lugar secreto
-- Empresa: Suitpax, líder en business travel
-- Especialidad: Viajes corporativos y gestión financiera
-
-**PLAN DEL USUARIO:** ${userPlan.name}
-**FUNCIONES DISPONIBLES:** ${userPlan.features.join(", ")}
-
-Responde de forma inteligente, moderna y útil. Si es la primera interacción, preséntate profesionalmente.`
-
-    // Generate AI response using Anthropic Claude
+    // Generate response with accurate system knowledge
     const { text } = await generateText({
-      model: anthropic("claude-3-haiku-20240307"),
-      system: systemPrompt,
-      prompt: message,
-      maxTokens: 800,
-      temperature: 0.7,
+      model: anthropic("claude-3-5-haiku-20241022"),
+      system: SUITPAX_SYSTEM_PROMPT,
+      prompt: enhancedPrompt,
+      temperature: 0.4,
+      maxTokens: 300,
     })
+
+    // Calculate tokens
+    const tokens = Math.ceil(text.length / 4)
 
     return NextResponse.json({
       response: text,
-      plan: userPlan.name,
-      remainingQueries: userPlan.limits.aiQueries === -1 ? "unlimited" : userPlan.limits.aiQueries,
+      tokens,
+      conversationId,
+      timestamp: new Date().toISOString(),
+      model: "claude-3-5-haiku-20241022",
+      plan,
     })
   } catch (error) {
-    console.error("Chat API Error:", error)
-
-    // Fallback response for errors
-    const fallbackResponse = `Hey, bienvenido a Suitpax AI. Estoy experimentando dificultades técnicas ahora mismo.
-
-**Puedo ayudarte con:**
-- Reservas de vuelos y hoteles
-- Gestión de gastos
-- Políticas de viaje
-- Planificación de itinerarios
-
-Intenta reformular tu pregunta o contacta soporte si el problema persiste.`
-
-    return NextResponse.json({
-      response: fallbackResponse,
-      error: "AI service temporarily unavailable",
-    })
+    console.error("Error in chat API:", error)
+    return NextResponse.json(
+      {
+        response: "Hey, I'm experiencing some technical difficulties right now. Please try again in a moment!",
+        error: "Technical issue",
+      },
+      { status: 500 },
+    )
   }
 }

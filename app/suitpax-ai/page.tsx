@@ -218,42 +218,44 @@ export default function SuitpaxAIPage() {
               <Image src="/images/ai-agent-avatar.jpeg" alt="Suitpax AI" fill className="object-cover" />
             </div>
             <div>
-              <h1 className="text-xl font-light text-white tracking-tight">Suitpax AI</h1>
-              <p className="text-xs text-white/60 font-light">Business Travel Assistant</p>
+              <h1 className="text-xl font-medium text-white tracking-tight">Suitpax AI</h1>
+              <p className="text-xs text-gray-400 font-light">Business Travel Assistant</p>
             </div>
           </div>
           <div className="flex items-center space-x-2">
             <Button
               onClick={createNewConversation}
-              className="bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl h-9 px-3 font-light"
+              className="bg-gray-800 hover:bg-gray-700 border border-gray-600 text-gray-200 hover:text-white rounded-xl h-9 px-3 font-medium transition-all duration-200"
             >
               <Plus className="h-4 w-4 mr-2" />
               New Chat
             </Button>
-            <Button className="bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl h-9 w-9 p-0">
-              <Settings className="h-4 w-4 text-white/70" />
+            <Button className="bg-gray-800 hover:bg-gray-700 border border-gray-600 text-gray-200 hover:text-white rounded-xl h-9 w-9 p-0 transition-all duration-200">
+              <Settings className="h-4 w-4" />
             </Button>
           </div>
         </div>
 
         {/* AI Agents Row */}
         <div className="p-4 border-b border-white/10">
-          <div className="flex items-center space-x-3 overflow-x-auto">
-            <span className="text-sm text-white/70 font-light whitespace-nowrap">Specialized Agents:</span>
-            {aiAgents.map((agent) => (
-              <div
-                key={agent.id}
-                className="flex items-center space-x-2 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl px-3 py-2 cursor-pointer transition-all duration-200 whitespace-nowrap"
-              >
-                <div className="relative h-6 w-6 rounded-lg overflow-hidden">
-                  <Image src={agent.avatar || "/placeholder.svg"} alt={agent.name} fill className="object-cover" />
+          <div className="flex items-center space-x-2 overflow-x-auto pb-2">
+            <span className="text-sm text-gray-400 font-medium whitespace-nowrap mr-2">Specialized Agents:</span>
+            <div className="flex space-x-2">
+              {aiAgents.map((agent) => (
+                <div
+                  key={agent.id}
+                  className="flex items-center space-x-2 bg-black border border-gray-600 hover:border-gray-500 rounded-lg px-3 py-2 cursor-pointer transition-all duration-200 whitespace-nowrap min-w-fit"
+                >
+                  <div className="relative h-5 w-5 rounded-md overflow-hidden flex-shrink-0">
+                    <Image src={agent.avatar || "/placeholder.svg"} alt={agent.name} fill className="object-cover" />
+                  </div>
+                  <div className="min-w-0">
+                    <p className="text-xs font-medium text-white truncate">{agent.name}</p>
+                    <p className="text-[10px] text-gray-400 font-light truncate">{agent.specialty}</p>
+                  </div>
                 </div>
-                <div>
-                  <p className="text-xs font-light text-white">{agent.name}</p>
-                  <p className="text-[10px] text-white/50 font-light">{agent.specialty}</p>
-                </div>
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
         </div>
 
@@ -336,7 +338,7 @@ export default function SuitpaxAIPage() {
                 <Badge
                   key={index}
                   onClick={() => handleSuggestedQuery(query)}
-                  className="bg-white/5 hover:bg-white/10 text-white/70 border border-white/10 cursor-pointer rounded-xl text-xs px-3 py-1.5 font-light transition-all duration-200"
+                  className="bg-black border border-gray-600 text-gray-300 hover:bg-gray-800 hover:text-white cursor-pointer rounded-lg text-xs px-3 py-1.5 font-light transition-all duration-200"
                 >
                   {query}
                 </Badge>
@@ -350,7 +352,7 @@ export default function SuitpaxAIPage() {
           <form onSubmit={handleSubmit} className="relative">
             <div className="relative">
               <div className="absolute left-4 top-1/2 transform -translate-y-1/2 flex items-center">
-                <div className="relative h-6 w-6 rounded-lg overflow-hidden mr-2">
+                <div className="relative h-7 w-7 rounded-lg overflow-hidden mr-2">
                   <Image
                     src={isFocused ? "/images/ai-assistant-avatar.png" : "/images/ai-agent-avatar.jpeg"}
                     alt="AI Assistant"
@@ -368,36 +370,40 @@ export default function SuitpaxAIPage() {
                 onBlur={() => setIsFocused(false)}
                 placeholder={isListening ? "Listening..." : "Ask your AI travel assistant anything..."}
                 disabled={isLoading}
-                className="bg-white/5 border-white/10 text-white placeholder:text-white/30 rounded-xl pl-12 pr-24 py-3 focus:ring-1 focus:ring-white/20 text-sm font-light"
+                className="bg-white/5 border-white/10 text-white placeholder:text-white/30 rounded-xl pl-12 pr-24 py-4 h-14 focus:ring-1 focus:ring-white/20 text-sm font-light transition-all duration-200 hover:bg-white/10"
               />
               <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center space-x-2">
                 <Button
                   type="button"
                   onClick={() => fileInputRef.current?.click()}
                   size="sm"
-                  className="bg-transparent hover:bg-white/10 h-8 w-8 p-0 rounded-lg"
+                  className="bg-transparent hover:bg-white/10 h-8 w-8 p-0 rounded-lg transition-all duration-200"
                 >
-                  <Paperclip className="h-4 w-4 text-white/50" />
+                  <Paperclip className="h-4 w-4 text-white/50 hover:text-white/70" />
                 </Button>
                 {isSupported && (
                   <Button
                     type="button"
                     onClick={toggleListening}
                     size="sm"
-                    className={`h-8 w-8 p-0 rounded-lg ${
+                    className={`h-8 w-8 p-0 rounded-lg transition-all duration-200 ${
                       isListening
                         ? "bg-red-500/20 text-red-400 hover:bg-red-500/30"
                         : "bg-transparent hover:bg-white/10"
                     }`}
                   >
-                    {isListening ? <MicOff className="h-4 w-4" /> : <Mic className="h-4 w-4 text-white/50" />}
+                    {isListening ? (
+                      <MicOff className="h-4 w-4" />
+                    ) : (
+                      <Mic className="h-4 w-4 text-white/50 hover:text-white/70" />
+                    )}
                   </Button>
                 )}
                 <Button
                   type="submit"
                   disabled={!input.trim() || isLoading}
                   size="sm"
-                  className="bg-white text-black hover:bg-white/90 disabled:opacity-50 h-8 w-8 p-0 rounded-lg"
+                  className="bg-white text-black hover:bg-white/90 disabled:opacity-50 h-8 w-8 p-0 rounded-lg transition-all duration-200"
                 >
                   <ArrowRight className="h-4 w-4" />
                 </Button>

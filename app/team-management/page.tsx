@@ -205,17 +205,14 @@ export default function TeamManagementPage() {
     <div className="min-h-screen bg-black p-3 text-white">
       <div className="max-w-7xl mx-auto space-y-4">
         {/* Header */}
-        <header className="bg-white/5 border border-white/10 rounded-2xl p-4 md:p-6 backdrop-blur-sm">
-          <h1 className="text-2xl md:text-3xl font-light text-white tracking-tight">Team Management</h1>
-          <p className="text-white/70 text-sm md:text-base font-light mt-1">
-            Manage your team members and their travel permissions
-          </p>
+        <header className="bg-white/5 border border-white/10 rounded-2xl p-6 md:p-8 backdrop-blur-sm">
+          <h1 className="text-2xl font-light text-white tracking-tight">Team Management</h1>
         </header>
 
-        {/* Search and Filters - Responsive */}
+        {/* Search and Filters */}
         <Card className="bg-white/5 border-white/10 backdrop-blur-sm">
-          <CardContent className="p-4 md:p-6">
-            <div className="flex flex-col space-y-4">
+          <CardContent className="p-6">
+            <div className="flex flex-col lg:flex-row gap-4">
               <div className="flex-1">
                 <div className="relative">
                   <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-white/50" />
@@ -227,7 +224,7 @@ export default function TeamManagementPage() {
                   />
                 </div>
               </div>
-              <div className="flex flex-col sm:flex-row gap-2">
+              <div className="flex gap-2">
                 <Select value={selectedRole} onValueChange={setSelectedRole}>
                   <SelectTrigger className="h-11 bg-white/5 border-white/10 text-white rounded-xl hover:bg-white/10 min-w-[120px]">
                     <Filter className="h-4 w-4 text-white/50 mr-2" />
@@ -273,7 +270,7 @@ export default function TeamManagementPage() {
           </CardContent>
         </Card>
 
-        {/* Actions Bar - Responsive */}
+        {/* Actions Bar */}
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 bg-white/5 p-3 rounded-lg border border-white/10">
           <div className="flex items-center gap-3">
             <h2 className="text-lg font-medium text-white">{filteredMembers.length} team members</h2>
@@ -293,12 +290,12 @@ export default function TeamManagementPage() {
                   Invite Member
                 </Button>
               </DialogTrigger>
-              <DialogContent className="bg-black border-white/10 text-white max-w-md mx-auto">
+              <DialogContent className="bg-black border-white/10 text-white">
                 <DialogHeader>
                   <DialogTitle className="text-white font-light">Invite Team Member</DialogTitle>
                 </DialogHeader>
                 <div className="space-y-4">
-                  <div className="grid grid-cols-1 gap-4">
+                  <div className="grid grid-cols-2 gap-4">
                     <div>
                       <Label htmlFor="name" className="text-white/70">
                         Full Name
@@ -325,7 +322,7 @@ export default function TeamManagementPage() {
                       />
                     </div>
                   </div>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div className="grid grid-cols-2 gap-4">
                     <div>
                       <Label htmlFor="role" className="text-white/70">
                         Role
@@ -367,6 +364,45 @@ export default function TeamManagementPage() {
                       </Select>
                     </div>
                   </div>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <Label htmlFor="phone" className="text-white/70">
+                        Phone (Optional)
+                      </Label>
+                      <Input
+                        id="phone"
+                        value={newMember.phone}
+                        onChange={(e) => setNewMember((prev) => ({ ...prev, phone: e.target.value }))}
+                        className="bg-white/5 border-white/10 text-white"
+                        placeholder="+1 (555) 123-4567"
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="location" className="text-white/70">
+                        Location (Optional)
+                      </Label>
+                      <Input
+                        id="location"
+                        value={newMember.location}
+                        onChange={(e) => setNewMember((prev) => ({ ...prev, location: e.target.value }))}
+                        className="bg-white/5 border-white/10 text-white"
+                        placeholder="New York, NY"
+                      />
+                    </div>
+                  </div>
+                  <div>
+                    <Label htmlFor="budget" className="text-white/70">
+                      Travel Budget ($)
+                    </Label>
+                    <Input
+                      id="budget"
+                      type="number"
+                      value={newMember.travelBudget}
+                      onChange={(e) => setNewMember((prev) => ({ ...prev, travelBudget: Number(e.target.value) }))}
+                      className="bg-white/5 border-white/10 text-white"
+                      placeholder="10000"
+                    />
+                  </div>
                   <Button
                     onClick={handleInviteMember}
                     disabled={loading || !newMember.name || !newMember.email}
@@ -380,7 +416,7 @@ export default function TeamManagementPage() {
           </div>
         </div>
 
-        {/* Team Members Grid - Responsive */}
+        {/* Team Members Grid */}
         <div className="space-y-3">
           {filteredMembers.map((member, index) => (
             <Card
@@ -391,7 +427,7 @@ export default function TeamManagementPage() {
               <CardContent className="p-4">
                 <div className="flex flex-col lg:flex-row gap-4">
                   <div className="flex items-center gap-4 flex-1">
-                    <div className="relative h-12 w-12 rounded-full overflow-hidden bg-white/10 flex-shrink-0">
+                    <div className="relative h-12 w-12 rounded-full overflow-hidden bg-white/10">
                       <Image
                         src={member.avatar || "/placeholder.svg"}
                         alt={member.name}
@@ -399,23 +435,24 @@ export default function TeamManagementPage() {
                         className="object-cover"
                       />
                     </div>
-                    <div className="flex-1 min-w-0">
-                      <div className="flex flex-col sm:flex-row sm:items-center gap-2 mb-1">
-                        <h3 className="text-lg font-medium text-white truncate">{member.name}</h3>
-                        <Badge className={`text-xs ${getStatusColor(member.status)} flex-shrink-0`}>
-                          {member.status}
-                        </Badge>
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2 mb-1">
+                        <h3 className="text-lg font-medium text-white">{member.name}</h3>
+                        <Badge className={`text-xs ${getStatusColor(member.status)}`}>{member.status}</Badge>
                       </div>
-                      <p className="text-sm text-white/70 truncate">{member.email}</p>
-                      <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 mt-2 text-xs text-white/50">
+                      <p className="text-sm text-white/70">{member.email}</p>
+                      <div className="flex items-center gap-4 mt-2 text-xs text-white/50">
                         <span>
                           {member.role} • {member.department}
                         </span>
                         {member.location && (
-                          <div className="flex items-center gap-1">
-                            <MapPin className="h-3 w-3" />
-                            <span className="truncate">{member.location}</span>
-                          </div>
+                          <>
+                            <span>•</span>
+                            <div className="flex items-center gap-1">
+                              <MapPin className="h-3 w-3" />
+                              <span>{member.location}</span>
+                            </div>
+                          </>
                         )}
                       </div>
                     </div>
@@ -429,6 +466,12 @@ export default function TeamManagementPage() {
                         <>
                           <span className="hidden sm:inline">•</span>
                           <span>{member.totalTrips} trips</span>
+                        </>
+                      )}
+                      {member.travelBudget && (
+                        <>
+                          <span className="hidden sm:inline">•</span>
+                          <span>Budget: ${member.travelBudget.toLocaleString()}</span>
                         </>
                       )}
                     </div>
@@ -466,16 +509,16 @@ export default function TeamManagementPage() {
           </Card>
         )}
 
-        {/* Member Details Dialog - Responsive */}
+        {/* Member Details Dialog */}
         {selectedMember && (
           <Dialog open={!!selectedMember} onOpenChange={() => setSelectedMember(null)}>
-            <DialogContent className="bg-black border-white/10 text-white max-w-2xl max-h-[90vh] overflow-y-auto">
+            <DialogContent className="bg-black border-white/10 text-white max-w-2xl">
               <DialogHeader>
                 <DialogTitle className="text-white font-light">Team Member Details</DialogTitle>
               </DialogHeader>
               <div className="space-y-6">
                 <div className="flex items-center gap-4">
-                  <div className="relative h-16 w-16 rounded-full overflow-hidden bg-white/10 flex-shrink-0">
+                  <div className="relative h-16 w-16 rounded-full overflow-hidden bg-white/10">
                     <Image
                       src={selectedMember.avatar || "/placeholder.svg"}
                       alt={selectedMember.name}
@@ -490,7 +533,7 @@ export default function TeamManagementPage() {
                   </div>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="grid grid-cols-2 gap-6">
                   <div>
                     <h4 className="text-sm font-medium text-white/70 mb-2">Role & Department</h4>
                     <p className="text-white">{selectedMember.role}</p>

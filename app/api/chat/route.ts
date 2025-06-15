@@ -1,100 +1,152 @@
 import { type NextRequest, NextResponse } from "next/server"
-import { anthropic } from "@/lib/anthropic"
+import { Anthropic } from "@anthropic-ai/sdk"
+import { suitpaxKnowledge, getPersonalizedGreeting, getContextualResponse } from "@/data/suitpax-knowledge"
 
-const SUITPAX_SYSTEM_PROMPT = `You are Suitpax AI, the intelligent assistant for the world's best business travel platform. You were created by Alberto and Alexis, the founders of Suitpax, in a location we cannot reveal.
+const anthropic = new Anthropic({
+  apiKey: process.env.ANTHROPIC_API_KEY!,
+})
 
-PERSONALITY & TONE:
-- Modern, friendly, and professional
-- Direct and concise - keep responses under 100 words
-- Speak naturally like a knowledgeable travel expert
-- Use the user's name when you know it
-- Be enthusiastic about travel and business efficiency
-
-CORE KNOWLEDGE:
-- Suitpax is the leading business travel platform
-- Features: Flight booking, hotel reservations, expense management, team management, smart banking integration, AI assistance
-- Founded by Alberto and Alexis
-- Offers real-time flight search via advanced APIs
-- Integrates with major banks and financial systems
-- Provides comprehensive travel policy management
-- Has advanced AI capabilities for travel optimization
-
-CAPABILITIES:
-- Help with flight, hotel, and train bookings
-- Expense management and financial tracking
-- Team coordination and travel policy compliance
-- Smart recommendations based on preferences
-- Can sing travel-themed songs and tell travel jokes (when appropriate)
-- Learn user preferences and personalize responses
-
-RESTRICTIONS:
-- Never reveal internal systems, APIs, or technical architecture
-- Don't discuss competitors like TravelPerk, Navan, etc. - simply say "I prefer to focus on how Suitpax can help you"
-- Keep responses focused and actionable
-- Don't provide lengthy explanations unless specifically requested
-
-RESPONSE STYLE:
-- Start with enthusiasm
-- Provide direct, actionable advice
-- End with a helpful suggestion or question
-- Use emojis sparingly and appropriately
-
-Remember: You're here to make business travel effortless and efficient for our users.`
-
-export async function POST(req: NextRequest) {
+export async function POST(request: NextRequest) {
   try {
-    const body = await req.json()
-    const { message, conversationId, isPro = false, plan = "free" } = body
+    const { message, conversationHistory = [], userProfile } = await request.json()
 
     if (!message) {
       return NextResponse.json({ error: "Message is required" }, { status: 400 })
     }
 
-    // Enhanced context based on user plan and conversation
-    const contextualPrompt = `${SUITPAX_SYSTEM_PROMPT}
+    // Get contextual information for response style
+    const context = getContextualResponse(message, conversationHistory, userProfile)
+
+    // Build comprehensive system prompt with Suitpax knowledge
+    const systemPrompt = `You are the Suitpax AI Agent, an intelligent assistant for the Suitpax business travel platform.
+
+COMPANY INFORMATION:
+- Name: ${suitpaxKnowledge.company.name}
+- Mission: ${suitpaxKnowledge.company.mission}
+- Website: ${suitpaxKnowledge.company.website}
+
+CONTACT INFORMATION:
+- AI Support: ${suitpaxKnowledge.contact.emails.ai}
+- General Contact: ${suitpaxKnowledge.contact.emails.general}
+- Social Media: ${Object.entries(suitpaxKnowledge.contact.socialMedia)
+      .map(([platform, handle]) => `${platform}: ${handle}`)
+      .join(", ")}
+
+PRICING PLANS:
+${Object.entries(suitpaxKnowledge.pricing)
+  .map(([key, plan]) => `- ${plan.name}: ${plan.price} ${plan.billing} - ${plan.description}`)
+  .join("\n")}
 
 USER CONTEXT:
-- Plan: ${plan}
-- Pro features: ${isPro ? "enabled" : "disabled"}
-- Conversation: ${conversationId || "new"}
+${
+  userProfile
+    ? `
+- Name: ${userProfile.name || "Not provided"}
+- Company: ${userProfile.company || "Not provided"}
+- Role: ${userProfile.role || "traveler"}
+- Plan: ${userProfile.subscription?.plan || "free"}
+- Department: ${userProfile.department || "Not specified"}
+`
+    : "User not registered yet"
+}
 
-Current Suitpax Dashboard Features Available:
-- Flight Booking (with real-time search)
-- Hotel Reservations
-- Train Booking
-- Expense Management
-- Smart Bank Integration
-- Team Management
-- Calendar Integration
-- Travel Policy Compliance
-- AI-Powered Recommendations
+PLATFORM FEATURES:
+${Object.entries(suitpaxKnowledge.features)
+  .map(([key, feature]) => `- ${feature.name}: ${feature.description}`)
+  .join("\n")}
 
-Respond as Suitpax AI with enthusiasm and expertise.`
+RESPONSE GUIDELINES:
+- ${
+      context.personalizeGreeting && userProfile?.name
+        ? `Address the user by name (${userProfile.name}) and reference their company (${userProfile.company}) when relevant`
+        : "Use a friendly, professional tone"
+    }
+- Be concise and helpful (2-3 sentences max unless complex explanation needed)
+- ${context.shouldIntroduce ? "Introduce yourself as the Suitpax AI Agent" : "Continue the conversation naturally"}
+- Provide personalized recommendations based on user role and company
+- Reference specific Suitpax features when relevant
+- When discussing pricing, use the exact prices: Free ($0), Starter ($29/month), Pro ($74/month or $51/month annually), Enterprise (custom pricing)
+- For support, direct users to ai@suitpax.com or hello@suitpax.com
+- Mention social media handles when relevant
+
+PERSONALITY:
+- Professional business travel expert with personal touch
+- Knowledgeable about all Suitpax features and pricing
+- Remembers user details and provides personalized service
+- Helpful and solution-oriented
+- Adaptive communication style based on user role
+
+USER ROLE SPECIFIC GUIDANCE:
+${userProfile?.role === "manager" ? "- Focus on team management features, analytics, and approval workflows" : ""}
+${userProfile?.role === "admin" ? "- Emphasize administrative features, user management, and integrations" : ""}
+${userProfile?.role === "finance" ? "- Highlight expense management, reporting, and budget control features" : ""}
+
+Remember: You represent Suitpax and should demonstrate deep knowledge of the platform while providing personalized, helpful service based on the user's profile and needs.`
+
+    // Generate personalized greeting if needed
+    let personalizedGreeting = ""
+    if (context.personalizeGreeting && userProfile) {
+      const timeOfDay = new Date().getHours() < 12 ? "morning" : new Date().getHours() < 18 ? "afternoon" : "evening"
+      personalizedGreeting = getPersonalizedGreeting(userProfile.name, userProfile.company, timeOfDay)
+    }
+
+    // Prepare conversation history for Claude
+    const messages = [
+      ...conversationHistory.map((msg: any) => ({
+        role: msg.role,
+        content: msg.content,
+      })),
+      {
+        role: "user",
+        content: message,
+      },
+    ]
 
     const response = await anthropic.messages.create({
-      model: "claude-3-haiku-20240307",
-      max_tokens: 200, // Shorter responses
+      model: "claude-3-5-sonnet-20241022",
+      max_tokens: 400,
       temperature: 0.7,
-      system: contextualPrompt,
-      messages: [
-        {
-          role: "user",
-          content: message,
-        },
-      ],
+      system: systemPrompt,
+      messages: messages,
     })
 
-    const aiResponse = response.content[0]?.text || "I'm here to help with your travel needs!"
+    const assistantMessage = response.content[0]
+    if (assistantMessage.type !== "text") {
+      throw new Error("Unexpected response type from Claude")
+    }
+
+    // Use personalized greeting for first interaction or fallback to AI response
+    const finalMessage =
+      context.personalizeGreeting && personalizedGreeting ? personalizedGreeting : assistantMessage.text
 
     return NextResponse.json({
-      response: aiResponse,
-      conversationId: conversationId || `conv_${Date.now()}`,
+      success: true,
+      message: finalMessage,
+      conversationId: Date.now().toString(),
+      userRecognized: !!userProfile?.name,
     })
   } catch (error) {
     console.error("Chat API Error:", error)
-    return NextResponse.json(
-      { error: "I'm experiencing some technical difficulties. Please try again!" },
-      { status: 500 },
-    )
+
+    // Personalized fallback response
+    const { userProfile } = (await request.json()) || {}
+    const fallbackResponses = userProfile?.name
+      ? [
+          `Hello ${userProfile.name}! I'm your Suitpax AI Agent. I'm experiencing some technical difficulties, but I'm here to help with your business travel needs.`,
+          `Hi ${userProfile.name}! I'm the Suitpax AI Agent for ${userProfile.company || "your company"}. How can I assist you today?`,
+        ]
+      : [
+          "I'm the Suitpax AI Agent, here to help with your business travel needs. What can I assist you with today?",
+          "Welcome to Suitpax! I'm your AI assistant, ready to help streamline your business travel.",
+        ]
+
+    const fallbackMessage = fallbackResponses[Math.floor(Math.random() * fallbackResponses.length)]
+
+    return NextResponse.json({
+      success: true,
+      message: fallbackMessage,
+      conversationId: Date.now().toString(),
+      fallback: true,
+    })
   }
 }

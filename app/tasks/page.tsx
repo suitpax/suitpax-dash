@@ -135,7 +135,7 @@ export default function TasksPage() {
 
   return (
     <div className="min-h-screen bg-black text-white p-3">
-      <div className="max-w-6xl mx-auto space-y-4">
+      <div className="max-w-6xl mx-auto space-y-6">
         {/* Header */}
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>

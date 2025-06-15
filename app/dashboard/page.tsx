@@ -6,6 +6,8 @@ import { useState, useRef, useEffect } from "react"
 import Link from "next/link"
 import Image from "next/image"
 import {
+  PlusIcon,
+  CreditCardIcon,
   PaperAirplaneIcon,
   BuildingOfficeIcon,
   ChartBarIcon,
@@ -13,7 +15,6 @@ import {
   BanknotesIcon,
 } from "@heroicons/react/24/outline"
 import { TypingEffect } from "@/components/ui/typing-effect"
-import DashboardHeader from "@/components/ui/dashboard-header"
 
 interface Message {
   id: string
@@ -110,8 +111,40 @@ export default function DashboardPage() {
   return (
     <div className="min-h-screen bg-black p-3 text-white">
       <div className="max-w-7xl mx-auto space-y-4">
-        {/* Enhanced Header */}
-        <DashboardHeader />
+        {/* Header */}
+        <header className="bg-white/5 border border-white/10 rounded-2xl p-6 md:p-8 backdrop-blur-sm">
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div>
+              <h1 className="text-3xl md:text-4xl font-light tracking-tighter text-white mb-2">Dashboard</h1>
+              <p className="text-white/70 font-light">
+                Welcome back! Here's what's happening with your business travel.
+              </p>
+            </div>
+            <div className="flex items-center space-x-3">
+              <Link
+                href="/expenses"
+                className="inline-flex items-center px-4 py-2 bg-white/10 hover:bg-white/20 border border-white/20 rounded-xl text-white text-sm font-light transition-all duration-200"
+              >
+                <PlusIcon className="h-4 w-4 mr-2" />
+                Add Expense
+              </Link>
+              <Link
+                href="/smart-bank"
+                className="inline-flex items-center px-4 py-2 bg-blue-500/20 hover:bg-blue-500/30 border border-blue-500/30 rounded-xl text-blue-300 text-sm font-light transition-all duration-200"
+              >
+                <CreditCardIcon className="h-4 w-4 mr-2" />
+                Connect Bank
+              </Link>
+              <Link
+                href="/flights"
+                className="inline-flex items-center px-4 py-2 bg-white text-black hover:bg-white/90 rounded-xl text-sm font-medium transition-all duration-200"
+              >
+                <PaperAirplaneIcon className="h-4 w-4 mr-2" />
+                Book Flight
+              </Link>
+            </div>
+          </div>
+        </header>
 
         {/* AI Chat Section */}
         <div

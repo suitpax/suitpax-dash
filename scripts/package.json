@@ -1,0 +1,13 @@
+{
+  "name": "suitpax-mcp-scripts",
+  "version": "1.0.0",
+  "scripts": {
+    "mcp:start": "chmod +x scripts/mcp-server.sh && ./scripts/mcp-server.sh start",
+    "mcp:stop": "chmod +x scripts/mcp-server.sh && ./scripts/mcp-server.sh stop",
+    "mcp:status": "chmod +x scripts/mcp-server.sh && ./scripts/mcp-server.sh status",
+    "mcp:restart": "chmod +x scripts/mcp-server.sh && ./scripts/mcp-server.sh restart",
+    "mcp:logs": "chmod +x scripts/mcp-server.sh && ./scripts/mcp-server.sh logs",
+    "mcp:health": "curl -s http://localhost:3000/api/mcp/health | jq",
+    "mcp:test": "curl -s -X POST http://localhost:3000/api/mcp/test | jq"
+  }
+}

@@ -1,398 +1,446 @@
 "use client"
-
-import type React from "react"
-import { useState, useRef, useEffect } from "react"
-import Link from "next/link"
 import Image from "next/image"
+import Link from "next/link"
 import {
-  PlusIcon,
-  CreditCardIcon,
-  PaperAirplaneIcon,
-  BuildingOfficeIcon,
-  ChartBarIcon,
-  ArrowRightIcon,
-  BanknotesIcon,
-  UserGroupIcon,
-  CalendarIcon,
-  DocumentTextIcon,
-} from "@heroicons/react/24/outline"
-import { TypingEffect } from "@/components/ui/typing-effect"
+  Plane,
+  Receipt,
+  CreditCard,
+  Users,
+  TrendingUp,
+  MapPin,
+  Clock,
+  DollarSign,
+  Plus,
+  ArrowRight,
+  Building2,
+  Briefcase,
+  Globe,
+  ChevronRight,
+} from "lucide-react"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Button } from "@/components/ui/button"
+import { Badge } from "@/components/ui/badge"
+import AIQuickInput from "@/components/ui/ai-quick-input"
+import { useUserData, useUserTrips, useUserExpenses, useUserMeetings } from "@/lib/hooks/use-user-data"
 
-interface Message {
-  id: string
-  role: "user" | "assistant"
-  content: string
-  timestamp: Date
-  isTyping?: boolean
-}
+export default function Dashboard() {
+  const { userData, loading: userLoading, initializeDemoData } = useUserData()
+  const { trips, loading: tripsLoading } = useUserTrips(userData?.id)
+  const { expenses, loading: expensesLoading } = useUserExpenses(userData?.id)
 
-export default function DashboardPage() {
-  const [chatInput, setChatInput] = useState("")
-  const [messages, setMessages] = useState<Message[]>([])
-  const [isLoading, setIsLoading] = useState(false)
-  const [isChatExpanded, setIsChatExpanded] = useState(false)
-  const messagesEndRef = useRef<HTMLDivElement>(null)
+  // Get today's meetings
+  const today = new Date().toISOString().split("T")[0]
+  const { meetings, loading: meetingsLoading } = useUserMeetings(userData?.id, today)
 
-  // Auto scroll to bottom
-  useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
-  }, [messages])
-
-  const handleChatSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    if (!chatInput.trim() || isLoading) return
-
-    const userMessage: Message = {
-      id: Date.now().toString(),
-      role: "user",
-      content: chatInput.trim(),
-      timestamp: new Date(),
-    }
-
-    setMessages((prev) => [...prev, userMessage])
-    setChatInput("")
-    setIsLoading(true)
-    setIsChatExpanded(true)
-
-    try {
-      const response = await fetch("/api/chat", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          message: userMessage.content,
-          isPro: true,
-          plan: "business",
-          conversationId: "dashboard-chat",
-        }),
-      })
-
-      if (!response.ok) {
-        throw new Error("Failed to get AI response")
-      }
-
-      const data = await response.json()
-
-      const assistantMessage: Message = {
-        id: (Date.now() + 1).toString(),
-        role: "assistant",
-        content: data.response || "I apologize, but I'm having trouble processing your request right now.",
-        timestamp: new Date(),
-        isTyping: true,
-      }
-
-      setMessages((prev) => [...prev, assistantMessage])
-    } catch (error) {
-      console.error("Error getting AI response:", error)
-
-      const errorMessage: Message = {
-        id: (Date.now() + 1).toString(),
-        role: "assistant",
-        content: "I'm sorry, I encountered an error. Please try again or contact support.",
-        timestamp: new Date(),
-        isTyping: true,
-      }
-
-      setMessages((prev) => [...prev, errorMessage])
-    } finally {
-      setIsLoading(false)
-    }
+  // Get greeting based on time
+  const getGreeting = () => {
+    const hour = new Date().getHours()
+    if (hour < 12) return "Good morning"
+    if (hour < 18) return "Good afternoon"
+    return "Good evening"
   }
 
-  const handleInputFocus = () => {
-    setIsChatExpanded(true)
+  if (userLoading) {
+    return (
+      <div className="min-h-screen bg-black flex items-center justify-center">
+        <div className="text-white font-light">Loading your dashboard...</div>
+      </div>
+    )
   }
 
-  const handleInputBlur = () => {
-    if (messages.length === 0) {
-      setIsChatExpanded(false)
-    }
+  if (!userData) {
+    return (
+      <div className="min-h-screen bg-black flex items-center justify-center">
+        <div className="text-white font-light">Unable to load user data</div>
+      </div>
+    )
   }
 
-  const quickActions = [
-    {
-      title: "Book Flights",
-      description: "Find and book business flights",
-      href: "/flights",
-      icon: PaperAirplaneIcon,
-      color: "bg-blue-500/10 text-blue-400 border-blue-500/20",
-    },
-    {
-      title: "Hotels",
-      description: "Reserve business accommodations",
-      href: "/hotels",
-      icon: BuildingOfficeIcon,
-      color: "bg-green-500/10 text-green-400 border-green-500/20",
-    },
-    {
-      title: "Expenses",
-      description: "Track and manage expenses",
-      href: "/expenses",
-      icon: ChartBarIcon,
-      color: "bg-purple-500/10 text-purple-400 border-purple-500/20",
-    },
-    {
-      title: "Connect Bank",
-      description: "Sync your financial accounts",
-      href: "/smart-bank",
-      icon: BanknotesIcon,
-      color: "bg-yellow-500/10 text-yellow-400 border-yellow-500/20",
-    },
-    {
-      title: "Team",
-      description: "Manage team members",
-      href: "/team-management",
-      icon: UserGroupIcon,
-      color: "bg-indigo-500/10 text-indigo-400 border-indigo-500/20",
-    },
-    {
-      title: "Calendar",
-      description: "Schedule and meetings",
-      href: "/meetings",
-      icon: CalendarIcon,
-      color: "bg-pink-500/10 text-pink-400 border-pink-500/20",
-    },
-  ]
+  // Get recent data
+  const upcomingTrips = trips
+    .filter((trip) => new Date(trip.startDate) > new Date())
+    .sort((a, b) => new Date(a.startDate).getTime() - new Date(b.startDate).getTime())
+    .slice(0, 2)
 
-  const recentActivity = [
-    {
-      id: 1,
-      type: "flight",
-      title: "NYC → London",
-      subtitle: "British Airways • Dec 20",
-      amount: "$1,250",
-      icon: PaperAirplaneIcon,
-      color: "text-blue-400",
-    },
-    {
-      id: 2,
-      type: "hotel",
-      title: "Marriott London",
-      subtitle: "3 nights • Dec 20-23",
-      amount: "$450",
-      icon: BuildingOfficeIcon,
-      color: "text-green-400",
-    },
-    {
-      id: 3,
-      type: "expense",
-      title: "Client Dinner",
-      subtitle: "Morton's Steakhouse",
-      amount: "$120",
-      icon: DocumentTextIcon,
-      color: "text-purple-400",
-    },
-  ]
+  const recentExpenses = expenses.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()).slice(0, 3)
 
-  const stats = [
-    { label: "Trips this year", value: "12", change: "+2 from last month" },
-    { label: "Total expenses", value: "$8,450", change: "+$1,200 this month" },
-    { label: "Countries visited", value: "5", change: "2 new destinations" },
-    { label: "On-time arrivals", value: "98%", change: "Above average" },
-  ]
+  const todayMeetings = meetings.slice(0, 3)
+
+  // Show demo data button if user has no data
+  const hasNoData = trips.length === 0 && expenses.length === 0 && meetings.length === 0
 
   return (
-    <div className="min-h-screen bg-black p-3 text-white">
-      <div className="max-w-7xl mx-auto space-y-4">
-        {/* Header */}
-        <div className="bg-white/5 border border-white/10 rounded-lg p-6 backdrop-blur-sm">
-          <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
-            <div>
-              <h1 className="text-2xl font-medium tracking-tight text-white mb-2">Dashboard</h1>
-              <p className="text-white/70 text-sm">Welcome back! Here's what's happening with your business travel.</p>
-            </div>
-            <div className="flex items-center gap-3">
-              <Link
-                href="/expenses"
-                className="inline-flex items-center px-3 py-1.5 bg-white/5 hover:bg-white/10 border border-white/10 rounded-lg text-white text-sm transition-all duration-200"
-              >
-                <PlusIcon className="h-4 w-4 mr-2" />
-                Add Expense
-              </Link>
-              <Link
-                href="/smart-bank"
-                className="inline-flex items-center px-3 py-1.5 bg-blue-500/10 hover:bg-blue-500/20 border border-blue-500/20 rounded-lg text-blue-300 text-sm transition-all duration-200"
-              >
-                <CreditCardIcon className="h-4 w-4 mr-2" />
-                Connect Bank
-              </Link>
-              <Link
-                href="/flights"
-                className="inline-flex items-center px-3 py-1.5 bg-white text-black hover:bg-white/90 rounded-lg text-sm font-medium transition-all duration-200"
-              >
-                <PaperAirplaneIcon className="h-4 w-4 mr-2" />
-                Book Flight
-              </Link>
-            </div>
-          </div>
-        </div>
-
-        {/* AI Chat Section */}
-        <div
-          className={`bg-white/5 border border-white/10 rounded-lg backdrop-blur-sm transition-all duration-300 ${
-            isChatExpanded ? "p-4" : "p-3"
-          }`}
-        >
-          <div className="flex items-center justify-between mb-3">
-            <div className="flex items-center space-x-3">
-              <div className="relative h-7 w-7 rounded-lg overflow-hidden">
-                <Image src="/images/ai-agent-avatar.jpeg" alt="Suitpax AI" fill className="object-cover" />
-              </div>
-              <div>
-                <h2 className="text-sm font-medium text-white">Suitpax AI Assistant</h2>
-                <p className="text-xs text-white/60">Ask me anything about your travel needs</p>
-              </div>
-            </div>
-          </div>
-
-          {/* Messages */}
-          {isChatExpanded && messages.length > 0 && (
-            <div className="mb-3 max-h-48 overflow-y-auto space-y-3">
-              {messages.map((message) => (
-                <div key={message.id} className={`flex ${message.role === "user" ? "justify-end" : "justify-start"}`}>
-                  <div className={`max-w-[80%] ${message.role === "user" ? "order-2" : "order-1"}`}>
-                    {message.role === "assistant" && (
-                      <div className="flex items-center space-x-2 mb-1">
-                        <div className="relative h-4 w-4 rounded-lg overflow-hidden">
-                          <Image src="/images/ai-agent-avatar.jpeg" alt="AI" fill className="object-cover" />
-                        </div>
-                        <span className="text-xs text-white/50">Suitpax AI</span>
-                      </div>
-                    )}
-                    <div
-                      className={`rounded-lg py-2 px-3 text-sm ${
-                        message.role === "user"
-                          ? "bg-white text-black rounded-tr-none"
-                          : "bg-white/5 text-white rounded-tl-none border border-white/10"
-                      }`}
-                    >
-                      {message.isTyping && message.role === "assistant" ? (
-                        <TypingEffect text={message.content} speed={25} />
-                      ) : (
-                        message.content
-                      )}
-                    </div>
-                  </div>
-                </div>
-              ))}
-              {isLoading && (
-                <div className="flex justify-start">
-                  <div className="max-w-[80%]">
-                    <div className="flex items-center space-x-2 mb-1">
-                      <div className="relative h-4 w-4 rounded-lg overflow-hidden">
-                        <Image src="/images/ai-agent-avatar.jpeg" alt="AI" fill className="object-cover" />
-                      </div>
-                      <span className="text-xs text-white/50">Suitpax AI</span>
-                    </div>
-                    <div className="bg-white/5 rounded-lg rounded-tl-none py-2 px-3 border border-white/10">
-                      <div className="flex space-x-1">
-                        <div className="w-1.5 h-1.5 bg-white/50 rounded-full animate-bounce"></div>
-                        <div
-                          className="w-1.5 h-1.5 bg-white/50 rounded-full animate-bounce"
-                          style={{ animationDelay: "0.1s" }}
-                        ></div>
-                        <div
-                          className="w-1.5 h-1.5 bg-white/50 rounded-full animate-bounce"
-                          style={{ animationDelay: "0.2s" }}
-                        ></div>
-                      </div>
-                    </div>
-                  </div>
+    <div className="min-h-screen bg-black text-white p-3">
+      <div className="max-w-7xl mx-auto space-y-6">
+        {/* Header Section */}
+        <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+          <div className="flex items-center gap-4">
+            <div className="relative h-12 w-12 rounded-full overflow-hidden bg-white/5 border border-white/10">
+              {userData.avatar ? (
+                <Image src={userData.avatar || "/placeholder.svg"} alt="User avatar" fill className="object-cover" />
+              ) : (
+                <div className="w-full h-full flex items-center justify-center">
+                  <Users className="h-6 w-6 text-white/50" />
                 </div>
               )}
-              <div ref={messagesEndRef} />
             </div>
-          )}
-
-          {/* Chat Input */}
-          <form onSubmit={handleChatSubmit} className="relative">
-            <div className="relative">
-              <div className="absolute left-3 top-1/2 transform -translate-y-1/2 flex items-center">
-                <div className="relative h-5 w-5 rounded-lg overflow-hidden mr-2">
-                  <Image
-                    src={isChatExpanded ? "/images/ai-assistant-avatar.png" : "/images/ai-agent-avatar.jpeg"}
-                    alt="AI Assistant"
-                    fill
-                    className="object-cover"
-                  />
-                </div>
-              </div>
-              <input
-                type="text"
-                value={chatInput}
-                onChange={(e) => setChatInput(e.target.value)}
-                onFocus={handleInputFocus}
-                onBlur={handleInputBlur}
-                placeholder="Ask Suitpax AI anything about your travel needs..."
-                disabled={isLoading}
-                className="w-full pl-10 pr-10 py-2.5 text-sm bg-white/5 border border-white/10 rounded-lg focus:outline-none focus:ring-1 focus:ring-white/20 text-white placeholder:text-white/30 disabled:opacity-50"
-              />
-              <button
-                type="submit"
-                disabled={!chatInput.trim() || isLoading}
-                className="absolute right-2 top-1/2 -translate-y-1/2 p-1.5 text-white/50 hover:text-white disabled:opacity-50 transition-colors rounded-lg hover:bg-white/5"
-              >
-                <ArrowRightIcon className="h-4 w-4" />
-              </button>
-            </div>
-          </form>
-        </div>
-
-        {/* Quick Actions Grid */}
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
-          {quickActions.map((action) => (
-            <Link
-              key={action.title}
-              href={action.href}
-              className="bg-white/5 border border-white/10 rounded-lg p-4 hover:bg-white/8 transition-all duration-200 group"
-            >
-              <div className="flex flex-col items-center text-center space-y-2">
-                <div className={`p-2 rounded-lg border ${action.color}`}>
-                  <action.icon className="h-5 w-5" />
-                </div>
-                <div>
-                  <h3 className="text-sm font-medium text-white">{action.title}</h3>
-                  <p className="text-xs text-white/60 mt-1">{action.description}</p>
-                </div>
-              </div>
-            </Link>
-          ))}
-        </div>
-
-        {/* Stats and Activity */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-          {/* Recent Activity */}
-          <div className="bg-white/5 border border-white/10 rounded-lg p-4 backdrop-blur-sm">
-            <h2 className="text-lg font-medium text-white mb-4">Recent Activity</h2>
-            <div className="space-y-3">
-              {recentActivity.map((item) => (
-                <div key={item.id} className="flex items-center justify-between p-3 bg-white/5 rounded-lg">
-                  <div className="flex items-center space-x-3">
-                    <item.icon className={`h-5 w-5 ${item.color}`} />
-                    <div>
-                      <p className="text-white text-sm font-medium">{item.title}</p>
-                      <p className="text-white/60 text-xs">{item.subtitle}</p>
-                    </div>
-                  </div>
-                  <span className="text-white/70 text-sm">{item.amount}</span>
-                </div>
-              ))}
+            <div>
+              <h1 className="text-2xl lg:text-3xl font-light tracking-tighter text-white">
+                Hey, {getGreeting()}
+                {userData.name ? `, ${userData.name}` : ""}
+              </h1>
+              <p className="text-white/70 text-sm font-light">Ready to plan your next business trip?</p>
             </div>
           </div>
 
-          {/* Quick Stats */}
-          <div className="bg-white/5 border border-white/10 rounded-lg p-4 backdrop-blur-sm">
-            <h2 className="text-lg font-medium text-white mb-4">Quick Stats</h2>
-            <div className="grid grid-cols-2 gap-4">
-              {stats.map((stat, index) => (
-                <div key={index} className="text-center">
-                  <p className="text-xl font-medium text-white">{stat.value}</p>
-                  <p className="text-white/60 text-sm">{stat.label}</p>
-                  <p className="text-white/40 text-xs mt-1">{stat.change}</p>
+          <div className="flex gap-2">
+            <Link
+              href="/flights"
+              className="flex items-center gap-2 px-2 py-1 text-xs bg-white/5 hover:bg-white/10 border border-white/10 rounded-full transition-colors text-white/70 hover:text-white font-light"
+            >
+              <Plane className="h-3 w-3" />
+              Book Flight
+            </Link>
+            <Link
+              href="/expenses"
+              className="flex items-center gap-2 px-2 py-1 text-xs bg-white/5 hover:bg-white/10 border border-white/10 rounded-full transition-colors text-white/70 hover:text-white font-light"
+            >
+              <Receipt className="h-3 w-3" />
+              Add Expense
+            </Link>
+            <Link
+              href="/smart-bank"
+              className="flex items-center gap-2 px-2 py-1 text-xs bg-white/5 hover:bg-white/10 border border-white/10 rounded-full transition-colors text-white/70 hover:text-white font-light"
+            >
+              <CreditCard className="h-3 w-3" />
+              Connect Bank
+            </Link>
+          </div>
+        </div>
+
+        {/* AI Quick Input */}
+        <div className="max-w-md">
+          <AIQuickInput placeholder="Ask AI: 'Book a flight to London next week'" />
+        </div>
+
+        {/* Demo Data Button */}
+        {hasNoData && (
+          <Card className="bg-blue-500/10 border-blue-500/20">
+            <CardContent className="py-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h3 className="font-light text-white mb-1">Get Started</h3>
+                  <p className="text-sm text-white/70 font-light">Load some sample data to explore Suitpax features</p>
                 </div>
-              ))}
-            </div>
+                <Button onClick={initializeDemoData} className="bg-blue-500 hover:bg-blue-600 text-white font-light">
+                  Load Demo Data
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Main Grid */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          {/* Left Column - Main Content */}
+          <div className="lg:col-span-2 space-y-6">
+            {/* Quick Actions */}
+            <Card className="bg-white/5 border-white/10">
+              <CardHeader className="py-3">
+                <CardTitle className="text-white font-light tracking-tighter text-lg">Quick Actions</CardTitle>
+              </CardHeader>
+              <CardContent className="py-2">
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                  <Link href="/flights" className="group">
+                    <div className="p-3 bg-white/5 hover:bg-white/10 border border-white/10 rounded-lg transition-all duration-200 group-hover:scale-[1.02]">
+                      <Plane className="h-6 w-6 text-white/70 mb-2" />
+                      <p className="text-sm font-light text-white">Book Flight</p>
+                      <p className="text-xs text-white/50 font-light">Find & book flights</p>
+                    </div>
+                  </Link>
+
+                  <Link href="/hotels" className="group">
+                    <div className="p-3 bg-white/5 hover:bg-white/10 border border-white/10 rounded-lg transition-all duration-200 group-hover:scale-[1.02]">
+                      <Building2 className="h-6 w-6 text-white/70 mb-2" />
+                      <p className="text-sm font-light text-white">Book Hotel</p>
+                      <p className="text-xs text-white/50 font-light">Find accommodations</p>
+                    </div>
+                  </Link>
+
+                  <Link href="/expenses" className="group">
+                    <div className="p-3 bg-white/5 hover:bg-white/10 border border-white/10 rounded-lg transition-all duration-200 group-hover:scale-[1.02]">
+                      <Receipt className="h-6 w-6 text-white/70 mb-2" />
+                      <p className="text-sm font-light text-white">Add Expense</p>
+                      <p className="text-xs text-white/50 font-light">Upload receipts</p>
+                    </div>
+                  </Link>
+
+                  <Link href="/smart-bank" className="group">
+                    <div className="p-3 bg-white/5 hover:bg-white/10 border border-white/10 rounded-lg transition-all duration-200 group-hover:scale-[1.02]">
+                      <CreditCard className="h-6 w-6 text-white/70 mb-2" />
+                      <p className="text-sm font-light text-white">Connect Bank</p>
+                      <p className="text-xs text-white/50 font-light">Link accounts</p>
+                    </div>
+                  </Link>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Upcoming Trips */}
+            <Card className="bg-white/5 border-white/10">
+              <CardHeader className="py-3">
+                <div className="flex items-center justify-between">
+                  <CardTitle className="text-white font-light tracking-tighter text-lg">Upcoming Trips</CardTitle>
+                  <Link href="/flights" className="text-xs text-white/70 hover:text-white font-light">
+                    View all <ChevronRight className="h-3 w-3 inline ml-1" />
+                  </Link>
+                </div>
+              </CardHeader>
+              <CardContent className="py-2 space-y-3">
+                {tripsLoading ? (
+                  <div className="text-center py-4">
+                    <div className="text-white/50 font-light">Loading trips...</div>
+                  </div>
+                ) : upcomingTrips.length > 0 ? (
+                  upcomingTrips.map((trip) => (
+                    <div key={trip.id} className="p-3 bg-white/5 border border-white/10 rounded-lg">
+                      <div className="flex items-center justify-between mb-2">
+                        <div className="flex items-center gap-2">
+                          <MapPin className="h-4 w-4 text-white/70" />
+                          <span className="font-light text-white">{trip.destination}</span>
+                        </div>
+                        <Badge
+                          className={`text-xs font-light ${
+                            trip.status === "confirmed"
+                              ? "bg-green-500/20 text-green-400 border-green-500/30"
+                              : "bg-yellow-500/20 text-yellow-400 border-yellow-500/30"
+                          }`}
+                        >
+                          {trip.status}
+                        </Badge>
+                      </div>
+                      <div className="grid grid-cols-2 gap-4 text-xs">
+                        <div>
+                          <p className="text-white/50 font-light">Date</p>
+                          <p className="text-white/70 font-light">{new Date(trip.startDate).toLocaleDateString()}</p>
+                        </div>
+                        <div>
+                          <p className="text-white/50 font-light">Flight</p>
+                          <p className="text-white/70 font-light">{trip.flight?.number || "Not booked"}</p>
+                        </div>
+                      </div>
+                    </div>
+                  ))
+                ) : (
+                  <div className="text-center py-8">
+                    <Plane className="h-12 w-12 text-white/30 mx-auto mb-3" />
+                    <p className="text-white/50 font-light mb-2">No upcoming trips</p>
+                    <p className="text-xs text-white/30 font-light">Book your first business trip</p>
+                  </div>
+                )}
+
+                <Button
+                  className="w-full bg-white/5 hover:bg-white/10 border border-white/10 text-white/70 hover:text-white font-light"
+                  variant="outline"
+                >
+                  <Plus className="h-4 w-4 mr-2" />
+                  Plan New Trip
+                </Button>
+              </CardContent>
+            </Card>
+
+            {/* Recent Expenses */}
+            <Card className="bg-white/5 border-white/10">
+              <CardHeader className="py-3">
+                <div className="flex items-center justify-between">
+                  <CardTitle className="text-white font-light tracking-tighter text-lg">Recent Expenses</CardTitle>
+                  <Link href="/expenses" className="text-xs text-white/70 hover:text-white font-light">
+                    View all <ChevronRight className="h-3 w-3 inline ml-1" />
+                  </Link>
+                </div>
+              </CardHeader>
+              <CardContent className="py-2 space-y-3">
+                {expensesLoading ? (
+                  <div className="text-center py-4">
+                    <div className="text-white/50 font-light">Loading expenses...</div>
+                  </div>
+                ) : recentExpenses.length > 0 ? (
+                  recentExpenses.map((expense) => (
+                    <div
+                      key={expense.id}
+                      className="flex items-center justify-between p-3 bg-white/5 border border-white/10 rounded-lg"
+                    >
+                      <div className="flex items-center gap-3">
+                        <div className="h-8 w-8 rounded-lg bg-white/10 flex items-center justify-center">
+                          <Receipt className="h-4 w-4 text-white/70" />
+                        </div>
+                        <div>
+                          <p className="text-sm font-light text-white">{expense.description}</p>
+                          <p className="text-xs text-white/50 font-light">
+                            {new Date(expense.date).toLocaleDateString()}
+                          </p>
+                        </div>
+                      </div>
+                      <div className="text-right">
+                        <p className="text-sm font-light text-white">${expense.amount.toFixed(2)}</p>
+                        <Badge
+                          className={`text-xs font-light ${
+                            expense.status === "approved"
+                              ? "bg-green-500/20 text-green-400 border-green-500/30"
+                              : expense.status === "rejected"
+                                ? "bg-red-500/20 text-red-400 border-red-500/30"
+                                : "bg-yellow-500/20 text-yellow-400 border-yellow-500/30"
+                          }`}
+                        >
+                          {expense.status}
+                        </Badge>
+                      </div>
+                    </div>
+                  ))
+                ) : (
+                  <div className="text-center py-8">
+                    <Receipt className="h-12 w-12 text-white/30 mx-auto mb-3" />
+                    <p className="text-white/50 font-light mb-2">No expenses yet</p>
+                    <p className="text-xs text-white/30 font-light">Add your first expense</p>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Right Column - Sidebar */}
+          <div className="space-y-6">
+            {/* Today's Calendar */}
+            <Card className="bg-white/5 border-white/10">
+              <CardHeader className="py-3">
+                <div className="flex items-center justify-between">
+                  <CardTitle className="text-white font-light tracking-tighter text-lg">Today's Schedule</CardTitle>
+                  <Link href="/meetings" className="text-xs text-white/70 hover:text-white font-light">
+                    View calendar
+                  </Link>
+                </div>
+              </CardHeader>
+              <CardContent className="py-2 space-y-3">
+                {meetingsLoading ? (
+                  <div className="text-center py-4">
+                    <div className="text-white/50 font-light">Loading meetings...</div>
+                  </div>
+                ) : todayMeetings.length > 0 ? (
+                  todayMeetings.map((meeting) => (
+                    <div key={meeting.id} className="p-3 bg-white/5 border border-white/10 rounded-lg">
+                      <div className="flex items-center gap-2 mb-1">
+                        <Clock className="h-3 w-3 text-white/70" />
+                        <span className="text-xs font-light text-white/70">
+                          {new Date(meeting.startTime).toLocaleTimeString([], {
+                            hour: "2-digit",
+                            minute: "2-digit",
+                          })}
+                        </span>
+                      </div>
+                      <p className="text-sm font-light text-white mb-1">{meeting.title}</p>
+                      <div className="flex items-center gap-1">
+                        <Users className="h-3 w-3 text-white/50" />
+                        <span className="text-xs text-white/50 font-light">{meeting.attendees} attendees</span>
+                      </div>
+                    </div>
+                  ))
+                ) : (
+                  <div className="text-center py-8">
+                    <Clock className="h-12 w-12 text-white/30 mx-auto mb-3" />
+                    <p className="text-white/50 font-light mb-2">No meetings today</p>
+                    <p className="text-xs text-white/30 font-light">Your schedule is clear</p>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+
+            {/* Travel Insights */}
+            <Card className="bg-white/5 border-white/10">
+              <CardHeader className="py-3">
+                <CardTitle className="text-white font-light tracking-tighter text-lg">Travel Insights</CardTitle>
+              </CardHeader>
+              <CardContent className="py-2 space-y-4">
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="p-3 bg-white/5 border border-white/10 rounded-lg text-center">
+                    <Briefcase className="h-5 w-5 text-white/70 mx-auto mb-1" />
+                    <p className="text-lg font-light text-white">{userData.stats.totalTrips}</p>
+                    <p className="text-xs text-white/50 font-light">Total Trips</p>
+                  </div>
+                  <div className="p-3 bg-white/5 border border-white/10 rounded-lg text-center">
+                    <DollarSign className="h-5 w-5 text-white/70 mx-auto mb-1" />
+                    <p className="text-lg font-light text-white">${userData.stats.totalSpent.toLocaleString()}</p>
+                    <p className="text-xs text-white/50 font-light">Total Spent</p>
+                  </div>
+                </div>
+
+                {userData.stats.savedAmount > 0 && (
+                  <div className="p-3 bg-green-500/10 border border-green-500/20 rounded-lg">
+                    <div className="flex items-center gap-2 mb-1">
+                      <TrendingUp className="h-4 w-4 text-green-400" />
+                      <span className="text-sm font-light text-green-400">Savings This Year</span>
+                    </div>
+                    <p className="text-xl font-light text-white">${userData.stats.savedAmount.toLocaleString()}</p>
+                    <p className="text-xs text-white/50 font-light">15% below budget</p>
+                  </div>
+                )}
+
+                {userData.stats.carbonOffset > 0 && (
+                  <div className="p-3 bg-blue-500/10 border border-blue-500/20 rounded-lg">
+                    <div className="flex items-center gap-2 mb-1">
+                      <Globe className="h-4 w-4 text-blue-400" />
+                      <span className="text-sm font-light text-blue-400">Carbon Offset</span>
+                    </div>
+                    <p className="text-xl font-light text-white">{userData.stats.carbonOffset} tons</p>
+                    <p className="text-xs text-white/50 font-light">CO₂ compensated</p>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+
+            {/* Invite Team Member */}
+            <Card className="bg-white/5 border-white/10">
+              <CardHeader className="py-3">
+                <CardTitle className="text-white font-light tracking-tighter text-lg">Invite Team Member</CardTitle>
+              </CardHeader>
+              <CardContent className="py-2">
+                <div className="space-y-3">
+                  <div className="p-4 bg-white/5 border border-white/10 rounded-lg text-center">
+                    <div className="h-12 w-12 rounded-full bg-white/10 flex items-center justify-center mx-auto mb-3">
+                      <Users className="h-6 w-6 text-white/70" />
+                    </div>
+                    <h3 className="font-light text-white mb-2">Expand Your Team</h3>
+                    <p className="text-xs text-white/50 font-light mb-4">
+                      Invite colleagues to collaborate on travel planning and expense management
+                    </p>
+
+                    <div className="space-y-2 mb-4">
+                      <input
+                        type="email"
+                        placeholder="colleague@company.com"
+                        className="w-full px-3 py-2 text-sm bg-white/5 border border-white/10 rounded-lg focus:outline-none focus:ring-1 focus:ring-white/20 text-white placeholder:text-white/30 font-light"
+                      />
+                      <select className="w-full px-3 py-2 text-sm bg-white/5 border border-white/10 rounded-lg focus:outline-none focus:ring-1 focus:ring-white/20 text-white font-light">
+                        <option value="member">Team Member</option>
+                        <option value="manager">Travel Manager</option>
+                        <option value="admin">Admin</option>
+                      </select>
+                    </div>
+
+                    <Button className="w-full bg-white text-black hover:bg-white/90 font-light">
+                      <Plus className="h-4 w-4 mr-2" />
+                      Send Invitation
+                    </Button>
+                  </div>
+
+                  <div className="flex items-center justify-between text-xs">
+                    <span className="text-white/50 font-light">0 team members</span>
+                    <Link href="/team-management" className="text-white/70 hover:text-white font-light">
+                      Manage team <ArrowRight className="h-3 w-3 inline ml-1" />
+                    </Link>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
           </div>
         </div>
       </div>

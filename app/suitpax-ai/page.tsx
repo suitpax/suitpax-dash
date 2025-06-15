@@ -3,21 +3,17 @@
 import type React from "react"
 import { useState, useEffect, useRef } from "react"
 import Image from "next/image"
-import { Settings, Plus, Brain, Sparkles, Zap } from "lucide-react"
+import { Paperclip, Mic, MicOff, Settings, Plus, ArrowRight } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
-import { Switch } from "@/components/ui/switch"
-import { TypingEffect } from "@/components/ui/typing-effect"
 import { useSpeechRecognition } from "@/lib/hooks/use-speech-recognition"
-import { AnimatedAIChat } from "@/components/ui/animated-ai-chat"
 
 interface Message {
   id: string
   role: "user" | "assistant"
   content: string
   timestamp: Date
-  isTyping?: boolean
-  thinking?: string
 }
 
 interface Conversation {
@@ -28,39 +24,21 @@ interface Conversation {
 }
 
 const suggestedQueries = [
-  "How do I search for flights on Suitpax?",
-  "What are your pricing plans?",
-  "How can I track my travel expenses?",
-  "Show me how to manage my team",
-  "What integrations do you have?",
-  "How do I set up travel policies?",
-  "Can you help me with the onboarding process?",
-  "What's included in the Pro plan?",
+  "Find flights to London",
+  "Hotel recommendations in Tokyo",
+  "Create travel checklist",
+  "Expense policy for meals",
+  "Draft approval request",
+  "Best time to visit Paris",
+  "Corporate travel guidelines",
+  "Airport lounge access",
 ]
 
 const aiAgents = [
-  {
-    id: 1,
-    name: "Travel Expert",
-    avatar: "/images/ai-agents/agent-1.jpg",
-    specialty: "Flight & Hotel Booking",
-    status: "online",
-  },
-  {
-    id: 2,
-    name: "Finance AI",
-    avatar: "/images/ai-agents/agent-2.jpg",
-    specialty: "Expense Management",
-    status: "online",
-  },
-  {
-    id: 3,
-    name: "Policy Guide",
-    avatar: "/images/ai-agents/agent-3.jpg",
-    specialty: "Travel Policies",
-    status: "online",
-  },
-  { id: 4, name: "Support Bot", avatar: "/images/ai-agents/agent-4.jpg", specialty: "General Support", status: "busy" },
+  { id: 1, name: "Travel Agent", avatar: "/images/ai-agents/agent-1.jpg", specialty: "Flight & Hotel Booking" },
+  { id: 2, name: "Expense Agent", avatar: "/images/ai-agents/agent-2.jpg", specialty: "Expense Management" },
+  { id: 3, name: "Policy Agent", avatar: "/images/ai-agents/agent-3.jpg", specialty: "Travel Policies" },
+  { id: 4, name: "Support Agent", avatar: "/images/ai-agents/agent-4.jpg", specialty: "General Support" },
 ]
 
 export default function SuitpaxAIPage() {
@@ -68,9 +46,6 @@ export default function SuitpaxAIPage() {
   const [isLoading, setIsLoading] = useState(false)
   const [conversations, setConversations] = useState<Conversation[]>([])
   const [activeConversation, setActiveConversation] = useState<Conversation | null>(null)
-  const [isFocused, setIsFocused] = useState(false)
-  const [thinkingMode, setThinkingMode] = useState(false)
-  const [showThinking, setShowThinking] = useState(false)
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
   const { isListening, transcript, startListening, stopListening, resetTranscript, isSupported } =
@@ -93,9 +68,8 @@ export default function SuitpaxAIPage() {
           id: "welcome-msg",
           role: "assistant",
           content:
-            "Hello! I'm Suitpax AI, your intelligent corporate travel assistant created by Alberto and Alexis. I can communicate in multiple languages and will automatically detect and respond in your preferred language. I can help you navigate our platform, understand our features, manage expenses, and optimize your business travel. How can I assist you today?",
+            "Hey, Try ask anything to Suitpax Agent. I can help you with flight bookings, hotel reservations, expense management, travel policies, and much more. What can I assist you with today?",
           timestamp: new Date(),
-          isTyping: true,
         },
       ],
       createdAt: new Date(),
@@ -135,10 +109,9 @@ export default function SuitpaxAIPage() {
     setInput("")
     resetTranscript()
     setIsLoading(true)
-    setShowThinking(thinkingMode)
 
     try {
-      // Call AI API with thinking mode
+      // Call AI API
       const response = await fetch("/api/chat", {
         method: "POST",
         headers: {
@@ -146,7 +119,6 @@ export default function SuitpaxAIPage() {
         },
         body: JSON.stringify({
           message: userMessage.content,
-          thinkingMode: thinkingMode,
           isPro: true,
           plan: "business",
           conversationId: activeConversation.id,
@@ -162,10 +134,9 @@ export default function SuitpaxAIPage() {
       const assistantMessage: Message = {
         id: (Date.now() + 1).toString(),
         role: "assistant",
-        content: data.response || "Disculpa, estoy teniendo dificultades técnicas. Por favor intenta de nuevo.",
+        content:
+          data.response || "I apologize, but I'm having trouble processing your request right now. Please try again.",
         timestamp: new Date(),
-        isTyping: true,
-        thinking: data.thinking || undefined,
       }
 
       // Update conversation with assistant response
@@ -183,9 +154,8 @@ export default function SuitpaxAIPage() {
         id: (Date.now() + 1).toString(),
         role: "assistant",
         content:
-          "Lo siento, he encontrado un error al procesar tu solicitud. Por favor intenta de nuevo o contacta soporte si el problema persiste.",
+          "I'm sorry, I encountered an error while processing your request. Please try again or contact support if the issue persists.",
         timestamp: new Date(),
-        isTyping: true,
       }
 
       const errorConversation = {
@@ -197,7 +167,6 @@ export default function SuitpaxAIPage() {
       setConversations((prev) => prev.map((conv) => (conv.id === activeConversation.id ? errorConversation : conv)))
     } finally {
       setIsLoading(false)
-      setShowThinking(false)
     }
   }
 
@@ -209,9 +178,8 @@ export default function SuitpaxAIPage() {
         {
           id: "new-welcome",
           role: "assistant",
-          content: "Hello! I'm Suitpax AI. How can I help you with your business travel needs?",
+          content: "Hello! I'm ready to help you with your business travel needs. What would you like to know?",
           timestamp: new Date(),
-          isTyping: true,
         },
       ],
       createdAt: new Date(),
@@ -234,177 +202,107 @@ export default function SuitpaxAIPage() {
     }
   }
 
+  const formatMessageContent = (content: string) => {
+    return content.split("\n").map((line, i) => (
+      <span key={i}>
+        {line}
+        {i < content.split("\n").length - 1 && <br />}
+      </span>
+    ))
+  }
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-black via-gray-900 to-black text-white">
-      <div className="max-w-5xl mx-auto h-screen flex flex-col">
-        {/* Enhanced Header */}
-        <div className="flex items-center justify-between p-6 border-b border-white/10 bg-black/20 backdrop-blur-sm">
-          <div className="flex items-center space-x-4">
-            <div className="relative">
-              <div className="h-12 w-12 rounded-2xl overflow-hidden bg-gradient-to-br from-blue-500 to-purple-600 p-0.5">
-                <div className="h-full w-full rounded-2xl overflow-hidden">
-                  <Image src="/images/ai-agent-avatar.jpeg" alt="Suitpax AI" fill className="object-cover" />
-                </div>
-              </div>
-              <div className="absolute -bottom-1 -right-1 h-4 w-4 bg-green-500 rounded-full border-2 border-black"></div>
+    <div className="min-h-screen bg-black text-white">
+      <div className="max-w-4xl mx-auto h-screen flex flex-col">
+        {/* Header */}
+        <div className="flex items-center justify-between p-4 border-b border-white/10">
+          <div className="flex items-center space-x-3">
+            <div className="relative h-10 w-10 rounded-xl overflow-hidden">
+              <Image src="/images/ai-agent-avatar.jpeg" alt="Suitpax AI" fill className="object-cover" />
             </div>
             <div>
-              <h1 className="text-2xl font-light text-white tracking-tight">Suitpax AI</h1>
-              <p className="text-sm text-white/60 font-light">Tu asistente inteligente de viajes</p>
+              <h1 className="text-xl font-light text-white tracking-tight">Suitpax AI</h1>
+              <p className="text-xs text-white/60 font-light">Business Travel Assistant</p>
             </div>
           </div>
-
-          <div className="flex items-center space-x-3">
-            {/* Thinking Mode Toggle */}
-            <div className="flex items-center space-x-3 bg-white/5 border border-white/10 rounded-xl px-4 py-2">
-              <Brain className={`h-4 w-4 ${thinkingMode ? "text-purple-400" : "text-white/50"}`} />
-              <span className="text-sm font-light">Thinking Mode</span>
-              <Switch
-                checked={thinkingMode}
-                onCheckedChange={setThinkingMode}
-                className="data-[state=checked]:bg-purple-600"
-              />
-            </div>
-
+          <div className="flex items-center space-x-2">
             <Button
               onClick={createNewConversation}
-              className="bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl h-10 px-4 font-light transition-all duration-200"
+              className="bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl h-9 px-3 font-light"
             >
               <Plus className="h-4 w-4 mr-2" />
-              Nuevo Chat
+              New Chat
             </Button>
-            <Button className="bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl h-10 w-10 p-0 transition-all duration-200">
+            <Button className="bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl h-9 w-9 p-0">
               <Settings className="h-4 w-4 text-white/70" />
             </Button>
           </div>
         </div>
 
-        {/* Enhanced AI Agents Row */}
-        <div className="p-4 border-b border-white/10 bg-black/10">
-          <div className="flex items-center space-x-4 overflow-x-auto">
-            <div className="flex items-center space-x-2 text-white/70">
-              <Sparkles className="h-4 w-4" />
-              <span className="text-sm font-light whitespace-nowrap">Agentes Especializados:</span>
-            </div>
+        {/* AI Agents Row */}
+        <div className="p-4 border-b border-white/10">
+          <div className="flex items-center space-x-3 overflow-x-auto">
+            <span className="text-sm text-white/70 font-light whitespace-nowrap">Specialized Agents:</span>
             {aiAgents.map((agent) => (
               <div
                 key={agent.id}
-                className="flex items-center space-x-3 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl px-4 py-3 cursor-pointer transition-all duration-200 whitespace-nowrap min-w-fit"
+                className="flex items-center space-x-2 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl px-3 py-2 cursor-pointer transition-all duration-200 whitespace-nowrap"
               >
-                <div className="relative">
-                  <div className="h-8 w-8 rounded-xl overflow-hidden">
-                    <Image src={agent.avatar || "/placeholder.svg"} alt={agent.name} fill className="object-cover" />
-                  </div>
-                  <div
-                    className={`absolute -bottom-0.5 -right-0.5 h-3 w-3 rounded-full border border-black ${
-                      agent.status === "online" ? "bg-green-500" : "bg-yellow-500"
-                    }`}
-                  ></div>
+                <div className="relative h-6 w-6 rounded-lg overflow-hidden">
+                  <Image src={agent.avatar || "/placeholder.svg"} alt={agent.name} fill className="object-cover" />
                 </div>
                 <div>
-                  <p className="text-sm font-medium text-white">{agent.name}</p>
-                  <p className="text-xs text-white/50 font-light">{agent.specialty}</p>
+                  <p className="text-xs font-light text-white">{agent.name}</p>
+                  <p className="text-[10px] text-white/50 font-light">{agent.specialty}</p>
                 </div>
               </div>
             ))}
           </div>
         </div>
 
-        {/* Enhanced Messages */}
-        <div className="flex-1 overflow-y-auto p-6 space-y-6">
+        {/* Messages */}
+        <div className="flex-1 overflow-y-auto p-4 space-y-6">
           {activeConversation?.messages.map((message) => (
             <div key={message.id} className={`flex ${message.role === "user" ? "justify-end" : "justify-start"}`}>
-              <div className={`max-w-[85%] ${message.role === "user" ? "order-2" : "order-1"}`}>
+              <div className={`max-w-[80%] ${message.role === "user" ? "order-2" : "order-1"}`}>
                 {message.role === "assistant" && (
-                  <div className="flex items-center space-x-3 mb-3">
-                    <div className="h-8 w-8 rounded-xl overflow-hidden bg-gradient-to-br from-blue-500 to-purple-600 p-0.5">
-                      <div className="h-full w-full rounded-xl overflow-hidden">
-                        <Image src="/images/ai-agent-avatar.jpeg" alt="AI" fill className="object-cover" />
-                      </div>
+                  <div className="flex items-center space-x-2 mb-2">
+                    <div className="relative h-6 w-6 rounded-lg overflow-hidden">
+                      <Image src="/images/ai-agent-avatar.jpeg" alt="AI" fill className="object-cover" />
                     </div>
-                    <div className="flex items-center space-x-2">
-                      <span className="text-sm font-medium text-white">Suitpax AI</span>
-                      {thinkingMode && message.thinking && (
-                        <Badge className="bg-purple-500/20 text-purple-300 border-purple-500/30 text-xs">
-                          <Brain className="h-3 w-3 mr-1" />
-                          Pensando
-                        </Badge>
-                      )}
-                    </div>
+                    <span className="text-xs text-white/50 font-light">Suitpax AI</span>
                   </div>
                 )}
-
-                {/* Thinking Process (if enabled and available) */}
-                {message.thinking && thinkingMode && (
-                  <div className="mb-3 p-4 bg-purple-500/10 border border-purple-500/20 rounded-xl">
-                    <div className="flex items-center space-x-2 mb-2">
-                      <Brain className="h-4 w-4 text-purple-400" />
-                      <span className="text-sm font-medium text-purple-300">Proceso de Razonamiento</span>
-                    </div>
-                    <p className="text-sm text-purple-200/80 font-light italic">{message.thinking}</p>
-                  </div>
-                )}
-
                 <div
-                  className={`rounded-2xl py-4 px-5 ${
+                  className={`rounded-xl py-3 px-4 ${
                     message.role === "user"
-                      ? "bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-tr-md shadow-lg"
-                      : "bg-white/5 text-white rounded-tl-md border border-white/10 backdrop-blur-sm"
+                      ? "bg-white text-black rounded-tr-none"
+                      : "bg-white/5 text-white rounded-tl-none border border-white/10"
                   }`}
                 >
-                  <div className="text-sm leading-relaxed font-light">
-                    {message.isTyping && message.role === "assistant" ? (
-                      <TypingEffect text={message.content} speed={25} />
-                    ) : (
-                      message.content.split("\n").map((line, i) => (
-                        <span key={i}>
-                          {line}
-                          {i < message.content.split("\n").length - 1 && <br />}
-                        </span>
-                      ))
-                    )}
-                  </div>
-                  <div className="mt-3 text-xs opacity-60 font-light flex items-center justify-between">
-                    <span>
-                      {message.timestamp.toLocaleTimeString([], {
-                        hour: "2-digit",
-                        minute: "2-digit",
-                      })}
-                    </span>
-                    {message.role === "assistant" && (
-                      <div className="flex items-center space-x-1">
-                        <Zap className="h-3 w-3" />
-                        <span>AI</span>
-                      </div>
-                    )}
+                  <div className="text-sm leading-relaxed font-light">{formatMessageContent(message.content)}</div>
+                  <div className="mt-2 text-xs opacity-70 font-light">
+                    {message.timestamp.toLocaleTimeString([], {
+                      hour: "2-digit",
+                      minute: "2-digit",
+                    })}
                   </div>
                 </div>
               </div>
             </div>
           ))}
 
-          {/* Enhanced Loading State */}
           {isLoading && (
             <div className="flex justify-start">
-              <div className="max-w-[85%]">
-                <div className="flex items-center space-x-3 mb-3">
-                  <div className="h-8 w-8 rounded-xl overflow-hidden bg-gradient-to-br from-blue-500 to-purple-600 p-0.5">
-                    <div className="h-full w-full rounded-xl overflow-hidden">
-                      <Image src="/images/ai-agent-avatar.jpeg" alt="AI" fill className="object-cover" />
-                    </div>
+              <div className="max-w-[80%]">
+                <div className="flex items-center space-x-2 mb-2">
+                  <div className="relative h-6 w-6 rounded-lg overflow-hidden">
+                    <Image src="/images/ai-agent-avatar.jpeg" alt="AI" fill className="object-cover" />
                   </div>
-                  <div className="flex items-center space-x-2">
-                    <span className="text-sm font-medium text-white">Suitpax AI</span>
-                    {showThinking && (
-                      <Badge className="bg-purple-500/20 text-purple-300 border-purple-500/30 text-xs animate-pulse">
-                        <Brain className="h-3 w-3 mr-1" />
-                        Analizando...
-                      </Badge>
-                    )}
-                  </div>
+                  <span className="text-xs text-white/50 font-light">Suitpax AI</span>
                 </div>
-                <div className="bg-white/5 rounded-2xl rounded-tl-md py-4 px-5 border border-white/10 backdrop-blur-sm">
-                  <div className="flex space-x-2">
+                <div className="bg-white/5 rounded-xl rounded-tl-none py-3 px-4 border border-white/10">
+                  <div className="flex space-x-1">
                     <div className="w-2 h-2 bg-white/50 rounded-full animate-bounce"></div>
                     <div
                       className="w-2 h-2 bg-white/50 rounded-full animate-bounce"
@@ -422,19 +320,15 @@ export default function SuitpaxAIPage() {
           <div ref={messagesEndRef} />
         </div>
 
-        {/* Enhanced Suggested Queries */}
+        {/* Suggested Queries */}
         {activeConversation?.messages.length === 1 && (
-          <div className="px-6 pb-4">
-            <div className="mb-3 flex items-center space-x-2 text-white/70">
-              <Sparkles className="h-4 w-4" />
-              <span className="text-sm font-light">Sugerencias para empezar:</span>
-            </div>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
-              {suggestedQueries.slice(0, 8).map((query, index) => (
+          <div className="px-4 pb-4">
+            <div className="flex flex-wrap gap-2">
+              {suggestedQueries.slice(0, 4).map((query, index) => (
                 <Badge
                   key={index}
                   onClick={() => handleSuggestedQuery(query)}
-                  className="bg-white/5 hover:bg-white/10 text-white/80 border border-white/10 cursor-pointer rounded-xl text-xs px-3 py-2 font-light transition-all duration-200 hover:scale-105 text-center"
+                  className="bg-white/5 hover:bg-white/10 text-white/70 border border-white/10 cursor-pointer rounded-xl text-xs px-3 py-1.5 font-light transition-all duration-200"
                 >
                   {query}
                 </Badge>
@@ -443,9 +337,65 @@ export default function SuitpaxAIPage() {
           </div>
         )}
 
-        {/* Enhanced Chat Input */}
-        <div className="p-6 border-t border-white/10 bg-black/20 backdrop-blur-sm">
-          <AnimatedAIChat />
+        {/* Chat Input */}
+        <div className="p-4 border-t border-white/10">
+          <form onSubmit={handleSubmit} className="relative">
+            <div className="relative">
+              <div className="absolute left-4 top-1/2 transform -translate-y-1/2 flex items-center">
+                <div className="relative h-6 w-6 rounded-lg overflow-hidden mr-2">
+                  <Image src="/images/ai-agent-avatar.jpeg" alt="AI Assistant" fill className="object-cover" />
+                </div>
+              </div>
+              <Input
+                id="main-chat-input"
+                type="text"
+                value={input}
+                onChange={(e) => setInput(e.target.value)}
+                placeholder={isListening ? "Listening..." : "Ask your AI travel assistant anything..."}
+                disabled={isLoading}
+                className="bg-white/5 border-white/10 text-white placeholder:text-white/30 rounded-xl pl-12 pr-24 py-3 focus:ring-1 focus:ring-white/20 text-sm font-light"
+              />
+              <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center space-x-2">
+                <Button
+                  type="button"
+                  onClick={() => fileInputRef.current?.click()}
+                  size="sm"
+                  className="bg-transparent hover:bg-white/10 h-8 w-8 p-0 rounded-lg"
+                >
+                  <Paperclip className="h-4 w-4 text-white/50" />
+                </Button>
+                {isSupported && (
+                  <Button
+                    type="button"
+                    onClick={toggleListening}
+                    size="sm"
+                    className={`h-8 w-8 p-0 rounded-lg ${
+                      isListening
+                        ? "bg-red-500/20 text-red-400 hover:bg-red-500/30"
+                        : "bg-transparent hover:bg-white/10"
+                    }`}
+                  >
+                    {isListening ? <MicOff className="h-4 w-4" /> : <Mic className="h-4 w-4 text-white/50" />}
+                  </Button>
+                )}
+                <Button
+                  type="submit"
+                  disabled={!input.trim() || isLoading}
+                  size="sm"
+                  className="bg-white text-black hover:bg-white/90 disabled:opacity-50 h-8 w-8 p-0 rounded-lg"
+                >
+                  <ArrowRight className="h-4 w-4" />
+                </Button>
+              </div>
+            </div>
+          </form>
+          <input
+            type="file"
+            ref={fileInputRef}
+            className="hidden"
+            multiple
+            accept=".pdf,.doc,.docx,.txt,.jpg,.jpeg,.png"
+          />
         </div>
       </div>
     </div>

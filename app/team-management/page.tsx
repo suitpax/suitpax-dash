@@ -417,7 +417,7 @@ export default function TeamManagementPage() {
         </div>
 
         {/* Team Members Grid */}
-        <div className="grid grid-cols-1 gap-3">
+        <div className="space-y-3">
           {filteredMembers.map((member, index) => (
             <Card
               key={member.id}
@@ -425,9 +425,9 @@ export default function TeamManagementPage() {
               style={{ animation: `fadeInUp 0.5s ${index * 0.05}s ease-out forwards`, opacity: 0 }}
             >
               <CardContent className="p-4">
-                <div className="flex flex-col sm:flex-row gap-4">
+                <div className="flex flex-col lg:flex-row gap-4">
                   <div className="flex items-center gap-4 flex-1">
-                    <div className="relative h-12 w-12 rounded-full overflow-hidden bg-white/10 flex-shrink-0">
+                    <div className="relative h-12 w-12 rounded-full overflow-hidden bg-white/10">
                       <Image
                         src={member.avatar || "/placeholder.svg"}
                         alt={member.name}
@@ -435,13 +435,13 @@ export default function TeamManagementPage() {
                         className="object-cover"
                       />
                     </div>
-                    <div className="flex-1 min-w-0">
-                      <div className="flex flex-col sm:flex-row sm:items-center gap-2 mb-1">
-                        <h3 className="text-lg font-medium text-white truncate">{member.name}</h3>
-                        <Badge className={`text-xs w-fit ${getStatusColor(member.status)}`}>{member.status}</Badge>
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2 mb-1">
+                        <h3 className="text-lg font-medium text-white">{member.name}</h3>
+                        <Badge className={`text-xs ${getStatusColor(member.status)}`}>{member.status}</Badge>
                       </div>
-                      <p className="text-sm text-white/70 truncate">{member.email}</p>
-                      <div className="flex flex-wrap items-center gap-2 mt-2 text-xs text-white/50">
+                      <p className="text-sm text-white/70">{member.email}</p>
+                      <div className="flex items-center gap-4 mt-2 text-xs text-white/50">
                         <span>
                           {member.role} • {member.department}
                         </span>
@@ -450,37 +450,37 @@ export default function TeamManagementPage() {
                             <span>•</span>
                             <div className="flex items-center gap-1">
                               <MapPin className="h-3 w-3" />
-                              <span className="truncate">{member.location}</span>
+                              <span>{member.location}</span>
                             </div>
                           </>
                         )}
                       </div>
                     </div>
                   </div>
-                  <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-4">
-                    <div className="flex flex-col sm:flex-row gap-2 text-sm text-white/50 w-full sm:w-auto">
-                      <span className="whitespace-nowrap">Joined {new Date(member.joinDate).toLocaleDateString()}</span>
+                  <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
+                    <div className="flex flex-col sm:flex-row gap-2 text-sm text-white/50">
+                      <span>Joined {new Date(member.joinDate).toLocaleDateString()}</span>
                       <span className="hidden sm:inline">•</span>
-                      <span className="whitespace-nowrap">Last active {member.lastActive}</span>
+                      <span>Last active {member.lastActive}</span>
                       {member.totalTrips !== undefined && (
                         <>
                           <span className="hidden sm:inline">•</span>
-                          <span className="whitespace-nowrap">{member.totalTrips} trips</span>
+                          <span>{member.totalTrips} trips</span>
                         </>
                       )}
                       {member.travelBudget && (
                         <>
                           <span className="hidden sm:inline">•</span>
-                          <span className="whitespace-nowrap">Budget: ${member.travelBudget.toLocaleString()}</span>
+                          <span>Budget: ${member.travelBudget.toLocaleString()}</span>
                         </>
                       )}
                     </div>
-                    <div className="flex gap-2 w-full sm:w-auto">
+                    <div className="flex gap-2">
                       <Button
                         variant="outline"
                         size="sm"
                         onClick={() => setSelectedMember(member)}
-                        className="bg-white/5 hover:bg-white/10 border-white/10 text-white rounded-lg h-8 px-3 text-xs flex-1 sm:flex-none"
+                        className="bg-white/5 hover:bg-white/10 border-white/10 text-white rounded-lg h-8 px-3 text-xs"
                       >
                         View Details
                       </Button>
@@ -488,7 +488,7 @@ export default function TeamManagementPage() {
                         variant="outline"
                         size="sm"
                         onClick={() => handleRemoveMember(member.id)}
-                        className="bg-red-500/10 hover:bg-red-500/20 border-red-500/20 text-red-400 rounded-lg h-8 px-3 text-xs flex-1 sm:flex-none"
+                        className="bg-red-500/10 hover:bg-red-500/20 border-red-500/20 text-red-400 rounded-lg h-8 px-3 text-xs"
                       >
                         Remove
                       </Button>
